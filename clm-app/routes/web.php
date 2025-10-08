@@ -20,3 +20,21 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+// Trash/Recycle Bin routes (protected by permission middleware)
+Route::middleware(['auth', 'permission:trash.view'])->prefix('trash')->name('trash.')->group(function () {
+    Route::get('/', [App\Http\Controllers\TrashController::class, 'index'])->name('index');
+    Route::get('/{bundle}', [App\Http\Controllers\TrashController::class, 'show'])->name('show');
+    Route::post('/{bundle}/dry-run', [App\Http\Controllers\TrashController::class, 'dryRunRestore'])
+        ->name('dry-run');
+});
+
+Route::middleware(['auth', 'permission:trash.restore'])->group(function () {
+    Route::post('/trash/{bundle}/restore', [App\Http\Controllers\TrashController::class, 'restore'])
+        ->name('trash.restore');
+});
+
+Route::middleware(['auth', 'permission:trash.purge'])->group(function () {
+    Route::delete('/trash/{bundle}', [App\Http\Controllers\TrashController::class, 'purge'])
+        ->name('trash.purge');
+});
