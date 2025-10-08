@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('client_id')->constrained()->cascadeOnDelete();
             $table->foreignId('matter_id')->nullable()->constrained('cases')->nullOnDelete();
-            
+
             $table->string('client_name')->nullable();
             $table->string('responsible_lawyer')->nullable();
             $table->boolean('movement_card')->default(false);
@@ -25,17 +25,17 @@ return new class extends Migration
             $table->string('case_number')->nullable();
             $table->string('pages_count')->nullable();
             $table->text('notes')->nullable();
-            
+
             // Audit columns
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            
+
             // Indexes
             $table->index(['client_id', 'matter_id', 'deposit_date']);
             $table->index('deposit_date');
-            
+
             // Foreign keys
             $table->foreign('created_by')->references('id')->on('users')->nullOnDelete();
             $table->foreign('updated_by')->references('id')->on('users')->nullOnDelete();
