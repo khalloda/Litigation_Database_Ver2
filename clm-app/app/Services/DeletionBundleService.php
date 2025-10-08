@@ -16,19 +16,31 @@ class DeletionBundleService
     /**
      * Create a deletion bundle for a root entity.
      *
-     * @param Model $root The root model (Client or Case)
+     * @param Model $root The root model (any supported model)
      * @param string|null $reason Optional deletion reason
      * @return string Bundle UUID
      */
     public function createBundle(Model $root, ?string $reason = null): string
     {
-        return DB::transaction(function () use ($root, $reason) {
-            $rootType = class_basename($root);
-            $rootLabel = $this->getRootLabel($root, $rootType);
+        $rootType = class_basename($root);
+        
+        // Check if bundle creation is enabled for this model type
+        if (!$this->isEnabledFor($rootType)) {
+            Log::info("Deletion bundle creation skipped (disabled)", [
+                'root_type' => $rootType,
+                'root_id' => $root->id,
+            ]);
+            return '';
+        }
+        
+        return DB::transaction(function () use ($root, $rootType, $reason) {
+            // Use configured collector
+            $collector = $this->getCollector($root);
             
-            // Collect the entire graph before deletion
-            $snapshot = $this->collectSnapshot($root, $rootType);
-            $filesData = $this->collectFiles($snapshot);
+            // Collect the snapshot using the collector
+            $snapshot = $collector->collect($root);
+            $rootLabel = $collector->getRootLabel($root);
+            $filesData = $collector->getFileDescriptors($snapshot);
             $cascadeCount = $this->countCascadeItems($snapshot);
             
             // Create the bundle
@@ -68,14 +80,14 @@ class DeletionBundleService
     public function restoreBundle(string $bundleId, array $options = []): array
     {
         $bundle = DeletionBundle::findOrFail($bundleId);
-        
+
         if (!$bundle->isTrashed()) {
             throw new \RuntimeException("Bundle {$bundleId} is not in trashed status");
         }
-        
+
         $dryRun = $options['dry_run'] ?? false;
         $conflictStrategy = $options['resolve_conflicts'] ?? 'skip'; // skip|overwrite|new_copy
-        
+
         return DB::transaction(function () use ($bundle, $dryRun, $conflictStrategy) {
             $report = [
                 'bundle_id' => $bundle->id,
@@ -88,16 +100,16 @@ class DeletionBundleService
                 'conflicts' => [],
                 'errors' => [],
             ];
-            
+
             $snapshot = $bundle->snapshot_json;
             $idMappings = []; // Old ID => New ID mappings
-            
+
             // Restore in dependency order
             $restorationOrder = $this->getRestorationOrder($bundle->root_type);
-            
+
             foreach ($restorationOrder as $entityType => $config) {
                 $items = $snapshot[$entityType] ?? [];
-                
+
                 foreach ($items as $item) {
                     try {
                         $result = $this->restoreItem(
@@ -107,7 +119,7 @@ class DeletionBundleService
                             $idMappings,
                             $dryRun
                         );
-                        
+
                         if ($result['status'] === 'restored') {
                             $report['restored'][] = $result;
                             if (isset($result['old_id']) && isset($result['new_id'])) {
@@ -127,7 +139,7 @@ class DeletionBundleService
                     }
                 }
             }
-            
+
             // Update bundle status if not dry run
             if (!$dryRun) {
                 $bundle->update([
@@ -135,13 +147,13 @@ class DeletionBundleService
                     'restored_at' => now(),
                     'restore_notes' => json_encode($report),
                 ]);
-                
+
                 Log::info("Deletion bundle restored", [
                     'bundle_id' => $bundle->id,
                     'restored_count' => count($report['restored']),
                 ]);
             }
-            
+
             return $report;
         });
     }
@@ -155,17 +167,17 @@ class DeletionBundleService
     public function purgeBundle(string $bundleId): void
     {
         $bundle = DeletionBundle::findOrFail($bundleId);
-        
+
         DB::transaction(function () use ($bundle) {
             // Optionally delete quarantined files (if implemented)
             $this->purgeFiles($bundle);
-            
+
             // Mark as purged
             $bundle->update(['status' => 'purged']);
-            
+
             // Or permanently delete
             // $bundle->delete();
-            
+
             Log::info("Deletion bundle purged", [
                 'bundle_id' => $bundle->id,
                 'root_type' => $bundle->root_type,
@@ -174,17 +186,26 @@ class DeletionBundleService
     }
 
     /**
-     * Get the label for a root entity.
+     * Check if bundle creation is enabled for a model type.
      */
-    protected function getRootLabel(Model $root, string $type): string
+    protected function isEnabledFor(string $modelType): bool
     {
-        if ($type === 'Client') {
-            return $root->client_name_ar ?? $root->client_name_en ?? "Client #{$root->id}";
-        } elseif ($type === 'Case' || $type === 'CaseModel') {
-            return $root->matter_name_ar ?? $root->matter_name_en ?? "Case #{$root->id}";
+        return config("trash.enabled_for.{$modelType}", false);
+    }
+
+    /**
+     * Get the configured collector for a model.
+     */
+    protected function getCollector(Model $model)
+    {
+        $modelClass = get_class($model);
+        $collectorClass = config("trash.collectors.{$modelClass}");
+        
+        if (!$collectorClass || !class_exists($collectorClass)) {
+            throw new \RuntimeException("No collector configured for {$modelClass}");
         }
         
-        return "{$type} #{$root->id}";
+        return new $collectorClass();
     }
 
     /**
@@ -193,46 +214,46 @@ class DeletionBundleService
     protected function collectSnapshot(Model $root, string $rootType): array
     {
         $snapshot = [];
-        
+
         if ($rootType === 'Client') {
             $client = $root;
             $snapshot['client'] = ['attributes' => $client->getAttributes()];
-            
+
             // Load all related entities
             $snapshot['cases'] = $client->cases()->get()->map(fn($c) => [
                 'attributes' => $c->getAttributes()
             ])->toArray();
-            
+
             $snapshot['contacts'] = $client->contacts()->get()->map(fn($c) => [
                 'attributes' => $c->getAttributes()
             ])->toArray();
-            
+
             $snapshot['engagement_letters'] = $client->engagementLetters()->get()->map(fn($e) => [
                 'attributes' => $e->getAttributes()
             ])->toArray();
-            
+
             $snapshot['power_of_attorneys'] = $client->powerOfAttorneys()->get()->map(fn($p) => [
                 'attributes' => $p->getAttributes()
             ])->toArray();
-            
+
             // Collect nested data from cases
             $caseIds = collect($snapshot['cases'])->pluck('attributes.id')->toArray();
-            
+
             if (!empty($caseIds)) {
                 $snapshot['hearings'] = DB::table('hearings')
                     ->whereIn('matter_id', $caseIds)
                     ->get()
                     ->map(fn($h) => ['attributes' => (array) $h])
                     ->toArray();
-                
+
                 $snapshot['admin_tasks'] = DB::table('admin_tasks')
                     ->whereIn('matter_id', $caseIds)
                     ->get()
                     ->map(fn($t) => ['attributes' => (array) $t])
                     ->toArray();
-                
+
                 $taskIds = collect($snapshot['admin_tasks'])->pluck('attributes.id')->toArray();
-                
+
                 if (!empty($taskIds)) {
                     $snapshot['admin_subtasks'] = DB::table('admin_subtasks')
                         ->whereIn('task_id', $taskIds)
@@ -241,35 +262,34 @@ class DeletionBundleService
                         ->toArray();
                 }
             }
-            
+
             // Documents
-            $snapshot['documents'] = $client->documents()->get()->map(function($d) {
+            $snapshot['documents'] = $client->documents()->get()->map(function ($d) {
                 return [
                     'attributes' => $d->getAttributes(),
                     'file' => $this->getFileInfo($d),
                 ];
             })->toArray();
-            
         } elseif ($rootType === 'Case' || $rootType === 'CaseModel') {
             $case = $root;
             $snapshot['case'] = ['attributes' => $case->getAttributes()];
-            
+
             // Hearings
             $snapshot['hearings'] = DB::table('hearings')
                 ->where('matter_id', $case->id)
                 ->get()
                 ->map(fn($h) => ['attributes' => (array) $h])
                 ->toArray();
-            
+
             // Admin tasks and subtasks
             $snapshot['admin_tasks'] = DB::table('admin_tasks')
                 ->where('matter_id', $case->id)
                 ->get()
                 ->map(fn($t) => ['attributes' => (array) $t])
                 ->toArray();
-            
+
             $taskIds = collect($snapshot['admin_tasks'])->pluck('attributes.id')->toArray();
-            
+
             if (!empty($taskIds)) {
                 $snapshot['admin_subtasks'] = DB::table('admin_subtasks')
                     ->whereIn('task_id', $taskIds)
@@ -277,19 +297,19 @@ class DeletionBundleService
                     ->map(fn($s) => ['attributes' => (array) $s])
                     ->toArray();
             }
-            
+
             // Documents
             $snapshot['documents'] = DB::table('client_documents')
                 ->where('matter_id', $case->id)
                 ->get()
-                ->map(function($d) {
+                ->map(function ($d) {
                     return [
                         'attributes' => (array) $d,
                         'file' => [], // File info would go here
                     ];
                 })->toArray();
         }
-        
+
         return $snapshot;
     }
 
@@ -299,13 +319,13 @@ class DeletionBundleService
     protected function collectFiles(array $snapshot): array
     {
         $files = [];
-        
+
         foreach ($snapshot['documents'] ?? [] as $doc) {
             if (!empty($doc['file'])) {
                 $files[] = $doc['file'];
             }
         }
-        
+
         return $files;
     }
 
@@ -324,7 +344,7 @@ class DeletionBundleService
     protected function countCascadeItems(array $snapshot): int
     {
         $count = 0;
-        
+
         foreach ($snapshot as $key => $items) {
             if ($key === 'client' || $key === 'case') {
                 $count += 1;
@@ -332,7 +352,7 @@ class DeletionBundleService
                 $count += count($items);
             }
         }
-        
+
         return $count;
     }
 
@@ -377,7 +397,7 @@ class DeletionBundleService
             'admin_subtasks' => 'AdminSubtask',
             'documents' => 'ClientDocument',
         ];
-        
+
         return $map[$entityType] ?? ucfirst(Str::singular($entityType));
     }
 
@@ -421,11 +441,11 @@ class DeletionBundleService
     ): array {
         $attributes = $item['attributes'] ?? $item;
         $modelFullClass = "App\\Models\\{$modelClass}";
-        
+
         // Check if item exists
         $existingId = $attributes['id'] ?? null;
         $exists = $existingId && $modelFullClass::withTrashed()->find($existingId);
-        
+
         if ($exists) {
             // Handle conflict
             if ($conflictStrategy === 'skip') {
@@ -450,14 +470,14 @@ class DeletionBundleService
                 ];
             }
         }
-        
+
         // Restore or create new
         if (!$dryRun) {
             $newId = $modelFullClass::create($attributes)->id;
         } else {
             $newId = $existingId;
         }
-        
+
         return [
             'status' => 'restored',
             'model' => $modelClass,
@@ -476,4 +496,3 @@ class DeletionBundleService
         // For now, this is a placeholder
     }
 }
-

@@ -22,10 +22,10 @@ trait InteractsWithDeletionBundles
                         $model,
                         static::getDeletionReason()
                     );
-                    
+
                     // Store bundle ID in model for reference
                     $model->deletion_bundle_id = $bundleId;
-                    
+
                     Log::info("Deletion bundle created for model", [
                         'model' => get_class($model),
                         'id' => $model->id,
@@ -37,7 +37,7 @@ trait InteractsWithDeletionBundles
                         'id' => $model->id,
                         'error' => $e->getMessage(),
                     ]);
-                    
+
                     // Optionally, you can prevent deletion if bundle creation fails
                     // throw $e;
                 }
@@ -78,4 +78,3 @@ trait InteractsWithDeletionBundles
         return $this->skipBundleCreation ?? false;
     }
 }
-

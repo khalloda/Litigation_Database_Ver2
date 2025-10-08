@@ -47,6 +47,11 @@ class PermissionsSeeder extends Seeder
             'admin.users.manage',
             'admin.roles.manage',
             'admin.audit.view',
+
+            // Trash/Recycle Bin permissions
+            'trash.view',
+            'trash.restore',
+            'trash.purge',
         ];
 
         // Create each permission if it doesn't exist
