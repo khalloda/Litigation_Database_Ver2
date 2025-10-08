@@ -122,7 +122,8 @@ class DataQualityDashboard extends Command
         }
 
         $orphans = $total - $valid;
-        $this->line(sprintf('  %-25s %s %6.2f%% (%d/%d) [%d orphans]',
+        $this->line(sprintf(
+            '  %-25s %s %6.2f%% (%d/%d) [%d orphans]',
             $relationship,
             $status,
             $percentage,
@@ -172,7 +173,8 @@ class DataQualityDashboard extends Command
             $status = $percentage >= 90 ? '<fg=green>✓</>' : ($percentage >= 50 ? '<fg=yellow>!</>' : '<fg=red>✗</>');
         }
 
-        $this->line(sprintf('  %-30s %s %6.2f%% (%d/%d)',
+        $this->line(sprintf(
+            '  %-30s %s %6.2f%% (%d/%d)',
             $field,
             $status,
             $percentage,
@@ -207,14 +209,15 @@ class DataQualityDashboard extends Command
         // Top 5 clients by case count
         $this->newLine();
         $this->line('<fg=yellow>Top 5 Clients by Case Count:</>');
-        
+
         $topClients = Client::withCount('cases')
             ->orderBy('cases_count', 'desc')
             ->limit(5)
             ->get();
 
         foreach ($topClients as $index => $client) {
-            $this->line(sprintf('  %d. %s (%d cases)',
+            $this->line(sprintf(
+                '  %d. %s (%d cases)',
                 $index + 1,
                 $client->client_name_ar ?? $client->client_name_en,
                 $client->cases_count

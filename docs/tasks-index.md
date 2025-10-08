@@ -99,10 +99,39 @@
 
 ### 3.2 ETL Importers
 - **ID**: T-05
-- **Status**: Todo
+- **Status**: Done
 - **Branch**: `feat/etl-importers`
-- **Description**: Build console commands to import Excel data
-- **DoD**: TBD
+- **Description**: Build console commands to import Excel data from MS Access exports
+- **DoD**:
+  - [x] phpoffice/phpspreadsheet installed (1.29)
+  - [x] doctrine/dbal installed (3.10.2) for column modifications
+  - [x] BaseImporter class created (common Excel reading/logging)
+  - [x] 10 importer classes created (one per entity)
+  - [x] 10 console commands created
+  - [x] import:all master command created
+  - [x] ID preservation implemented (100% referential integrity)
+  - [x] Schema constraints fixed (admin_tasks TEXT fields)
+  - [x] 7,209+ records imported successfully
+  - [x] Data quality dashboard created (data:quality)
+  - [x] ETL validation report created
+  - [x] ETL runbook created (comprehensive 15 sections)
+  - [x] All imports tested and validated
+- **Results**:
+  - Lawyers: 14 (100%)
+  - Clients: 308 (100%)
+  - Engagement Letters: 300 (91.2%)
+  - Cases: 1,695 (99.65%)
+  - Hearings: 369 (3.5% - orphaned FKs expected)
+  - Contacts: 39 (21% - orphaned FKs expected)
+  - POAs: 3 (0.4% - orphaned FKs expected)
+  - Admin Tasks: 4,077 (98.79%)
+  - Admin Subtasks: 0 (100% orphaned)
+  - Documents: 404 (100%)
+  - **100% Referential Integrity** on all imported records
+- **Commits**: c91556e
+- **Documentation**:
+  - ETL Validation Report: `/docs/etl/ETL-Validation-Report-20251008.md`
+  - ETL Runbook: `/docs/runbooks/ETL_Import_Runbook.md`
 
 ---
 
@@ -277,5 +306,5 @@ php artisan migrate:rollback  # Rolls back permission tables
 
 ---
 
-**Last Updated**: 2025-10-08 14:03 UTC
+**Last Updated**: 2025-10-08 20:50 UTC
 
