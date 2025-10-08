@@ -59,17 +59,17 @@ class ClientsImporter extends BaseImporter
             $data['client_print_name'] = $data['client_name_ar'];
         }
 
-        // Idempotent upsert based on legacy ID or unique name
+        // Idempotent upsert - PRESERVE ORIGINAL ID for FK integrity
         $legacyId = $this->parseInt($row['legacy_id'] ?? null);
 
         if ($legacyId) {
-            $client = Client::where('client_name_ar', $data['client_name_ar'])
-                ->where('client_print_name', $data['client_print_name'])
-                ->first();
+            $existing = Client::find($legacyId);
 
-            if ($client) {
-                $client->update($data);
+            if ($existing) {
+                $existing->update($data);
             } else {
+                // Preserve original ID
+                $data['id'] = $legacyId;
                 Client::create($data);
             }
         } else {

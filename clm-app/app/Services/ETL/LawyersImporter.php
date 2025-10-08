@@ -44,18 +44,17 @@ class LawyersImporter extends BaseImporter
             throw new \RuntimeException("lawyer_name_ar is required");
         }
 
-        // Idempotent upsert based on legacy ID
+        // Idempotent upsert - PRESERVE ORIGINAL ID for FK integrity
         $legacyId = $this->parseInt($row['legacy_id'] ?? null);
 
         if ($legacyId) {
-            // Try to find by legacy ID first (if we stored it), otherwise by name
-            $lawyer = Lawyer::where('lawyer_name_ar', $data['lawyer_name_ar'])
-                ->where('lawyer_name_en', $data['lawyer_name_en'])
-                ->first();
+            $existing = Lawyer::find($legacyId);
 
-            if ($lawyer) {
-                $lawyer->update($data);
+            if ($existing) {
+                $existing->update($data);
             } else {
+                // Preserve original ID
+                $data['id'] = $legacyId;
                 Lawyer::create($data);
             }
         } else {

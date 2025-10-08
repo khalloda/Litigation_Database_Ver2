@@ -41,7 +41,7 @@ abstract class BaseImporter
     {
         // Increase memory limit for large files
         ini_set('memory_limit', '512M');
-        
+
         $this->successCount = 0;
         $this->failedCount = 0;
         $this->rejectedRows = [];
@@ -69,7 +69,7 @@ abstract class BaseImporter
 
         foreach ($rows as $rowNumber => $row) {
             $processed++;
-            
+
             try {
                 $mappedRow = $this->mapRow($row, $headers);
                 $this->processRow($mappedRow);
@@ -81,7 +81,7 @@ abstract class BaseImporter
                     'data' => $row,
                     'error' => $e->getMessage(),
                 ];
-                
+
                 Log::warning("Row import failed", [
                     'file' => $this->getFilePath(),
                     'row' => $rowNumber,
@@ -254,7 +254,7 @@ abstract class BaseImporter
         }
 
         $logPath = storage_path('app/imports/rejects/' . pathinfo($this->getFilePath(), PATHINFO_FILENAME) . '_rejects_' . date('Ymd_His') . '.json');
-        
+
         $dir = dirname($logPath);
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
@@ -273,4 +273,3 @@ abstract class BaseImporter
         return $this->stats;
     }
 }
-

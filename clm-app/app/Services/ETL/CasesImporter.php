@@ -131,17 +131,17 @@ class CasesImporter extends BaseImporter
             throw new \RuntimeException("matter_name_ar is required");
         }
 
-        // Idempotent upsert by legacy matter_id
+        // Idempotent upsert by legacy matter_id - PRESERVE ORIGINAL ID
         $legacyId = $this->parseInt($row['legacy_id'] ?? null);
 
         if ($legacyId) {
-            $existing = CaseModel::where('client_id', $client->id)
-                ->where('matter_name_ar', $data['matter_name_ar'])
-                ->first();
+            $existing = CaseModel::find($legacyId);
 
             if ($existing) {
                 $existing->update($data);
             } else {
+                // Preserve original ID for FK integrity
+                $data['id'] = $legacyId;
                 CaseModel::create($data);
             }
         } else {
