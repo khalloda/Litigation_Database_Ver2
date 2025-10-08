@@ -39,6 +39,9 @@ abstract class BaseImporter
      */
     public function import(): array
     {
+        // Increase memory limit for large files
+        ini_set('memory_limit', '512M');
+        
         $this->successCount = 0;
         $this->failedCount = 0;
         $this->rejectedRows = [];

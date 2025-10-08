@@ -2,29 +2,41 @@
 
 namespace App\Console\Commands;
 
+use App\Services\ETL\AdminSubtasksImporter;
 use Illuminate\Console\Command;
 
 class ImportAdminSubtasksCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'app:import-admin-subtasks-command';
+    protected $signature = 'import:admin-subtasks';
+    protected $description = 'Import admin subtasks from admin_work_subtasks.xlsx';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
-
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    public function handle(AdminSubtasksImporter $importer)
     {
-        //
+        $this->info('Starting admin subtasks import...');
+        $this->newLine();
+
+        try {
+            $stats = $importer->import();
+            $this->displayStats($stats);
+            return 0;
+        } catch (\Exception $e) {
+            $this->error("Import failed: {$e->getMessage()}");
+            return 1;
+        }
+    }
+
+    protected function displayStats(array $stats)
+    {
+        $this->info('=== Import Complete ===');
+        $this->line("File: {$stats['file']}");
+        $this->line("Total Rows: {$stats['total']}");
+        $this->line("<fg=green>Success: {$stats['success']}</>");
+        $this->line("<fg=red>Failed: {$stats['failed']}</>");
+        $this->line("Success Rate: {$stats['success_rate']}%");
+
+        if ($stats['failed'] > 0) {
+            $this->newLine();
+            $this->warn("⚠ {$stats['failed']} rows failed. Check reject log.");
+        }
     }
 }

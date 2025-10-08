@@ -6,10 +6,8 @@ use Illuminate\Console\Command;
 
 class ImportAllCommand extends Command
 {
-    protected $signature = 'import:all 
-                            {--skip-lawyers : Skip lawyers import}
-                            {--skip-clients : Skip clients import}';
-    
+    protected $signature = 'import:all';
+
     protected $description = 'Import all data from Excel files in dependency order';
 
     public function handle()
@@ -26,34 +24,35 @@ class ImportAllCommand extends Command
             'lawyers' => 'import:lawyers',
             'clients' => 'import:clients',
             'engagement-letters' => 'import:engagement-letters',
-            // Add remaining when implemented
+            'contacts' => 'import:contacts',
+            'poas' => 'import:poas',
+            'cases' => 'import:cases',
+            'hearings' => 'import:hearings',
+            'admin-tasks' => 'import:admin-tasks',
+            'admin-subtasks' => 'import:admin-subtasks',
+            'documents' => 'import:documents',
         ];
 
         foreach ($imports as $name => $command) {
-            if ($this->option("skip-{$name}")) {
-                $this->line("<fg=yellow>Skipping {$name}...</>");
-                continue;
-            }
-
             $this->line("<fg=cyan>Importing {$name}...</>");
-            
+
             $exitCode = $this->call($command);
-            
+
             if ($exitCode !== 0) {
                 $this->error("✗ {$name} import failed");
-                
+
                 if (!$this->confirm('Continue with remaining imports?')) {
                     return 1;
                 }
             } else {
                 $this->line("<fg=green>✓ {$name} imported successfully</>");
             }
-            
+
             $this->newLine();
         }
 
         $duration = round(microtime(true) - $startTime, 2);
-        
+
         $this->newLine();
         $this->info("✅ All imports completed in {$duration} seconds");
 
