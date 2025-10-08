@@ -49,6 +49,9 @@ erDiagram
     LAWYERS ||--o{ HEARINGS : "attends"
     LAWYERS ||--o{ ADMIN_TASKS : "handles"
     LAWYERS ||--o{ ADMIN_SUBTASKS : "performs"
+    
+    DELETION_BUNDLES ||--o{ DELETION_BUNDLE_ITEMS : "contains"
+    DELETION_BUNDLES }o--|| USERS : "deleted by"
 
     CLIENTS {
         bigint id PK
@@ -357,9 +360,60 @@ Legal documents uploaded for clients/cases with metadata tracking.
 
 ---
 
+## Trash / Recovery System Tables ← **New**
+
+### DELETION_BUNDLES
+**Purpose**: Snapshot containers for deleted entities  
+**Feature**: Enterprise data recovery layer
+
+**Columns**:
+- `id` (uuid, PK): Bundle identifier
+- `root_type` (string): Model type (Client, Case, Document, etc.)
+- `root_id` (bigint): Original model ID
+- `root_label` (string): Display label
+- `snapshot_json` (json): Complete entity graph
+- `files_json` (json): File descriptors (disk, path, size, MIME)
+- `cascade_count` (int): Total items in bundle
+- `deleted_by` (bigint, FK → users): Who deleted
+- `reason` (text): Deletion reason
+- `status` (enum): trashed, restored, purged
+- `ttl_at` (datetime): Auto-purge date
+- `restored_at` (datetime): When restored
+- `restore_notes` (text): Restore report
+- `created_at`, `updated_at` (timestamps)
+
+**Indexes**: root_type+root_id, status, deleted_by, ttl_at
+
+### DELETION_BUNDLE_ITEMS
+**Purpose**: Individual item tracking within bundles
+
+**Columns**:
+- `id` (uuid, PK): Item identifier
+- `bundle_id` (uuid, FK → deletion_bundles): Parent bundle
+- `model` (string): Model class name
+- `model_id` (bigint): Original model ID
+- `payload_json` (json): Item snapshot (attributes)
+- `created_at`, `updated_at` (timestamps)
+
+**Indexes**: bundle_id, model+model_id
+
+**Relationship**: deletion_bundles 1→M deletion_bundle_items (cascade delete)
+
+---
+
 ## Soft Deletes
 
-All domain tables use soft deletes (`deleted_at` column) to preserve data integrity and allow recovery.
+All domain tables use soft deletes (`deleted_at` column) to preserve data integrity.
+
+**Enhanced with Trash System**: When a model is soft-deleted, the system automatically:
+1. Creates a deletion bundle (snapshot)
+2. Captures all related entities (cascade graph)
+3. Stores file references (for documents)
+4. Sets deleted_at timestamp (standard soft delete)
+
+This provides **dual recovery mechanisms**:
+- **Soft Delete**: Quick recovery via `Model::restore()`
+- **Trash Bundle**: Full graph recovery with conflict resolution
 
 ---
 
@@ -374,5 +428,6 @@ All tables include:
 
 ---
 
-**Last Updated**: 2025-10-08 14:30 UTC
+**Last Updated**: 2025-10-08 16:00 UTC  
+**Version**: 1.1 (Added trash system tables and relationships)
 

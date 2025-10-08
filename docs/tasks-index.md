@@ -84,10 +84,18 @@
 
 ### 3.1 ERD & Migrations
 - **ID**: T-04
-- **Status**: Todo
+- **Status**: Done (Partial - Models Complete)
 - **Branch**: `feat/domain-models-migrations`
 - **Description**: Create migrations and models for core domain entities
-- **DoD**: TBD
+- **DoD**:
+  - [x] ERD created with Mermaid diagram
+  - [x] 10 domain table migrations created
+  - [x] All migrations tested successfully
+  - [x] 10 Eloquent models created
+  - [x] Client and Case models fully implemented
+  - [x] All models have SoftDeletes and trash integration
+  - [ ] Factory stubs (planned for T-05)
+- **Commits**: 805b04b
 
 ### 3.2 ETL Importers
 - **ID**: T-05
@@ -95,6 +103,100 @@
 - **Branch**: `feat/etl-importers`
 - **Description**: Build console commands to import Excel data
 - **DoD**: TBD
+
+---
+
+## 3A. Trash / Recycle Bin System ✅
+
+### 3A.1 Trash Schema & Models
+- **ID**: T-Trash-01
+- **Status**: Done
+- **Branch**: `feat/trash-snapshot-schema`
+- **Description**: Database schema and Eloquent models for deletion bundles
+- **DoD**:
+  - [x] deletion_bundles table migration (UUID, JSON, status, TTL)
+  - [x] deletion_bundle_items table migration
+  - [x] DeletionBundle model with scopes and helpers
+  - [x] DeletionBundleItem model
+  - [x] All migrations tested successfully
+- **Commits**: 204dcc7
+
+### 3A.2 Trash Service & Trait
+- **ID**: T-Trash-02
+- **Status**: Done
+- **Branch**: `feat/trash-service-trait`
+- **Description**: Core business logic and model integration
+- **DoD**:
+  - [x] DeletionBundleService created (create/restore/purge)
+  - [x] InteractsWithDeletionBundles trait created
+  - [x] Trait applied to Client and CaseModel
+  - [x] Transaction-wrapped operations
+  - [x] Conflict resolution strategies implemented
+  - [x] Detailed restore reports
+- **Commits**: b019baa
+
+### 3A.3 Multi-Model Integration
+- **ID**: T-Trash-03
+- **Status**: Done
+- **Branch**: `feat/trash-collectors-all-models`
+- **Description**: Extend trash to all 10 core models with collectors
+- **DoD**:
+  - [x] config/trash.php created
+  - [x] Collector interface and base class created
+  - [x] 10 collectors implemented (Client, Case, Document, Hearing, etc.)
+  - [x] Service refactored to use collectors
+  - [x] Trait applied to all 10 models
+  - [x] Trash permissions added (trash.view, trash.restore, trash.purge)
+  - [x] Permissions seeded (22 total)
+- **Commits**: fcb26a8
+
+### 3A.4 Trash CLI & Web UI
+- **ID**: T-Trash-04
+- **Status**: Done
+- **Branch**: `feat/trash-cli-and-ui`
+- **Description**: Admin interfaces for trash management
+- **DoD**:
+  - [x] trash:list command with filtering
+  - [x] trash:restore command with dry-run
+  - [x] trash:purge command with bulk operations
+  - [x] TrashController created
+  - [x] TrashPolicy created
+  - [x] Routes added with permission middleware
+  - [x] trash/index.blade.php (list view)
+  - [x] trash/show.blade.php (detail view)
+  - [x] Bootstrap 5 responsive UI
+  - [x] Dry-run modal with AJAX
+- **Commits**: 94b759e
+
+### 3A.5 Trash Tests
+- **ID**: T-Trash-05
+- **Status**: Done
+- **Branch**: `test/trash-restore`
+- **Description**: Comprehensive test coverage for trash system
+- **DoD**:
+  - [x] 13 Pest tests created
+  - [x] Bundle creation tested for all model types
+  - [x] Restore operations tested
+  - [x] Dry-run validation
+  - [x] Permission enforcement tested
+  - [x] Configuration validation
+  - [x] 87 assertions, 100% passing
+- **Commits**: e84e2c8
+
+### 3A.6 Trash Documentation
+- **ID**: T-Trash-06
+- **Status**: Done
+- **Branch**: `docs/trash-adr-runbook`
+- **Description**: Complete documentation for trash system
+- **DoD**:
+  - [x] ADR-006 created
+  - [x] Trash_Restore_Runbook.md created (15 sections)
+  - [x] Step-4 worklog created
+  - [x] Master plan updated with impact matrix
+  - [x] Tasks index updated
+  - [ ] OpenAPI spec (pending - requires API implementation)
+  - [x] All docs cross-referenced
+- **Commits**: 84d1a27
 
 ---
 
