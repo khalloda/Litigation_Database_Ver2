@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Support\DeletionBundles\InteractsWithDeletionBundles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Client extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, InteractsWithDeletionBundles;
 
     protected $fillable = [
         'client_name_ar',
