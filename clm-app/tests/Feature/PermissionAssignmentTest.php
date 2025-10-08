@@ -13,11 +13,25 @@ test('permissions seeder creates all required permissions', function () {
     $this->seed(PermissionsSeeder::class);
 
     $expectedPermissions = [
-        'cases.view', 'cases.create', 'cases.edit', 'cases.delete',
-        'hearings.view', 'hearings.create', 'hearings.edit', 'hearings.delete',
-        'documents.view', 'documents.upload', 'documents.download', 'documents.delete',
-        'clients.view', 'clients.create', 'clients.edit', 'clients.delete',
-        'admin.users.manage', 'admin.roles.manage', 'admin.audit.view',
+        'cases.view',
+        'cases.create',
+        'cases.edit',
+        'cases.delete',
+        'hearings.view',
+        'hearings.create',
+        'hearings.edit',
+        'hearings.delete',
+        'documents.view',
+        'documents.upload',
+        'documents.download',
+        'documents.delete',
+        'clients.view',
+        'clients.create',
+        'clients.edit',
+        'clients.delete',
+        'admin.users.manage',
+        'admin.roles.manage',
+        'admin.audit.view',
     ];
 
     foreach ($expectedPermissions as $permissionName) {
