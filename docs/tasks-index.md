@@ -15,7 +15,7 @@
 
 ### 1.1 Laravel App Initialization
 - **ID**: T-01
-- **Status**: In Progress
+- **Status**: Done
 - **Branch**: `chore/bootstrap-laravel-app`
 - **Description**: Create Laravel 10.x project, configure environment, install core packages, create ADRs
 - **DoD**:
@@ -25,8 +25,8 @@
   - [x] Dev packages installed (IDE Helper, Larastan, Pest)
   - [x] 5 ADRs created (Auth, RBAC, ActivityLog, i18n, Storage)
   - [x] Docs structure created (`/docs/adr/`, `/docs/worklogs/`, `tasks-index.md`, `data-dictionary.md`)
-  - [ ] Committed and pushed
-- **Commits**: TBD
+  - [x] Committed and pushed
+- **Commits**: 9137ba9
 
 ### 1.2 Packages & ADRs
 - **ID**: T-01 (continued)
@@ -39,43 +39,44 @@
 
 ### 2.1 Auth Scaffolding
 - **ID**: T-02
-- **Status**: Todo
+- **Status**: Done
 - **Branch**: `feat/auth-super-admin`
 - **Description**: Install Laravel UI auth, scaffold Bootstrap views, configure auth routes
 - **DoD**:
-  - [ ] Laravel UI Bootstrap auth installed
-  - [ ] Auth views generated
-  - [ ] npm dependencies installed and built
-  - [ ] Login/register/password reset routes functional
-- **Commits**: TBD
+  - [x] Laravel UI Bootstrap auth installed
+  - [x] Auth views generated
+  - [x] npm dependencies installed and built
+  - [x] Login/register/password reset routes functional
+- **Commits**: bd30412
 
 ### 2.2 Super Admin Seeder
 - **ID**: T-02 (continued)
-- **Status**: Todo
+- **Status**: Done
 - **Branch**: `feat/auth-super-admin`
 - **Description**: Create super admin user and base roles
 - **DoD**:
-  - [ ] SuperAdminSeeder created (email: khelmy@sarieldin.com, password: hashed P@ssw0rd)
-  - [ ] RolesSeeder created (super_admin, admin, lawyer, staff, client_portal)
-  - [ ] DatabaseSeeder updated to call both seeders
-  - [ ] Migrations run successfully
-  - [ ] Super admin can login
-- **Commits**: TBD
+  - [x] SuperAdminSeeder created (email: khelmy@sarieldin.com, password: hashed P@ssw0rd)
+  - [x] RolesSeeder created (super_admin, admin, lawyer, staff, client_portal)
+  - [x] DatabaseSeeder updated to call both seeders
+  - [x] Migrations run successfully
+  - [x] Super admin can login
+  - [x] Tests created (3 tests, 8 assertions)
+- **Commits**: bd30412
 
 ### 2.3 Roles/Permissions Policies
 - **ID**: T-03
-- **Status**: Todo
+- **Status**: Done
 - **Branch**: `feat/rbac-permissions-policies`
 - **Description**: Configure Spatie Permission, create permissions seeder, scaffold policies
 - **DoD**:
-  - [ ] Spatie Permission config published
-  - [ ] Permission migrations run
-  - [ ] PermissionsSeeder created (20+ permissions)
-  - [ ] User model has HasRoles trait
-  - [ ] 4 policy scaffolds created (Case, Hearing, Client, Document)
-  - [ ] Permission middleware created and registered
-  - [ ] Tests created
-- **Commits**: TBD
+  - [x] Spatie Permission config published
+  - [x] Permission migrations run
+  - [x] PermissionsSeeder created (19 permissions)
+  - [x] User model has HasRoles trait
+  - [x] 4 policy scaffolds created (Case, Hearing, Client, Document)
+  - [x] Permission middleware created and registered
+  - [x] Tests created (4 tests, 29 assertions)
+- **Commits**: 4de0c9c
 
 ---
 
