@@ -1,0 +1,232 @@
+
+# Agent_Rules.md — Unified Operating Rules for Cursor Agents (Central Litigation Management)
+
+> **Authoritative single file.** This document supersedes any earlier Agent_Rules variants for the **Central Litigation Management** project and must be used by **every** Cursor agent.
+
+---
+
+## 0) Project Context & Scope
+- **Project**: Central Litigation Management (Laravel 10.x, PHP 8.4, MySQL 9.1.0, Bootstrap 5, EN/AR + RTL).
+- **Operating Mode**: Cursor Agent mode working in **small, atomic tasks** with explicit commits, summaries, and handoffs.
+- **Source Data**: Excel exports from MS Access; MySQL is the target. Data migration (ETL) must be **idempotent** and validated.
+
+---
+
+## A) High‑Priority Prohibitions
+- **No Codacy**: Do **not** use Codacy (no CLI, no configs, no references).
+- **Scope safety**: Do not refactor outside the agreed scope without explicit approval.
+- **DB safety**: Do not modify **existing** migrations or seeders unless I explicitly request it and an ADR + task exists.
+- **Secrets**: Never commit secrets or plaintext passwords. All secrets must live in `.env` and be read by config.
+
+---
+
+## B) Task Cadence & Agent Workflow
+- Work in **small, atomic tasks** (~10–30 minutes of work each).
+- After finishing a task:
+  1. **Commit** using Conventional Commits.
+  2. **Post a short summary**: files changed, commands run, decisions, tests.
+  3. **Ask to proceed**.
+  4. **Propose the next branch name**.
+- If the context window approaches overflow (~60–80 messages), **STOP** and instruct me to open a new agent. Provide a proper handover (see §M).
+
+---
+
+## C) Branching Strategy
+- Before any new feature/bug/fix: **ask for a new branch** and suggest a name.
+- Allowed prefixes: `feat/`, `fix/`, `chore/`, `docs/`, `refactor/`, `test/`.
+- Examples:
+  - `feat/etl-importers`
+  - `feat/rbac-policies`
+  - `fix/date-parsing-excel`
+  - `chore/adr-i18n-decision`
+  - `docs/api-openapi-spec`
+  - `test/policies-and-etl`
+
+---
+
+## D) Commits & Pull Requests
+- **Conventional Commits** with descriptive titles; keep commits **atomic**.
+- In risky changes, include **rollback guidance** in the body (e.g., `php artisan migrate:rollback`, revert plan, or feature flag off‑switch).
+- Ensure `php artisan test` is **green** locally (and on CI, if configured) **before** merge.
+- Open a **PR** when a task group completes; request review and include links to ADRs / relevant docs.
+
+---
+
+## E) Step Logs & Documentation
+Maintain clear, living documentation in the repo:
+- **Step Log** for each agent run: `/docs/worklogs/{{YYYY-MM-DD}}/step-N.md` containing:
+  - Commands executed
+  - Files changed (paths)
+  - Errors/bugs faced and fixes
+  - Rationale for decisions
+  - Validation steps & outcomes
+- **Tasks Index**: `/docs/tasks-index.md` — include task/subtask IDs, status, DoD, links to commits/PRs.
+- **Data Dictionary**: `/docs/data-dictionary.md` — stays in sync with schema.
+- **ADRs**: `/docs/adr/ADR-YYYYMMDD-NNN.md` for notable decisions (Auth, RBAC, i18n, storage, ETL, etc.).
+- **OpenAPI**: `/docs/api/openapi.yaml` (or `.json`) kept current with API changes.
+- Domain docs may use suffixes: `_Deep_Analysis.md`, `_Plan.md`, `_Runbook.md`, `_Tasks.md`, `_Bugfix.md`, `_Prompt.md`.
+
+---
+
+## F) Security & Privacy
+- Enforce **RBAC** at controllers, routes, and policies.
+- **Audit logging** for create/update/delete on core models (capture `causer`, IP, User‑Agent).
+- **Uploads**: max 10 MB; enforce MIME checks; store under protected storage; serve via **signed routes** only.
+- **Secrets**: in `.env` only; never printed, logged, or committed.
+
+---
+
+## G) Coding Standards & Architecture
+- PHP 8.4 / Laravel 10.x; **PSR‑12** coding standards.
+- Naming: StudlyCase classes, camelCase methods/properties, kebab‑case Blade view files.
+- Structure: Controllers → Services → Repositories; use Form Requests for validation; DTOs where helpful.
+- Avoid N+1 queries; use eager loading and indexes. Paginate lists.
+- Prefer enums/config maps for status fields; localize via language files.
+
+---
+
+## H) Localization & RTL
+- Bilingual (English/Arabic) with **RTL** support.
+- Use **language keys** only (no hard‑coded literals).
+- Keep `resources/lang/en/*.php` and `resources/lang/ar/*.php` synchronized.
+- Date/time defaults to **Africa/Cairo**; currency/time formatting is localized.
+
+---
+
+## I) Database & ETL Safety
+- Schema changes require an **ADR** + migration PR; never silently edit existing migrations.
+- ETL (Excel → MySQL) is **idempotent**, **validating**, and **traceable**:
+  - Centralize date parsing and normalization.
+  - Clear reject logs with reasons for each failed record.
+- Index frequent lookups; use soft deletes when appropriate.
+- Standard audit columns: `created_by`, `updated_by`, `created_at`, `updated_at` (plus optional `ip_address`, `user_agent`).
+
+---
+
+## J) Testing Requirements
+- Add/update **unit and feature tests** for all new or changed logic.
+- Critical flows to cover: auth, cases CRUD, hearing scheduling, document upload, ETL validations, RBAC policies.
+- If UI/E2E tests are present (e.g., Playwright), keep them in sync with significant UX changes.
+- Where feature flags are used, test both on/off paths.
+
+---
+
+## K) Performance & Reliability
+- Use composite indexes and eager loading for heavy lists.
+- Paginate long collections; avoid SELECT *.
+- Monitor slow queries in logs; propose optimizations with data.
+- Ensure migrations and ETL are repeatable; keep backups where relevant.
+
+---
+
+## L) Communication Protocol
+- Be concise and professional; use bullet points.
+- At the end of each task:
+  - Post a **status line** (“Done/Blocked/Needs review”).
+  - List **files touched** and **commands run**.
+  - Provide **validation notes** (what you tested and results).
+  - Ask: **“READY FOR NEXT?”** and suggest the next **branch name**.
+
+---
+
+## M) Handover Checklist (Between Agents)
+Provide the following when stopping or switching agents:
+- Current **branch** and **latest commit hash**.
+- What was done; what remains; any blockers.
+- Next steps checklist (bulleted).
+- Any environment/setup commands needed to resume quickly.
+
+---
+
+## N) Stop Conditions & Escalations
+- **Stop** on conflicting instructions, failing migrations that risk data loss, or unclear acceptance criteria.
+- Escalate by posting a short summary of the conflict and proposed options, then wait for direction.
+
+---
+
+## O) Templates
+
+### 1) Commit Title (Conventional Commits)
+```
+feat(db): add cases and hearings migrations (task 3.1)
+```
+**Allowed types**: feat, fix, chore, docs, refactor, test, perf, ci
+
+### 2) Commit Body
+```
+- Added cases & hearings migrations with indexes and soft deletes
+- Updated models with policies stubs
+- DoD: migrations run locally; unit tests green
+
+Rollback: php artisan migrate:rollback
+```
+
+### 3) PR Body
+```
+## Summary
+One‑paragraph overview of what changed and why.
+
+## Changes
+- Bullet list of key changes
+
+## Tests
+- Unit/feature tests added/updated
+- php artisan test: PASS
+
+## Docs
+- ADR link (if any)
+- tasks-index.md updated
+- worklog entry added
+```
+
+### 4) Step Log Skeleton (`/docs/worklogs/{{YYYY-MM-DD}}/step-N.md`)
+```
+# Step N — Short Title
+- Branch: <name>
+- Commit: <hash>
+
+## Commands
+<copy/paste commands>
+
+## Changes
+- <paths>
+
+## Errors & Fixes
+- Issue: <symptom>
+- Root cause: <cause>
+- Fix: <what was changed>
+
+## Validation
+- <manual or automated checks, test refs>
+```
+
+### 5) ADR Skeleton (`/docs/adr/ADR-YYYYMMDD-NNN.md`)
+```
+# ADR NNN: <Title>
+## Context
+## Decision
+## Consequences
+## Alternatives Considered
+```
+
+### 6) Tasks Index Line Format (`/docs/tasks-index.md`)
+```
+[ID] <Title> — Status: <Todo|In Progress|Done>
+DoD: <bullets>
+Commits: <links/hashes>
+```
+
+---
+
+## P) Definitions of Done (DoD) — Quick Lists
+- **Migration/Model**: compiles, migrates, rollback works; indexes added; soft deletes if needed; policies stubs; tests added.
+- **ETL Importer**: idempotent; validation errors logged; sample run on fixture file; summary counts reported.
+- **Controller/Route**: policy enforced; request validated; feature/units added; localized responses.
+- **View/UX**: responsive; RTL validated; strings localized; basic a11y checks; no inline styles.
+- **Docs**: worklog updated; tasks-index updated; ADR written if applicable.
+
+---
+
+## Q) Final Notes
+- Use this file as the **single source of truth** for agent behavior on this project.
+- When in doubt, pause and ask for clarification **before** proceeding.
