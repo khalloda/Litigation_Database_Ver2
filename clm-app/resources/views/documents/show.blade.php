@@ -63,9 +63,9 @@
                                     <td><strong>Uploaded By:</strong></td>
                                     <td>
                                         @if($document->createdBy)
-                                            {{ $document->createdBy->name }}
+                                        {{ $document->createdBy->name }}
                                         @else
-                                            <span class="text-muted">System</span>
+                                        <span class="text-muted">System</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -103,12 +103,12 @@
                         <div class="col-md-6">
                             <h6>⚖️ Matter/Case</h6>
                             @if($document->case)
-                                <p>
-                                    <strong>{{ $document->case->matter_name_ar ?? $document->case->matter_name_en }}</strong><br>
-                                    <small class="text-muted">ID: {{ $document->case->id }} | Status: {{ $document->case->matter_status }}</small>
-                                </p>
+                            <p>
+                                <strong>{{ $document->case->matter_name_ar ?? $document->case->matter_name_en }}</strong><br>
+                                <small class="text-muted">ID: {{ $document->case->id }} | Status: {{ $document->case->matter_status }}</small>
+                            </p>
                             @else
-                                <p class="text-muted">No matter assigned to this document.</p>
+                            <p class="text-muted">No matter assigned to this document.</p>
                             @endif
                         </div>
                     </div>
@@ -122,29 +122,29 @@
                 </div>
                 <div class="card-body">
                     @if($document->mime_type === 'application/pdf')
-                        <iframe src="{{ route('documents.signed-url', $document) }}" 
-                                width="100%" height="600" style="border: none;">
-                            Your browser does not support PDF preview.
-                        </iframe>
+                    <iframe src="{{ route('documents.signed-url', $document) }}"
+                        width="100%" height="600" style="border: none;">
+                        Your browser does not support PDF preview.
+                    </iframe>
                     @elseif(str_starts_with($document->mime_type, 'image/'))
-                        <img src="{{ route('documents.signed-url', $document) }}" 
-                             alt="{{ $document->document_name }}" 
-                             class="img-fluid" 
-                             style="max-height: 600px;">
+                    <img src="{{ route('documents.signed-url', $document) }}"
+                        alt="{{ $document->document_name }}"
+                        class="img-fluid"
+                        style="max-height: 600px;">
                     @elseif(str_contains($document->mime_type, 'word') || str_contains($document->mime_type, 'spreadsheet') || str_contains($document->mime_type, 'presentation'))
-                        <div class="alert alert-info mb-0">
-                            <div class="d-flex align-items-center">
-                                <div class="me-2">ℹ️</div>
-                                <div>
-                                    Inline preview is not supported for Office files (DOCX/XLSX/PPTX) in the browser.
-                                    Use the Download button to open in Microsoft Office, or convert to PDF to enable inline preview.
-                                </div>
+                    <div class="alert alert-info mb-0">
+                        <div class="d-flex align-items-center">
+                            <div class="me-2">ℹ️</div>
+                            <div>
+                                Inline preview is not supported for Office files (DOCX/XLSX/PPTX) in the browser.
+                                Use the Download button to open in Microsoft Office, or convert to PDF to enable inline preview.
                             </div>
                         </div>
+                    </div>
                     @else
-                        <div class="alert alert-secondary mb-0">
-                            Preview is not available for this file type.
-                        </div>
+                    <div class="alert alert-secondary mb-0">
+                        Preview is not available for this file type.
+                    </div>
                     @endif
                 </div>
             </div>
@@ -161,26 +161,26 @@
                         <a href="{{ route('documents.download', $document) }}" class="btn btn-success">
                             📥 Download Document
                         </a>
-                        
+
                         @can('documents.edit')
-                            <a href="{{ route('documents.edit', $document) }}" class="btn btn-outline-primary">
-                                ✏️ Edit Metadata
-                            </a>
+                        <a href="{{ route('documents.edit', $document) }}" class="btn btn-outline-primary">
+                            ✏️ Edit Metadata
+                        </a>
                         @endcan
-                        
+
                         <button class="btn btn-outline-info" onclick="copyToClipboard('{{ route('documents.download', $document) }}')">
                             📋 Copy Download Link
                         </button>
-                        
+
                         @can('documents.delete')
-                            <form action="{{ route('documents.destroy', $document) }}" method="POST" 
-                                  onsubmit="return confirm('Are you sure you want to delete this document? This action cannot be undone.')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-outline-danger">
-                                    🗑️ Delete Document
-                                </button>
-                            </form>
+                        <form action="{{ route('documents.destroy', $document) }}" method="POST"
+                            onsubmit="return confirm('Are you sure you want to delete this document? This action cannot be undone.')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-outline-danger">
+                                🗑️ Delete Document
+                            </button>
+                        </form>
                         @endcan
                     </div>
                 </div>
@@ -195,23 +195,23 @@
                     <div class="text-center">
                         <div class="mb-3">
                             @if($document->mime_type === 'application/pdf')
-                                <i class="fas fa-file-pdf fa-3x text-danger"></i>
+                            <i class="fas fa-file-pdf fa-3x text-danger"></i>
                             @elseif(str_contains($document->mime_type, 'word'))
-                                <i class="fas fa-file-word fa-3x text-primary"></i>
+                            <i class="fas fa-file-word fa-3x text-primary"></i>
                             @elseif(str_contains($document->mime_type, 'excel'))
-                                <i class="fas fa-file-excel fa-3x text-success"></i>
+                            <i class="fas fa-file-excel fa-3x text-success"></i>
                             @elseif(str_contains($document->mime_type, 'powerpoint'))
-                                <i class="fas fa-file-powerpoint fa-3x text-warning"></i>
+                            <i class="fas fa-file-powerpoint fa-3x text-warning"></i>
                             @elseif(str_starts_with($document->mime_type, 'image/'))
-                                <i class="fas fa-file-image fa-3x text-info"></i>
+                            <i class="fas fa-file-image fa-3x text-info"></i>
                             @else
-                                <i class="fas fa-file fa-3x text-secondary"></i>
+                            <i class="fas fa-file fa-3x text-secondary"></i>
                             @endif
                         </div>
-                        
+
                         <h6>{{ $document->document_name }}</h6>
                         <p class="text-muted">{{ number_format($document->file_size / 1024, 1) }} KB</p>
-                        
+
                         <div class="mt-3">
                             <small class="text-muted">
                                 <strong>Format:</strong> {{ strtoupper(pathinfo($document->document_name, PATHINFO_EXTENSION)) }}<br>
@@ -243,29 +243,29 @@
 </div>
 
 <script>
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(function() {
-        // Create a temporary alert to show success
-        const alert = document.createElement('div');
-        alert.className = 'alert alert-success alert-dismissible fade show position-fixed';
-        alert.style.top = '20px';
-        alert.style.right = '20px';
-        alert.style.zIndex = '9999';
-        alert.innerHTML = `
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            // Create a temporary alert to show success
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success alert-dismissible fade show position-fixed';
+            alert.style.top = '20px';
+            alert.style.right = '20px';
+            alert.style.zIndex = '9999';
+            alert.innerHTML = `
             <strong>Success!</strong> Download link copied to clipboard.
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
-        document.body.appendChild(alert);
-        
-        // Remove alert after 3 seconds
-        setTimeout(() => {
-            if (alert.parentNode) {
-                alert.parentNode.removeChild(alert);
-            }
-        }, 3000);
-    }).catch(function(err) {
-        alert('Failed to copy link to clipboard');
-    });
-}
+            document.body.appendChild(alert);
+
+            // Remove alert after 3 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 3000);
+        }).catch(function(err) {
+            alert('Failed to copy link to clipboard');
+        });
+    }
 </script>
 @endsection
