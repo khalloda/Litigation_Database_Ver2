@@ -288,25 +288,70 @@
   - [x] Emergency CSS fixes for UI issues
 - **Commits**: Multiple commits in i18n implementation
 
-### 5.2 Navigation & CRUD Stubs
-- **ID**: T-08 (continued)
+### 5.2 CRUD Complete - Clients
+- **ID**: T-CRUD-Clients
 - **Status**: Done
-- **Branch**: `feat/navigation-crud-stubs`
-- **Description**: Add top navigation and stub CRUD pages
+- **Branch**: `feat/navigation-crud-stubs` → `feat/crud-complete-cases-hearings-lawyers`
+- **Description**: Complete Clients CRUD implementation
 - **DoD**:
   - [x] Top navbar with permission-based visibility
   - [x] ClientsController with full CRUD (index, show, create, store, edit, update, destroy)
-  - [x] CasesController with index stub
   - [x] ClientRequest validation class
-  - [x] Client views (index, show, create, edit)
-  - [x] Cases index view
+  - [x] Client views (index, show, create, edit) - bilingual & RTL
   - [x] Routes with proper permission middleware
-  - [x] Client factory and tests
   - [x] Soft deletes integration
   - [x] Pagination with proper column separation
-- **Commits**: Multiple commits in navigation and CRUD implementation
+  - [x] Tests created
+- **Commits**: Multiple commits
 
-### 5.3 Bug Fixes
+### 5.3 CRUD Complete - Cases
+- **ID**: T-CRUD-Cases
+- **Status**: Done
+- **Branch**: `feat/crud-complete-cases-hearings-lawyers`
+- **Description**: Complete Cases CRUD implementation
+- **DoD**:
+  - [x] CasesController with full CRUD methods
+  - [x] CaseRequest validation class with field validation
+  - [x] Cases views (index, show, create, edit) - bilingual & RTL
+  - [x] Routes with proper permission middleware and correct order
+  - [x] Language files updated (EN/AR) with 40+ case-specific keys
+  - [x] Links to clients with proper eager loading
+  - [x] Soft deletes and audit logging
+- **Commits**: 68c7376
+
+### 5.4 CRUD Complete - Hearings
+- **ID**: T-CRUD-Hearings
+- **Status**: Done
+- **Branch**: `feat/crud-complete-cases-hearings-lawyers`
+- **Description**: Complete Hearings CRUD implementation
+- **DoD**:
+  - [x] HearingsController with full CRUD methods
+  - [x] HearingRequest validation class with date validation
+  - [x] Hearings views (index, show, create, edit) - bilingual & RTL
+  - [x] Routes with proper permission middleware and correct order
+  - [x] Language files updated (EN/AR) with 30+ hearing-specific keys
+  - [x] Navbar integration with permission check
+  - [x] Links to cases and clients with proper eager loading
+  - [x] Soft deletes and audit logging
+- **Commits**: 2c5a3b2
+
+### 5.5 CRUD Complete - Lawyers
+- **ID**: T-CRUD-Lawyers
+- **Status**: Done
+- **Branch**: `feat/crud-complete-cases-hearings-lawyers`
+- **Description**: Complete Lawyers CRUD implementation
+- **DoD**:
+  - [x] LawyersController with full CRUD methods
+  - [x] LawyerRequest validation class with field validation
+  - [x] Lawyers views (index, show, create, edit) - bilingual & RTL
+  - [x] Routes with admin-only access (admin.users.manage permission)
+  - [x] Language files updated (EN/AR) with 20+ lawyer-specific keys
+  - [x] Navbar integration (admin only)
+  - [x] Links to cases with proper relationship loading
+  - [x] Soft deletes and audit logging
+- **Commits**: 0758d9f
+
+### 5.6 Bug Fixes
 - **ID**: Bug-Fix-01
 - **Status**: Done
 - **Branch**: `fix/giant-arrow-overlays`
@@ -322,7 +367,7 @@
 - **Commits**: 1c6a821
 - **Documentation**: `/docs/bugfixes/Giant-Arrow-Overlays-Bugfix.md`
 
-### 5.4 Global Search
+### 5.7 Global Search
 - **ID**: T-09
 - **Status**: Todo
 - **Branch**: `feat/global-search`
@@ -372,5 +417,5 @@ php artisan migrate:rollback  # Rolls back permission tables
 
 ---
 
-**Last Updated**: 2025-01-09 15:30 UTC
+**Last Updated**: 2025-01-09 18:00 UTC
 

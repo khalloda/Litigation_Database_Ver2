@@ -64,4 +64,3 @@ class LawyersController extends Controller
         return redirect()->route('lawyers.index')->with('success', __('app.lawyer_deleted_success'));
     }
 }
-

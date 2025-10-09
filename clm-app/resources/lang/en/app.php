@@ -45,7 +45,7 @@ return [
     'client_deleted_success' => 'Client deleted successfully!',
     'confirm_delete' => 'Are you sure you want to delete this client? This action can be undone from the trash.',
     'client_name_required' => 'At least one of Client Name (Arabic) or Client Name (English) is required.',
-    
+
     // Cases
     'new_case' => 'New Case',
     'case_details' => 'Case Details',
@@ -87,7 +87,7 @@ return [
     'no_hearings_found' => 'No hearings found for this case.',
     'no_tasks_found' => 'No tasks found for this case.',
     'no_documents_found' => 'No documents found for this case.',
-    
+
     // Hearings
     'hearings' => 'Hearings',
     'new_hearing' => 'New Hearing',
@@ -117,7 +117,7 @@ return [
     'court' => 'Court',
     'judge' => 'Judge',
     'status' => 'Status',
-    
+
     // Lawyers
     'lawyers' => 'Lawyers',
     'new_lawyer' => 'New Lawyer',
@@ -138,5 +138,3 @@ return [
     'related_assigned_cases' => 'Assigned Cases',
     'no_assigned_cases_found' => 'No assigned cases found for this lawyer.',
 ];
-
-

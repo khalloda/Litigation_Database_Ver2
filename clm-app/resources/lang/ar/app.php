@@ -45,7 +45,7 @@ return [
     'client_deleted_success' => 'تم حذف العميل بنجاح!',
     'confirm_delete' => 'هل أنت متأكد أنك تريد حذف هذا العميل؟ يمكن التراجع عن هذا الإجراء من سلة المهملات.',
     'client_name_required' => 'يجب إدخال اسم العميل (عربي) أو اسم العميل (إنجليزي) على الأقل.',
-    
+
     // Cases
     'new_case' => 'قضية جديدة',
     'case_details' => 'تفاصيل القضية',
@@ -87,7 +87,7 @@ return [
     'no_hearings_found' => 'لا توجد جلسات لهذه القضية.',
     'no_tasks_found' => 'لا توجد مهام لهذه القضية.',
     'no_documents_found' => 'لا توجد مستندات لهذه القضية.',
-    
+
     // Hearings
     'hearings' => 'الجلسات',
     'new_hearing' => 'جلسة جديدة',
@@ -117,7 +117,7 @@ return [
     'court' => 'المحكمة',
     'judge' => 'القاضي',
     'status' => 'الحالة',
-    
+
     // Lawyers
     'lawyers' => 'المحامون',
     'new_lawyer' => 'محامٍ جديد',
@@ -138,5 +138,3 @@ return [
     'related_assigned_cases' => 'القضايا المعينة',
     'no_assigned_cases_found' => 'لا توجد قضايا معينة لهذا المحامي.',
 ];
-
-

@@ -184,19 +184,21 @@ Central Litigation Management (CLM) is a bilingual (EN/AR) web application for m
 - [x] T-07: Secure file storage
 - [x] T-08: i18n & RTL UI
 - [x] Navigation system with permissions
-- [x] Client CRUD (create, read, update, delete)
-- [x] Cases list view
+- [x] **Clients CRUD (complete)** - create, read, update, delete
+- [x] **Cases CRUD (complete)** - full CRUD with validation
+- [x] **Hearings CRUD (complete)** - full CRUD with date validation
+- [x] **Lawyers CRUD (complete)** - full CRUD (admin only)
 - [x] Bug fixes (giant arrow overlays)
 
 **In Progress**:
-- [ ] Complete Cases CRUD
-- [ ] Complete Hearings CRUD
-- [ ] Complete Lawyers CRUD
+- [ ] Global search implementation
+- [ ] Comprehensive testing coverage
 
 **Planned Next Sprint**:
 - T-09: Global search
-- T-10: OpenAPI documentation
+- T-10: OpenAPI documentation  
 - T-11: Comprehensive testing
+- Additional CRUD modules (Contacts, Engagement Letters, Power of Attorneys, Admin Tasks)
 
 ---
 
@@ -491,13 +493,20 @@ Authentication → RBAC → Policies → Controllers
 - [x] Secure file storage implemented
 - [x] Document preview working
 
-### Phase 5 (In Progress)
+### Phase 5 ✅
 - [x] Navigation system with permissions
 - [x] i18n & RTL support
-- [x] Client CRUD complete
-- [ ] Cases CRUD complete
-- [ ] Hearings CRUD complete
-- [ ] Lawyers CRUD complete
+- [x] Clients CRUD complete
+- [x] Cases CRUD complete
+- [x] Hearings CRUD complete
+- [x] Lawyers CRUD complete
+- [x] Language files synchronized (EN/AR)
+- [x] RTL layout working correctly
+
+### Phase 6 (In Progress)
+- [ ] Global search
+- [ ] Additional CRUD modules (Contacts, Engagement Letters, etc.)
+- [ ] Advanced filtering and sorting
 
 ---
 
