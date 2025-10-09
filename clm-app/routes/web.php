@@ -54,3 +54,44 @@ Route::middleware(['auth', 'permission:admin.audit.view'])->group(function () {
     Route::get('/audit-logs/export/csv', [App\Http\Controllers\AuditLogController::class, 'export'])
         ->name('audit-logs.export');
 });
+
+// Document Management
+Route::middleware(['auth'])->group(function () {
+    // Document listing (requires documents.view permission)
+    Route::middleware(['permission:documents.view'])->group(function () {
+        Route::get('/documents', [App\Http\Controllers\DocumentController::class, 'index'])
+            ->name('documents.index');
+        Route::get('/documents/{document}', [App\Http\Controllers\DocumentController::class, 'show'])
+            ->name('documents.show');
+        Route::get('/documents/{document}/download', [App\Http\Controllers\DocumentController::class, 'download'])
+            ->name('documents.download');
+        Route::get('/documents/{document}/signed-url', [App\Http\Controllers\DocumentController::class, 'signedUrl'])
+            ->name('documents.signed-url');
+    });
+
+    // Document upload (requires documents.upload permission)
+    Route::middleware(['permission:documents.upload'])->group(function () {
+        Route::get('/documents/create', [App\Http\Controllers\DocumentController::class, 'create'])
+            ->name('documents.create');
+        Route::post('/documents', [App\Http\Controllers\DocumentController::class, 'store'])
+            ->name('documents.store');
+    });
+
+    // Document editing (requires documents.edit permission)
+    Route::middleware(['permission:documents.edit'])->group(function () {
+        Route::get('/documents/{document}/edit', [App\Http\Controllers\DocumentController::class, 'edit'])
+            ->name('documents.edit');
+        Route::put('/documents/{document}', [App\Http\Controllers\DocumentController::class, 'update'])
+            ->name('documents.update');
+    });
+
+    // Document deletion (requires documents.delete permission)
+    Route::middleware(['permission:documents.delete'])->group(function () {
+        Route::delete('/documents/{document}', [App\Http\Controllers\DocumentController::class, 'destroy'])
+            ->name('documents.destroy');
+    });
+
+    // AJAX endpoint for getting client cases
+    Route::get('/documents/client-cases', [App\Http\Controllers\DocumentController::class, 'getClientCases'])
+        ->name('documents.client-cases');
+});

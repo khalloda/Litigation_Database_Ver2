@@ -16,18 +16,28 @@ class ClientDocument extends Model
     protected $fillable = [
         'client_id',
         'matter_id',
-        'document_name',
-        'document_type',
+        'client_name',
+        'document_name', // New file-related field
+        'document_type', // New file-related field
+        'file_path', // New file-related field
+        'file_size', // New file-related field
+        'mime_type', // New file-related field
+        'responsible_lawyer',
+        'movement_card',
+        'document_description',
         'deposit_date',
-        'file_path',
-        'file_size',
-        'mime_type',
-        'description',
+        'document_date',
+        'case_number',
+        'pages_count',
+        'notes',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
         'deposit_date' => 'date',
-        'file_size' => 'integer',
+        'document_date' => 'date',
+        'movement_card' => 'boolean',
     ];
 
     // Relationships
@@ -44,7 +54,7 @@ class ClientDocument extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['client_id', 'matter_id', 'document_name', 'document_type', 'deposit_date', 'file_path'])
+            ->logOnly(['client_id', 'matter_id', 'client_name', 'responsible_lawyer', 'document_description', 'deposit_date', 'case_number'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('clientdocument')
