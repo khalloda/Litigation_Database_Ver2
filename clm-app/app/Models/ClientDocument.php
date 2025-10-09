@@ -24,7 +24,8 @@ class ClientDocument extends Model
         'mime_type', // New file-related field
         'responsible_lawyer',
         'movement_card',
-        'document_description',
+        // Map UI attribute 'description' to DB column via accessors/mutators
+        'description',
         'deposit_date',
         'document_date',
         'case_number',
@@ -51,10 +52,21 @@ class ClientDocument extends Model
         return $this->belongsTo(CaseModel::class, 'matter_id');
     }
 
+    // Attribute mapping: description <-> document_description
+    public function getDescriptionAttribute(): ?string
+    {
+        return $this->attributes['document_description'] ?? null;
+    }
+
+    public function setDescriptionAttribute($value): void
+    {
+        $this->attributes['document_description'] = $value;
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['client_id', 'matter_id', 'client_name', 'responsible_lawyer', 'document_description', 'deposit_date', 'case_number'])
+            ->logOnly(['client_id', 'matter_id', 'client_name', 'responsible_lawyer', 'description', 'deposit_date', 'case_number', 'document_name', 'document_type', 'file_path', 'file_size', 'mime_type'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('clientdocument')

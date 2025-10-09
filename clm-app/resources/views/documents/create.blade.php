@@ -23,13 +23,13 @@
                 </div>
                 <div class="card-body">
                     @if($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="mb-0">
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
                     @endif
 
                     <form action="{{ route('documents.store') }}" method="POST" enctype="multipart/form-data">
@@ -38,39 +38,39 @@
                         {{-- File Upload --}}
                         <div class="mb-4">
                             <label for="document" class="form-label">Document File <span class="text-danger">*</span></label>
-                            <input type="file" class="form-control @error('document') is-invalid @enderror" 
-                                   id="document" name="document" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif">
+                            <input type="file" class="form-control @error('document') is-invalid @enderror"
+                                id="document" name="document" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif">
                             <div class="form-text">
                                 <strong>Supported formats:</strong> PDF, Word, Excel, PowerPoint, Text, Images<br>
                                 <strong>Maximum size:</strong> 10MB
                             </div>
                             @error('document')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         {{-- Client Selection --}}
                         <div class="mb-3">
                             <label for="client_id" class="form-label">Client <span class="text-danger">*</span></label>
-                            <select class="form-select @error('client_id') is-invalid @enderror" 
-                                    id="client_id" name="client_id" required>
+                            <select class="form-select @error('client_id') is-invalid @enderror"
+                                id="client_id" name="client_id" required>
                                 <option value="">Select a client...</option>
                                 @foreach($clients as $client)
-                                    <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>
-                                        {{ $client->client_name_ar ?? $client->client_name_en }}
-                                    </option>
+                                <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>
+                                    {{ $client->client_name_ar ?? $client->client_name_en }}
+                                </option>
                                 @endforeach
                             </select>
                             @error('client_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         {{-- Matter Selection --}}
                         <div class="mb-3">
                             <label for="matter_id" class="form-label">Matter (Optional)</label>
-                            <select class="form-select @error('matter_id') is-invalid @enderror" 
-                                    id="matter_id" name="matter_id">
+                            <select class="form-select @error('matter_id') is-invalid @enderror"
+                                id="matter_id" name="matter_id">
                                 <option value="">Select a matter...</option>
                                 <!-- Options will be populated via AJAX based on client selection -->
                             </select>
@@ -78,32 +78,32 @@
                                 Select a specific matter/case if this document is related to one.
                             </div>
                             @error('matter_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         {{-- Document Type --}}
                         <div class="mb-3">
                             <label for="document_type" class="form-label">Document Type <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('document_type') is-invalid @enderror" 
-                                   id="document_type" name="document_type" value="{{ old('document_type') }}" 
-                                   placeholder="e.g., Contract, Invoice, Court Filing, etc." required>
+                            <input type="text" class="form-control @error('document_type') is-invalid @enderror"
+                                id="document_type" name="document_type" value="{{ old('document_type') }}"
+                                placeholder="e.g., Contract, Invoice, Court Filing, etc." required>
                             @error('document_type')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         {{-- Description --}}
                         <div class="mb-4">
                             <label for="description" class="form-label">Description (Optional)</label>
-                            <textarea class="form-control @error('description') is-invalid @enderror" 
-                                      id="description" name="description" rows="3" 
-                                      placeholder="Brief description of the document...">{{ old('description') }}</textarea>
+                            <textarea class="form-control @error('description') is-invalid @enderror"
+                                id="description" name="description" rows="3"
+                                placeholder="Brief description of the document...">{{ old('description') }}</textarea>
                             <div class="form-text">
                                 Maximum 1000 characters
                             </div>
                             @error('description')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -157,61 +157,61 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const clientSelect = document.getElementById('client_id');
-    const matterSelect = document.getElementById('matter_id');
+    document.addEventListener('DOMContentLoaded', function() {
+        const clientSelect = document.getElementById('client_id');
+        const matterSelect = document.getElementById('matter_id');
 
-    clientSelect.addEventListener('change', function() {
-        const clientId = this.value;
-        
-        // Clear matter options
-        matterSelect.innerHTML = '<option value="">Select a matter...</option>';
-        
-        if (clientId) {
-            // Fetch matters for selected client
-            fetch(`/documents/client-cases?client_id=${clientId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                credentials: 'same-origin'
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(cases => {
-                    cases.forEach(caseItem => {
-                        const option = document.createElement('option');
-                        option.value = caseItem.id;
-                        option.textContent = caseItem.matter_name_ar || caseItem.matter_name_en;
-                        matterSelect.appendChild(option);
+        clientSelect.addEventListener('change', function() {
+            const clientId = this.value;
+
+            // Clear matter options
+            matterSelect.innerHTML = '<option value="">Select a matter...</option>';
+
+            if (clientId) {
+                // Fetch matters for selected client
+                fetch(`/documents/client-cases?client_id=${clientId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin'
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(cases => {
+                        cases.forEach(caseItem => {
+                            const option = document.createElement('option');
+                            option.value = caseItem.id;
+                            option.textContent = caseItem.matter_name_ar || caseItem.matter_name_en;
+                            matterSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching cases:', error);
+                        // Show user-friendly error message
+                        matterSelect.innerHTML = '<option value="">Error loading cases</option>';
                     });
-                })
-                .catch(error => {
-                    console.error('Error fetching cases:', error);
-                    // Show user-friendly error message
-                    matterSelect.innerHTML = '<option value="">Error loading cases</option>';
-                });
-        }
-    });
-
-    // File size validation
-    const fileInput = document.getElementById('document');
-    fileInput.addEventListener('change', function() {
-        const file = this.files[0];
-        if (file) {
-            const maxSize = 10 * 1024 * 1024; // 10MB
-            if (file.size > maxSize) {
-                alert('File size cannot exceed 10MB.');
-                this.value = '';
             }
-        }
+        });
+
+        // File size validation
+        const fileInput = document.getElementById('document');
+        fileInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                if (file.size > maxSize) {
+                    alert('File size cannot exceed 10MB.');
+                    this.value = '';
+                }
+            }
+        });
     });
-});
 </script>
 @endsection
