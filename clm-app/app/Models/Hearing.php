@@ -15,15 +15,26 @@ class Hearing extends Model
 
     protected $fillable = [
         'matter_id',
+        'lawyer_id',
         'date',
-        'time',
+        'procedure',
         'court',
-        'judge',
-        'status',
-        'notes',
+        'circuit',
+        'destination',
+        'decision',
+        'short_decision',
+        'last_decision',
         'next_hearing',
         'report',
         'notify_client',
+        'attendee',
+        'attendee_1',
+        'attendee_2',
+        'attendee_3',
+        'attendee_4',
+        'next_attendee',
+        'evaluation',
+        'notes',
     ];
 
     protected $casts = [
@@ -42,7 +53,7 @@ class Hearing extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['date', 'time', 'court', 'judge', 'status', 'notes', 'matter_id'])
+            ->logOnly(['date', 'procedure', 'court', 'decision', 'next_hearing', 'notes', 'matter_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('hearing')

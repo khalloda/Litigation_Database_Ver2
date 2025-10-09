@@ -11,9 +11,9 @@ class HearingsController extends Controller
 {
     public function index(Request $request)
     {
-        $this->authorize('viewAny', Hearing::class, auth()->user());
+        $this->authorize('viewAny', Hearing::class);
         $hearings = Hearing::with('case:id,matter_name_ar,matter_name_en')
-            ->select('id', 'matter_id', 'date', 'time', 'court', 'status', 'created_at', 'updated_at')
+            ->select('id', 'matter_id', 'date', 'court', 'procedure', 'created_at', 'updated_at')
             ->orderBy('date', 'desc')
             ->paginate(25);
         return view('hearings.index', compact('hearings'));
@@ -21,7 +21,7 @@ class HearingsController extends Controller
 
     public function create()
     {
-        $this->authorize('create', Hearing::class, auth()->user());
+        $this->authorize('create', Hearing::class);
         $cases = CaseModel::with('client:id,client_name_ar,client_name_en')
             ->select('id', 'client_id', 'matter_name_ar', 'matter_name_en')
             ->orderBy('matter_name_ar')
@@ -31,7 +31,7 @@ class HearingsController extends Controller
 
     public function store(HearingRequest $request)
     {
-        $this->authorize('create', Hearing::class, auth()->user());
+        $this->authorize('create', Hearing::class);
         $hearing = Hearing::create($request->validated() + [
             'created_by' => auth()->id(),
             'updated_by' => auth()->id(),
@@ -42,14 +42,14 @@ class HearingsController extends Controller
 
     public function show(Hearing $hearing)
     {
-        $this->authorize('view', $hearing, auth()->user());
+        $this->authorize('view', $hearing);
         $hearing->load('case.client');
         return view('hearings.show', compact('hearing'));
     }
 
     public function edit(Hearing $hearing)
     {
-        $this->authorize('update', $hearing, auth()->user());
+        $this->authorize('update', $hearing);
         $cases = CaseModel::with('client:id,client_name_ar,client_name_en')
             ->select('id', 'client_id', 'matter_name_ar', 'matter_name_en')
             ->orderBy('matter_name_ar')
@@ -59,7 +59,7 @@ class HearingsController extends Controller
 
     public function update(HearingRequest $request, Hearing $hearing)
     {
-        $this->authorize('update', $hearing, auth()->user());
+        $this->authorize('update', $hearing);
         $hearing->update($request->validated() + [
             'updated_by' => auth()->id(),
         ]);
@@ -69,7 +69,7 @@ class HearingsController extends Controller
 
     public function destroy(Hearing $hearing)
     {
-        $this->authorize('delete', $hearing, auth()->user());
+        $this->authorize('delete', $hearing);
         $hearing->delete();
         return redirect()->route('hearings.index')->with('success', __('app.hearing_deleted_success'));
     }

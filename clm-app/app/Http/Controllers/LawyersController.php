@@ -10,7 +10,7 @@ class LawyersController extends Controller
 {
     public function index(Request $request)
     {
-        $this->authorize('viewAny', Lawyer::class, auth()->user());
+        $this->authorize('viewAny', Lawyer::class);
         $lawyers = Lawyer::select('id', 'lawyer_name_ar', 'lawyer_name_en', 'lawyer_email', 'created_at', 'updated_at')
             ->orderBy('lawyer_name_ar')
             ->paginate(25);
@@ -19,13 +19,13 @@ class LawyersController extends Controller
 
     public function create()
     {
-        $this->authorize('create', Lawyer::class, auth()->user());
+        $this->authorize('create', Lawyer::class);
         return view('lawyers.create');
     }
 
     public function store(LawyerRequest $request)
     {
-        $this->authorize('create', Lawyer::class, auth()->user());
+        $this->authorize('create', Lawyer::class);
         $lawyer = Lawyer::create($request->validated() + [
             'created_by' => auth()->id(),
             'updated_by' => auth()->id(),
@@ -36,20 +36,20 @@ class LawyersController extends Controller
 
     public function show(Lawyer $lawyer)
     {
-        $this->authorize('view', $lawyer, auth()->user());
+        $this->authorize('view', $lawyer);
         $lawyer->load('cases', 'adminTasks');
         return view('lawyers.show', compact('lawyer'));
     }
 
     public function edit(Lawyer $lawyer)
     {
-        $this->authorize('update', $lawyer, auth()->user());
+        $this->authorize('update', $lawyer);
         return view('lawyers.edit', compact('lawyer'));
     }
 
     public function update(LawyerRequest $request, Lawyer $lawyer)
     {
-        $this->authorize('update', $lawyer, auth()->user());
+        $this->authorize('update', $lawyer);
         $lawyer->update($request->validated() + [
             'updated_by' => auth()->id(),
         ]);
@@ -59,7 +59,7 @@ class LawyersController extends Controller
 
     public function destroy(Lawyer $lawyer)
     {
-        $this->authorize('delete', $lawyer, auth()->user());
+        $this->authorize('delete', $lawyer);
         $lawyer->delete();
         return redirect()->route('lawyers.index')->with('success', __('app.lawyer_deleted_success'));
     }

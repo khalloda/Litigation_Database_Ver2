@@ -19,10 +19,9 @@
                         <tr>
                             <th>ID</th>
                             <th>{{ __('app.hearing_date') }}</th>
-                            <th>{{ __('app.time') }}</th>
                             <th>{{ __('app.case') }}</th>
                             <th>{{ __('app.court') }}</th>
-                            <th>{{ __('app.status') }}</th>
+                            <th>Procedure</th>
                             @if(app()->getLocale() == 'ar')
                             <th>{{ __('app.actions') }}</th>
                             @else
@@ -35,10 +34,9 @@
                         <tr>
                             <td><a href="{{ route('hearings.show', $hearing) }}">{{ $hearing->id }}</a></td>
                             <td>{{ $hearing->date?->format('Y-m-d') }}</td>
-                            <td>{{ $hearing->time }}</td>
                             <td>{{ $hearing->case?->matter_name_ar ?? $hearing->case?->matter_name_en }}</td>
                             <td>{{ $hearing->court }}</td>
-                            <td>{{ $hearing->status }}</td>
+                            <td>{{ $hearing->procedure }}</td>
                             <td class="{{ app()->getLocale() == 'ar' ? 'text-start' : 'text-end' }}">
                                 <div class="btn-group btn-group-sm" role="group">
                                     <a href="{{ route('hearings.show', $hearing) }}" class="btn btn-outline-primary btn-sm">{{ __('app.view') }}</a>

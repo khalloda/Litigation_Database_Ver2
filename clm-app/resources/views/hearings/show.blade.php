@@ -60,20 +60,16 @@
                     <td>{{ $hearing->date?->format('Y-m-d') }}</td>
                 </tr>
                 <tr>
-                    <td><strong>{{ __('app.hearing_time') }}</strong></td>
-                    <td>{{ $hearing->time }}</td>
+                    <td><strong>Procedure</strong></td>
+                    <td>{{ $hearing->procedure }}</td>
                 </tr>
                 <tr>
                     <td><strong>{{ __('app.hearing_court') }}</strong></td>
                     <td>{{ $hearing->court }}</td>
                 </tr>
                 <tr>
-                    <td><strong>{{ __('app.hearing_judge') }}</strong></td>
-                    <td>{{ $hearing->judge }}</td>
-                </tr>
-                <tr>
-                    <td><strong>{{ __('app.hearing_status') }}</strong></td>
-                    <td>{{ $hearing->status }}</td>
+                    <td><strong>Decision</strong></td>
+                    <td>{{ $hearing->decision }}</td>
                 </tr>
                 @if($hearing->next_hearing)
                 <tr>

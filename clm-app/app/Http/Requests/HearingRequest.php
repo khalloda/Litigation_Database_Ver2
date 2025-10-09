@@ -23,15 +23,21 @@ class HearingRequest extends FormRequest
     {
         return [
             'matter_id' => 'required|exists:cases,id',
+            'lawyer_id' => 'nullable|exists:lawyers,id',
             'date' => 'required|date',
-            'time' => 'nullable|string|max:10',
+            'procedure' => 'nullable|string|max:255',
             'court' => 'nullable|string|max:255',
-            'judge' => 'nullable|string|max:255',
-            'status' => 'nullable|string|max:255',
-            'notes' => 'nullable|string|max:5000',
+            'circuit' => 'nullable|string|max:255',
+            'destination' => 'nullable|string|max:255',
+            'decision' => 'nullable|string|max:5000',
+            'short_decision' => 'nullable|string|max:255',
+            'last_decision' => 'nullable|string|max:255',
             'next_hearing' => 'nullable|date|after_or_equal:date',
             'report' => 'nullable|boolean',
             'notify_client' => 'nullable|boolean',
+            'attendee' => 'nullable|string|max:255',
+            'evaluation' => 'nullable|string|max:255',
+            'notes' => 'nullable|string|max:5000',
         ];
     }
 

@@ -11,7 +11,7 @@ class CasesController extends Controller
 {
     public function index(Request $request)
     {
-        $this->authorize('viewAny', CaseModel::class, auth()->user());
+        $this->authorize('viewAny', CaseModel::class);
         $cases = CaseModel::with('client:id,client_name_ar,client_name_en')
             ->select('id', 'client_id', 'matter_name_ar', 'matter_name_en', 'matter_status', 'created_at', 'updated_at')
             ->orderBy('matter_name_ar')
@@ -21,7 +21,7 @@ class CasesController extends Controller
 
     public function create()
     {
-        $this->authorize('create', CaseModel::class, auth()->user());
+        $this->authorize('create', CaseModel::class);
         $clients = Client::select('id', 'client_name_ar', 'client_name_en')
             ->orderBy('client_name_ar')
             ->get();
@@ -30,7 +30,7 @@ class CasesController extends Controller
 
     public function store(CaseRequest $request)
     {
-        $this->authorize('create', CaseModel::class, auth()->user());
+        $this->authorize('create', CaseModel::class);
         $case = CaseModel::create($request->validated() + [
             'created_by' => auth()->id(),
             'updated_by' => auth()->id(),
@@ -41,14 +41,14 @@ class CasesController extends Controller
 
     public function show(CaseModel $case)
     {
-        $this->authorize('view', $case, auth()->user());
+        $this->authorize('view', $case);
         $case->load('client', 'hearings', 'adminTasks', 'documents');
         return view('cases.show', compact('case'));
     }
 
     public function edit(CaseModel $case)
     {
-        $this->authorize('update', $case, auth()->user());
+        $this->authorize('update', $case);
         $clients = Client::select('id', 'client_name_ar', 'client_name_en')
             ->orderBy('client_name_ar')
             ->get();
@@ -57,7 +57,7 @@ class CasesController extends Controller
 
     public function update(CaseRequest $request, CaseModel $case)
     {
-        $this->authorize('update', $case, auth()->user());
+        $this->authorize('update', $case);
         $case->update($request->validated() + [
             'updated_by' => auth()->id(),
         ]);
@@ -67,7 +67,7 @@ class CasesController extends Controller
 
     public function destroy(CaseModel $case)
     {
-        $this->authorize('delete', $case, auth()->user());
+        $this->authorize('delete', $case);
         $case->delete();
         return redirect()->route('cases.index')->with('success', __('app.case_deleted_success'));
     }

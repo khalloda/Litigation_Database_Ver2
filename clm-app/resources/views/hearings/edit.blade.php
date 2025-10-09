@@ -39,9 +39,9 @@
                         @enderror
                     </div>
                     <div class="col-md-6">
-                        <label for="time" class="form-label">{{ __('app.hearing_time') }}</label>
-                        <input type="time" class="form-control @error('time') is-invalid @enderror" id="time" name="time" value="{{ old('time', $hearing->time) }}">
-                        @error('time')
+                        <label for="procedure" class="form-label">Procedure</label>
+                        <input type="text" class="form-control @error('procedure') is-invalid @enderror" id="procedure" name="procedure" value="{{ old('procedure', $hearing->procedure) }}">
+                        @error('procedure')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -56,9 +56,9 @@
                         @enderror
                     </div>
                     <div class="col-md-6">
-                        <label for="judge" class="form-label">{{ __('app.hearing_judge') }}</label>
-                        <input type="text" class="form-control @error('judge') is-invalid @enderror" id="judge" name="judge" value="{{ old('judge', $hearing->judge) }}">
-                        @error('judge')
+                        <label for="circuit" class="form-label">Circuit</label>
+                        <input type="text" class="form-control @error('circuit') is-invalid @enderror" id="circuit" name="circuit" value="{{ old('circuit', $hearing->circuit) }}">
+                        @error('circuit')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -66,9 +66,9 @@
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label for="status" class="form-label">{{ __('app.hearing_status') }}</label>
-                        <input type="text" class="form-control @error('status') is-invalid @enderror" id="status" name="status" value="{{ old('status', $hearing->status) }}">
-                        @error('status')
+                        <label for="decision" class="form-label">Decision</label>
+                        <textarea class="form-control @error('decision') is-invalid @enderror" id="decision" name="decision" rows="2">{{ old('decision', $hearing->decision) }}</textarea>
+                        @error('decision')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
