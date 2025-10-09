@@ -115,29 +115,39 @@
                 </div>
             </div>
 
-            {{-- File Preview (if supported) --}}
-            @if(in_array($document->mime_type, ['application/pdf', 'image/jpeg', 'image/png', 'image/gif']))
+            {{-- File Preview (PDF/images inline; Office docs show helpful fallback) --}}
             <div class="card shadow-sm">
                 <div class="card-header">
                     <h5 class="mb-0">👁️ Document Preview</h5>
                 </div>
                 <div class="card-body">
-                    <div id="preview-container">
-                        @if($document->mime_type === 'application/pdf')
-                            <iframe src="{{ route('documents.signed-url', $document) }}" 
-                                    width="100%" height="600" style="border: none;">
-                                Your browser does not support PDF preview.
-                            </iframe>
-                        @elseif(str_starts_with($document->mime_type, 'image/'))
-                            <img src="{{ route('documents.signed-url', $document) }}" 
-                                 alt="{{ $document->document_name }}" 
-                                 class="img-fluid" 
-                                 style="max-height: 600px;">
-                        @endif
-                    </div>
+                    @if($document->mime_type === 'application/pdf')
+                        <iframe src="{{ route('documents.signed-url', $document) }}" 
+                                width="100%" height="600" style="border: none;">
+                            Your browser does not support PDF preview.
+                        </iframe>
+                    @elseif(str_starts_with($document->mime_type, 'image/'))
+                        <img src="{{ route('documents.signed-url', $document) }}" 
+                             alt="{{ $document->document_name }}" 
+                             class="img-fluid" 
+                             style="max-height: 600px;">
+                    @elseif(str_contains($document->mime_type, 'word') || str_contains($document->mime_type, 'spreadsheet') || str_contains($document->mime_type, 'presentation'))
+                        <div class="alert alert-info mb-0">
+                            <div class="d-flex align-items-center">
+                                <div class="me-2">ℹ️</div>
+                                <div>
+                                    Inline preview is not supported for Office files (DOCX/XLSX/PPTX) in the browser.
+                                    Use the Download button to open in Microsoft Office, or convert to PDF to enable inline preview.
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="alert alert-secondary mb-0">
+                            Preview is not available for this file type.
+                        </div>
+                    @endif
                 </div>
             </div>
-            @endif
         </div>
 
         <div class="col-md-4">
