@@ -56,4 +56,3 @@ class HearingRequest extends FormRequest
         ];
     }
 }
-

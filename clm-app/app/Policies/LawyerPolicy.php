@@ -62,4 +62,3 @@ class LawyerPolicy
         return $user->can('admin.users.manage');
     }
 }
-

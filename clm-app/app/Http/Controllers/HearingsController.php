@@ -74,4 +74,3 @@ class HearingsController extends Controller
         return redirect()->route('hearings.index')->with('success', __('app.hearing_deleted_success'));
     }
 }
-
