@@ -19,5 +19,3 @@ class ClientRequest extends FormRequest
         ];
     }
 }
-
-

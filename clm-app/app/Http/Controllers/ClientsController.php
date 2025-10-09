@@ -61,4 +61,11 @@ class ClientsController extends Controller
         ]);
         return redirect()->route('clients.show', $client)->with('success', 'Client updated');
     }
+
+    public function destroy(Client $client)
+    {
+        $this->authorize('delete', $client, auth()->user());
+        $client->delete();
+        return redirect()->route('clients.index')->with('success', __('app.client_deleted_success'));
+    }
 }

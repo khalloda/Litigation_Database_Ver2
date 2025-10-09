@@ -9,7 +9,7 @@ use App\Models\User;
 use Database\Seeders\PermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Activitylog\Models\Activity;
-uses(RefreshDatabase::class);
+uses(Tests\TestCase::class);
 
 beforeEach(function () {
     $this->seed(PermissionsSeeder::class);

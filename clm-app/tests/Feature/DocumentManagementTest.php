@@ -9,7 +9,7 @@ use Database\Seeders\PermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-uses(RefreshDatabase::class);
+uses(Tests\TestCase::class);
 
 beforeEach(function () {
     $this->seed(PermissionsSeeder::class);

@@ -7,9 +7,16 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h4">Client Details</h1>
         <div>
-            <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary me-2">← Back</a>
+            <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary me-2">{{ __('app.back_to_clients') }}</a>
             @can('clients.edit')
-            <a href="{{ route('clients.edit', $client) }}" class="btn btn-primary">Edit</a>
+            <a href="{{ route('clients.edit', $client) }}" class="btn btn-primary me-2">{{ __('app.edit_client') }}</a>
+            @endcan
+            @can('clients.delete')
+            <form action="{{ route('clients.destroy', $client) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ __('app.confirm_delete') }}')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger">{{ __('app.delete') }}</button>
+            </form>
             @endcan
         </div>
     </div>

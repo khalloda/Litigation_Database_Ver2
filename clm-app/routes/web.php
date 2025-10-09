@@ -39,6 +39,9 @@ Route::middleware(['auth', 'permission:clients.edit'])->group(function () {
     Route::get('/clients/{client}/edit', [App\Http\Controllers\ClientsController::class, 'edit'])->name('clients.edit');
     Route::put('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'update'])->name('clients.update');
 });
+Route::middleware(['auth', 'permission:clients.delete'])->group(function () {
+    Route::delete('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'destroy'])->name('clients.destroy');
+});
 Route::middleware(['auth', 'permission:cases.view'])->group(function () {
     Route::get('/cases', [App\Http\Controllers\CasesController::class, 'index'])->name('cases.index');
 });
