@@ -38,3 +38,9 @@ Route::middleware(['auth', 'permission:trash.purge'])->group(function () {
     Route::delete('/trash/{bundle}', [App\Http\Controllers\TrashController::class, 'purge'])
         ->name('trash.purge');
 });
+
+// Data Quality Dashboard (for admins)
+Route::middleware(['auth', 'permission:admin.audit.view'])->group(function () {
+    Route::get('/data-quality', [App\Http\Controllers\DataQualityController::class, 'index'])
+        ->name('data-quality.index');
+});
