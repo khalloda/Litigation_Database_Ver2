@@ -117,6 +117,26 @@ return [
     'court' => 'Court',
     'judge' => 'Judge',
     'status' => 'Status',
+    
+    // Lawyers
+    'lawyers' => 'Lawyers',
+    'new_lawyer' => 'New Lawyer',
+    'lawyer_details' => 'Lawyer Details',
+    'edit_lawyer' => 'Edit Lawyer',
+    'create_lawyer' => 'Create Lawyer',
+    'back_to_lawyers' => '← Back to Lawyers',
+    'lawyer_created_success' => 'Lawyer created successfully!',
+    'lawyer_updated_success' => 'Lawyer updated successfully!',
+    'lawyer_deleted_success' => 'Lawyer deleted successfully!',
+    'confirm_delete_lawyer' => 'Are you sure you want to delete this lawyer? This action can be undone from the trash.',
+    'lawyer_name_required' => 'At least one of Lawyer Name (Arabic) or Lawyer Name (English) is required.',
+    'lawyer_name_ar' => 'Lawyer Name (Arabic)',
+    'lawyer_name_en' => 'Lawyer Name (English)',
+    'lawyer_title' => 'Title',
+    'lawyer_email' => 'Email',
+    'attendance_track' => 'Attendance Tracking',
+    'related_assigned_cases' => 'Assigned Cases',
+    'no_assigned_cases_found' => 'No assigned cases found for this lawyer.',
 ];
 
 

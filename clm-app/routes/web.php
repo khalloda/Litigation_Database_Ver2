@@ -80,6 +80,17 @@ Route::middleware(['auth', 'permission:hearings.delete'])->group(function () {
     Route::delete('/hearings/{hearing}', [App\Http\Controllers\HearingsController::class, 'destroy'])->name('hearings.destroy');
 });
 
+// Lawyer Management (admin only)
+Route::middleware(['auth', 'permission:admin.users.manage'])->group(function () {
+    Route::get('/lawyers', [App\Http\Controllers\LawyersController::class, 'index'])->name('lawyers.index');
+    Route::get('/lawyers/create', [App\Http\Controllers\LawyersController::class, 'create'])->name('lawyers.create');
+    Route::post('/lawyers', [App\Http\Controllers\LawyersController::class, 'store'])->name('lawyers.store');
+    Route::get('/lawyers/{lawyer}', [App\Http\Controllers\LawyersController::class, 'show'])->name('lawyers.show');
+    Route::get('/lawyers/{lawyer}/edit', [App\Http\Controllers\LawyersController::class, 'edit'])->name('lawyers.edit');
+    Route::put('/lawyers/{lawyer}', [App\Http\Controllers\LawyersController::class, 'update'])->name('lawyers.update');
+    Route::delete('/lawyers/{lawyer}', [App\Http\Controllers\LawyersController::class, 'destroy'])->name('lawyers.destroy');
+});
+
 // Trash/Recycle Bin routes (protected by permission middleware)
 Route::middleware(['auth', 'permission:trash.view'])->prefix('trash')->name('trash.')->group(function () {
     Route::get('/', [App\Http\Controllers\TrashController::class, 'index'])->name('index');

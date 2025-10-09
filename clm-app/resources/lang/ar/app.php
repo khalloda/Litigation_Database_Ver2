@@ -117,6 +117,26 @@ return [
     'court' => 'المحكمة',
     'judge' => 'القاضي',
     'status' => 'الحالة',
+    
+    // Lawyers
+    'lawyers' => 'المحامون',
+    'new_lawyer' => 'محامٍ جديد',
+    'lawyer_details' => 'تفاصيل المحامي',
+    'edit_lawyer' => 'تعديل المحامي',
+    'create_lawyer' => 'إنشاء محامٍ',
+    'back_to_lawyers' => '← العودة إلى المحامين',
+    'lawyer_created_success' => 'تم إنشاء المحامي بنجاح!',
+    'lawyer_updated_success' => 'تم تحديث المحامي بنجاح!',
+    'lawyer_deleted_success' => 'تم حذف المحامي بنجاح!',
+    'confirm_delete_lawyer' => 'هل أنت متأكد أنك تريد حذف هذا المحامي؟ يمكن التراجع عن هذا الإجراء من سلة المهملات.',
+    'lawyer_name_required' => 'يجب إدخال اسم المحامي (عربي) أو اسم المحامي (إنجليزي) على الأقل.',
+    'lawyer_name_ar' => 'اسم المحامي (عربي)',
+    'lawyer_name_en' => 'اسم المحامي (إنجليزي)',
+    'lawyer_title' => 'اللقب',
+    'lawyer_email' => 'البريد الإلكتروني',
+    'attendance_track' => 'تتبع الحضور',
+    'related_assigned_cases' => 'القضايا المعينة',
+    'no_assigned_cases_found' => 'لا توجد قضايا معينة لهذا المحامي.',
 ];
 
 
