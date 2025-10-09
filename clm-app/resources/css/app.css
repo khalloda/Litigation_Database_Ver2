@@ -1,4 +1,4 @@
-/* Fix for giant Bootstrap carousel arrows */
+/* Comprehensive fix for giant arrow overlays */
 .carousel-control-prev,
 .carousel-control-next {
     display: none !important;
@@ -9,17 +9,57 @@
     display: none !important;
 }
 
-/* Alternative: If you want to keep them but make them smaller */
-/*
-.carousel-control-prev,
-.carousel-control-next {
-    width: 5% !important;
-    opacity: 0.1 !important;
+/* Hide all possible arrow-like elements that might be causing giant overlays */
+[class*="arrow"],
+[class*="chevron"],
+[class*="carousel"],
+[class*="navigation"],
+[class*="nav-arrow"],
+[class*="nav-chevron"],
+[class*="btn-arrow"],
+[class*="btn-chevron"] {
+    position: relative !important;
+    z-index: 1 !important;
 }
 
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-    width: 1rem !important;
-    height: 1rem !important;
+/* Target specific problematic elements */
+.arrow,
+.chevron,
+.nav-arrow,
+.nav-chevron,
+.btn-arrow,
+.btn-chevron {
+    width: auto !important;
+    height: auto !important;
+    max-width: 2rem !important;
+    max-height: 2rem !important;
+    font-size: 1rem !important;
 }
-*/
+
+/* Hide any elements with arrow-like background images */
+[style*="background-image"][style*="arrow"],
+[style*="background-image"][style*="chevron"] {
+    display: none !important;
+}
+
+/* Hide any SVG arrows */
+svg[class*="arrow"],
+svg[class*="chevron"],
+svg path[d*="arrow"],
+svg path[d*="chevron"] {
+    display: none !important;
+}
+
+/* Target pagination arrows specifically */
+.pagination .page-link[aria-label*="arrow"],
+.pagination .page-link[aria-label*="Previous"],
+.pagination .page-link[aria-label*="Next"] {
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* Hide any fixed positioned arrow elements */
+[style*="position: fixed"][class*="arrow"],
+[style*="position: fixed"][class*="chevron"] {
+    display: none !important;
+}
