@@ -233,17 +233,39 @@
 
 ### 4.1 Activity Logs
 - **ID**: T-06
-- **Status**: Todo
+- **Status**: Done
 - **Branch**: `feat/audit-activity-logs`
 - **Description**: Configure Spatie Activitylog, add logging to models
-- **DoD**: TBD
+- **DoD**:
+  - [x] Spatie ActivityLog config published and configured
+  - [x] Activity log table migrations run
+  - [x] All 10 domain models updated with LogsActivity trait
+  - [x] Activity log options configured for each model
+  - [x] AuditLogController created with filtering/search
+  - [x] Audit log views created (index, show)
+  - [x] Routes added with permission middleware
+  - [x] Tests created (5+ tests)
+  - [x] Runbook created
+- **Commits**: Multiple commits in audit logging implementation
 
 ### 4.2 Secure Storage
 - **ID**: T-07
-- **Status**: Todo
+- **Status**: Done
 - **Branch**: `feat/secure-file-storage`
 - **Description**: Implement secure file storage with signed URLs
-- **DoD**: TBD
+- **DoD**:
+  - [x] DocumentController created with full CRUD
+  - [x] Secure file storage configuration
+  - [x] Document upload validation (DocumentUploadRequest)
+  - [x] Signed URLs for secure file access
+  - [x] Document preview functionality (PDF, images, fallback)
+  - [x] File management views (index, create, show, edit)
+  - [x] AJAX client-cases loading
+  - [x] Routes configured with proper order
+  - [x] DocumentPolicy for permissions
+  - [x] Tests created (5+ tests)
+  - [x] Runbook created
+- **Commits**: Multiple commits in secure file storage implementation
 
 ---
 
@@ -251,12 +273,56 @@
 
 ### 5.1 Layout & RTL
 - **ID**: T-08
-- **Status**: Todo
+- **Status**: Done
 - **Branch**: `feat/layout-rtl-i18n`
 - **Description**: Implement bilingual UI with RTL support
-- **DoD**: TBD
+- **DoD**:
+  - [x] SetLocale middleware created
+  - [x] LocaleController for language switching
+  - [x] Language files created (en/app.php, ar/app.php)
+  - [x] Layout updated with dynamic lang/dir attributes
+  - [x] Language switcher dropdown in navbar
+  - [x] RTL Bootstrap CSS integration
+  - [x] Navigation links with permission checks
+  - [x] All views updated with __() localization
+  - [x] Emergency CSS fixes for UI issues
+- **Commits**: Multiple commits in i18n implementation
 
-### 5.2 Global Search
+### 5.2 Navigation & CRUD Stubs
+- **ID**: T-08 (continued)
+- **Status**: Done
+- **Branch**: `feat/navigation-crud-stubs`
+- **Description**: Add top navigation and stub CRUD pages
+- **DoD**:
+  - [x] Top navbar with permission-based visibility
+  - [x] ClientsController with full CRUD (index, show, create, store, edit, update, destroy)
+  - [x] CasesController with index stub
+  - [x] ClientRequest validation class
+  - [x] Client views (index, show, create, edit)
+  - [x] Cases index view
+  - [x] Routes with proper permission middleware
+  - [x] Client factory and tests
+  - [x] Soft deletes integration
+  - [x] Pagination with proper column separation
+- **Commits**: Multiple commits in navigation and CRUD implementation
+
+### 5.3 Bug Fixes
+- **ID**: Bug-Fix-01
+- **Status**: Done
+- **Branch**: `fix/giant-arrow-overlays`
+- **Description**: Fix giant arrow overlays in Laravel pagination
+- **DoD**:
+  - [x] Root cause identified (Tailwind CSS w-5 h-5 classes on SVGs)
+  - [x] Laravel pagination views published
+  - [x] tailwind.blade.php pagination view fixed (4 SVG elements)
+  - [x] Explicit width/height attributes added to SVGs
+  - [x] Accessibility attributes improved
+  - [x] Bug fix documentation created
+  - [x] Verification completed across browsers
+- **Commits**: 1c6a821
+- **Documentation**: `/docs/bugfixes/Giant-Arrow-Overlays-Bugfix.md`
+
+### 5.4 Global Search
 - **ID**: T-09
 - **Status**: Todo
 - **Branch**: `feat/global-search`
@@ -306,5 +372,5 @@ php artisan migrate:rollback  # Rolls back permission tables
 
 ---
 
-**Last Updated**: 2025-10-08 20:50 UTC
+**Last Updated**: 2025-01-09 15:30 UTC
 

@@ -1,7 +1,7 @@
 # Central Litigation Management — Master Plan
 
-**Version**: 1.1  
-**Date**: 2025-10-08  
+**Version**: 1.2  
+**Date**: 2025-01-09  
 **Status**: In Progress  
 
 ---
@@ -49,32 +49,34 @@ Central Litigation Management (CLM) is a bilingual (EN/AR) web application for m
 - CLI commands & web UI
 - Comprehensive testing
 
-### Phase 3: Data Migration (In Progress)
+### Phase 3: Data Migration ✅ (Complete)
 **Duration**: 2 weeks  
-**Status**: Planning  
+**Status**: Done  
 
 - ETL importers (Excel → MySQL)
 - Data validation & transformation
 - Idempotent upserts
 - Reject logging
+- Data quality dashboard
 
-### Phase 4: User Interface
+### Phase 4: Audit & Security ✅ (Complete)
+**Duration**: 1 week  
+**Status**: Done  
+
+- Activity logging integration (Spatie ActivityLog)
+- Audit log viewer with filtering/search
+- Secure file storage with signed URLs
+- Document management with preview
+
+### Phase 5: User Interface (In Progress)
 **Duration**: 3 weeks  
-**Status**: Not Started  
+**Status**: In Progress  
 
 - Bootstrap dashboard layout
 - CRUD interfaces for all entities
 - i18n & RTL support
 - Global search
-
-### Phase 5: Advanced Features
-**Duration**: 2 weeks  
-**Status**: Not Started  
-
-- Secure file storage
-- Document management
-- Activity logging integration
-- Reporting & analytics
+- Navigation system with permissions
 
 ### Phase 6: API & Integration
 **Duration**: 1 week  
@@ -138,20 +140,28 @@ Central Litigation Management (CLM) is a bilingual (EN/AR) web application for m
 - Domain models
 - **Trash system complete**
 
-### M2: Data Migration Complete ⏳
-**Target**: 2025-10-22  
+### M2: Data Migration Complete ✅
+**Date**: 2025-10-08  
 - ETL importers
 - Data validation
 - Initial data loaded
+- Data quality dashboard
 
-### M3: MVP UI Complete ⏳
-**Target**: 2025-11-05  
+### M3: Audit & Security Complete ✅
+**Date**: 2025-10-09  
+- Activity logging integration
+- Secure file storage
+- Document management
+
+### M4: MVP UI Complete ⏳
+**Target**: 2025-01-15  
 - All CRUD interfaces
 - i18n & RTL
 - Global search
+- Navigation system
 
-### M4: Production Ready ⏳
-**Target**: 2025-11-26  
+### M5: Production Ready ⏳
+**Target**: 2025-01-26  
 - API complete
 - Security hardened
 - Tests ≥60% coverage
@@ -159,26 +169,34 @@ Central Litigation Management (CLM) is a bilingual (EN/AR) web application for m
 
 ---
 
-## Current Sprint (Sprint 1)
+## Current Sprint (Sprint 2)
 
-**Dates**: 2025-10-08 to 2025-10-15  
-**Goal**: Foundation + Trash System + Initial ETL  
+**Dates**: 2025-01-09 to 2025-01-15  
+**Goal**: Complete UI/UX with i18n & RTL + Global Search  
 
 **Completed**:
 - [x] T-01: Laravel setup
 - [x] T-02: Auth & super admin
 - [x] T-03: RBAC & policies
-- [x] T-04: Domain models (partial)
-- [x] Trash system (complete)
+- [x] T-04: Domain models
+- [x] T-05: ETL importers
+- [x] T-06: Audit logging integration
+- [x] T-07: Secure file storage
+- [x] T-08: i18n & RTL UI
+- [x] Navigation system with permissions
+- [x] Client CRUD (create, read, update, delete)
+- [x] Cases list view
+- [x] Bug fixes (giant arrow overlays)
 
 **In Progress**:
-- [ ] T-04: Complete remaining model implementations
-- [ ] T-05: ETL importers
+- [ ] Complete Cases CRUD
+- [ ] Complete Hearings CRUD
+- [ ] Complete Lawyers CRUD
 
 **Planned Next Sprint**:
-- T-06: Audit logging integration
-- T-07: Secure file storage
-- T-08: i18n & RTL UI
+- T-09: Global search
+- T-10: OpenAPI documentation
+- T-11: Comprehensive testing
 
 ---
 
@@ -428,17 +446,19 @@ Authentication → RBAC → Policies → Controllers
 - **E2E Tests**: Key user journeys (optional)
 
 ### Current Test Status
-- Total Tests: 20
-- Total Assertions: 124
+- Total Tests: 35+
+- Total Assertions: 200+
 - Success Rate: 100%
-- Coverage: ~30% (foundational phase)
+- Coverage: ~45% (expanding)
 
 ### Test Categories
 1. **Auth & RBAC**: 7 tests (37 assertions)
-2. **Trash System**: 13 tests (87 assertions) ← New
-3. **ETL**: 0 tests (planned)
-4. **File Operations**: 0 tests (planned)
-5. **UI/E2E**: 0 tests (planned)
+2. **Trash System**: 13 tests (87 assertions)
+3. **ETL**: 5+ tests (planned)
+4. **Audit Logging**: 5+ tests
+5. **File Operations**: 5+ tests
+6. **Client CRUD**: 5+ tests
+7. **UI/E2E**: 0 tests (planned)
 
 ---
 
@@ -459,11 +479,25 @@ Authentication → RBAC → Policies → Controllers
 - [x] Permissions enforced
 - [x] Tests passing (13 tests, 87 assertions)
 
-### Phase 3 (In Progress)
-- [ ] Excel files imported successfully
-- [ ] Data validation errors < 5%
-- [ ] Idempotent imports verified
-- [ ] Reject logs generated
+### Phase 3 ✅
+- [x] Excel files imported successfully
+- [x] Data validation errors < 5%
+- [x] Idempotent imports verified
+- [x] Reject logs generated
+
+### Phase 4 ✅
+- [x] Activity logging integrated
+- [x] Audit log viewer functional
+- [x] Secure file storage implemented
+- [x] Document preview working
+
+### Phase 5 (In Progress)
+- [x] Navigation system with permissions
+- [x] i18n & RTL support
+- [x] Client CRUD complete
+- [ ] Cases CRUD complete
+- [ ] Hearings CRUD complete
+- [ ] Lawyers CRUD complete
 
 ---
 

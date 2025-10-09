@@ -122,53 +122,87 @@ Core domain tables support soft deletes:
 
 ---
 
-## Planned Tables (To Be Created in Future Tasks)
+## Domain Tables (Created and Populated)
 
 ### clients
 **Description**: Client organizations/individuals  
-**Source**: `clients.xlsx`
+**Source**: `clients.xlsx`  
+**Records**: 308 (100% imported)  
+**Key Columns**: `client_name_ar`, `client_name_en`, `client_type`, `contact_person`, `contact_email`, `contact_phone`, `address`, `notes`
 
 ### cases (matters)
 **Description**: Legal cases/matters  
-**Source**: `cases.xlsx`
+**Source**: `cases.xlsx`  
+**Records**: 1,695 (99.65% imported)  
+**Key Columns**: `client_id`, `matter_name_ar`, `matter_name_en`, `matter_status`, `matter_description`, `start_date`, `end_date`
 
 ### hearings
 **Description**: Court hearings and sessions  
-**Source**: `hearings.xlsx`
+**Source**: `hearings.xlsx`  
+**Records**: 369 (3.5% imported - orphaned FKs expected)  
+**Key Columns**: `case_id`, `hearing_date`, `hearing_time`, `court_name`, `judge_name`, `hearing_type`, `status`
 
 ### lawyers
 **Description**: Lawyer profiles  
-**Source**: `lawyers.xlsx`
+**Source**: `lawyers.xlsx`  
+**Records**: 14 (100% imported)  
+**Key Columns**: `name`, `email`, `phone`, `specialization`, `bar_number`, `status`
 
 ### contacts
 **Description**: Client contacts  
-**Source**: `contacts.xlsx`
+**Source**: `contacts.xlsx`  
+**Records**: 39 (21% imported - orphaned FKs expected)  
+**Key Columns**: `client_id`, `name`, `email`, `phone`, `position`, `is_primary`
 
 ### engagement_letters
 **Description**: Fee engagement letters  
-**Source**: `engagement_letters.xlsx`
+**Source**: `engagement_letters.xlsx`  
+**Records**: 300 (91.2% imported)  
+**Key Columns**: `client_id`, `case_id`, `letter_number`, `letter_date`, `fee_amount`, `currency`, `terms`
 
 ### power_of_attorneys
 **Description**: Power of attorney documents  
-**Source**: `power_of_attorneys.xlsx`
+**Source**: `power_of_attorneys.xlsx`  
+**Records**: 3 (0.4% imported - orphaned FKs expected)  
+**Key Columns**: `client_id`, `poa_number`, `poa_date`, `poa_type`, `grantor_name`, `grantee_name`
 
 ### admin_tasks
 **Description**: Administrative work tasks  
-**Source**: `admin_work_tasks.xlsx`
+**Source**: `admin_work_tasks.xlsx`  
+**Records**: 4,077 (98.79% imported)  
+**Key Columns**: `case_id`, `task_name`, `task_description`, `assigned_to`, `priority`, `status`, `due_date`, `completed_date`, `last_follow_up`
 
 ### admin_subtasks
 **Description**: Subtasks under admin tasks  
-**Source**: `admin_work_subtasks.xlsx`
+**Source**: `admin_work_subtasks.xlsx`  
+**Records**: 0 (100% orphaned)  
+**Key Columns**: `admin_task_id`, `subtask_name`, `subtask_description`, `assigned_to`, `status`, `due_date`
 
 ### client_documents
 **Description**: Uploaded legal documents  
-**Source**: `clients_matters_documents.xlsx`
+**Source**: `clients_matters_documents.xlsx`  
+**Records**: 404 (100% imported)  
+**Key Columns**: `client_id`, `case_id`, `document_name`, `document_type`, `document_description`, `file_path`, `file_size`, `mime_type`, `uploaded_by`
+
+---
+
+## System Tables (Additional)
+
+### deletion_bundles
+**Description**: Trash/recycle bin system for soft-deleted entities  
+**Records**: Dynamic (created on deletions)  
+**Key Columns**: `id` (UUID), `name`, `description`, `deleted_by`, `deleted_at`, `ttl_days`, `status`, `restore_conflicts`, `created_at`
+
+### deletion_bundle_items
+**Description**: Individual items within deletion bundles  
+**Records**: Dynamic (created on deletions)  
+**Key Columns**: `id` (UUID), `deletion_bundle_id`, `model_type`, `model_id`, `snapshot` (JSON), `file_descriptors` (JSON), `created_at`
 
 ---
 
 ## ERD
 
-> **Note**: ERD diagram will be added in Task T-04 after finalizing the domain model structure.
+> **Note**: ERD diagram available in `/docs/erd.md` with complete relationship mapping.
 
 ---
 
@@ -177,8 +211,10 @@ Core domain tables support soft deletes:
 | Date | Version | Changes | By |
 |---|---|---|---|
 | 2025-10-08 | 1.0 | Initial schema with users, roles, permissions, activity_log | System |
+| 2025-10-08 | 1.1 | Added domain tables after ETL import completion | System |
+| 2025-01-09 | 1.2 | Updated with import statistics and system tables | System |
 
 ---
 
-**Last Updated**: 2025-10-08 14:04 UTC
+**Last Updated**: 2025-01-09 15:45 UTC
 
