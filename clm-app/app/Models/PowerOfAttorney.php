@@ -11,55 +11,21 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class PowerOfAttorney extends Model
 {
-    use HasFactory, SoftDeletes, InteractsWithDeletionBundles;
+    use HasFactory, SoftDeletes, InteractsWithDeletionBundles, LogsActivity;
 
     protected $fillable = [
-        'client_id',
-        'client_print_name',
-        'principal_name',
-        'year',
-        'capacity',
-        'authorized_lawyers',
-        'issue_date',
-        'inventory',
-        'issuing_authority',
-        'letter',
-        'poa_number',
-        'principal_capacity',
-        'copies_count',
-        'serial',
-        'notes',
+        'client_id', 'poa_type', 'poa_number', 'issue_date', 'expiry_date', 'is_active'
     ];
 
     protected $casts = [
         'issue_date' => 'date',
-        'inventory' => 'boolean',
-        'year' => 'integer',
-        'poa_number' => 'integer',
-        'copies_count' => 'integer',
+        'expiry_date' => 'date',
+        'is_active' => 'boolean',
     ];
 
     // Relationships
-    public function client()
-    {
-        return $this->belongsTo(Client::class);
-    
-    
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly(['client_id', 'poa_type', 'poa_number', 'issue_date', 'expiry_date', 'is_active'])
-            ->logOnlyDirty()
-            ->dontSubmitEmptyLogs()
-            ->useLogName('powerofattorney')
-            ->setDescriptionForEvent(fn(string $eventName) => "PowerOfAttorney was {$eventName}");
-    }")
-            ->setDescriptionForEvent('updated', fn(string $eventName) => "PowerOfAttorney was {$eventName}")
-            ->setDescriptionForEvent('deleted', fn(string $eventName) => "PowerOfAttorney was {$eventName}");
-    }
-}
+    public function client() { return $this->belongsTo(Client::class); }
 
-    
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -68,8 +34,5 @@ class PowerOfAttorney extends Model
             ->dontSubmitEmptyLogs()
             ->useLogName('powerofattorney')
             ->setDescriptionForEvent(fn(string $eventName) => "PowerOfAttorney was {$eventName}");
-    }")
-            ->setDescriptionForEvent('updated', fn(string $eventName) => "PowerOfAttorney was {$eventName}")
-            ->setDescriptionForEvent('deleted', fn(string $eventName) => "PowerOfAttorney was {$eventName}");
     }
 }

@@ -11,68 +11,36 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class ClientDocument extends Model
 {
-    use HasFactory, SoftDeletes, InteractsWithDeletionBundles;
+    use HasFactory, SoftDeletes, InteractsWithDeletionBundles, LogsActivity;
 
     protected $fillable = [
         'client_id',
         'matter_id',
-        'client_name',
-        'responsible_lawyer',
-        'movement_card',
-        'document_description',
+        'document_name',
+        'document_type',
         'deposit_date',
-        'document_date',
-        'case_number',
-        'pages_count',
-        'notes',
+        'file_path',
+        'file_size',
+        'mime_type',
+        'description',
     ];
 
     protected $casts = [
         'deposit_date' => 'date',
-        'document_date' => 'date',
-        'movement_card' => 'boolean',
+        'file_size' => 'integer',
     ];
 
     // Relationships
     public function client()
     {
         return $this->belongsTo(Client::class);
-    
-    
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly(['client_id', 'matter_id', 'document_name', 'document_type', 'deposit_date', 'file_path'])
-            ->logOnlyDirty()
-            ->dontSubmitEmptyLogs()
-            ->useLogName('clientdocument')
-            ->setDescriptionForEvent(fn(string $eventName) => "ClientDocument was {$eventName}");
-    }")
-            ->setDescriptionForEvent('updated', fn(string $eventName) => "ClientDocument was {$eventName}")
-            ->setDescriptionForEvent('deleted', fn(string $eventName) => "ClientDocument was {$eventName}");
     }
-}
 
     public function case()
     {
         return $this->belongsTo(CaseModel::class, 'matter_id');
-    
-    
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly(['client_id', 'matter_id', 'document_name', 'document_type', 'deposit_date', 'file_path'])
-            ->logOnlyDirty()
-            ->dontSubmitEmptyLogs()
-            ->useLogName('clientdocument')
-            ->setDescriptionForEvent(fn(string $eventName) => "ClientDocument was {$eventName}");
-    }")
-            ->setDescriptionForEvent('updated', fn(string $eventName) => "ClientDocument was {$eventName}")
-            ->setDescriptionForEvent('deleted', fn(string $eventName) => "ClientDocument was {$eventName}");
     }
-}
 
-    
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -81,8 +49,5 @@ class ClientDocument extends Model
             ->dontSubmitEmptyLogs()
             ->useLogName('clientdocument')
             ->setDescriptionForEvent(fn(string $eventName) => "ClientDocument was {$eventName}");
-    }")
-            ->setDescriptionForEvent('updated', fn(string $eventName) => "ClientDocument was {$eventName}")
-            ->setDescriptionForEvent('deleted', fn(string $eventName) => "ClientDocument was {$eventName}");
     }
 }
