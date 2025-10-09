@@ -68,10 +68,13 @@
                         <li class="nav-item"><a class="nav-link" href="{{ route('clients.index') }}">Clients</a></li>
                         @endcan
                         @can('cases.view')
-                        <li class="nav-item"><a class="nav-link" href="{{ route('cases.index') }}">Cases</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('cases.index') }}">{{ __('app.cases') }}</a></li>
+                        @endcan
+                        @can('hearings.view')
+                        <li class="nav-item"><a class="nav-link" href="{{ route('hearings.index') }}">{{ __('app.hearings') }}</a></li>
                         @endcan
                         @can('documents.view')
-                        <li class="nav-item"><a class="nav-link" href="{{ route('documents.index') }}">Documents</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('documents.index') }}">{{ __('app.documents') }}</a></li>
                         @endcan
                         @can('admin.audit.view')
                         <li class="nav-item"><a class="nav-link" href="{{ route('audit-logs.index') }}">Audit Logs</a></li>

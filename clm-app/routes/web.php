@@ -61,6 +61,25 @@ Route::middleware(['auth', 'permission:cases.delete'])->group(function () {
     Route::delete('/cases/{case}', [App\Http\Controllers\CasesController::class, 'destroy'])->name('cases.destroy');
 });
 
+// Hearing Management
+Route::middleware(['auth', 'permission:hearings.view'])->group(function () {
+    Route::get('/hearings', [App\Http\Controllers\HearingsController::class, 'index'])->name('hearings.index');
+});
+Route::middleware(['auth', 'permission:hearings.create'])->group(function () {
+    Route::get('/hearings/create', [App\Http\Controllers\HearingsController::class, 'create'])->name('hearings.create');
+    Route::post('/hearings', [App\Http\Controllers\HearingsController::class, 'store'])->name('hearings.store');
+});
+Route::middleware(['auth', 'permission:hearings.view'])->group(function () {
+    Route::get('/hearings/{hearing}', [App\Http\Controllers\HearingsController::class, 'show'])->name('hearings.show');
+});
+Route::middleware(['auth', 'permission:hearings.edit'])->group(function () {
+    Route::get('/hearings/{hearing}/edit', [App\Http\Controllers\HearingsController::class, 'edit'])->name('hearings.edit');
+    Route::put('/hearings/{hearing}', [App\Http\Controllers\HearingsController::class, 'update'])->name('hearings.update');
+});
+Route::middleware(['auth', 'permission:hearings.delete'])->group(function () {
+    Route::delete('/hearings/{hearing}', [App\Http\Controllers\HearingsController::class, 'destroy'])->name('hearings.destroy');
+});
+
 // Trash/Recycle Bin routes (protected by permission middleware)
 Route::middleware(['auth', 'permission:trash.view'])->prefix('trash')->name('trash.')->group(function () {
     Route::get('/', [App\Http\Controllers\TrashController::class, 'index'])->name('index');
