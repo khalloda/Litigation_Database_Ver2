@@ -42,8 +42,23 @@ Route::middleware(['auth', 'permission:clients.edit'])->group(function () {
 Route::middleware(['auth', 'permission:clients.delete'])->group(function () {
     Route::delete('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'destroy'])->name('clients.destroy');
 });
+// Case Management
 Route::middleware(['auth', 'permission:cases.view'])->group(function () {
     Route::get('/cases', [App\Http\Controllers\CasesController::class, 'index'])->name('cases.index');
+});
+Route::middleware(['auth', 'permission:cases.create'])->group(function () {
+    Route::get('/cases/create', [App\Http\Controllers\CasesController::class, 'create'])->name('cases.create');
+    Route::post('/cases', [App\Http\Controllers\CasesController::class, 'store'])->name('cases.store');
+});
+Route::middleware(['auth', 'permission:cases.view'])->group(function () {
+    Route::get('/cases/{case}', [App\Http\Controllers\CasesController::class, 'show'])->name('cases.show');
+});
+Route::middleware(['auth', 'permission:cases.edit'])->group(function () {
+    Route::get('/cases/{case}/edit', [App\Http\Controllers\CasesController::class, 'edit'])->name('cases.edit');
+    Route::put('/cases/{case}', [App\Http\Controllers\CasesController::class, 'update'])->name('cases.update');
+});
+Route::middleware(['auth', 'permission:cases.delete'])->group(function () {
+    Route::delete('/cases/{case}', [App\Http\Controllers\CasesController::class, 'destroy'])->name('cases.destroy');
 });
 
 // Trash/Recycle Bin routes (protected by permission middleware)
