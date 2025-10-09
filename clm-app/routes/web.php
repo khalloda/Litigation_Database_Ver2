@@ -26,6 +26,14 @@ Route::get('/locale/{locale}', [App\Http\Controllers\LocaleController::class, 's
     ->whereIn('locale', ['en','ar'])
     ->name('locale.switch');
 
+// Basic CRUD stubs
+Route::middleware(['auth', 'permission:clients.view'])->group(function () {
+    Route::get('/clients', [App\Http\Controllers\ClientsController::class, 'index'])->name('clients.index');
+});
+Route::middleware(['auth', 'permission:cases.view'])->group(function () {
+    Route::get('/cases', [App\Http\Controllers\CasesController::class, 'index'])->name('cases.index');
+});
+
 // Trash/Recycle Bin routes (protected by permission middleware)
 Route::middleware(['auth', 'permission:trash.view'])->prefix('trash')->name('trash.')->group(function () {
     Route::get('/', [App\Http\Controllers\TrashController::class, 'index'])->name('index');
