@@ -15,16 +15,20 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Matter</th>
-                            <th>Client</th>
+                            <th>{{ __('app.matter_name_ar') }}</th>
+                            <th>{{ __('app.matter_name_en') }}</th>
+                            <th>{{ __('app.client_name_ar') }}</th>
+                            <th>{{ __('app.client_name_en') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($cases as $case)
                         <tr>
                             <td>{{ $case->id }}</td>
-                            <td>{{ $case->matter_name_ar ?? $case->matter_name_en }}</td>
-                            <td>{{ $case->client?->client_name_ar ?? $case->client?->client_name_en }}</td>
+                            <td>{{ $case->matter_name_ar }}</td>
+                            <td>{{ $case->matter_name_en }}</td>
+                            <td>{{ $case->client?->client_name_ar }}</td>
+                            <td>{{ $case->client?->client_name_en }}</td>
                         </tr>
                         @endforeach
                     </tbody>

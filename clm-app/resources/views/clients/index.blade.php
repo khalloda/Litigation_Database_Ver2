@@ -17,15 +17,23 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>{{ __('app.actions') }}</th>
                             <th>ID</th>
-                            <th>{{ __('app.client_name_ar') }} / {{ __('app.client_name_en') }}</th>
+                            <th>{{ __('app.client_name_ar') }}</th>
+                            <th>{{ __('app.client_name_en') }}</th>
+                            @if(app()->getLocale() == 'ar')
+                            <th>{{ __('app.actions') }}</th>
+                            @else
+                            <th class="text-end">{{ __('app.actions') }}</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($clients as $client)
                         <tr>
-                            <td>
+                            <td><a href="{{ route('clients.show', $client) }}">{{ $client->id }}</a></td>
+                            <td>{{ $client->client_name_ar }}</td>
+                            <td>{{ $client->client_name_en }}</td>
+                            <td class="{{ app()->getLocale() == 'ar' ? 'text-start' : 'text-end' }}">
                                 <div class="btn-group btn-group-sm" role="group">
                                     <a href="{{ route('clients.show', $client) }}" class="btn btn-outline-primary btn-sm">{{ __('app.view') }}</a>
                                     @can('clients.edit')
@@ -40,8 +48,6 @@
                                     @endcan
                                 </div>
                             </td>
-                            <td><a href="{{ route('clients.show', $client) }}">{{ $client->id }}</a></td>
-                            <td><a href="{{ route('clients.show', $client) }}">{{ $client->client_name_ar ?? $client->client_name_en }}</a></td>
                         </tr>
                         @endforeach
                     </tbody>

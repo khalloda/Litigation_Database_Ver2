@@ -34,11 +34,11 @@
                             <td>{{ $client->id }}</td>
                         </tr>
                         <tr>
-                            <td><strong>Name (AR)</strong></td>
+                            <td><strong>{{ __('app.client_name_ar') }}</strong></td>
                             <td>{{ $client->client_name_ar }}</td>
                         </tr>
                         <tr>
-                            <td><strong>Name (EN)</strong></td>
+                            <td><strong>{{ __('app.client_name_en') }}</strong></td>
                             <td>{{ $client->client_name_en }}</td>
                         </tr>
                     </table>
