@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use Illuminate\Http\Request;
+use App\Http\Requests\ClientRequest;
 
 class ClientsController extends Controller
 {
@@ -24,5 +25,40 @@ class ClientsController extends Controller
             ->orderBy('matter_name_ar')
             ->paginate(15);
         return view('clients.show', compact('client', 'cases'));
+    }
+
+    public function create()
+    {
+        $this->authorize('create', Client::class, auth()->user());
+        return view('clients.create');
+    }
+
+    public function store(ClientRequest $request)
+    {
+        $this->authorize('create', Client::class, auth()->user());
+        $client = Client::create([
+            'client_name_ar' => $request->client_name_ar,
+            'client_name_en' => $request->client_name_en,
+            'created_by' => auth()->id(),
+            'updated_by' => auth()->id(),
+        ]);
+        return redirect()->route('clients.show', $client)->with('success', 'Client created');
+    }
+
+    public function edit(Client $client)
+    {
+        $this->authorize('edit', $client, auth()->user());
+        return view('clients.edit', compact('client'));
+    }
+
+    public function update(ClientRequest $request, Client $client)
+    {
+        $this->authorize('edit', $client, auth()->user());
+        $client->update([
+            'client_name_ar' => $request->client_name_ar,
+            'client_name_en' => $request->client_name_en,
+            'updated_by' => auth()->id(),
+        ]);
+        return redirect()->route('clients.show', $client)->with('success', 'Client updated');
     }
 }

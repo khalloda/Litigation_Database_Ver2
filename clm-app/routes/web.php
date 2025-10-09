@@ -31,6 +31,14 @@ Route::middleware(['auth', 'permission:clients.view'])->group(function () {
     Route::get('/clients', [App\Http\Controllers\ClientsController::class, 'index'])->name('clients.index');
     Route::get('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'show'])->name('clients.show');
 });
+Route::middleware(['auth', 'permission:clients.create'])->group(function () {
+    Route::get('/clients/create', [App\Http\Controllers\ClientsController::class, 'create'])->name('clients.create');
+    Route::post('/clients', [App\Http\Controllers\ClientsController::class, 'store'])->name('clients.store');
+});
+Route::middleware(['auth', 'permission:clients.edit'])->group(function () {
+    Route::get('/clients/{client}/edit', [App\Http\Controllers\ClientsController::class, 'edit'])->name('clients.edit');
+    Route::put('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'update'])->name('clients.update');
+});
 Route::middleware(['auth', 'permission:cases.view'])->group(function () {
     Route::get('/cases', [App\Http\Controllers\CasesController::class, 'index'])->name('cases.index');
 });
