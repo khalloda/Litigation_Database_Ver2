@@ -12,6 +12,14 @@ This directory contains detailed documentation for bugs encountered and resolved
 **Affected**: Laravel pagination with Tailwind views  
 **Severity**: High (UI breaking)
 
+### [CRUD Authorization and Database Schema Issues](./CRUD-Authorization-Fixes.md)
+
+**Issue**: 403 Unauthorized errors on all CRUD pages and database column not found errors  
+**Root Cause**: Policies not registered in AuthServiceProvider + incorrect authorize() syntax + model schema mismatch  
+**Solution**: Register policies in `$policies` array, fix authorize() calls, align model with database  
+**Affected**: All CRUD operations, policy-based authorization  
+**Severity**: Critical (blocking all functionality)
+
 ## How to Use This Documentation
 
 1. **Identify the bug** you're experiencing
@@ -61,4 +69,4 @@ When documenting a new bug fix, include:
 ---
 
 **Last Updated**: 2025-01-09  
-**Total Bug Fixes Documented**: 1
+**Total Bug Fixes Documented**: 2
