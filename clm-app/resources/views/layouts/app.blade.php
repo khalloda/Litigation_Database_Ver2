@@ -15,39 +15,39 @@
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
 
-      <!-- Scripts -->
-      @vite(['resources/sass/app.scss', 'resources/js/app.js'])
-      
-      <!-- Emergency fix for giant arrow overlays -->
-      <style>
-          /* Hide any giant arrow overlays */
-          [class*="arrow"]:not(.btn-group):not(.dropdown-toggle),
-          [class*="chevron"]:not(.btn-group):not(.dropdown-toggle) {
-              max-width: 2rem !important;
-              max-height: 2rem !important;
-              position: relative !important;
-              z-index: 1 !important;
-          }
-          
-          /* Hide fixed positioned arrows */
-          [style*="position: fixed"][class*="arrow"],
-          [style*="position: fixed"][class*="chevron"] {
-              display: none !important;
-          }
-          
-          /* Hide any elements with large arrow backgrounds */
-          [style*="background-image"][style*="arrow"],
-          [style*="background-image"][style*="chevron"] {
-              display: none !important;
-          }
-          
-          /* Target pagination arrows specifically */
-          .pagination .page-link {
-              position: relative !important;
-              z-index: 1 !important;
-          }
-      </style>
-  </head>
+    <!-- Scripts -->
+    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+
+    <!-- Emergency fix for giant arrow overlays -->
+    <style>
+        /* Hide any giant arrow overlays */
+        [class*="arrow"]:not(.btn-group):not(.dropdown-toggle),
+        [class*="chevron"]:not(.btn-group):not(.dropdown-toggle) {
+            max-width: 2rem !important;
+            max-height: 2rem !important;
+            position: relative !important;
+            z-index: 1 !important;
+        }
+
+        /* Hide fixed positioned arrows */
+        [style*="position: fixed"][class*="arrow"],
+        [style*="position: fixed"][class*="chevron"] {
+            display: none !important;
+        }
+
+        /* Hide any elements with large arrow backgrounds */
+        [style*="background-image"][style*="arrow"],
+        [style*="background-image"][style*="chevron"] {
+            display: none !important;
+        }
+
+        /* Target pagination arrows specifically */
+        .pagination .page-link {
+            position: relative !important;
+            z-index: 1 !important;
+        }
+    </style>
+</head>
 
 <body>
     <div id="app" class="{{ $isRtl ? 'text-end' : '' }}">
