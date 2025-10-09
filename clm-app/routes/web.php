@@ -21,6 +21,11 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+// Locale switch
+Route::get('/locale/{locale}', [App\Http\Controllers\LocaleController::class, 'switch'])
+    ->whereIn('locale', ['en','ar'])
+    ->name('locale.switch');
+
 // Trash/Recycle Bin routes (protected by permission middleware)
 Route::middleware(['auth', 'permission:trash.view'])->prefix('trash')->name('trash.')->group(function () {
     Route::get('/', [App\Http\Controllers\TrashController::class, 'index'])->name('index');

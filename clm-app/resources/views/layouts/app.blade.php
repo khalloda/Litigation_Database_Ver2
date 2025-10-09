@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+@php($isRtl = app()->getLocale() === 'ar')
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,7 +8,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ __('app.app_name') }}</title>
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
@@ -17,12 +18,12 @@
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
 <body>
-    <div id="app">
+    <div id="app" class="{{ $isRtl ? 'text-end' : '' }}">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Laravel') }}
-                </a>
+                    <a class="navbar-brand" href="{{ url('/') }}">
+                        {{ __('app.app_name') }}
+                    </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -34,7 +35,16 @@
                     </ul>
 
                     <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ms-auto">
+                        <ul class="navbar-nav ms-auto align-items-center">
+                            <li class="nav-item dropdown me-2">
+                                <a id="localeDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    {{ __('app.language') }}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="localeDropdown">
+                                    <li><a class="dropdown-item" href="{{ route('locale.switch', 'en') }}">{{ __('app.english') }}</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('locale.switch', 'ar') }}">{{ __('app.arabic') }}</a></li>
+                                </ul>
+                            </li>
                         <!-- Authentication Links -->
                         @guest
                             @if (Route::has('login'))
