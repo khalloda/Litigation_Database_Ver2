@@ -29,6 +29,7 @@ Route::get('/locale/{locale}', [App\Http\Controllers\LocaleController::class, 's
 // Basic CRUD stubs
 Route::middleware(['auth', 'permission:clients.view'])->group(function () {
     Route::get('/clients', [App\Http\Controllers\ClientsController::class, 'index'])->name('clients.index');
+    Route::get('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'show'])->name('clients.show');
 });
 Route::middleware(['auth', 'permission:cases.view'])->group(function () {
     Route::get('/cases', [App\Http\Controllers\CasesController::class, 'index'])->name('cases.index');

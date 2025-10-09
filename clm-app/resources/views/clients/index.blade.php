@@ -21,8 +21,8 @@
                     <tbody>
                         @foreach($clients as $client)
                         <tr>
-                            <td>{{ $client->id }}</td>
-                            <td>{{ $client->client_name_ar ?? $client->client_name_en }}</td>
+                            <td><a href="{{ route('clients.show', $client) }}">{{ $client->id }}</a></td>
+                            <td><a href="{{ route('clients.show', $client) }}">{{ $client->client_name_ar ?? $client->client_name_en }}</a></td>
                         </tr>
                         @endforeach
                     </tbody>
