@@ -73,6 +73,9 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['permission:documents.view'])->group(function () {
         Route::get('/documents', [App\Http\Controllers\DocumentController::class, 'index'])
             ->name('documents.index');
+        // Inline preview via signed route
+        Route::get('/documents/{document}/inline', [App\Http\Controllers\DocumentController::class, 'inline'])
+            ->name('documents.inline')->middleware('signed');
     });
 
     // Document editing (requires documents.edit permission) - MUST be before /documents/{document}

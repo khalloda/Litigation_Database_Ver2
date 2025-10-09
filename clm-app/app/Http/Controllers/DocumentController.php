@@ -6,6 +6,7 @@ use App\Http\Requests\DocumentUploadRequest;
 use App\Models\ClientDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
 class DocumentController extends Controller
@@ -153,16 +154,31 @@ class DocumentController extends Controller
             abort(404, 'File not found.');
         }
 
-        // Generate signed URL valid for 1 hour
-        $url = Storage::disk('secure')->temporaryUrl(
-            $document->file_path,
+        // Local disk doesn't support temporaryUrl. Use a temporary signed route
+        // that streams the file inline from the secure disk.
+        $url = URL::temporarySignedRoute(
+            'documents.inline',
             now()->addHour(),
-            [
-                'ResponseContentDisposition' => 'inline; filename="' . $document->document_name . '"'
-            ]
+            ['document' => $document->id]
         );
 
         return response()->json(['url' => $url]);
+    }
+
+    /**
+     * Stream the file inline (used by signed preview URLs).
+     */
+    public function inline(ClientDocument $document)
+    {
+        if (!Storage::disk('secure')->exists($document->file_path)) {
+            abort(404, 'File not found.');
+        }
+
+        $absolutePath = Storage::disk('secure')->path($document->file_path);
+        return response()->file($absolutePath, [
+            'Content-Type' => $document->mime_type,
+            'Content-Disposition' => 'inline; filename="' . $document->document_name . '"',
+        ]);
     }
 
     /**
