@@ -6,10 +6,12 @@ use App\Support\DeletionBundles\InteractsWithDeletionBundles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Lawyer extends Model
 {
-    use HasFactory, SoftDeletes, InteractsWithDeletionBundles;
+    use HasFactory, SoftDeletes, InteractsWithDeletionBundles, LogsActivity;
 
     protected $fillable = [
         'lawyer_name_ar',
@@ -24,9 +26,9 @@ class Lawyer extends Model
     ];
 
     // Relationships
-    public function hearings()
+    public function cases()
     {
-        return $this->hasMany(Hearing::class);
+        return $this->hasMany(CaseModel::class);
     }
 
     public function adminTasks()
@@ -34,8 +36,13 @@ class Lawyer extends Model
         return $this->hasMany(AdminTask::class);
     }
 
-    public function adminSubtasks()
+    public function getActivitylogOptions(): LogOptions
     {
-        return $this->hasMany(AdminSubtask::class);
+        return LogOptions::defaults()
+            ->logOnly(['lawyer_name_ar', 'lawyer_name_en', 'lawyer_name_title', 'lawyer_email', 'attendance_track'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('lawyer')
+            ->setDescriptionForEvent(fn(string $eventName) => "Lawyer was {$eventName}");
     }
 }

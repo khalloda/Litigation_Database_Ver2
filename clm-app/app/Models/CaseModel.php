@@ -6,10 +6,12 @@ use App\Support\DeletionBundles\InteractsWithDeletionBundles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class CaseModel extends Model
 {
-    use HasFactory, SoftDeletes, InteractsWithDeletionBundles;
+    use HasFactory, SoftDeletes, InteractsWithDeletionBundles, LogsActivity;
 
     protected $table = 'cases';
 
@@ -88,5 +90,15 @@ class CaseModel extends Model
     public function documents()
     {
         return $this->hasMany(ClientDocument::class, 'matter_id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['client_id', 'contract_id', 'matter_name_ar', 'matter_name_en', 'matter_status', 'matter_start_date', 'matter_end_date', 'court_name', 'case_number'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('case')
+            ->setDescriptionForEvent(fn(string $eventName) => "Case was {$eventName}");
     }
 }

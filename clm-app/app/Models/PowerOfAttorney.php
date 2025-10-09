@@ -6,6 +6,8 @@ use App\Support\DeletionBundles\InteractsWithDeletionBundles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class PowerOfAttorney extends Model
 {
@@ -41,5 +43,33 @@ class PowerOfAttorney extends Model
     public function client()
     {
         return $this->belongsTo(Client::class);
+    
+    
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['client_id', 'poa_type', 'poa_number', 'issue_date', 'expiry_date', 'is_active'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('powerofattorney')
+            ->setDescriptionForEvent(fn(string $eventName) => "PowerOfAttorney was {$eventName}");
+    }")
+            ->setDescriptionForEvent('updated', fn(string $eventName) => "PowerOfAttorney was {$eventName}")
+            ->setDescriptionForEvent('deleted', fn(string $eventName) => "PowerOfAttorney was {$eventName}");
+    }
+}
+
+    
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['client_id', 'poa_type', 'poa_number', 'issue_date', 'expiry_date', 'is_active'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('powerofattorney')
+            ->setDescriptionForEvent(fn(string $eventName) => "PowerOfAttorney was {$eventName}");
+    }")
+            ->setDescriptionForEvent('updated', fn(string $eventName) => "PowerOfAttorney was {$eventName}")
+            ->setDescriptionForEvent('deleted', fn(string $eventName) => "PowerOfAttorney was {$eventName}");
     }
 }

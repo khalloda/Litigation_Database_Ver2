@@ -44,3 +44,13 @@ Route::middleware(['auth', 'permission:admin.audit.view'])->group(function () {
     Route::get('/data-quality', [App\Http\Controllers\DataQualityController::class, 'index'])
         ->name('data-quality.index');
 });
+
+// Audit Logs (for admins)
+Route::middleware(['auth', 'permission:admin.audit.view'])->group(function () {
+    Route::get('/audit-logs', [App\Http\Controllers\AuditLogController::class, 'index'])
+        ->name('audit-logs.index');
+    Route::get('/audit-logs/{activity}', [App\Http\Controllers\AuditLogController::class, 'show'])
+        ->name('audit-logs.show');
+    Route::get('/audit-logs/export/csv', [App\Http\Controllers\AuditLogController::class, 'export'])
+        ->name('audit-logs.export');
+});

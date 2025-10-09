@@ -6,10 +6,12 @@ use App\Support\DeletionBundles\InteractsWithDeletionBundles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class AdminTask extends Model
 {
-    use HasFactory, SoftDeletes, InteractsWithDeletionBundles;
+    use HasFactory, SoftDeletes, InteractsWithDeletionBundles, LogsActivity;
 
     protected $fillable = [
         'matter_id',
@@ -50,5 +52,15 @@ class AdminTask extends Model
     public function subtasks()
     {
         return $this->hasMany(AdminSubtask::class, 'task_id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['matter_id', 'lawyer_id', 'status', 'authority', 'circuit', 'required_work', 'performer', 'court', 'result', 'creation_date', 'execution_date'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('admin_task')
+            ->setDescriptionForEvent(fn(string $eventName) => "Admin task was {$eventName}");
     }
 }
