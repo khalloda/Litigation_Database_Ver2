@@ -169,8 +169,21 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (clientId) {
             // Fetch matters for selected client
-            fetch(`/documents/client-cases?client_id=${clientId}`)
-                .then(response => response.json())
+            fetch(`/documents/client-cases?client_id=${clientId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(cases => {
                     cases.forEach(caseItem => {
                         const option = document.createElement('option');
@@ -181,6 +194,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .catch(error => {
                     console.error('Error fetching cases:', error);
+                    // Show user-friendly error message
+                    matterSelect.innerHTML = '<option value="">Error loading cases</option>';
                 });
         }
     });
