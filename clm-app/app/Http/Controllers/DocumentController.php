@@ -39,7 +39,7 @@ class DocumentController extends Controller
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('document_name', 'like', "%{$searchTerm}%")
-                  ->orWhere('description', 'like', "%{$searchTerm}%");
+                    ->orWhere('description', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -86,15 +86,15 @@ class DocumentController extends Controller
     {
         try {
             $file = $request->file('document');
-            
+
             // Generate secure filename
             $originalName = $file->getClientOriginalName();
             $extension = $file->getClientOriginalExtension();
             $secureName = Str::uuid() . '.' . $extension;
-            
+
             // Store file in secure directory
             $filePath = $file->storeAs('documents', $secureName, 'secure');
-            
+
             // Create document record
             $document = ClientDocument::create([
                 'client_id' => $request->client_id,
@@ -112,7 +112,6 @@ class DocumentController extends Controller
 
             return redirect()->route('documents.show', $document)
                 ->with('success', 'Document uploaded successfully.');
-
         } catch (\Exception $e) {
             return back()
                 ->withInput()
@@ -126,7 +125,7 @@ class DocumentController extends Controller
     public function show(ClientDocument $document)
     {
         $document->load(['client', 'case']);
-        
+
         return view('documents.show', compact('document'));
     }
 
@@ -162,7 +161,8 @@ class DocumentController extends Controller
             ['document' => $document->id]
         );
 
-        return response()->json(['url' => $url]);
+        // Return a redirect so iframes/images can use this endpoint directly as src
+        return redirect($url);
     }
 
     /**
@@ -237,7 +237,6 @@ class DocumentController extends Controller
 
             return redirect()->route('documents.index')
                 ->with('success', 'Document deleted successfully.');
-
         } catch (\Exception $e) {
             return back()
                 ->with('error', 'Failed to delete document: ' . $e->getMessage());
@@ -250,7 +249,7 @@ class DocumentController extends Controller
     public function getClientCases(Request $request)
     {
         $clientId = $request->client_id;
-        
+
         $cases = \App\Models\CaseModel::where('client_id', $clientId)
             ->select('id', 'matter_name_ar', 'matter_name_en')
             ->orderBy('matter_name_ar')
