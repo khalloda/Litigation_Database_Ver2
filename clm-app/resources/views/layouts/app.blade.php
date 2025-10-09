@@ -46,7 +46,7 @@
                         @can('admin.audit.view')
                         <li class="nav-item"><a class="nav-link" href="{{ route('audit-logs.index') }}">Audit Logs</a></li>
                         @endcan
-                        <li class="nav-item"><a class="nav-link" href="{{ route('data-quality') }}">Data Quality</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('data-quality.index') }}">Data Quality</a></li>
                         @endauth
                     </ul>
 

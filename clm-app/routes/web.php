@@ -23,7 +23,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 // Locale switch
 Route::get('/locale/{locale}', [App\Http\Controllers\LocaleController::class, 'switch'])
-    ->whereIn('locale', ['en','ar'])
+    ->whereIn('locale', ['en', 'ar'])
     ->name('locale.switch');
 
 // Basic CRUD stubs
