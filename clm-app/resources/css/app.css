@@ -1,0 +1,25 @@
+/* Fix for giant Bootstrap carousel arrows */
+.carousel-control-prev,
+.carousel-control-next {
+    display: none !important;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    display: none !important;
+}
+
+/* Alternative: If you want to keep them but make them smaller */
+/*
+.carousel-control-prev,
+.carousel-control-next {
+    width: 5% !important;
+    opacity: 0.1 !important;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    width: 1rem !important;
+    height: 1rem !important;
+}
+*/
