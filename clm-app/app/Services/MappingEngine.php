@@ -87,14 +87,7 @@ class MappingEngine
         $columns = Schema::getColumnListing($tableName);
 
         // Filter out system columns
-        $excludedColumns = ['created_at', 'updated_at', 'deleted_at', 'created_by', 'updated_by'];
-        
-        // Special case: include 'id' column for lawyers table during import
-        if ($tableName === 'lawyers') {
-            // Don't exclude 'id' for lawyers table
-        } else {
-            $excludedColumns[] = 'id';
-        }
+        $excludedColumns = ['id', 'created_at', 'updated_at', 'deleted_at', 'created_by', 'updated_by'];
         
         return array_diff($columns, $excludedColumns);
     }
