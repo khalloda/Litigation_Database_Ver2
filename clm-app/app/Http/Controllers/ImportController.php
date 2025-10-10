@@ -214,7 +214,7 @@ class ImportController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return back()
                 ->withInput()
                 ->with('error', $e->getMessage());
@@ -230,9 +230,18 @@ class ImportController extends Controller
 
         $this->authorize('view', $session);
 
+        \Log::info('Preflight method called', [
+            'sessionId' => $session->id,
+            'column_mapping' => $session->column_mapping,
+            'isEmpty' => empty($session->column_mapping)
+        ]);
+
         if (empty($session->column_mapping)) {
+            \Log::warning('Column mapping is empty, redirecting to map', [
+                'sessionId' => $session->id
+            ]);
             return redirect()
-                ->route('import.map', $session)
+                ->route('import.map', $session->id)
                 ->with('error', __('app.please_configure_mapping_first'));
         }
 
