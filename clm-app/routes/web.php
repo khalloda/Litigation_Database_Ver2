@@ -113,6 +113,17 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/contacts/{contact}', [App\Http\Controllers\ContactController::class, 'destroy'])->name('contacts.destroy');
 });
 
+// Power of Attorney Management
+Route::middleware(['auth'])->group(function () {
+    Route::get('/power-of-attorneys', [App\Http\Controllers\PowerOfAttorneyController::class, 'index'])->name('power-of-attorneys.index');
+    Route::get('/power-of-attorneys/create', [App\Http\Controllers\PowerOfAttorneyController::class, 'create'])->name('power-of-attorneys.create');
+    Route::post('/power-of-attorneys', [App\Http\Controllers\PowerOfAttorneyController::class, 'store'])->name('power-of-attorneys.store');
+    Route::get('/power-of-attorneys/{powerOfAttorney}', [App\Http\Controllers\PowerOfAttorneyController::class, 'show'])->name('power-of-attorneys.show');
+    Route::get('/power-of-attorneys/{powerOfAttorney}/edit', [App\Http\Controllers\PowerOfAttorneyController::class, 'edit'])->name('power-of-attorneys.edit');
+    Route::put('/power-of-attorneys/{powerOfAttorney}', [App\Http\Controllers\PowerOfAttorneyController::class, 'update'])->name('power-of-attorneys.update');
+    Route::delete('/power-of-attorneys/{powerOfAttorney}', [App\Http\Controllers\PowerOfAttorneyController::class, 'destroy'])->name('power-of-attorneys.destroy');
+});
+
 // Trash/Recycle Bin routes (protected by permission middleware)
 Route::middleware(['auth', 'permission:trash.view'])->prefix('trash')->name('trash.')->group(function () {
     Route::get('/', [App\Http\Controllers\TrashController::class, 'index'])->name('index');

@@ -79,6 +79,9 @@
                         @can('viewAny', App\Models\Contact::class)
                         <li class="nav-item"><a class="nav-link" href="{{ route('contacts.index') }}">{{ __('app.contacts') }}</a></li>
                         @endcan
+                        @can('viewAny', App\Models\PowerOfAttorney::class)
+                        <li class="nav-item"><a class="nav-link" href="{{ route('power-of-attorneys.index') }}">{{ __('app.power_of_attorneys') }}</a></li>
+                        @endcan
                         @can('admin.users.manage')
                         <li class="nav-item"><a class="nav-link" href="{{ route('lawyers.index') }}">{{ __('app.lawyers') }}</a></li>
                         @endcan

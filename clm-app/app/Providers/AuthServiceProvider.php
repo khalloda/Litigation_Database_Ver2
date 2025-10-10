@@ -19,6 +19,7 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\Lawyer::class => \App\Policies\LawyerPolicy::class,
         \App\Models\EngagementLetter::class => \App\Policies\EngagementLetterPolicy::class,
         \App\Models\Contact::class => \App\Policies\ContactPolicy::class,
+        \App\Models\PowerOfAttorney::class => \App\Policies\PowerOfAttorneyPolicy::class,
         \App\Models\ClientDocument::class => \App\Policies\DocumentPolicy::class,
         \App\Models\DeletionBundle::class => \App\Policies\TrashPolicy::class,
     ];
