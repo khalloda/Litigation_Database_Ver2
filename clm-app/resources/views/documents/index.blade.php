@@ -10,9 +10,9 @@
                 <h1 class="h3">📁 Document Management</h1>
                 <div>
                     @can('documents.upload')
-                        <a href="{{ route('documents.create') }}" class="btn btn-primary">
-                            📤 Upload Document
-                        </a>
+                    <a href="{{ route('documents.create') }}" class="btn btn-primary">
+                        📤 Upload Document
+                    </a>
                     @endcan
                     <a href="#" class="btn btn-outline-primary ms-2" onclick="window.print(); return false;">
                         🖨️ Print
@@ -34,17 +34,17 @@
                         <div class="row g-3">
                             <div class="col-md-3">
                                 <label for="search" class="form-label">Search</label>
-                                <input type="text" class="form-control" id="search" name="search" 
-                                       value="{{ request('search') }}" placeholder="Search documents...">
+                                <input type="text" class="form-control" id="search" name="search"
+                                    value="{{ request('search') }}" placeholder="Search documents...">
                             </div>
                             <div class="col-md-2">
                                 <label for="client_id" class="form-label">Client</label>
                                 <select class="form-select" id="client_id" name="client_id">
                                     <option value="">All Clients</option>
                                     @foreach($clients as $client)
-                                        <option value="{{ $client->id }}" {{ request('client_id') == $client->id ? 'selected' : '' }}>
-                                            {{ $client->client_name_ar ?? $client->client_name_en }}
-                                        </option>
+                                    <option value="{{ $client->id }}" {{ request('client_id') == $client->id ? 'selected' : '' }}>
+                                        {{ $client->client_name_ar ?? $client->client_name_en }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -53,9 +53,9 @@
                                 <select class="form-select" id="matter_id" name="matter_id">
                                     <option value="">All Matters</option>
                                     @foreach($cases as $case)
-                                        <option value="{{ $case->id }}" {{ request('matter_id') == $case->id ? 'selected' : '' }}>
-                                            {{ $case->matter_name_ar ?? $case->matter_name_en }}
-                                        </option>
+                                    <option value="{{ $case->id }}" {{ request('matter_id') == $case->id ? 'selected' : '' }}>
+                                        {{ $case->matter_name_ar ?? $case->matter_name_en }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -64,9 +64,9 @@
                                 <select class="form-select" id="document_type" name="document_type">
                                     <option value="">All Types</option>
                                     @foreach($documentTypes as $type)
-                                        <option value="{{ $type }}" {{ request('document_type') == $type ? 'selected' : '' }}>
-                                            {{ $type }}
-                                        </option>
+                                    <option value="{{ $type }}" {{ request('document_type') == $type ? 'selected' : '' }}>
+                                        {{ $type }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -121,24 +121,24 @@
                                         <div>
                                             <strong>{{ $document->document_name ?? 'No file' }}</strong>
                                             @if($document->description)
-                                                <br><small class="text-muted">{{ Str::limit($document->description, 50) }}</small>
+                                            <br><small class="text-muted">{{ Str::limit($document->description, 50) }}</small>
                                             @endif
                                         </div>
                                     </td>
                                     <td>
                                         @php
-                                            $badgeClass = match($document->document_storage_type) {
-                                                'physical' => 'bg-warning',
-                                                'digital' => 'bg-success',
-                                                'both' => 'bg-info',
-                                                default => 'bg-secondary'
-                                            };
-                                            $typeText = match($document->document_storage_type) {
-                                                'physical' => 'Physical',
-                                                'digital' => 'Digital',
-                                                'both' => 'Both',
-                                                default => 'Unknown'
-                                            };
+                                        $badgeClass = match($document->document_storage_type) {
+                                        'physical' => 'bg-warning',
+                                        'digital' => 'bg-success',
+                                        'both' => 'bg-info',
+                                        default => 'bg-secondary'
+                                        };
+                                        $typeText = match($document->document_storage_type) {
+                                        'physical' => 'Physical',
+                                        'digital' => 'Digital',
+                                        'both' => 'Both',
+                                        default => 'Unknown'
+                                        };
                                         @endphp
                                         <span class="badge {{ $badgeClass }}">{{ $typeText }}</span>
                                     </td>
@@ -147,9 +147,9 @@
                                     </td>
                                     <td>
                                         @if($document->case)
-                                            <strong>{{ $document->case->matter_name_ar ?? $document->case->matter_name_en }}</strong>
+                                        <strong>{{ $document->case->matter_name_ar ?? $document->case->matter_name_en }}</strong>
                                         @else
-                                            <span class="text-muted">No matter assigned</span>
+                                        <span class="text-muted">No matter assigned</span>
                                         @endif
                                     </td>
                                     <td>
@@ -157,25 +157,25 @@
                                     </td>
                                     <td>
                                         @if($document->file_size)
-                                            <small class="text-muted">{{ number_format($document->file_size / 1024, 1) }} KB</small>
+                                        <small class="text-muted">{{ number_format($document->file_size / 1024, 1) }} KB</small>
                                         @else
-                                            <small class="text-muted">N/A</small>
+                                        <small class="text-muted">N/A</small>
                                         @endif
                                     </td>
                                     <td>
                                         @if($document->pages_count)
-                                            <span class="badge bg-light text-dark">{{ $document->pages_count }}</span>
+                                        <span class="badge bg-light text-dark">{{ $document->pages_count }}</span>
                                         @else
-                                            <small class="text-muted">N/A</small>
+                                        <small class="text-muted">N/A</small>
                                         @endif
                                     </td>
                                     <td>
                                         @if($document->mfiles_uploaded && $document->mfiles_id)
-                                            <span class="badge bg-primary" title="M-Files ID: {{ $document->mfiles_id }}">
-                                                ✓ M-Files
-                                            </span>
+                                        <span class="badge bg-primary" title="M-Files ID: {{ $document->mfiles_id }}">
+                                            ✓ M-Files
+                                        </span>
                                         @else
-                                            <small class="text-muted">-</small>
+                                        <small class="text-muted">-</small>
                                         @endif
                                     </td>
                                     <td>
@@ -186,26 +186,26 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-                                            <a href="{{ route('documents.show', $document) }}" 
-                                               class="btn btn-outline-primary" title="View Details">
+                                            <a href="{{ route('documents.show', $document) }}"
+                                                class="btn btn-outline-primary" title="View Details">
                                                 👁️
                                             </a>
                                             @if($document->isDigitalDocument() && $document->file_path)
-                                                <a href="{{ route('documents.download', $document) }}" 
-                                                   class="btn btn-outline-success" title="Download">
-                                                    📥
-                                                </a>
+                                            <a href="{{ route('documents.download', $document) }}"
+                                                class="btn btn-outline-success" title="Download">
+                                                📥
+                                            </a>
                                             @endif
                                             @can('documents.delete')
-                                                <form action="{{ route('documents.destroy', $document) }}" 
-                                                      method="POST" class="d-inline"
-                                                      onsubmit="return confirm('Are you sure you want to delete this document?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-outline-danger" title="Delete">
-                                                        🗑️
-                                                    </button>
-                                                </form>
+                                            <form action="{{ route('documents.destroy', $document) }}"
+                                                method="POST" class="d-inline"
+                                                onsubmit="return confirm('Are you sure you want to delete this document?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-outline-danger" title="Delete">
+                                                    🗑️
+                                                </button>
+                                            </form>
                                             @endcan
                                         </div>
                                     </td>
@@ -223,9 +223,9 @@
 
                     {{-- Pagination --}}
                     @if($documents->hasPages())
-                        <div class="d-flex justify-content-center mt-4">
-                            {{ $documents->withQueryString()->links() }}
-                        </div>
+                    <div class="d-flex justify-content-center mt-4">
+                        {{ $documents->withQueryString()->links() }}
+                    </div>
                     @endif
                 </div>
             </div>
@@ -265,10 +265,13 @@
 </div>
 
 <style>
-@media print {
-    .btn, .card-header, .pagination {
-        display: none !important;
+    @media print {
+
+        .btn,
+        .card-header,
+        .pagination {
+            display: none !important;
+        }
     }
-}
 </style>
 @endsection

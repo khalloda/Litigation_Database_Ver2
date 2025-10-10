@@ -233,50 +233,50 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const storageTypeRadios = document.querySelectorAll('input[name="document_storage_type"]');
-    const fileUploadSection = document.getElementById('file-upload-section');
-    const fileRequired = document.getElementById('file-required');
-    const fileOptionalText = document.getElementById('file-optional-text');
-    const mfilesCheckbox = document.getElementById('mfiles_uploaded');
-    const mfilesIdSection = document.getElementById('mfiles-id-section');
-    const mfilesIdInput = document.getElementById('mfiles_id');
+    document.addEventListener('DOMContentLoaded', function() {
+        const storageTypeRadios = document.querySelectorAll('input[name="document_storage_type"]');
+        const fileUploadSection = document.getElementById('file-upload-section');
+        const fileRequired = document.getElementById('file-required');
+        const fileOptionalText = document.getElementById('file-optional-text');
+        const mfilesCheckbox = document.getElementById('mfiles_uploaded');
+        const mfilesIdSection = document.getElementById('mfiles-id-section');
+        const mfilesIdInput = document.getElementById('mfiles_id');
 
-    function updateFileUploadRequirement() {
-        const selectedType = document.querySelector('input[name="document_storage_type"]:checked').value;
-        
-        if (selectedType === 'physical') {
-            fileRequired.style.display = 'none';
-            fileOptionalText.classList.remove('d-none');
-            fileUploadSection.querySelector('input[type="file"]').removeAttribute('required');
-        } else {
-            fileRequired.style.display = 'inline';
-            fileOptionalText.classList.add('d-none');
-            fileUploadSection.querySelector('input[type="file"]').setAttribute('required', 'required');
+        function updateFileUploadRequirement() {
+            const selectedType = document.querySelector('input[name="document_storage_type"]:checked').value;
+
+            if (selectedType === 'physical') {
+                fileRequired.style.display = 'none';
+                fileOptionalText.classList.remove('d-none');
+                fileUploadSection.querySelector('input[type="file"]').removeAttribute('required');
+            } else {
+                fileRequired.style.display = 'inline';
+                fileOptionalText.classList.add('d-none');
+                fileUploadSection.querySelector('input[type="file"]').setAttribute('required', 'required');
+            }
         }
-    }
 
-    function updateMfilesRequirement() {
-        if (mfilesCheckbox.checked) {
-            mfilesIdSection.style.display = 'block';
-            mfilesIdInput.setAttribute('required', 'required');
-        } else {
-            mfilesIdSection.style.display = 'none';
-            mfilesIdInput.removeAttribute('required');
-            mfilesIdInput.value = '';
+        function updateMfilesRequirement() {
+            if (mfilesCheckbox.checked) {
+                mfilesIdSection.style.display = 'block';
+                mfilesIdInput.setAttribute('required', 'required');
+            } else {
+                mfilesIdSection.style.display = 'none';
+                mfilesIdInput.removeAttribute('required');
+                mfilesIdInput.value = '';
+            }
         }
-    }
 
-    // Add event listeners
-    storageTypeRadios.forEach(radio => {
-        radio.addEventListener('change', updateFileUploadRequirement);
+        // Add event listeners
+        storageTypeRadios.forEach(radio => {
+            radio.addEventListener('change', updateFileUploadRequirement);
+        });
+
+        mfilesCheckbox.addEventListener('change', updateMfilesRequirement);
+
+        // Initialize on page load
+        updateFileUploadRequirement();
+        updateMfilesRequirement();
     });
-
-    mfilesCheckbox.addEventListener('change', updateMfilesRequirement);
-
-    // Initialize on page load
-    updateFileUploadRequirement();
-    updateMfilesRequirement();
-});
 </script>
 @endsection

@@ -292,7 +292,7 @@ return [
     'authorized_lawyers' => 'Authorized Lawyers',
     'year' => 'Year',
     'serial' => 'Serial',
-    
+
     // Additional show view fields
     'contract_structure' => 'Contract Structure',
     'address_information' => 'Address Information',
