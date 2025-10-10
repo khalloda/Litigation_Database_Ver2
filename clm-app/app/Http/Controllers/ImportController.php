@@ -121,6 +121,13 @@ class ImportController extends Controller
     {
         $this->authorize('view', $session);
 
+        // Debug: Log the session object received from route model binding
+        \Log::info('ImportController::map - Session from route model binding', [
+            'id' => $session->id,
+            'session_id' => $session->session_id,
+            'attributes' => $session->getAttributes(),
+        ]);
+
         // Get parsed data
         $filepath = $this->importService->getSessionFilePath($session);
         $parsed = $this->parserService->parseFile($filepath, $session->file_type);
