@@ -34,6 +34,11 @@ class DocumentController extends Controller
             $query->where('document_type', 'like', "%{$request->document_type}%");
         }
 
+        // Filter by storage type
+        if ($request->filled('storage_type')) {
+            $query->where('document_storage_type', $request->storage_type);
+        }
+
         // Search in document name or description
         if ($request->filled('search')) {
             $searchTerm = $request->search;
@@ -85,37 +90,49 @@ class DocumentController extends Controller
     public function store(DocumentUploadRequest $request)
     {
         try {
-            $file = $request->file('document');
-
-            // Generate secure filename
-            $originalName = $file->getClientOriginalName();
-            $extension = $file->getClientOriginalExtension();
-            $secureName = Str::uuid() . '.' . $extension;
-
-            // Store file in secure directory
-            $filePath = $file->storeAs('documents', $secureName, 'secure');
-
-            // Create document record
-            $document = ClientDocument::create([
+            $documentData = [
                 'client_id' => $request->client_id,
                 'matter_id' => $request->matter_id,
-                'document_name' => $originalName,
+                'document_storage_type' => $request->document_storage_type,
                 'document_type' => $request->document_type,
-                'file_path' => $filePath,
-                'file_size' => $file->getSize(),
-                'mime_type' => $file->getMimeType(),
                 'description' => $request->description,
-                'deposit_date' => now(),
+                'responsible_lawyer' => $request->responsible_lawyer,
+                'movement_card' => $request->boolean('movement_card', false),
+                'deposit_date' => $request->deposit_date,
+                'document_date' => $request->document_date,
+                'case_number' => $request->case_number,
+                'pages_count' => $request->pages_count,
+                'notes' => $request->notes,
+                'mfiles_uploaded' => $request->boolean('mfiles_uploaded', false),
+                'mfiles_id' => $request->mfiles_id,
                 'created_by' => auth()->id(),
                 'updated_by' => auth()->id(),
-            ]);
+            ];
+
+            // Handle file upload for digital and both types
+            if ($request->hasFile('document')) {
+                $file = $request->file('document');
+                $originalName = $file->getClientOriginalName();
+                $extension = $file->getClientOriginalExtension();
+                $secureName = Str::uuid() . '.' . $extension;
+
+                // Store file in secure directory
+                $filePath = $file->storeAs('documents', $secureName, 'secure');
+
+                $documentData['document_name'] = $originalName;
+                $documentData['file_path'] = $filePath;
+                $documentData['file_size'] = $file->getSize();
+                $documentData['mime_type'] = $file->getMimeType();
+            }
+
+            $document = ClientDocument::create($documentData);
 
             return redirect()->route('documents.show', $document)
-                ->with('success', 'Document uploaded successfully.');
+                ->with('success', 'Document saved successfully.');
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Failed to upload document: ' . $e->getMessage());
+                ->with('error', 'Failed to save document: ' . $e->getMessage());
         }
     }
 
@@ -134,6 +151,11 @@ class DocumentController extends Controller
      */
     public function download(ClientDocument $document)
     {
+        // Check if document has a file to download
+        if (!$document->isDigitalDocument() || empty($document->file_path)) {
+            abort(404, 'File not available for download.');
+        }
+
         if (!Storage::disk('secure')->exists($document->file_path)) {
             abort(404, 'File not found.');
         }

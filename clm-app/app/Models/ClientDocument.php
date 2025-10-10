@@ -17,11 +17,14 @@ class ClientDocument extends Model
         'client_id',
         'matter_id',
         'client_name',
-        'document_name', // New file-related field
-        'document_type', // New file-related field
-        'file_path', // New file-related field
-        'file_size', // New file-related field
-        'mime_type', // New file-related field
+        'document_name', // File-related field (nullable for physical docs)
+        'document_type', // File-related field
+        'file_path', // File-related field (nullable for physical docs)
+        'file_size', // File-related field (nullable for physical docs)
+        'mime_type', // File-related field (nullable for physical docs)
+        'document_storage_type', // New: 'physical', 'digital', 'both'
+        'mfiles_uploaded', // New: boolean for M-Files integration
+        'mfiles_id', // New: M-Files document ID
         'responsible_lawyer',
         'movement_card',
         // Map UI attribute 'description' to DB column via accessors/mutators
@@ -39,6 +42,7 @@ class ClientDocument extends Model
         'deposit_date' => 'date',
         'document_date' => 'date',
         'movement_card' => 'boolean',
+        'mfiles_uploaded' => 'boolean',
     ];
 
     // Relationships
@@ -63,10 +67,36 @@ class ClientDocument extends Model
         $this->attributes['document_description'] = $value;
     }
 
+    // Document type constants
+    const STORAGE_TYPE_PHYSICAL = 'physical';
+    const STORAGE_TYPE_DIGITAL = 'digital';
+    const STORAGE_TYPE_BOTH = 'both';
+
+    // Validation methods
+    public function requiresFileUpload(): bool
+    {
+        return in_array($this->document_storage_type, [self::STORAGE_TYPE_DIGITAL, self::STORAGE_TYPE_BOTH]);
+    }
+
+    public function isPhysicalDocument(): bool
+    {
+        return in_array($this->document_storage_type, [self::STORAGE_TYPE_PHYSICAL, self::STORAGE_TYPE_BOTH]);
+    }
+
+    public function isDigitalDocument(): bool
+    {
+        return in_array($this->document_storage_type, [self::STORAGE_TYPE_DIGITAL, self::STORAGE_TYPE_BOTH]);
+    }
+
+    public function hasMfilesIntegration(): bool
+    {
+        return $this->mfiles_uploaded && !empty($this->mfiles_id);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['client_id', 'matter_id', 'client_name', 'responsible_lawyer', 'description', 'deposit_date', 'case_number', 'document_name', 'document_type', 'file_path', 'file_size', 'mime_type'])
+            ->logOnly(['client_id', 'matter_id', 'client_name', 'responsible_lawyer', 'description', 'deposit_date', 'case_number', 'document_name', 'document_type', 'file_path', 'file_size', 'mime_type', 'document_storage_type', 'mfiles_uploaded', 'mfiles_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('clientdocument')

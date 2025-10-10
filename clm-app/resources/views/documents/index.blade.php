@@ -70,6 +70,15 @@
                                     @endforeach
                                 </select>
                             </div>
+                            <div class="col-md-2">
+                                <label for="storage_type" class="form-label">Storage Type</label>
+                                <select class="form-select" id="storage_type" name="storage_type">
+                                    <option value="">All Types</option>
+                                    <option value="physical" {{ request('storage_type') == 'physical' ? 'selected' : '' }}>Physical</option>
+                                    <option value="digital" {{ request('storage_type') == 'digital' ? 'selected' : '' }}>Digital</option>
+                                    <option value="both" {{ request('storage_type') == 'both' ? 'selected' : '' }}>Both</option>
+                                </select>
+                            </div>
                             <div class="col-md-2 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary me-2">Filter</button>
                                 <a href="{{ route('documents.index') }}" class="btn btn-outline-secondary">Clear</a>
@@ -93,11 +102,14 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Document Name</th>
+                                    <th>Document</th>
+                                    <th>Storage Type</th>
                                     <th>Client</th>
                                     <th>Matter</th>
                                     <th>Type</th>
                                     <th>Size</th>
+                                    <th>Pages</th>
+                                    <th>M-Files</th>
                                     <th>Upload Date</th>
                                     <th>Actions</th>
                                 </tr>
@@ -107,11 +119,28 @@
                                 <tr>
                                     <td>
                                         <div>
-                                            <strong>{{ $document->document_name }}</strong>
+                                            <strong>{{ $document->document_name ?? 'No file' }}</strong>
                                             @if($document->description)
                                                 <br><small class="text-muted">{{ Str::limit($document->description, 50) }}</small>
                                             @endif
                                         </div>
+                                    </td>
+                                    <td>
+                                        @php
+                                            $badgeClass = match($document->document_storage_type) {
+                                                'physical' => 'bg-warning',
+                                                'digital' => 'bg-success',
+                                                'both' => 'bg-info',
+                                                default => 'bg-secondary'
+                                            };
+                                            $typeText = match($document->document_storage_type) {
+                                                'physical' => 'Physical',
+                                                'digital' => 'Digital',
+                                                'both' => 'Both',
+                                                default => 'Unknown'
+                                            };
+                                        @endphp
+                                        <span class="badge {{ $badgeClass }}">{{ $typeText }}</span>
                                     </td>
                                     <td>
                                         <strong>{{ $document->client->client_name_ar ?? $document->client->client_name_en }}</strong>
@@ -127,7 +156,27 @@
                                         <span class="badge bg-info">{{ $document->document_type }}</span>
                                     </td>
                                     <td>
-                                        <small class="text-muted">{{ number_format($document->file_size / 1024, 1) }} KB</small>
+                                        @if($document->file_size)
+                                            <small class="text-muted">{{ number_format($document->file_size / 1024, 1) }} KB</small>
+                                        @else
+                                            <small class="text-muted">N/A</small>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($document->pages_count)
+                                            <span class="badge bg-light text-dark">{{ $document->pages_count }}</span>
+                                        @else
+                                            <small class="text-muted">N/A</small>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($document->mfiles_uploaded && $document->mfiles_id)
+                                            <span class="badge bg-primary" title="M-Files ID: {{ $document->mfiles_id }}">
+                                                ✓ M-Files
+                                            </span>
+                                        @else
+                                            <small class="text-muted">-</small>
+                                        @endif
                                     </td>
                                     <td>
                                         <small class="text-muted">
@@ -141,10 +190,12 @@
                                                class="btn btn-outline-primary" title="View Details">
                                                 👁️
                                             </a>
-                                            <a href="{{ route('documents.download', $document) }}" 
-                                               class="btn btn-outline-success" title="Download">
-                                                📥
-                                            </a>
+                                            @if($document->isDigitalDocument() && $document->file_path)
+                                                <a href="{{ route('documents.download', $document) }}" 
+                                                   class="btn btn-outline-success" title="Download">
+                                                    📥
+                                                </a>
+                                            @endif
                                             @can('documents.delete')
                                                 <form action="{{ route('documents.destroy', $document) }}" 
                                                       method="POST" class="d-inline"
@@ -161,7 +212,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="7" class="text-center text-muted py-4">
+                                    <td colspan="10" class="text-center text-muted py-4">
                                         No documents found matching your criteria.
                                     </td>
                                 </tr>
