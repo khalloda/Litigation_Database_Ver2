@@ -213,6 +213,7 @@ Core domain tables support soft deletes:
 | 2025-10-08 | 1.0 | Initial schema with users, roles, permissions, activity_log | System |
 | 2025-10-08 | 1.1 | Added domain tables after ETL import completion | System |
 | 2025-01-09 | 1.2 | Updated with import statistics and system tables | System |
+| 2025-01-09 | 1.3 | Database schema alignment - fixed column mismatches, comprehensive view updates | System |
 
 ---
 

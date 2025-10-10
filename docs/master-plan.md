@@ -1,6 +1,6 @@
 # Central Litigation Management — Master Plan
 
-**Version**: 1.2  
+**Version**: 1.3  
 **Date**: 2025-01-09  
 **Status**: In Progress  
 
@@ -188,7 +188,12 @@ Central Litigation Management (CLM) is a bilingual (EN/AR) web application for m
 - [x] **Cases CRUD (complete)** - full CRUD with validation
 - [x] **Hearings CRUD (complete)** - full CRUD with date validation
 - [x] **Lawyers CRUD (complete)** - full CRUD (admin only)
+- [x] **EngagementLetter CRUD (complete)** - contracts/agreements management
+- [x] **Contact CRUD (complete)** - client contact information
+- [x] **PowerOfAttorney CRUD (complete)** - legal authorization documents
 - [x] Bug fixes (giant arrow overlays)
+- [x] **Database schema alignment** - fixed column mismatches
+- [x] **Comprehensive view updates** - ALL database columns displayed
 
 **In Progress**:
 - [ ] Global search implementation

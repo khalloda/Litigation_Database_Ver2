@@ -20,6 +20,14 @@ This directory contains detailed documentation for bugs encountered and resolved
 **Affected**: All CRUD operations, policy-based authorization  
 **Severity**: Critical (blocking all functionality)
 
+### [Database Schema Alignment - Views Showing Minimal Data](./Database-Schema-Alignment-Bugfix.md)
+
+**Issue**: Detail views not showing all available database columns, only displaying minimal subset  
+**Root Cause**: Controllers using non-existent column names, models with wrong fillable arrays, views with restrictive display  
+**Solution**: Align all controllers, models, requests, and views with actual database schema from ETL import  
+**Affected**: EngagementLetter, Contact, PowerOfAttorney CRUD views and detail pages  
+**Severity**: High (significant data visibility loss)
+
 ## How to Use This Documentation
 
 1. **Identify the bug** you're experiencing
@@ -69,4 +77,4 @@ When documenting a new bug fix, include:
 ---
 
 **Last Updated**: 2025-01-09  
-**Total Bug Fixes Documented**: 2
+**Total Bug Fixes Documented**: 3
