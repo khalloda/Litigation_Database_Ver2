@@ -15,10 +15,21 @@ class ContactRequest extends FormRequest
     {
         return [
             'client_id' => 'required|exists:clients,id',
-            'contact_name' => 'required|string|max:255',
-            'contact_type' => 'required|string|in:phone,email,fax,mobile,address,website,other',
-            'contact_value' => 'required|string|max:500',
-            'is_primary' => 'nullable|boolean',
+            'contact_name' => 'nullable|string|max:255',
+            'full_name' => 'nullable|string|max:255',
+            'job_title' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'country' => 'nullable|string|max:255',
+            'zip_code' => 'nullable|string|max:255',
+            'business_phone' => 'nullable|string|max:255',
+            'home_phone' => 'nullable|string|max:255',
+            'mobile_phone' => 'nullable|string|max:255',
+            'fax_number' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'web_page' => 'nullable|url|max:255',
+            'attachments' => 'nullable|string',
         ];
     }
 
@@ -27,10 +38,8 @@ class ContactRequest extends FormRequest
         return [
             'client_id.required' => __('app.client_required'),
             'client_id.exists' => __('app.client_not_found'),
-            'contact_name.required' => __('app.contact_name_required'),
-            'contact_type.required' => __('app.contact_type_required'),
-            'contact_type.in' => __('app.contact_type_invalid'),
-            'contact_value.required' => __('app.contact_value_required'),
+            'email.email' => __('app.email_invalid'),
+            'web_page.url' => __('app.web_page_invalid'),
         ];
     }
 }

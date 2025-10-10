@@ -15,10 +15,14 @@ class EngagementLetterRequest extends FormRequest
     {
         return [
             'client_id' => 'required|exists:clients,id',
-            'contract_number' => 'required|string|max:255|unique:engagement_letters,contract_number,' . ($this->engagementLetter->id ?? 'NULL') . ',id',
-            'issue_date' => 'required|date',
-            'expiry_date' => 'required|date|after:issue_date',
-            'is_active' => 'nullable|boolean',
+            'client_name' => 'nullable|string|max:255',
+            'contract_date' => 'nullable|date',
+            'contract_details' => 'nullable|string',
+            'contract_structure' => 'nullable|string',
+            'contract_type' => 'nullable|string|max:255',
+            'matters' => 'nullable|string',
+            'status' => 'nullable|string|max:255',
+            'mfiles_id' => 'nullable|integer',
         ];
     }
 
@@ -27,11 +31,8 @@ class EngagementLetterRequest extends FormRequest
         return [
             'client_id.required' => __('app.client_required'),
             'client_id.exists' => __('app.client_not_found'),
-            'contract_number.required' => __('app.contract_number_required'),
-            'contract_number.unique' => __('app.contract_number_exists'),
-            'issue_date.required' => __('app.issue_date_required'),
-            'expiry_date.required' => __('app.expiry_date_required'),
-            'expiry_date.after' => __('app.expiry_date_after_issue'),
+            'contract_date.date' => __('app.contract_date_invalid'),
+            'mfiles_id.integer' => __('app.mfiles_id_invalid'),
         ];
     }
 }

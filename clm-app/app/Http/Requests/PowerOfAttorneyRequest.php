@@ -15,11 +15,20 @@ class PowerOfAttorneyRequest extends FormRequest
     {
         return [
             'client_id' => 'required|exists:clients,id',
-            'poa_type' => 'required|string|max:255',
-            'poa_number' => 'required|string|max:255|unique:power_of_attorneys,poa_number,' . ($this->powerOfAttorney->id ?? 'NULL') . ',id',
-            'issue_date' => 'required|date',
-            'expiry_date' => 'required|date|after:issue_date',
-            'is_active' => 'nullable|boolean',
+            'client_print_name' => 'nullable|string|max:255',
+            'principal_name' => 'required|string|max:255',
+            'year' => 'nullable|integer',
+            'capacity' => 'nullable|string|max:255',
+            'authorized_lawyers' => 'nullable|string',
+            'issue_date' => 'nullable|date',
+            'inventory' => 'nullable|boolean',
+            'issuing_authority' => 'nullable|string|max:255',
+            'letter' => 'nullable|string|max:255',
+            'poa_number' => 'nullable|integer',
+            'principal_capacity' => 'nullable|string|max:255',
+            'copies_count' => 'nullable|integer',
+            'serial' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
         ];
     }
 
@@ -28,12 +37,11 @@ class PowerOfAttorneyRequest extends FormRequest
         return [
             'client_id.required' => __('app.client_required'),
             'client_id.exists' => __('app.client_not_found'),
-            'poa_type.required' => __('app.poa_type_required'),
-            'poa_number.required' => __('app.poa_number_required'),
-            'poa_number.unique' => __('app.poa_number_exists'),
-            'issue_date.required' => __('app.issue_date_required'),
-            'expiry_date.required' => __('app.expiry_date_required'),
-            'expiry_date.after' => __('app.expiry_date_after_issue'),
+            'principal_name.required' => __('app.principal_name_required'),
+            'year.integer' => __('app.year_invalid'),
+            'issue_date.date' => __('app.issue_date_invalid'),
+            'poa_number.integer' => __('app.poa_number_invalid'),
+            'copies_count.integer' => __('app.copies_count_invalid'),
         ];
     }
 }
