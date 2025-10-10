@@ -17,6 +17,13 @@ class MappingEngine
      */
     public function autoMapColumns(array $sourceColumns, string $tableName): array
     {
+        // Debug: Log the source columns to see what we're working with
+        \Log::info('MappingEngine::autoMapColumns - Source columns', [
+            'sourceColumns' => $sourceColumns,
+            'sourceColumnsTypes' => array_map('gettype', $sourceColumns),
+            'tableName' => $tableName
+        ]);
+        
         $dbColumns = $this->getDbColumnsForTable($tableName);
         $threshold = config('importer.mapping.similarity_threshold', 0.65);
 
@@ -28,12 +35,28 @@ class MappingEngine
             $bestMatch = null;
             $bestScore = 0;
 
-            foreach ($dbColumns as $dbCol) {
-                $score = $this->calculateSimilarity($sourceCol, $dbCol);
+            // Debug: Log each source column being processed
+            \Log::info('Processing source column', [
+                'sourceCol' => $sourceCol,
+                'sourceColType' => gettype($sourceCol)
+            ]);
 
-                if ($score > $bestScore) {
-                    $bestScore = $score;
-                    $bestMatch = $dbCol;
+            foreach ($dbColumns as $dbCol) {
+                try {
+                    $score = $this->calculateSimilarity($sourceCol, $dbCol);
+
+                    if ($score > $bestScore) {
+                        $bestScore = $score;
+                        $bestMatch = $dbCol;
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Error calculating similarity', [
+                        'sourceCol' => $sourceCol,
+                        'dbCol' => $dbCol,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    throw $e;
                 }
             }
 
@@ -65,7 +88,7 @@ class MappingEngine
 
         // Filter out system columns
         $excludedColumns = ['id', 'created_at', 'updated_at', 'deleted_at', 'created_by', 'updated_by'];
-        
+
         return array_diff($columns, $excludedColumns);
     }
 
@@ -77,7 +100,7 @@ class MappingEngine
         // Ensure both parameters are strings
         $source = is_string($source) ? $source : (string) $source;
         $target = is_string($target) ? $target : (string) $target;
-        
+
         // Normalize column names
         $source = $this->normalizeColumnName($source);
         $target = $this->normalizeColumnName($target);
@@ -96,8 +119,8 @@ class MappingEngine
         $levenshteinScore = $this->levenshteinSimilarity($source, $target);
         $jaroWinklerScore = $this->jaroWinklerSimilarity($source, $target);
 
-        return ($levenshteinScore * $weights['levenshtein']) + 
-               ($jaroWinklerScore * $weights['jaro_winkler']);
+        return ($levenshteinScore * $weights['levenshtein']) +
+            ($jaroWinklerScore * $weights['jaro_winkler']);
     }
 
     /**
@@ -107,7 +130,7 @@ class MappingEngine
     {
         // Ensure input is a string
         $name = is_string($name) ? $name : (string) $name;
-        
+
         // Convert to lowercase
         $name = strtolower($name);
 
@@ -132,13 +155,13 @@ class MappingEngine
     protected function levenshteinSimilarity(string $str1, string $str2): float
     {
         $maxLen = max(strlen($str1), strlen($str2));
-        
+
         if ($maxLen === 0) {
             return 1.0;
         }
 
         $distance = levenshtein($str1, $str2);
-        
+
         return 1.0 - ($distance / $maxLen);
     }
 
@@ -268,7 +291,7 @@ class MappingEngine
     {
         try {
             $column = DB::select("SHOW COLUMNS FROM `{$tableName}` WHERE Field = ?", [$columnName]);
-            
+
             if (empty($column)) {
                 return null;
             }
@@ -304,4 +327,3 @@ class MappingEngine
         return $errors;
     }
 }
-
