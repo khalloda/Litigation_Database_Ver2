@@ -23,7 +23,7 @@
 
             <form action="{{ route('clients.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                
+
                 {{-- Basic Information --}}
                 <div class="row mb-3">
                     <div class="col-12">

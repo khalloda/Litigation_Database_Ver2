@@ -30,28 +30,28 @@ class ClientsController extends Controller
     public function create()
     {
         $this->authorize('create', Client::class);
-        
+
         // Load option values for dropdowns
         $cashOrProbonoOptions = \App\Models\OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'client.cash_or_probono'))
             ->where('is_active', true)
             ->orderBy('position')
             ->get();
-        
+
         $statusOptions = \App\Models\OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'client.status'))
             ->where('is_active', true)
             ->orderBy('position')
             ->get();
-        
+
         $powerOfAttorneyLocationOptions = \App\Models\OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'client.power_of_attorney_location'))
             ->where('is_active', true)
             ->orderBy('position')
             ->get();
-        
+
         $documentsLocationOptions = \App\Models\OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'client.documents_location'))
             ->where('is_active', true)
             ->orderBy('position')
             ->get();
-        
+
         return view('clients.create', compact(
             'cashOrProbonoOptions',
             'statusOptions',
@@ -63,7 +63,7 @@ class ClientsController extends Controller
     public function store(ClientRequest $request)
     {
         $this->authorize('create', Client::class);
-        
+
         // Prepare data
         $data = [
             'client_name_ar' => $request->client_name_ar,
@@ -79,16 +79,16 @@ class ClientsController extends Controller
             'created_by' => auth()->id(),
             'updated_by' => auth()->id(),
         ];
-        
+
         // Handle logo upload
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
             $filename = time() . '_' . $file->getClientOriginalName();
             $data['logo'] = $file->storeAs('logos', $filename, 'public');
         }
-        
+
         $client = Client::create($data);
-        
+
         return redirect()->route('clients.show', $client)
             ->with('success', __('app.client_created_successfully'));
     }
