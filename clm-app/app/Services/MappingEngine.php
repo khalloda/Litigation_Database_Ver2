@@ -23,7 +23,7 @@ class MappingEngine
             'sourceColumnsTypes' => array_map('gettype', $sourceColumns),
             'tableName' => $tableName
         ]);
-        
+
         $dbColumns = $this->getDbColumnsForTable($tableName);
         $threshold = config('importer.mapping.similarity_threshold', 0.65);
 
@@ -110,17 +110,14 @@ class MappingEngine
             return 1.0;
         }
 
-        // Calculate weighted similarity
-        $weights = config('importer.mapping.weights', [
-            'levenshtein' => 0.4,
-            'jaro_winkler' => 0.6,
-        ]);
-
+        // Use simpler similarity calculation to avoid string offset issues
         $levenshteinScore = $this->levenshteinSimilarity($source, $target);
-        $jaroWinklerScore = $this->jaroWinklerSimilarity($source, $target);
-
-        return ($levenshteinScore * $weights['levenshtein']) +
-            ($jaroWinklerScore * $weights['jaro_winkler']);
+        
+        // Simple substring matching as fallback
+        $substringScore = $this->substringSimilarity($source, $target);
+        
+        // Weighted combination
+        return ($levenshteinScore * 0.7) + ($substringScore * 0.3);
     }
 
     /**
@@ -166,20 +163,55 @@ class MappingEngine
     }
 
     /**
+     * Calculate simple substring similarity (0.0 to 1.0).
+     */
+    protected function substringSimilarity(string $str1, string $str2): float
+    {
+        $str1 = strtolower(trim($str1));
+        $str2 = strtolower(trim($str2));
+        
+        if ($str1 === '' || $str2 === '') {
+            return 0.0;
+        }
+        
+        // Check if one string contains the other
+        if (strpos($str1, $str2) !== false || strpos($str2, $str1) !== false) {
+            return 0.8;
+        }
+        
+        // Check for common words
+        $words1 = explode('_', $str1);
+        $words2 = explode('_', $str2);
+        
+        $commonWords = array_intersect($words1, $words2);
+        $totalWords = count(array_unique(array_merge($words1, $words2)));
+        
+        if ($totalWords === 0) {
+            return 0.0;
+        }
+        
+        return count($commonWords) / $totalWords;
+    }
+
+    /**
      * Calculate Jaro-Winkler similarity (0.0 to 1.0).
      */
     protected function jaroWinklerSimilarity(string $str1, string $str2): float
     {
-        $len1 = strlen($str1);
-        $len2 = strlen($str2);
-
-        if ($len1 === 0 && $len2 === 0) {
+        // Ensure both inputs are valid strings and not empty
+        $str1 = trim((string) $str1);
+        $str2 = trim((string) $str2);
+        
+        if ($str1 === '' && $str2 === '') {
             return 1.0;
         }
 
-        if ($len1 === 0 || $len2 === 0) {
+        if ($str1 === '' || $str2 === '') {
             return 0.0;
         }
+
+        $len1 = strlen($str1);
+        $len2 = strlen($str2);
 
         // Calculate Jaro similarity
         $matchDistance = max($len1, $len2) / 2 - 1;
