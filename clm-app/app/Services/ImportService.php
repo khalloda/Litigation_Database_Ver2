@@ -81,20 +81,27 @@ class ImportService
         $fileHash = hash_file('sha256', $filepath);
 
         // Create import session record
-        $importSession = ImportSession::create([
-            'session_id' => $sessionId,
-            'table_name' => $tableName,
-            'original_filename' => $originalFilename,
-            'stored_filename' => $storedFilename,
-            'status' => ImportSession::STATUS_UPLOADED,
-            'file_type' => $extension,
-            'file_size' => $fileSize,
-            'file_hash' => $fileHash,
-            'user_id' => $userId,
-        ]);
+        $importSession = new ImportSession();
+        $importSession->session_id = $sessionId;
+        $importSession->table_name = $tableName;
+        $importSession->original_filename = $originalFilename;
+        $importSession->stored_filename = $storedFilename;
+        $importSession->status = ImportSession::STATUS_UPLOADED;
+        $importSession->file_type = $extension;
+        $importSession->file_size = $fileSize;
+        $importSession->file_hash = $fileHash;
+        $importSession->user_id = $userId;
+        
+        $saved = $importSession->save();
 
-        // Refresh to ensure all fields are loaded from database
-        $importSession->refresh();
+        if (!$saved) {
+            throw new Exception('Failed to save import session to database.');
+        }
+
+        // Verify session_id was saved
+        if (empty($importSession->session_id)) {
+            throw new Exception('Session ID is null after save. Database constraint or model issue.');
+        }
 
         return $importSession;
     }
