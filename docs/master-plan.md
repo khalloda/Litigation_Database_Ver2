@@ -194,6 +194,8 @@ Central Litigation Management (CLM) is a bilingual (EN/AR) web application for m
 - [x] Bug fixes (giant arrow overlays)
 - [x] **Database schema alignment** - fixed column mismatches
 - [x] **Comprehensive view updates** - ALL database columns displayed
+- [x] **AdminTask CRUD (complete)** - task management with full tracking
+- [x] **AdminSubtask CRUD (complete)** - subtask management linked to tasks
 
 **In Progress**:
 - [ ] Global search implementation

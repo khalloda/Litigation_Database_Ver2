@@ -367,22 +367,40 @@
 - **Commits**: 1c6a821
 - **Documentation**: `/docs/bugfixes/Giant-Arrow-Overlays-Bugfix.md`
 
-### 5.7 Remaining CRUD Modules
-- **ID**: CRUD-Remaining
-- **Status**: In Progress
+### 5.7 Remaining CRUD Modules (Part 1)
+- **ID**: CRUD-Remaining-Part1
+- **Status**: Done
 - **Branch**: `feat/crud-remaining-models`
-- **Description**: Complete CRUD for remaining models: EngagementLetter, Contact, PowerOfAttorney, AdminTask, AdminSubtask
+- **Description**: Complete CRUD for EngagementLetter, Contact, PowerOfAttorney
 - **DoD**:
   - [x] **EngagementLetter CRUD** - contracts/agreements management
   - [x] **Contact CRUD** - client contact information  
   - [x] **PowerOfAttorney CRUD** - legal authorization documents
-  - [ ] AdminTask CRUD - task management
-  - [ ] AdminSubtask CRUD - subtask management
   - [x] Database schema alignment fixes
   - [x] Comprehensive view updates (ALL database columns displayed)
 - **Commits**: 09141b7, 4dffb12, 240ed30, 00c5b19, de0361e
 
-### 5.8 Database Schema Alignment
+### 5.8 Admin Tasks and Subtasks CRUD
+- **ID**: CRUD-Admin-Tasks
+- **Status**: Done
+- **Branch**: `feat/crud-admin-tasks-subtasks`
+- **Description**: Complete CRUD for AdminTask and AdminSubtask modules
+- **DoD**:
+  - [x] **AdminSubtask model fixed** - aligned with actual database schema (task_id, lawyer_id, performer, next_date, result, procedure_date, report)
+  - [x] **AdminTask CRUD** - full CRUD operations (index, create, store, show, edit, update, destroy)
+  - [x] **AdminSubtask CRUD** - full CRUD operations (index, create, store, show, edit, update, destroy)
+  - [x] AdminTaskRequest and AdminSubtaskRequest validation
+  - [x] AdminTaskPolicy and AdminSubtaskPolicy authorization
+  - [x] Policies registered in AuthServiceProvider
+  - [x] 8 Blade views created (4 per module: index, show, create, edit)
+  - [x] Routes added with auth middleware
+  - [x] Navigation links added to app layout
+  - [x] 50+ language keys added in EN/AR
+  - [x] Comprehensive views showing all database fields
+  - [x] Routes verified and tested
+- **Commits**: cf9da34
+
+### 5.9 Database Schema Alignment
 - **ID**: DB-Schema-Fix
 - **Status**: Done
 - **Description**: Fix controllers and models to match actual database schema from ETL import
@@ -396,7 +414,7 @@
   - [x] Updated request validation rules to match actual schema
 - **Commits**: 09141b7, 4dffb12
 
-### 5.9 Comprehensive View Updates
+### 5.10 Comprehensive View Updates
 - **ID**: Views-Complete-Data
 - **Status**: Done
 - **Description**: Update all views to display ALL available database columns instead of minimal subset
@@ -409,7 +427,7 @@
   - [x] Both index and show views updated to display complete data
 - **Commits**: 240ed30, 00c5b19, de0361e
 
-### 5.10 Global Search
+### 5.11 Global Search
 - **ID**: T-09
 - **Status**: Todo
 - **Branch**: `feat/global-search`
@@ -459,5 +477,5 @@ php artisan migrate:rollback  # Rolls back permission tables
 
 ---
 
-**Last Updated**: 2025-01-09 18:00 UTC
+**Last Updated**: 2025-01-10 01:00 UTC
 

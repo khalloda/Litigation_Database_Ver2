@@ -265,7 +265,7 @@ return [
     'authorized_lawyers' => 'المحامين المخولين',
     'year' => 'السنة',
     'serial' => 'الرقم التسلسلي',
-    
+
     // Additional show view fields
     'contract_structure' => 'هيكل العقد',
     'address_information' => 'معلومات العنوان',
