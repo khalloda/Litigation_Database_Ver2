@@ -12,10 +12,10 @@ class EngagementLetterController extends Controller
     public function index(Request $request)
     {
         $this->authorize('viewAny', EngagementLetter::class);
-        
+
         $engagementLetters = EngagementLetter::with('client:id,client_name_ar,client_name_en')
-            ->select('id', 'client_id', 'contract_number', 'issue_date', 'expiry_date', 'is_active', 'created_at', 'updated_at')
-            ->orderBy('issue_date', 'desc')
+            ->select('id', 'client_id', 'client_name', 'contract_date', 'contract_type', 'status', 'created_at', 'updated_at')
+            ->orderBy('contract_date', 'desc')
             ->paginate(25);
 
         return view('engagement-letters.index', compact('engagementLetters'));
@@ -24,7 +24,7 @@ class EngagementLetterController extends Controller
     public function create()
     {
         $this->authorize('create', EngagementLetter::class);
-        
+
         $clients = Client::select('id', 'client_name_ar', 'client_name_en')
             ->orderBy('client_name_ar')
             ->get();
@@ -35,7 +35,7 @@ class EngagementLetterController extends Controller
     public function store(EngagementLetterRequest $request)
     {
         $this->authorize('create', EngagementLetter::class);
-        
+
         $engagementLetter = EngagementLetter::create($request->validated() + [
             'created_by' => auth()->id(),
             'updated_by' => auth()->id(),
@@ -48,16 +48,16 @@ class EngagementLetterController extends Controller
     public function show(EngagementLetter $engagementLetter)
     {
         $this->authorize('view', $engagementLetter);
-        
+
         $engagementLetter->load('client');
-        
+
         return view('engagement-letters.show', compact('engagementLetter'));
     }
 
     public function edit(EngagementLetter $engagementLetter)
     {
         $this->authorize('update', $engagementLetter);
-        
+
         $clients = Client::select('id', 'client_name_ar', 'client_name_en')
             ->orderBy('client_name_ar')
             ->get();
@@ -68,7 +68,7 @@ class EngagementLetterController extends Controller
     public function update(EngagementLetterRequest $request, EngagementLetter $engagementLetter)
     {
         $this->authorize('update', $engagementLetter);
-        
+
         $engagementLetter->update($request->validated() + [
             'updated_by' => auth()->id(),
         ]);
@@ -80,7 +80,7 @@ class EngagementLetterController extends Controller
     public function destroy(EngagementLetter $engagementLetter)
     {
         $this->authorize('delete', $engagementLetter);
-        
+
         $engagementLetter->delete();
 
         return redirect()->route('engagement-letters.index')

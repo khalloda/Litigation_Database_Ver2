@@ -12,9 +12,9 @@ class PowerOfAttorneyController extends Controller
     public function index(Request $request)
     {
         $this->authorize('viewAny', PowerOfAttorney::class);
-        
+
         $powerOfAttorneys = PowerOfAttorney::with('client:id,client_name_ar,client_name_en')
-            ->select('id', 'client_id', 'poa_type', 'poa_number', 'issue_date', 'expiry_date', 'is_active', 'created_at', 'updated_at')
+            ->select('id', 'client_id', 'principal_name', 'poa_number', 'issue_date', 'issuing_authority', 'created_at', 'updated_at')
             ->orderBy('issue_date', 'desc')
             ->paginate(25);
 
@@ -24,7 +24,7 @@ class PowerOfAttorneyController extends Controller
     public function create()
     {
         $this->authorize('create', PowerOfAttorney::class);
-        
+
         $clients = Client::select('id', 'client_name_ar', 'client_name_en')
             ->orderBy('client_name_ar')
             ->get();
@@ -35,7 +35,7 @@ class PowerOfAttorneyController extends Controller
     public function store(PowerOfAttorneyRequest $request)
     {
         $this->authorize('create', PowerOfAttorney::class);
-        
+
         $powerOfAttorney = PowerOfAttorney::create($request->validated() + [
             'created_by' => auth()->id(),
             'updated_by' => auth()->id(),
@@ -48,16 +48,16 @@ class PowerOfAttorneyController extends Controller
     public function show(PowerOfAttorney $powerOfAttorney)
     {
         $this->authorize('view', $powerOfAttorney);
-        
+
         $powerOfAttorney->load('client');
-        
+
         return view('power-of-attorneys.show', compact('powerOfAttorney'));
     }
 
     public function edit(PowerOfAttorney $powerOfAttorney)
     {
         $this->authorize('update', $powerOfAttorney);
-        
+
         $clients = Client::select('id', 'client_name_ar', 'client_name_en')
             ->orderBy('client_name_ar')
             ->get();
@@ -68,7 +68,7 @@ class PowerOfAttorneyController extends Controller
     public function update(PowerOfAttorneyRequest $request, PowerOfAttorney $powerOfAttorney)
     {
         $this->authorize('update', $powerOfAttorney);
-        
+
         $powerOfAttorney->update($request->validated() + [
             'updated_by' => auth()->id(),
         ]);
@@ -80,7 +80,7 @@ class PowerOfAttorneyController extends Controller
     public function destroy(PowerOfAttorney $powerOfAttorney)
     {
         $this->authorize('delete', $powerOfAttorney);
-        
+
         $powerOfAttorney->delete();
 
         return redirect()->route('power-of-attorneys.index')

@@ -15,16 +15,19 @@ class EngagementLetter extends Model
 
     protected $fillable = [
         'client_id',
-        'contract_number',
-        'issue_date',
-        'expiry_date',
-        'is_active',
+        'client_name',
+        'contract_date',
+        'contract_details',
+        'contract_structure',
+        'contract_type',
+        'matters',
+        'status',
+        'mfiles_id',
     ];
 
     protected $casts = [
-        'issue_date' => 'date',
-        'expiry_date' => 'date',
-        'is_active' => 'boolean',
+        'contract_date' => 'datetime',
+        'mfiles_id' => 'integer',
     ];
 
     // Relationships
@@ -36,7 +39,7 @@ class EngagementLetter extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['client_id', 'contract_number', 'issue_date', 'expiry_date', 'is_active'])
+            ->logOnly(['client_id', 'client_name', 'contract_date', 'contract_type', 'status', 'matters'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('engagementletter')

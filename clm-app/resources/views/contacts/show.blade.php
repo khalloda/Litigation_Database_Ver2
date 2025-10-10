@@ -9,18 +9,18 @@
                     <h3 class="card-title">{{ __('app.contact_details') }}</h3>
                     <div class="btn-group" role="group">
                         @can('update', $contact)
-                            <a href="{{ route('contacts.edit', $contact) }}" class="btn btn-warning">
-                                <i class="fas fa-edit"></i> {{ __('app.edit') }}
-                            </a>
+                        <a href="{{ route('contacts.edit', $contact) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> {{ __('app.edit') }}
+                        </a>
                         @endcan
                         @can('delete', $contact)
-                            <form method="POST" action="{{ route('contacts.destroy', $contact) }}" class="d-inline" onsubmit="return confirm('{{ __('app.confirm_delete') }}')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger">
-                                    <i class="fas fa-trash"></i> {{ __('app.delete') }}
-                                </button>
-                            </form>
+                        <form method="POST" action="{{ route('contacts.destroy', $contact) }}" class="d-inline" onsubmit="return confirm('{{ __('app.confirm_delete') }}')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> {{ __('app.delete') }}
+                            </button>
+                        </form>
                         @endcan
                         <a href="{{ route('contacts.index') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> {{ __('app.back_to_list') }}
@@ -40,12 +40,12 @@
                                     <th>{{ __('app.client') }}:</th>
                                     <td>
                                         @if($contact->client)
-                                            <div>
-                                                <div>{{ $contact->client->client_name_ar }}</div>
-                                                <small class="text-muted">{{ $contact->client->client_name_en }}</small>
-                                            </div>
+                                        <div>
+                                            <div>{{ $contact->client->client_name_ar }}</div>
+                                            <small class="text-muted">{{ $contact->client->client_name_en }}</small>
+                                        </div>
                                         @else
-                                            <span class="text-muted">{{ __('app.no_client') }}</span>
+                                        <span class="text-muted">{{ __('app.no_client') }}</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -59,19 +59,19 @@
                                     <th>{{ __('app.contact_value') }}:</th>
                                     <td>
                                         @if($contact->contact_type === 'email')
-                                            <a href="mailto:{{ $contact->contact_value }}" class="text-decoration-none">
-                                                <i class="fas fa-envelope"></i> {{ $contact->contact_value }}
-                                            </a>
+                                        <a href="mailto:{{ $contact->contact_value }}" class="text-decoration-none">
+                                            <i class="fas fa-envelope"></i> {{ $contact->contact_value }}
+                                        </a>
                                         @elseif($contact->contact_type === 'phone' || $contact->contact_type === 'mobile')
-                                            <a href="tel:{{ $contact->contact_value }}" class="text-decoration-none">
-                                                <i class="fas fa-phone"></i> {{ $contact->contact_value }}
-                                            </a>
+                                        <a href="tel:{{ $contact->contact_value }}" class="text-decoration-none">
+                                            <i class="fas fa-phone"></i> {{ $contact->contact_value }}
+                                        </a>
                                         @elseif($contact->contact_type === 'website')
-                                            <a href="{{ $contact->contact_value }}" target="_blank" class="text-decoration-none">
-                                                <i class="fas fa-globe"></i> {{ $contact->contact_value }}
-                                            </a>
+                                        <a href="{{ $contact->contact_value }}" target="_blank" class="text-decoration-none">
+                                            <i class="fas fa-globe"></i> {{ $contact->contact_value }}
+                                        </a>
                                         @else
-                                            {{ $contact->contact_value }}
+                                        {{ $contact->contact_value }}
                                         @endif
                                     </td>
                                 </tr>
@@ -79,9 +79,9 @@
                                     <th>{{ __('app.status') }}:</th>
                                     <td>
                                         @if($contact->is_primary)
-                                            <span class="badge bg-success">{{ __('app.primary') }}</span>
+                                        <span class="badge bg-success">{{ __('app.primary') }}</span>
                                         @else
-                                            <span class="badge bg-secondary">{{ __('app.secondary') }}</span>
+                                        <span class="badge bg-secondary">{{ __('app.secondary') }}</span>
                                         @endif
                                     </td>
                                 </tr>

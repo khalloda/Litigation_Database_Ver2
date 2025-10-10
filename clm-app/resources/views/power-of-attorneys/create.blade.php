@@ -14,7 +14,7 @@
                 <div class="card-body">
                     <form method="POST" action="{{ route('power-of-attorneys.store') }}">
                         @csrf
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -22,25 +22,25 @@
                                     <select class="form-select @error('client_id') is-invalid @enderror" id="client_id" name="client_id" required>
                                         <option value="">{{ __('app.select_client') }}</option>
                                         @foreach($clients as $client)
-                                            <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>
-                                                {{ $client->client_name_ar }} {{ $client->client_name_en ? '- ' . $client->client_name_en : '' }}
-                                            </option>
+                                        <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>
+                                            {{ $client->client_name_ar }} {{ $client->client_name_en ? '- ' . $client->client_name_en : '' }}
+                                        </option>
                                         @endforeach
                                     </select>
                                     @error('client_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="poa_number" class="form-label">{{ __('app.poa_number') }} <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('poa_number') is-invalid @enderror" 
-                                           id="poa_number" name="poa_number" 
-                                           value="{{ old('poa_number') }}" required>
+                                    <input type="text" class="form-control @error('poa_number') is-invalid @enderror"
+                                        id="poa_number" name="poa_number"
+                                        value="{{ old('poa_number') }}" required>
                                     @error('poa_number')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
@@ -62,7 +62,7 @@
                                         <option value="Other" {{ old('poa_type') == 'Other' ? 'selected' : '' }}>{{ __('app.other') }}</option>
                                     </select>
                                     @error('poa_type')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
@@ -72,23 +72,23 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="issue_date" class="form-label">{{ __('app.issue_date') }} <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control @error('issue_date') is-invalid @enderror" 
-                                           id="issue_date" name="issue_date" 
-                                           value="{{ old('issue_date') }}" required>
+                                    <input type="date" class="form-control @error('issue_date') is-invalid @enderror"
+                                        id="issue_date" name="issue_date"
+                                        value="{{ old('issue_date') }}" required>
                                     @error('issue_date')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="expiry_date" class="form-label">{{ __('app.expiry_date') }} <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control @error('expiry_date') is-invalid @enderror" 
-                                           id="expiry_date" name="expiry_date" 
-                                           value="{{ old('expiry_date') }}" required>
+                                    <input type="date" class="form-control @error('expiry_date') is-invalid @enderror"
+                                        id="expiry_date" name="expiry_date"
+                                        value="{{ old('expiry_date') }}" required>
                                     @error('expiry_date')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
@@ -98,8 +98,8 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1" 
-                                               {{ old('is_active', true) ? 'checked' : '' }}>
+                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1"
+                                            {{ old('is_active', true) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="is_active">
                                             {{ __('app.active') }}
                                         </label>
@@ -124,19 +124,19 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Auto-fill expiry date when issue date changes (default to 1 year)
-    const issueDateInput = document.getElementById('issue_date');
-    const expiryDateInput = document.getElementById('expiry_date');
-    
-    issueDateInput.addEventListener('change', function() {
-        if (this.value && !expiryDateInput.value) {
-            const issueDate = new Date(this.value);
-            const expiryDate = new Date(issueDate);
-            expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-            expiryDateInput.value = expiryDate.toISOString().split('T')[0];
-        }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-fill expiry date when issue date changes (default to 1 year)
+        const issueDateInput = document.getElementById('issue_date');
+        const expiryDateInput = document.getElementById('expiry_date');
+
+        issueDateInput.addEventListener('change', function() {
+            if (this.value && !expiryDateInput.value) {
+                const issueDate = new Date(this.value);
+                const expiryDate = new Date(issueDate);
+                expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+                expiryDateInput.value = expiryDate.toISOString().split('T')[0];
+            }
+        });
     });
-});
 </script>
 @endsection

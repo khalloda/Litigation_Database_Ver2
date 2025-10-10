@@ -15,7 +15,7 @@
                     <form method="POST" action="{{ route('contacts.update', $contact) }}">
                         @csrf
                         @method('PUT')
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -23,25 +23,25 @@
                                     <select class="form-select @error('client_id') is-invalid @enderror" id="client_id" name="client_id" required>
                                         <option value="">{{ __('app.select_client') }}</option>
                                         @foreach($clients as $client)
-                                            <option value="{{ $client->id }}" {{ (old('client_id', $contact->client_id) == $client->id) ? 'selected' : '' }}>
-                                                {{ $client->client_name_ar }} {{ $client->client_name_en ? '- ' . $client->client_name_en : '' }}
-                                            </option>
+                                        <option value="{{ $client->id }}" {{ (old('client_id', $contact->client_id) == $client->id) ? 'selected' : '' }}>
+                                            {{ $client->client_name_ar }} {{ $client->client_name_en ? '- ' . $client->client_name_en : '' }}
+                                        </option>
                                         @endforeach
                                     </select>
                                     @error('client_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="contact_name" class="form-label">{{ __('app.contact_name') }} <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('contact_name') is-invalid @enderror" 
-                                           id="contact_name" name="contact_name" 
-                                           value="{{ old('contact_name', $contact->contact_name) }}" required>
+                                    <input type="text" class="form-control @error('contact_name') is-invalid @enderror"
+                                        id="contact_name" name="contact_name"
+                                        value="{{ old('contact_name', $contact->contact_name) }}" required>
                                     @error('contact_name')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
@@ -62,19 +62,19 @@
                                         <option value="other" {{ (old('contact_type', $contact->contact_type) == 'other') ? 'selected' : '' }}>{{ __('app.other') }}</option>
                                     </select>
                                     @error('contact_type')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="contact_value" class="form-label">{{ __('app.contact_value') }} <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('contact_value') is-invalid @enderror" 
-                                           id="contact_value" name="contact_value" 
-                                           value="{{ old('contact_value', $contact->contact_value) }}" required>
+                                    <input type="text" class="form-control @error('contact_value') is-invalid @enderror"
+                                        id="contact_value" name="contact_value"
+                                        value="{{ old('contact_value', $contact->contact_value) }}" required>
                                     @error('contact_value')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
@@ -84,8 +84,8 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="is_primary" name="is_primary" value="1" 
-                                               {{ old('is_primary', $contact->is_primary) ? 'checked' : '' }}>
+                                        <input class="form-check-input" type="checkbox" id="is_primary" name="is_primary" value="1"
+                                            {{ old('is_primary', $contact->is_primary) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="is_primary">
                                             {{ __('app.primary_contact') }}
                                         </label>
@@ -110,39 +110,39 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Add input formatting based on contact type
-    const contactTypeSelect = document.getElementById('contact_type');
-    const contactValueInput = document.getElementById('contact_value');
-    
-    contactTypeSelect.addEventListener('change', function() {
-        const type = this.value;
-        
-        // Set placeholder and input type based on contact type
-        switch(type) {
-            case 'email':
-                contactValueInput.type = 'email';
-                contactValueInput.placeholder = 'example@domain.com';
-                break;
-            case 'phone':
-            case 'mobile':
-            case 'fax':
-                contactValueInput.type = 'tel';
-                contactValueInput.placeholder = '+1234567890';
-                break;
-            case 'website':
-                contactValueInput.type = 'url';
-                contactValueInput.placeholder = 'https://www.example.com';
-                break;
-            default:
-                contactValueInput.type = 'text';
-                contactValueInput.placeholder = '';
-                break;
-        }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add input formatting based on contact type
+        const contactTypeSelect = document.getElementById('contact_type');
+        const contactValueInput = document.getElementById('contact_value');
+
+        contactTypeSelect.addEventListener('change', function() {
+            const type = this.value;
+
+            // Set placeholder and input type based on contact type
+            switch (type) {
+                case 'email':
+                    contactValueInput.type = 'email';
+                    contactValueInput.placeholder = 'example@domain.com';
+                    break;
+                case 'phone':
+                case 'mobile':
+                case 'fax':
+                    contactValueInput.type = 'tel';
+                    contactValueInput.placeholder = '+1234567890';
+                    break;
+                case 'website':
+                    contactValueInput.type = 'url';
+                    contactValueInput.placeholder = 'https://www.example.com';
+                    break;
+                default:
+                    contactValueInput.type = 'text';
+                    contactValueInput.placeholder = '';
+                    break;
+            }
+        });
+
+        // Trigger change event on page load to set correct input type
+        contactTypeSelect.dispatchEvent(new Event('change'));
     });
-    
-    // Trigger change event on page load to set correct input type
-    contactTypeSelect.dispatchEvent(new Event('change'));
-});
 </script>
 @endsection
