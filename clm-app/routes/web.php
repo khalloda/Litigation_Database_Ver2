@@ -102,6 +102,17 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/engagement-letters/{engagementLetter}', [App\Http\Controllers\EngagementLetterController::class, 'destroy'])->name('engagement-letters.destroy');
 });
 
+// Contact Management
+Route::middleware(['auth'])->group(function () {
+    Route::get('/contacts', [App\Http\Controllers\ContactController::class, 'index'])->name('contacts.index');
+    Route::get('/contacts/create', [App\Http\Controllers\ContactController::class, 'create'])->name('contacts.create');
+    Route::post('/contacts', [App\Http\Controllers\ContactController::class, 'store'])->name('contacts.store');
+    Route::get('/contacts/{contact}', [App\Http\Controllers\ContactController::class, 'show'])->name('contacts.show');
+    Route::get('/contacts/{contact}/edit', [App\Http\Controllers\ContactController::class, 'edit'])->name('contacts.edit');
+    Route::put('/contacts/{contact}', [App\Http\Controllers\ContactController::class, 'update'])->name('contacts.update');
+    Route::delete('/contacts/{contact}', [App\Http\Controllers\ContactController::class, 'destroy'])->name('contacts.destroy');
+});
+
 // Trash/Recycle Bin routes (protected by permission middleware)
 Route::middleware(['auth', 'permission:trash.view'])->prefix('trash')->name('trash.')->group(function () {
     Route::get('/', [App\Http\Controllers\TrashController::class, 'index'])->name('index');
