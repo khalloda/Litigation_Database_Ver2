@@ -26,20 +26,19 @@ Route::get('/locale/{locale}', [App\Http\Controllers\LocaleController::class, 's
     ->whereIn('locale', ['en', 'ar'])
     ->name('locale.switch');
 
-// Basic CRUD stubs
-Route::middleware(['auth', 'permission:clients.view'])->group(function () {
+// Basic CRUD stubs - Client Management
+Route::middleware(['auth'])->group(function () {
+    // List clients
     Route::get('/clients', [App\Http\Controllers\ClientsController::class, 'index'])->name('clients.index');
-    Route::get('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'show'])->name('clients.show');
-});
-Route::middleware(['auth', 'permission:clients.create'])->group(function () {
+
+    // Create client - MUST be before {client} routes
     Route::get('/clients/create', [App\Http\Controllers\ClientsController::class, 'create'])->name('clients.create');
     Route::post('/clients', [App\Http\Controllers\ClientsController::class, 'store'])->name('clients.store');
-});
-Route::middleware(['auth', 'permission:clients.edit'])->group(function () {
+
+    // View, Edit, Delete specific client
+    Route::get('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'show'])->name('clients.show');
     Route::get('/clients/{client}/edit', [App\Http\Controllers\ClientsController::class, 'edit'])->name('clients.edit');
     Route::put('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'update'])->name('clients.update');
-});
-Route::middleware(['auth', 'permission:clients.delete'])->group(function () {
     Route::delete('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'destroy'])->name('clients.destroy');
 });
 // Case Management
@@ -253,7 +252,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/options/{optionSet}/edit', [App\Http\Controllers\Admin\OptionController::class, 'edit'])->name('options.edit');
     Route::put('/options/{optionSet}', [App\Http\Controllers\Admin\OptionController::class, 'update'])->name('options.update');
     Route::delete('/options/{optionSet}', [App\Http\Controllers\Admin\OptionController::class, 'destroy'])->name('options.destroy');
-    
+
     // Option Values
     Route::post('/options/{optionSet}/values', [App\Http\Controllers\Admin\OptionController::class, 'storeValue'])->name('options.values.store');
     Route::put('/options/values/{optionValue}', [App\Http\Controllers\Admin\OptionController::class, 'updateValue'])->name('options.values.update');

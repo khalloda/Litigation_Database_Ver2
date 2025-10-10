@@ -39,6 +39,14 @@ class ClientPolicy
     }
 
     /**
+     * Determine whether the user can edit the client.
+     */
+    public function edit(User $user, $client): bool
+    {
+        return $user->can('clients.edit');
+    }
+
+    /**
      * Determine whether the user can delete the client.
      */
     public function delete(User $user, $client): bool
