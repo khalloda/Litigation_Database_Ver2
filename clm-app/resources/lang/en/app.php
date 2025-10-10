@@ -232,7 +232,7 @@ return [
     'healthcare_poa' => 'Healthcare POA',
     'financial_poa' => 'Financial POA',
     'legal_poa' => 'Legal POA',
-    
+
     // Additional fields
     'not_set' => 'Not Set',
     'client_name' => 'Client Name',
@@ -245,4 +245,24 @@ return [
     'principal_name' => 'Principal Name',
     'issuing_authority' => 'Issuing Authority',
     'capacity' => 'Capacity',
+    
+    // Additional contact fields
+    'city' => 'City',
+    'state' => 'State',
+    'country' => 'Country',
+    'zip_code' => 'ZIP Code',
+    'home_phone' => 'Home Phone',
+    'mobile_phone' => 'Mobile Phone',
+    'fax_number' => 'Fax Number',
+    'web_page' => 'Web Page',
+    
+    // Additional engagement letter fields
+    'contract_details' => 'Contract Details',
+    'matters' => 'Matters',
+    
+    // Additional power of attorney fields
+    'client_print_name' => 'Client Print Name',
+    'authorized_lawyers' => 'Authorized Lawyers',
+    'year' => 'Year',
+    'serial' => 'Serial',
 ];

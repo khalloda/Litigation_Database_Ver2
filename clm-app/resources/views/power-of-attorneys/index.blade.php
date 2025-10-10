@@ -20,11 +20,15 @@
                             <thead>
                                 <tr>
                                     <th>{{ __('app.client') }}</th>
+                                    <th>{{ __('app.client_print_name') }}</th>
                                     <th>{{ __('app.principal_name') }}</th>
                                     <th>{{ __('app.poa_number') }}</th>
                                     <th>{{ __('app.issue_date') }}</th>
                                     <th>{{ __('app.issuing_authority') }}</th>
                                     <th>{{ __('app.capacity') }}</th>
+                                    <th>{{ __('app.authorized_lawyers') }}</th>
+                                    <th>{{ __('app.year') }}</th>
+                                    <th>{{ __('app.serial') }}</th>
                                     <th class="text-end">{{ __('app.actions') }}</th>
                                 </tr>
                             </thead>
@@ -41,6 +45,7 @@
                                         <span class="text-muted">{{ __('app.no_client') }}</span>
                                         @endif
                                     </td>
+                                    <td>{{ $poa->client_print_name ?? __('app.not_set') }}</td>
                                     <td>
                                         <strong>{{ $poa->principal_name ?? __('app.not_set') }}</strong>
                                     </td>
@@ -55,7 +60,26 @@
                                     <td>{{ $poa->issuing_authority ?? __('app.not_set') }}</td>
                                     <td>
                                         @if($poa->capacity)
-                                        <span class="badge bg-success">{{ Str::limit($poa->capacity, 30) }}</span>
+                                        <span class="text-truncate d-inline-block" style="max-width: 200px;" title="{{ $poa->capacity }}">
+                                            {{ Str::limit($poa->capacity, 30) }}
+                                        </span>
+                                        @else
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($poa->authorized_lawyers)
+                                        <span class="text-truncate d-inline-block" style="max-width: 150px;" title="{{ $poa->authorized_lawyers }}">
+                                            {{ Str::limit($poa->authorized_lawyers, 20) }}
+                                        </span>
+                                        @else
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $poa->year ?? __('app.not_set') }}</td>
+                                    <td>
+                                        @if($poa->serial)
+                                        <span class="badge bg-info">{{ $poa->serial }}</span>
                                         @else
                                         <span class="text-muted">{{ __('app.not_set') }}</span>
                                         @endif

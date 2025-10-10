@@ -23,8 +23,18 @@
                                     <th>{{ __('app.client') }}</th>
                                     <th>{{ __('app.full_name') }}</th>
                                     <th>{{ __('app.job_title') }}</th>
-                                    <th>{{ __('app.email') }}</th>
+                                    <th>{{ __('app.address') }}</th>
+                                    <th>{{ __('app.city') }}</th>
+                                    <th>{{ __('app.state') }}</th>
+                                    <th>{{ __('app.country') }}</th>
+                                    <th>{{ __('app.zip_code') }}</th>
                                     <th>{{ __('app.business_phone') }}</th>
+                                    <th>{{ __('app.home_phone') }}</th>
+                                    <th>{{ __('app.mobile_phone') }}</th>
+                                    <th>{{ __('app.fax_number') }}</th>
+                                    <th>{{ __('app.email') }}</th>
+                                    <th>{{ __('app.web_page') }}</th>
+                                    <th>{{ __('app.created_at') }}</th>
                                     <th class="text-end">{{ __('app.actions') }}</th>
                                 </tr>
                             </thead>
@@ -46,6 +56,39 @@
                                     </td>
                                     <td>{{ $contact->full_name ?? __('app.not_set') }}</td>
                                     <td>{{ $contact->job_title ?? __('app.not_set') }}</td>
+                                    <td>{{ $contact->address ?? __('app.not_set') }}</td>
+                                    <td>{{ $contact->city ?? __('app.not_set') }}</td>
+                                    <td>{{ $contact->state ?? __('app.not_set') }}</td>
+                                    <td>{{ $contact->country ?? __('app.not_set') }}</td>
+                                    <td>{{ $contact->zip_code ?? __('app.not_set') }}</td>
+                                    <td>
+                                        @if($contact->business_phone)
+                                        <a href="tel:{{ $contact->business_phone }}" class="text-decoration-none">
+                                            <i class="fas fa-phone"></i> {{ $contact->business_phone }}
+                                        </a>
+                                        @else
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($contact->home_phone)
+                                        <a href="tel:{{ $contact->home_phone }}" class="text-decoration-none">
+                                            <i class="fas fa-home"></i> {{ $contact->home_phone }}
+                                        </a>
+                                        @else
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($contact->mobile_phone)
+                                        <a href="tel:{{ $contact->mobile_phone }}" class="text-decoration-none">
+                                            <i class="fas fa-mobile"></i> {{ $contact->mobile_phone }}
+                                        </a>
+                                        @else
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $contact->fax_number ?? __('app.not_set') }}</td>
                                     <td>
                                         @if($contact->email)
                                         <a href="mailto:{{ $contact->email }}" class="text-decoration-none">
@@ -56,14 +99,15 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if($contact->business_phone)
-                                        <a href="tel:{{ $contact->business_phone }}" class="text-decoration-none">
-                                            <i class="fas fa-phone"></i> {{ $contact->business_phone }}
+                                        @if($contact->web_page)
+                                        <a href="{{ $contact->web_page }}" target="_blank" class="text-decoration-none">
+                                            <i class="fas fa-globe"></i> {{ Str::limit($contact->web_page, 20) }}
                                         </a>
                                         @else
                                         <span class="text-muted">{{ __('app.not_set') }}</span>
                                         @endif
                                     </td>
+                                    <td>{{ $contact->created_at->format('Y-m-d H:i') }}</td>
                                     <td class="text-end">
                                         <div class="btn-group" role="group">
                                             @can('view', $contact)

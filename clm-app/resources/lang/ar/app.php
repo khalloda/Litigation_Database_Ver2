@@ -232,7 +232,7 @@ return [
     'healthcare_poa' => 'توكيل طبي',
     'financial_poa' => 'توكيل مالي',
     'legal_poa' => 'توكيل قانوني',
-    
+
     // Additional fields
     'not_set' => 'غير محدد',
     'client_name' => 'اسم العميل',
@@ -245,4 +245,24 @@ return [
     'principal_name' => 'اسم الموكل',
     'issuing_authority' => 'الجهة المصدرة',
     'capacity' => 'الصفة',
+    
+    // Additional contact fields
+    'city' => 'المدينة',
+    'state' => 'الولاية',
+    'country' => 'البلد',
+    'zip_code' => 'الرمز البريدي',
+    'home_phone' => 'هاتف المنزل',
+    'mobile_phone' => 'الهاتف المحمول',
+    'fax_number' => 'رقم الفاكس',
+    'web_page' => 'الصفحة الإلكترونية',
+    
+    // Additional engagement letter fields
+    'contract_details' => 'تفاصيل العقد',
+    'matters' => 'القضايا',
+    
+    // Additional power of attorney fields
+    'client_print_name' => 'اسم العميل للطباعة',
+    'authorized_lawyers' => 'المحامين المخولين',
+    'year' => 'السنة',
+    'serial' => 'الرقم التسلسلي',
 ];

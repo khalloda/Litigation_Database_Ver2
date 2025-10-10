@@ -23,6 +23,8 @@
                                     <th>{{ __('app.client_name') }}</th>
                                     <th>{{ __('app.contract_type') }}</th>
                                     <th>{{ __('app.contract_date') }}</th>
+                                    <th>{{ __('app.contract_details') }}</th>
+                                    <th>{{ __('app.matters') }}</th>
                                     <th>{{ __('app.status') }}</th>
                                     <th>{{ __('app.mfiles_id') }}</th>
                                     <th class="text-end">{{ __('app.actions') }}</th>
@@ -52,6 +54,24 @@
                                         @endif
                                     </td>
                                     <td>{{ $letter->contract_date?->format('Y-m-d') ?? __('app.not_set') }}</td>
+                                    <td>
+                                        @if($letter->contract_details)
+                                        <span class="text-truncate d-inline-block" style="max-width: 200px;" title="{{ $letter->contract_details }}">
+                                            {{ Str::limit($letter->contract_details, 50) }}
+                                        </span>
+                                        @else
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($letter->matters)
+                                        <span class="text-truncate d-inline-block" style="max-width: 200px;" title="{{ $letter->matters }}">
+                                            {{ Str::limit($letter->matters, 50) }}
+                                        </span>
+                                        @else
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         @if($letter->status)
                                         <span class="badge bg-success">{{ $letter->status }}</span>
