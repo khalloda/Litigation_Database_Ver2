@@ -68,18 +68,33 @@ class ClientsController extends Controller
     {
         $this->authorize('create', Client::class);
 
+        // Get option values for legacy text fields
+        $cashOrProbonoValue = $request->cash_or_probono_id ? \App\Models\OptionValue::find($request->cash_or_probono_id)?->label_en : null;
+        $statusValue = $request->status_id ? \App\Models\OptionValue::find($request->status_id)?->label_en : null;
+        $powerOfAttorneyLocationValue = $request->power_of_attorney_location_id ? \App\Models\OptionValue::find($request->power_of_attorney_location_id)?->label_en : null;
+        $documentsLocationValue = $request->documents_location_id ? \App\Models\OptionValue::find($request->documents_location_id)?->label_en : null;
+        $contactLawyerValue = $request->contact_lawyer_id ? \App\Models\Lawyer::find($request->contact_lawyer_id)?->lawyer_name_en : null;
+
         // Prepare data
         $data = [
             'client_name_ar' => $request->client_name_ar,
             'client_name_en' => $request->client_name_en,
             'client_print_name' => $request->client_print_name ?: $request->client_name_en ?: $request->client_name_ar,
+            // FK fields (new)
             'cash_or_probono_id' => $request->cash_or_probono_id,
             'status_id' => $request->status_id,
-            'client_start' => $request->client_start,
-            'client_end' => $request->client_end,
-            'contact_lawyer_id' => $request->contact_lawyer_id,
             'power_of_attorney_location_id' => $request->power_of_attorney_location_id,
             'documents_location_id' => $request->documents_location_id,
+            'contact_lawyer_id' => $request->contact_lawyer_id,
+            // Legacy text fields (for backward compatibility)
+            'cash_or_probono' => $cashOrProbonoValue,
+            'status' => $statusValue,
+            'power_of_attorney_location' => $powerOfAttorneyLocationValue,
+            'documents_location' => $documentsLocationValue,
+            'contact_lawyer' => $contactLawyerValue,
+            // Other fields
+            'client_start' => $request->client_start,
+            'client_end' => $request->client_end,
             'created_by' => auth()->id(),
             'updated_by' => auth()->id(),
         ];
@@ -106,12 +121,46 @@ class ClientsController extends Controller
     public function update(ClientRequest $request, Client $client)
     {
         $this->authorize('edit', $client);
-        $client->update([
+
+        // Get option values for legacy text fields
+        $cashOrProbonoValue = $request->cash_or_probono_id ? \App\Models\OptionValue::find($request->cash_or_probono_id)?->label_en : null;
+        $statusValue = $request->status_id ? \App\Models\OptionValue::find($request->status_id)?->label_en : null;
+        $powerOfAttorneyLocationValue = $request->power_of_attorney_location_id ? \App\Models\OptionValue::find($request->power_of_attorney_location_id)?->label_en : null;
+        $documentsLocationValue = $request->documents_location_id ? \App\Models\OptionValue::find($request->documents_location_id)?->label_en : null;
+        $contactLawyerValue = $request->contact_lawyer_id ? \App\Models\Lawyer::find($request->contact_lawyer_id)?->lawyer_name_en : null;
+
+        // Prepare update data
+        $data = [
             'client_name_ar' => $request->client_name_ar,
             'client_name_en' => $request->client_name_en,
+            'client_print_name' => $request->client_print_name ?: $request->client_name_en ?: $request->client_name_ar,
+            // FK fields (new)
+            'cash_or_probono_id' => $request->cash_or_probono_id,
+            'status_id' => $request->status_id,
+            'power_of_attorney_location_id' => $request->power_of_attorney_location_id,
+            'documents_location_id' => $request->documents_location_id,
+            'contact_lawyer_id' => $request->contact_lawyer_id,
+            // Legacy text fields (for backward compatibility)
+            'cash_or_probono' => $cashOrProbonoValue,
+            'status' => $statusValue,
+            'power_of_attorney_location' => $powerOfAttorneyLocationValue,
+            'documents_location' => $documentsLocationValue,
+            'contact_lawyer' => $contactLawyerValue,
+            // Other fields
+            'client_start' => $request->client_start,
+            'client_end' => $request->client_end,
             'updated_by' => auth()->id(),
-        ]);
-        return redirect()->route('clients.show', $client)->with('success', 'Client updated');
+        ];
+
+        // Handle logo upload
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $data['logo'] = $file->storeAs('logos', $filename, 'public');
+        }
+
+        $client->update($data);
+        return redirect()->route('clients.show', $client)->with('success', __('app.client_updated_successfully'));
     }
 
     public function destroy(Client $client)
