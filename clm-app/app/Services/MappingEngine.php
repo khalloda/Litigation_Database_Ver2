@@ -74,6 +74,10 @@ class MappingEngine
      */
     protected function calculateSimilarity(string $source, string $target): float
     {
+        // Ensure both parameters are strings
+        $source = is_string($source) ? $source : (string) $source;
+        $target = is_string($target) ? $target : (string) $target;
+        
         // Normalize column names
         $source = $this->normalizeColumnName($source);
         $target = $this->normalizeColumnName($target);
@@ -101,6 +105,9 @@ class MappingEngine
      */
     protected function normalizeColumnName(string $name): string
     {
+        // Ensure input is a string
+        $name = is_string($name) ? $name : (string) $name;
+        
         // Convert to lowercase
         $name = strtolower($name);
 

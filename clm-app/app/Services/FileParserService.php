@@ -106,7 +106,7 @@ class FileParserService
         $headers = [];
         if (isset($data[$headerRow])) {
             $headers = array_values(array_filter(
-                $data[$headerRow],
+                array_map(fn($header) => (string) $header, $data[$headerRow]),
                 fn($header) => $header !== null && $header !== ''
             ));
         }
