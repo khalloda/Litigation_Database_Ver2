@@ -88,7 +88,7 @@ class MappingEngine
 
         // Filter out system columns
         $excludedColumns = ['id', 'created_at', 'updated_at', 'deleted_at', 'created_by', 'updated_by'];
-        
+
         return array_diff($columns, $excludedColumns);
     }
 

@@ -159,13 +159,13 @@ class FileParserService
 
         // Check if this looks like a date column based on header name
         $isDateColumn = $this->isDateColumn($header);
-        
+
         // Check if value is a numeric Excel date serial number
         if ($isDateColumn && is_numeric($value) && $value > 25569) { // 25569 = 1970-01-01 in Excel
             // Convert Excel serial number to date
             $timestamp = ($value - 25569) * 86400; // Convert to Unix timestamp
             $date = date('Y-m-d', $timestamp);
-            
+
             // Verify it's a reasonable date (between 1900 and 2100)
             if ($timestamp > -2208988800 && $timestamp < 4102444800) {
                 return $date;
@@ -181,18 +181,25 @@ class FileParserService
     protected function isDateColumn(string $header): bool
     {
         $dateKeywords = [
-            'date', 'تاريخ', 'procedure_date', 'next_date', 'created_at', 'updated_at',
-            'الإجراء', 'الموعد', 'القادم'
+            'date',
+            'تاريخ',
+            'procedure_date',
+            'next_date',
+            'created_at',
+            'updated_at',
+            'الإجراء',
+            'الموعد',
+            'القادم'
         ];
-        
+
         $headerLower = strtolower($header);
-        
+
         foreach ($dateKeywords as $keyword) {
             if (strpos($headerLower, strtolower($keyword)) !== false) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
