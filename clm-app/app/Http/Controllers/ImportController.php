@@ -247,11 +247,11 @@ class ImportController extends Controller
 
         try {
             \Log::info('Starting preflight processing', ['sessionId' => $session->id]);
-            
+
             // Parse file
             $filepath = $this->importService->getSessionFilePath($session);
             \Log::info('Got file path', ['filepath' => $filepath]);
-            
+
             $parsed = $this->parserService->parseFile($filepath, $session->file_type);
             \Log::info('File parsed successfully', ['rowCount' => count($parsed['rows'])]);
 
@@ -355,7 +355,10 @@ class ImportController extends Controller
                 // Map row data
                 $data = [];
                 foreach ($session->column_mapping as $sourceCol => $targetCol) {
-                    $data[$targetCol] = $row[$sourceCol] ?? null;
+                    // Skip empty target columns (skipped columns)
+                    if (!empty($targetCol)) {
+                        $data[$targetCol] = $row[$sourceCol] ?? null;
+                    }
                 }
 
                 // Add audit fields
