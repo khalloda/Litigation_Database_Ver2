@@ -123,13 +123,6 @@ class ImportController extends Controller
         
         $this->authorize('view', $session);
 
-        // Debug: Log the session object after manual resolution
-        \Log::info('ImportController::map - Session after manual resolution', [
-            'id' => $session->id,
-            'session_id' => $session->session_id,
-            'attributes' => $session->getAttributes(),
-        ]);
-
         // Get parsed data
         $filepath = $this->importService->getSessionFilePath($session);
         $parsed = $this->parserService->parseFile($filepath, $session->file_type);

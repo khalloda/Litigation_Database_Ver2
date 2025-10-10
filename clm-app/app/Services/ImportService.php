@@ -92,36 +92,10 @@ class ImportService
         $importSession->file_hash = $fileHash;
         $importSession->user_id = $userId;
         
-        // Debug: Log what we're trying to save
-        \Log::info('Attempting to save ImportSession', [
-            'session_id' => $sessionId,
-            'table_name' => $tableName,
-            'user_id' => $userId,
-        ]);
-        
         $saved = $importSession->save();
 
         if (!$saved) {
             throw new Exception('Failed to save import session to database.');
-        }
-
-        // Debug: Check what was actually saved
-        \Log::info('After save', [
-            'id' => $importSession->id,
-            'session_id' => $importSession->session_id,
-            'attributes' => $importSession->getAttributes(),
-        ]);
-
-        // Verify session_id was saved
-        if (empty($importSession->session_id)) {
-            // Try to retrieve from database directly
-            $fromDb = ImportSession::find($importSession->id);
-            \Log::error('Session ID null after save', [
-                'model_session_id' => $importSession->session_id,
-                'db_session_id' => $fromDb ? $fromDb->session_id : null,
-                'attributes' => $importSession->getAttributes(),
-            ]);
-            throw new Exception('Session ID is null after save. Check laravel.log for details.');
         }
 
         return $importSession;
