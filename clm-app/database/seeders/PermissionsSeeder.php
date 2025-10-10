@@ -52,6 +52,16 @@ class PermissionsSeeder extends Seeder
             'trash.view',
             'trash.restore',
             'trash.purge',
+
+            // Import/Export permissions
+            'import.view',
+            'import.create',
+            'import.execute',
+            'import.cancel',
+            'import.delete',
+            'export.view',
+            'export.create',
+            'export.download',
         ];
 
         // Create each permission if it doesn't exist

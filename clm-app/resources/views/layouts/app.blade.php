@@ -94,6 +94,9 @@
                         @can('documents.view')
                         <li class="nav-item"><a class="nav-link" href="{{ route('documents.index') }}">{{ __('app.documents') }}</a></li>
                         @endcan
+                        @can('viewAny', App\Models\ImportSession::class)
+                        <li class="nav-item"><a class="nav-link" href="{{ route('import.index') }}">{{ __('app.import_export') }}</a></li>
+                        @endcan
                         @can('admin.audit.view')
                         <li class="nav-item"><a class="nav-link" href="{{ route('audit-logs.index') }}">Audit Logs</a></li>
                         @endcan

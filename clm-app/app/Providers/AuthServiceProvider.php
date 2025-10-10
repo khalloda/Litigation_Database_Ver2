@@ -24,6 +24,7 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\DeletionBundle::class => \App\Policies\TrashPolicy::class,
         \App\Models\AdminTask::class => \App\Policies\AdminTaskPolicy::class,
         \App\Models\AdminSubtask::class => \App\Policies\AdminSubtaskPolicy::class,
+        \App\Models\ImportSession::class => \App\Policies\ImportSessionPolicy::class,
     ];
 
     /**

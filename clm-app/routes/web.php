@@ -228,3 +228,17 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/admin-subtasks/{adminSubtask}', [App\Http\Controllers\AdminSubtaskController::class, 'update'])->name('admin-subtasks.update');
     Route::delete('/admin-subtasks/{adminSubtask}', [App\Http\Controllers\AdminSubtaskController::class, 'destroy'])->name('admin-subtasks.destroy');
 });
+
+// Import/Export Management
+Route::middleware(['auth'])->group(function () {
+    Route::get('/import', [App\Http\Controllers\ImportController::class, 'index'])->name('import.index');
+    Route::get('/import/upload', [App\Http\Controllers\ImportController::class, 'upload'])->name('import.upload');
+    Route::post('/import/upload', [App\Http\Controllers\ImportController::class, 'processUpload'])->name('import.process-upload');
+    Route::get('/import/{importSession}/map', [App\Http\Controllers\ImportController::class, 'map'])->name('import.map');
+    Route::post('/import/{importSession}/map', [App\Http\Controllers\ImportController::class, 'saveMapping'])->name('import.save-mapping');
+    Route::get('/import/{importSession}/preflight', [App\Http\Controllers\ImportController::class, 'preflight'])->name('import.preflight');
+    Route::post('/import/{importSession}/run', [App\Http\Controllers\ImportController::class, 'runImport'])->name('import.run');
+    Route::get('/import/{importSession}', [App\Http\Controllers\ImportController::class, 'show'])->name('import.show');
+    Route::put('/import/{importSession}/cancel', [App\Http\Controllers\ImportController::class, 'cancel'])->name('import.cancel');
+    Route::delete('/import/{importSession}', [App\Http\Controllers\ImportController::class, 'destroy'])->name('import.destroy');
+});
