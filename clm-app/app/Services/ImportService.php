@@ -34,14 +34,18 @@ class ImportService
      */
     public function uploadFile(UploadedFile $file, string $tableName, int $userId): ImportSession
     {
+        // Capture file information BEFORE moving (temp file will be deleted after move)
+        $fileSize = $file->getSize();
+        $originalFilename = $file->getClientOriginalName();
+        $extension = strtolower($file->getClientOriginalExtension());
+
         // Validate file size
         $maxSizeMb = config('importer.limits.max_upload_mb', 10);
-        if ($file->getSize() > $maxSizeMb * 1024 * 1024) {
+        if ($fileSize > $maxSizeMb * 1024 * 1024) {
             throw new Exception("File size exceeds maximum allowed ({$maxSizeMb}MB)");
         }
 
         // Validate file type
-        $extension = strtolower($file->getClientOriginalExtension());
         if (!in_array($extension, ['xlsx', 'xls', 'csv'])) {
             throw new Exception('Invalid file type. Allowed: xlsx, xls, csv');
         }
@@ -73,18 +77,18 @@ class ImportService
 
         $filepath = $sessionPath . DIRECTORY_SEPARATOR . $storedFilename;
 
-        // Calculate file hash
+        // Calculate file hash from the moved file
         $fileHash = hash_file('sha256', $filepath);
 
         // Create import session record
         $importSession = ImportSession::create([
             'session_id' => $sessionId,
             'table_name' => $tableName,
-            'original_filename' => $file->getClientOriginalName(),
+            'original_filename' => $originalFilename,
             'stored_filename' => $storedFilename,
             'status' => ImportSession::STATUS_UPLOADED,
             'file_type' => $extension,
-            'file_size' => $file->getSize(),
+            'file_size' => $fileSize,
             'file_hash' => $fileHash,
             'user_id' => $userId,
         ]);
