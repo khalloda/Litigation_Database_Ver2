@@ -138,7 +138,7 @@ return [
             'create_missing' => false,
         ],
         'lawyers' => [
-            'lookup_columns' => ['name', 'email'],
+            'lookup_columns' => ['id'],
             'create_missing' => false,
         ],
     ],
@@ -156,4 +156,3 @@ return [
     ],
 
 ];
-
