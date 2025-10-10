@@ -48,8 +48,8 @@ return [
         'hearings',
         'engagement_letters',
         'power_of_attorneys',
-        'admin_work_tasks',
-        'admin_work_subtasks',
+        'admin_tasks',
+        'admin_subtasks',
         'clients_matters_documents',
     ],
 
