@@ -206,3 +206,25 @@ Route::middleware(['auth'])->group(function () {
             ->name('documents.show');
     });
 });
+
+// Admin Task Management
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin-tasks/create', [App\Http\Controllers\AdminTaskController::class, 'create'])->name('admin-tasks.create');
+    Route::post('/admin-tasks', [App\Http\Controllers\AdminTaskController::class, 'store'])->name('admin-tasks.store');
+    Route::get('/admin-tasks', [App\Http\Controllers\AdminTaskController::class, 'index'])->name('admin-tasks.index');
+    Route::get('/admin-tasks/{adminTask}', [App\Http\Controllers\AdminTaskController::class, 'show'])->name('admin-tasks.show');
+    Route::get('/admin-tasks/{adminTask}/edit', [App\Http\Controllers\AdminTaskController::class, 'edit'])->name('admin-tasks.edit');
+    Route::put('/admin-tasks/{adminTask}', [App\Http\Controllers\AdminTaskController::class, 'update'])->name('admin-tasks.update');
+    Route::delete('/admin-tasks/{adminTask}', [App\Http\Controllers\AdminTaskController::class, 'destroy'])->name('admin-tasks.destroy');
+});
+
+// Admin Subtask Management
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin-subtasks/create', [App\Http\Controllers\AdminSubtaskController::class, 'create'])->name('admin-subtasks.create');
+    Route::post('/admin-subtasks', [App\Http\Controllers\AdminSubtaskController::class, 'store'])->name('admin-subtasks.store');
+    Route::get('/admin-subtasks', [App\Http\Controllers\AdminSubtaskController::class, 'index'])->name('admin-subtasks.index');
+    Route::get('/admin-subtasks/{adminSubtask}', [App\Http\Controllers\AdminSubtaskController::class, 'show'])->name('admin-subtasks.show');
+    Route::get('/admin-subtasks/{adminSubtask}/edit', [App\Http\Controllers\AdminSubtaskController::class, 'edit'])->name('admin-subtasks.edit');
+    Route::put('/admin-subtasks/{adminSubtask}', [App\Http\Controllers\AdminSubtaskController::class, 'update'])->name('admin-subtasks.update');
+    Route::delete('/admin-subtasks/{adminSubtask}', [App\Http\Controllers\AdminSubtaskController::class, 'destroy'])->name('admin-subtasks.destroy');
+});

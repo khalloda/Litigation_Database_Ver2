@@ -14,24 +14,39 @@ class AdminSubtask extends Model
     use HasFactory, SoftDeletes, InteractsWithDeletionBundles, LogsActivity;
 
     protected $fillable = [
-        'task_id', 'subtask_name', 'subtask_description', 'status', 'due_date', 'completed_date'
+        'task_id',
+        'lawyer_id',
+        'performer',
+        'next_date',
+        'result',
+        'procedure_date',
+        'report',
     ];
 
     protected $casts = [
-        'due_date' => 'date',
-        'completed_date' => 'date',
+        'next_date' => 'date',
+        'procedure_date' => 'date',
+        'report' => 'boolean',
     ];
 
     // Relationships
-    public function task() { return $this->belongsTo(AdminTask::class, 'task_id'); }
+    public function task()
+    {
+        return $this->belongsTo(AdminTask::class, 'task_id');
+    }
+
+    public function lawyer()
+    {
+        return $this->belongsTo(Lawyer::class);
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['task_id', 'subtask_name', 'subtask_description', 'status', 'due_date', 'completed_date'])
+            ->logOnly(['task_id', 'lawyer_id', 'performer', 'next_date', 'result', 'procedure_date', 'report'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('adminsubtask')
-            ->setDescriptionForEvent(fn(string $eventName) => "AdminSubtask was {$eventName}");
+            ->useLogName('admin_subtask')
+            ->setDescriptionForEvent(fn($eventName) => "Admin subtask was {$eventName}");
     }
 }

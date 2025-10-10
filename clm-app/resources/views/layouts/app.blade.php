@@ -85,6 +85,12 @@
                         @can('admin.users.manage')
                         <li class="nav-item"><a class="nav-link" href="{{ route('lawyers.index') }}">{{ __('app.lawyers') }}</a></li>
                         @endcan
+                        @can('viewAny', App\Models\AdminTask::class)
+                        <li class="nav-item"><a class="nav-link" href="{{ route('admin-tasks.index') }}">{{ __('app.admin_tasks') }}</a></li>
+                        @endcan
+                        @can('viewAny', App\Models\AdminSubtask::class)
+                        <li class="nav-item"><a class="nav-link" href="{{ route('admin-subtasks.index') }}">{{ __('app.admin_subtasks') }}</a></li>
+                        @endcan
                         @can('documents.view')
                         <li class="nav-item"><a class="nav-link" href="{{ route('documents.index') }}">{{ __('app.documents') }}</a></li>
                         @endcan

@@ -22,6 +22,8 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\PowerOfAttorney::class => \App\Policies\PowerOfAttorneyPolicy::class,
         \App\Models\ClientDocument::class => \App\Policies\DocumentPolicy::class,
         \App\Models\DeletionBundle::class => \App\Policies\TrashPolicy::class,
+        \App\Models\AdminTask::class => \App\Policies\AdminTaskPolicy::class,
+        \App\Models\AdminSubtask::class => \App\Policies\AdminSubtaskPolicy::class,
     ];
 
     /**
