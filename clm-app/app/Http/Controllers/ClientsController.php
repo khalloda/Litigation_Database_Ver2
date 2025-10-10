@@ -30,33 +30,37 @@ class ClientsController extends Controller
     public function create()
     {
         $this->authorize('create', Client::class);
-
+        
         // Load option values for dropdowns
         $cashOrProbonoOptions = \App\Models\OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'client.cash_or_probono'))
             ->where('is_active', true)
             ->orderBy('position')
             ->get();
-
+        
         $statusOptions = \App\Models\OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'client.status'))
             ->where('is_active', true)
             ->orderBy('position')
             ->get();
-
+        
         $powerOfAttorneyLocationOptions = \App\Models\OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'client.power_of_attorney_location'))
             ->where('is_active', true)
             ->orderBy('position')
             ->get();
-
+        
         $documentsLocationOptions = \App\Models\OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'client.documents_location'))
             ->where('is_active', true)
             ->orderBy('position')
             ->get();
-
+        
+        // Load lawyers for contact lawyer dropdown
+        $lawyers = \App\Models\Lawyer::orderBy(app()->getLocale() === 'ar' ? 'lawyer_name_ar' : 'lawyer_name_en')->get();
+        
         return view('clients.create', compact(
             'cashOrProbonoOptions',
             'statusOptions',
             'powerOfAttorneyLocationOptions',
-            'documentsLocationOptions'
+            'documentsLocationOptions',
+            'lawyers'
         ));
     }
 
@@ -73,7 +77,7 @@ class ClientsController extends Controller
             'status_id' => $request->status_id,
             'client_start' => $request->client_start,
             'client_end' => $request->client_end,
-            'contact_lawyer' => $request->contact_lawyer,
+            'contact_lawyer_id' => $request->contact_lawyer_id,
             'power_of_attorney_location_id' => $request->power_of_attorney_location_id,
             'documents_location_id' => $request->documents_location_id,
             'created_by' => auth()->id(),

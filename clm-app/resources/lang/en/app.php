@@ -80,6 +80,7 @@ return [
     'logo_must_be_image' => 'Logo must be an image file.',
     'logo_max_size' => 'Logo size cannot exceed 2MB.',
     'select_option' => 'Select an option',
+    'select_lawyer' => 'Select a lawyer',
     'supported_formats' => 'Supported formats',
 
     // Cases

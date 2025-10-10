@@ -104,8 +104,15 @@
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         <label class="form-label">{{ __('app.contact_lawyer') }}</label>
-                        <input type="text" name="contact_lawyer" class="form-control @error('contact_lawyer') is-invalid @enderror" value="{{ old('contact_lawyer') }}">
-                        @error('contact_lawyer')
+                        <select name="contact_lawyer_id" class="form-select @error('contact_lawyer_id') is-invalid @enderror">
+                            <option value="">{{ __('app.select_lawyer') }}</option>
+                            @foreach($lawyers as $lawyer)
+                            <option value="{{ $lawyer->id }}" {{ old('contact_lawyer_id') == $lawyer->id ? 'selected' : '' }}>
+                                {{ app()->getLocale() === 'ar' ? $lawyer->lawyer_name_ar : $lawyer->lawyer_name_en }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('contact_lawyer_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>

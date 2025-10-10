@@ -57,7 +57,7 @@ class OptionValue extends Model
     public static function findByLabelOrCode(string $value, string $setKey, string $locale = null)
     {
         $locale = $locale ?? app()->getLocale();
-        
+
         // First try to find by set key
         $optionSet = OptionSet::byKey($setKey)->first();
         if (!$optionSet) {
@@ -67,7 +67,7 @@ class OptionValue extends Model
         // Try exact label match first
         $labelField = $locale === 'ar' ? 'label_ar' : 'label_en';
         $optionValue = $optionSet->optionValues()->where($labelField, $value)->first();
-        
+
         if ($optionValue) {
             return $optionValue;
         }
@@ -76,14 +76,14 @@ class OptionValue extends Model
         $optionValue = $optionSet->optionValues()
             ->whereRaw("LOWER({$labelField}) = ?", [strtolower(trim($value))])
             ->first();
-            
+
         if ($optionValue) {
             return $optionValue;
         }
 
         // Try code match
         $optionValue = $optionSet->optionValues()->byCode($value)->first();
-        
+
         if ($optionValue) {
             return $optionValue;
         }
@@ -106,7 +106,7 @@ class OptionValue extends Model
     public static function normalizeValue(string $value, string $setKey): ?string
     {
         $value = trim(strtolower($value));
-        
+
         $synonyms = [
             'client.cash_or_probono' => [
                 'pro bono' => 'probono',

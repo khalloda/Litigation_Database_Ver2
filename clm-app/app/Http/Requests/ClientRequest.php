@@ -21,7 +21,7 @@ class ClientRequest extends FormRequest
             'status_id' => ['nullable', 'exists:option_values,id'],
             'client_start' => ['nullable', 'date'],
             'client_end' => ['nullable', 'date', 'after_or_equal:client_start'],
-            'contact_lawyer' => ['nullable', 'string', 'max:255'],
+            'contact_lawyer_id' => ['nullable', 'exists:lawyers,id'],
             'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             'power_of_attorney_location_id' => ['nullable', 'exists:option_values,id'],
             'documents_location_id' => ['nullable', 'exists:option_values,id'],

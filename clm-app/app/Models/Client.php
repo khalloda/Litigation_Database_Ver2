@@ -26,6 +26,7 @@ class Client extends Model
         'client_start',
         'client_end',
         'contact_lawyer',
+        'contact_lawyer_id', // New FK
         'logo',
         'power_of_attorney_location',
         'documents_location',
@@ -78,6 +79,11 @@ class Client extends Model
         return $this->belongsTo(OptionValue::class, 'documents_location_id');
     }
 
+    public function contactLawyer()
+    {
+        return $this->belongsTo(Lawyer::class, 'contact_lawyer_id');
+    }
+
     public function documents()
     {
         return $this->hasMany(ClientDocument::class);
@@ -102,6 +108,16 @@ class Client extends Model
     public function getDocumentsLocationLabelAttribute()
     {
         return $this->documentsLocation?->label ?? $this->documents_location;
+    }
+
+    public function getContactLawyerNameAttribute()
+    {
+        if ($this->contactLawyer) {
+            return app()->getLocale() === 'ar' 
+                ? $this->contactLawyer->lawyer_name_ar 
+                : $this->contactLawyer->lawyer_name_en;
+        }
+        return $this->contact_lawyer;
     }
 
     // Scopes for filtering by option values
@@ -136,7 +152,7 @@ class Client extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['client_name_ar', 'client_name_en', 'client_print_name', 'status', 'cash_or_probono', 'cash_or_probono_id', 'status_id', 'power_of_attorney_location_id', 'documents_location_id', 'client_start', 'client_end', 'contact_lawyer', 'logo', 'power_of_attorney_location', 'documents_location'])
+            ->logOnly(['client_name_ar', 'client_name_en', 'client_print_name', 'status', 'cash_or_probono', 'cash_or_probono_id', 'status_id', 'power_of_attorney_location_id', 'documents_location_id', 'client_start', 'client_end', 'contact_lawyer', 'contact_lawyer_id', 'logo', 'power_of_attorney_location', 'documents_location'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('client')

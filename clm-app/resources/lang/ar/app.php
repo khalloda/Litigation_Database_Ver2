@@ -80,6 +80,7 @@ return [
     'logo_must_be_image' => 'يجب أن يكون الشعار ملف صورة.',
     'logo_max_size' => 'حجم الشعار لا يمكن أن يتجاوز 2 ميجابايت.',
     'select_option' => 'اختر خيارًا',
+    'select_lawyer' => 'اختر محاميًا',
     'supported_formats' => 'الصيغ المدعومة',
 
     // Cases
