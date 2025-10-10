@@ -19,22 +19,18 @@
                         <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
-                                    <th>{{ __('app.poa_number') }}</th>
                                     <th>{{ __('app.client') }}</th>
-                                    <th>{{ __('app.poa_type') }}</th>
+                                    <th>{{ __('app.principal_name') }}</th>
+                                    <th>{{ __('app.poa_number') }}</th>
                                     <th>{{ __('app.issue_date') }}</th>
-                                    <th>{{ __('app.expiry_date') }}</th>
-                                    <th>{{ __('app.status') }}</th>
-                                    <th>{{ __('app.created_at') }}</th>
+                                    <th>{{ __('app.issuing_authority') }}</th>
+                                    <th>{{ __('app.capacity') }}</th>
                                     <th class="text-end">{{ __('app.actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($powerOfAttorneys as $poa)
                                 <tr>
-                                    <td>
-                                        <strong>{{ $poa->poa_number }}</strong>
-                                    </td>
                                     <td>
                                         @if($poa->client)
                                         <div>
@@ -46,22 +42,24 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <span class="badge bg-info">{{ $poa->poa_type }}</span>
-                                    </td>
-                                    <td>{{ $poa->issue_date?->format('Y-m-d') }}</td>
-                                    <td>
-                                        <span class="{{ $poa->expiry_date < now() ? 'text-danger' : ($poa->expiry_date < now()->addDays(30) ? 'text-warning' : '') }}">
-                                            {{ $poa->expiry_date?->format('Y-m-d') }}
-                                        </span>
+                                        <strong>{{ $poa->principal_name ?? __('app.not_set') }}</strong>
                                     </td>
                                     <td>
-                                        @if($poa->is_active)
-                                        <span class="badge bg-success">{{ __('app.active') }}</span>
+                                        @if($poa->poa_number)
+                                        <span class="badge bg-info">{{ $poa->poa_number }}</span>
                                         @else
-                                        <span class="badge bg-secondary">{{ __('app.inactive') }}</span>
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
                                         @endif
                                     </td>
-                                    <td>{{ $poa->created_at->format('Y-m-d H:i') }}</td>
+                                    <td>{{ $poa->issue_date?->format('Y-m-d') ?? __('app.not_set') }}</td>
+                                    <td>{{ $poa->issuing_authority ?? __('app.not_set') }}</td>
+                                    <td>
+                                        @if($poa->capacity)
+                                        <span class="badge bg-success">{{ Str::limit($poa->capacity, 30) }}</span>
+                                        @else
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
+                                        @endif
+                                    </td>
                                     <td class="text-end">
                                         <div class="btn-group" role="group">
                                             @can('view', $poa)

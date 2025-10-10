@@ -232,4 +232,17 @@ return [
     'healthcare_poa' => 'Healthcare POA',
     'financial_poa' => 'Financial POA',
     'legal_poa' => 'Legal POA',
+    
+    // Additional fields
+    'not_set' => 'Not Set',
+    'client_name' => 'Client Name',
+    'contract_type' => 'Contract Type',
+    'contract_date' => 'Contract Date',
+    'mfiles_id' => 'MFiles ID',
+    'full_name' => 'Full Name',
+    'job_title' => 'Job Title',
+    'business_phone' => 'Business Phone',
+    'principal_name' => 'Principal Name',
+    'issuing_authority' => 'Issuing Authority',
+    'capacity' => 'Capacity',
 ];

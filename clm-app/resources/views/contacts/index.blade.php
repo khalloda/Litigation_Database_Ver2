@@ -21,10 +21,10 @@
                                 <tr>
                                     <th>{{ __('app.contact_name') }}</th>
                                     <th>{{ __('app.client') }}</th>
-                                    <th>{{ __('app.contact_type') }}</th>
-                                    <th>{{ __('app.contact_value') }}</th>
-                                    <th>{{ __('app.status') }}</th>
-                                    <th>{{ __('app.created_at') }}</th>
+                                    <th>{{ __('app.full_name') }}</th>
+                                    <th>{{ __('app.job_title') }}</th>
+                                    <th>{{ __('app.email') }}</th>
+                                    <th>{{ __('app.business_phone') }}</th>
                                     <th class="text-end">{{ __('app.actions') }}</th>
                                 </tr>
                             </thead>
@@ -32,7 +32,7 @@
                                 @foreach($contacts as $contact)
                                 <tr>
                                     <td>
-                                        <strong>{{ $contact->contact_name }}</strong>
+                                        <strong>{{ $contact->contact_name ?? __('app.not_set') }}</strong>
                                     </td>
                                     <td>
                                         @if($contact->client)
@@ -44,34 +44,26 @@
                                         <span class="text-muted">{{ __('app.no_client') }}</span>
                                         @endif
                                     </td>
+                                    <td>{{ $contact->full_name ?? __('app.not_set') }}</td>
+                                    <td>{{ $contact->job_title ?? __('app.not_set') }}</td>
                                     <td>
-                                        <span class="badge bg-info">{{ ucfirst($contact->contact_type) }}</span>
-                                    </td>
-                                    <td>
-                                        @if($contact->contact_type === 'email')
-                                        <a href="mailto:{{ $contact->contact_value }}" class="text-decoration-none">
-                                            <i class="fas fa-envelope"></i> {{ $contact->contact_value }}
-                                        </a>
-                                        @elseif($contact->contact_type === 'phone' || $contact->contact_type === 'mobile')
-                                        <a href="tel:{{ $contact->contact_value }}" class="text-decoration-none">
-                                            <i class="fas fa-phone"></i> {{ $contact->contact_value }}
-                                        </a>
-                                        @elseif($contact->contact_type === 'website')
-                                        <a href="{{ $contact->contact_value }}" target="_blank" class="text-decoration-none">
-                                            <i class="fas fa-globe"></i> {{ $contact->contact_value }}
+                                        @if($contact->email)
+                                        <a href="mailto:{{ $contact->email }}" class="text-decoration-none">
+                                            <i class="fas fa-envelope"></i> {{ $contact->email }}
                                         </a>
                                         @else
-                                        {{ $contact->contact_value }}
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
                                         @endif
                                     </td>
                                     <td>
-                                        @if($contact->is_primary)
-                                        <span class="badge bg-success">{{ __('app.primary') }}</span>
+                                        @if($contact->business_phone)
+                                        <a href="tel:{{ $contact->business_phone }}" class="text-decoration-none">
+                                            <i class="fas fa-phone"></i> {{ $contact->business_phone }}
+                                        </a>
                                         @else
-                                        <span class="badge bg-secondary">{{ __('app.secondary') }}</span>
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
                                         @endif
                                     </td>
-                                    <td>{{ $contact->created_at->format('Y-m-d H:i') }}</td>
                                     <td class="text-end">
                                         <div class="btn-group" role="group">
                                             @can('view', $contact)

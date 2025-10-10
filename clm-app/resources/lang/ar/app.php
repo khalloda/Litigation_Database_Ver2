@@ -232,4 +232,17 @@ return [
     'healthcare_poa' => 'توكيل طبي',
     'financial_poa' => 'توكيل مالي',
     'legal_poa' => 'توكيل قانوني',
+    
+    // Additional fields
+    'not_set' => 'غير محدد',
+    'client_name' => 'اسم العميل',
+    'contract_type' => 'نوع العقد',
+    'contract_date' => 'تاريخ العقد',
+    'mfiles_id' => 'معرف MFiles',
+    'full_name' => 'الاسم الكامل',
+    'job_title' => 'المسمى الوظيفي',
+    'business_phone' => 'هاتف العمل',
+    'principal_name' => 'اسم الموكل',
+    'issuing_authority' => 'الجهة المصدرة',
+    'capacity' => 'الصفة',
 ];

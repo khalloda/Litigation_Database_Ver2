@@ -14,7 +14,6 @@ class PowerOfAttorneyController extends Controller
         $this->authorize('viewAny', PowerOfAttorney::class);
 
         $powerOfAttorneys = PowerOfAttorney::with('client:id,client_name_ar,client_name_en')
-            ->select('id', 'client_id', 'principal_name', 'poa_number', 'issue_date', 'issuing_authority', 'created_at', 'updated_at')
             ->orderBy('issue_date', 'desc')
             ->paginate(25);
 

@@ -14,7 +14,6 @@ class ContactController extends Controller
         $this->authorize('viewAny', Contact::class);
 
         $contacts = Contact::with('client:id,client_name_ar,client_name_en')
-            ->select('id', 'client_id', 'contact_name', 'full_name', 'job_title', 'email', 'business_phone', 'created_at', 'updated_at')
             ->orderBy('contact_name')
             ->paginate(25);
 

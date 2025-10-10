@@ -14,7 +14,6 @@ class EngagementLetterController extends Controller
         $this->authorize('viewAny', EngagementLetter::class);
 
         $engagementLetters = EngagementLetter::with('client:id,client_name_ar,client_name_en')
-            ->select('id', 'client_id', 'client_name', 'contract_date', 'contract_type', 'status', 'created_at', 'updated_at')
             ->orderBy('contract_date', 'desc')
             ->paginate(25);
 

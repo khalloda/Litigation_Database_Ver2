@@ -19,21 +19,18 @@
                         <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
-                                    <th>{{ __('app.contract_number') }}</th>
                                     <th>{{ __('app.client') }}</th>
-                                    <th>{{ __('app.issue_date') }}</th>
-                                    <th>{{ __('app.expiry_date') }}</th>
+                                    <th>{{ __('app.client_name') }}</th>
+                                    <th>{{ __('app.contract_type') }}</th>
+                                    <th>{{ __('app.contract_date') }}</th>
                                     <th>{{ __('app.status') }}</th>
-                                    <th>{{ __('app.created_at') }}</th>
+                                    <th>{{ __('app.mfiles_id') }}</th>
                                     <th class="text-end">{{ __('app.actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($engagementLetters as $letter)
                                 <tr>
-                                    <td>
-                                        <strong>{{ $letter->contract_number }}</strong>
-                                    </td>
                                     <td>
                                         @if($letter->client)
                                         <div>
@@ -44,20 +41,31 @@
                                         <span class="text-muted">{{ __('app.no_client') }}</span>
                                         @endif
                                     </td>
-                                    <td>{{ $letter->issue_date?->format('Y-m-d') }}</td>
                                     <td>
-                                        <span class="{{ $letter->expiry_date < now() ? 'text-danger' : ($letter->expiry_date < now()->addDays(30) ? 'text-warning' : '') }}">
-                                            {{ $letter->expiry_date?->format('Y-m-d') }}
-                                        </span>
+                                        <strong>{{ $letter->client_name ?? __('app.not_set') }}</strong>
                                     </td>
                                     <td>
-                                        @if($letter->is_active)
-                                        <span class="badge bg-success">{{ __('app.active') }}</span>
+                                        @if($letter->contract_type)
+                                        <span class="badge bg-info">{{ $letter->contract_type }}</span>
                                         @else
-                                        <span class="badge bg-secondary">{{ __('app.inactive') }}</span>
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
                                         @endif
                                     </td>
-                                    <td>{{ $letter->created_at->format('Y-m-d H:i') }}</td>
+                                    <td>{{ $letter->contract_date?->format('Y-m-d') ?? __('app.not_set') }}</td>
+                                    <td>
+                                        @if($letter->status)
+                                        <span class="badge bg-success">{{ $letter->status }}</span>
+                                        @else
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($letter->mfiles_id)
+                                        <span class="badge bg-secondary">{{ $letter->mfiles_id }}</span>
+                                        @else
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
+                                        @endif
+                                    </td>
                                     <td class="text-end">
                                         <div class="btn-group" role="group">
                                             @can('view', $letter)
