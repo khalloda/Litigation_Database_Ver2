@@ -87,8 +87,15 @@ class MappingEngine
         $columns = Schema::getColumnListing($tableName);
 
         // Filter out system columns
-        $excludedColumns = ['id', 'created_at', 'updated_at', 'deleted_at', 'created_by', 'updated_by'];
-
+        $excludedColumns = ['created_at', 'updated_at', 'deleted_at', 'created_by', 'updated_by'];
+        
+        // Special case: include 'id' column for lawyers table during import
+        if ($tableName === 'lawyers') {
+            // Don't exclude 'id' for lawyers table
+        } else {
+            $excludedColumns[] = 'id';
+        }
+        
         return array_diff($columns, $excludedColumns);
     }
 
@@ -355,7 +362,7 @@ class MappingEngine
             if (empty($targetCol)) {
                 continue;
             }
-            
+
             if (!in_array($targetCol, $dbColumns)) {
                 $errors[] = "Target column '{$targetCol}' does not exist in table '{$tableName}'";
             }
