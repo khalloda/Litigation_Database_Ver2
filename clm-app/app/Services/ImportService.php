@@ -93,6 +93,9 @@ class ImportService
             'user_id' => $userId,
         ]);
 
+        // Refresh to ensure all fields are loaded from database
+        $importSession->refresh();
+
         return $importSession;
     }
 
@@ -199,12 +202,20 @@ class ImportService
      *
      * @param ImportSession $session
      * @return string
+     * @throws Exception
      */
     public function getSessionFilePath(ImportSession $session): string
     {
+        if (empty($session->session_id)) {
+            throw new Exception('Import session has no session_id. Session may not be properly initialized.');
+        }
+
+        if (empty($session->stored_filename)) {
+            throw new Exception('Import session has no stored_filename. File may not have been uploaded properly.');
+        }
+
         return $this->getImportSessionPath($session->session_id)
             . DIRECTORY_SEPARATOR
             . $session->stored_filename;
     }
 }
-
