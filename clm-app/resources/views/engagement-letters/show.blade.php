@@ -33,11 +33,7 @@
                             <h5>{{ __('app.basic_information') }}</h5>
                             <table class="table table-borderless">
                                 <tr>
-                                    <th width="40%">{{ __('app.contract_number') }}:</th>
-                                    <td><strong>{{ $engagementLetter->contract_number }}</strong></td>
-                                </tr>
-                                <tr>
-                                    <th>{{ __('app.client') }}:</th>
+                                    <th width="40%">{{ __('app.client') }}:</th>
                                     <td>
                                         @if($engagementLetter->client)
                                         <div>
@@ -50,24 +46,40 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th>{{ __('app.issue_date') }}:</th>
-                                    <td>{{ $engagementLetter->issue_date?->format('Y-m-d') }}</td>
+                                    <th>{{ __('app.client_name') }}:</th>
+                                    <td><strong>{{ $engagementLetter->client_name ?? __('app.not_set') }}</strong></td>
                                 </tr>
                                 <tr>
-                                    <th>{{ __('app.expiry_date') }}:</th>
+                                    <th>{{ __('app.contract_type') }}:</th>
                                     <td>
-                                        <span class="{{ $engagementLetter->expiry_date < now() ? 'text-danger' : ($engagementLetter->expiry_date < now()->addDays(30) ? 'text-warning' : '') }}">
-                                            {{ $engagementLetter->expiry_date?->format('Y-m-d') }}
-                                        </span>
+                                        @if($engagementLetter->contract_type)
+                                        <span class="badge bg-info">{{ $engagementLetter->contract_type }}</span>
+                                        @else
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
+                                        @endif
                                     </td>
+                                </tr>
+                                <tr>
+                                    <th>{{ __('app.contract_date') }}:</th>
+                                    <td>{{ $engagementLetter->contract_date?->format('Y-m-d H:i:s') ?? __('app.not_set') }}</td>
                                 </tr>
                                 <tr>
                                     <th>{{ __('app.status') }}:</th>
                                     <td>
-                                        @if($engagementLetter->is_active)
-                                        <span class="badge bg-success">{{ __('app.active') }}</span>
+                                        @if($engagementLetter->status)
+                                        <span class="badge bg-success">{{ $engagementLetter->status }}</span>
                                         @else
-                                        <span class="badge bg-secondary">{{ __('app.inactive') }}</span>
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{{ __('app.mfiles_id') }}:</th>
+                                    <td>
+                                        @if($engagementLetter->mfiles_id)
+                                        <span class="badge bg-secondary">{{ $engagementLetter->mfiles_id }}</span>
+                                        @else
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -95,18 +107,52 @@
                             </table>
                         </div>
                     </div>
-
-                    @if($engagementLetter->expiry_date && $engagementLetter->expiry_date < now())
-                        <div class="alert alert-warning mt-3">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        {{ __('app.engagement_letter_expired') }}
-                </div>
-                @elseif($engagementLetter->expiry_date && $engagementLetter->expiry_date < now()->addDays(30))
-                    <div class="alert alert-info mt-3">
-                        <i class="fas fa-info-circle"></i>
-                        {{ __('app.engagement_letter_expiring_soon', ['days' => $engagementLetter->expiry_date->diffInDays(now())]) }}
+                    
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>{{ __('app.contract_details') }}</h5>
+                            <div class="card">
+                                <div class="card-body">
+                                    @if($engagementLetter->contract_details)
+                                    <p class="mb-3">{{ $engagementLetter->contract_details }}</p>
+                                    @else
+                                    <p class="text-muted mb-3">{{ __('app.not_set') }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    @endif
+                    
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>{{ __('app.contract_structure') }}</h5>
+                            <div class="card">
+                                <div class="card-body">
+                                    @if($engagementLetter->contract_structure)
+                                    <p class="mb-3">{{ $engagementLetter->contract_structure }}</p>
+                                    @else
+                                    <p class="text-muted mb-3">{{ __('app.not_set') }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>{{ __('app.matters') }}</h5>
+                            <div class="card">
+                                <div class="card-body">
+                                    @if($engagementLetter->matters)
+                                    <p class="mb-3">{{ $engagementLetter->matters }}</p>
+                                    @else
+                                    <p class="text-muted mb-3">{{ __('app.not_set') }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
             </div>
         </div>
     </div>

@@ -245,7 +245,7 @@ return [
     'principal_name' => 'Principal Name',
     'issuing_authority' => 'Issuing Authority',
     'capacity' => 'Capacity',
-    
+
     // Additional contact fields
     'city' => 'City',
     'state' => 'State',
@@ -255,14 +255,28 @@ return [
     'mobile_phone' => 'Mobile Phone',
     'fax_number' => 'Fax Number',
     'web_page' => 'Web Page',
-    
+
     // Additional engagement letter fields
     'contract_details' => 'Contract Details',
     'matters' => 'Matters',
-    
+
     // Additional power of attorney fields
     'client_print_name' => 'Client Print Name',
     'authorized_lawyers' => 'Authorized Lawyers',
     'year' => 'Year',
     'serial' => 'Serial',
+    
+    // Additional show view fields
+    'contract_structure' => 'Contract Structure',
+    'address_information' => 'Address Information',
+    'authority_information' => 'Authority Information',
+    'attachments' => 'Attachments',
+    'principal_capacity' => 'Principal Capacity',
+    'letter' => 'Letter',
+    'copies_count' => 'Copies Count',
+    'inventory' => 'Inventory',
+    'yes' => 'Yes',
+    'no' => 'No',
+    'system' => 'System',
+    'back_to_list' => 'Back to List',
 ];

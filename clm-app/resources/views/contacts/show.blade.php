@@ -34,7 +34,15 @@
                             <table class="table table-borderless">
                                 <tr>
                                     <th width="40%">{{ __('app.contact_name') }}:</th>
-                                    <td><strong>{{ $contact->contact_name }}</strong></td>
+                                    <td><strong>{{ $contact->contact_name ?? __('app.not_set') }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>{{ __('app.full_name') }}:</th>
+                                    <td>{{ $contact->full_name ?? __('app.not_set') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{{ __('app.job_title') }}:</th>
+                                    <td>{{ $contact->job_title ?? __('app.not_set') }}</td>
                                 </tr>
                                 <tr>
                                     <th>{{ __('app.client') }}:</th>
@@ -50,59 +58,114 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th>{{ __('app.contact_type') }}:</th>
+                                    <th>{{ __('app.email') }}:</th>
                                     <td>
-                                        <span class="badge bg-info">{{ ucfirst($contact->contact_type) }}</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>{{ __('app.contact_value') }}:</th>
-                                    <td>
-                                        @if($contact->contact_type === 'email')
-                                        <a href="mailto:{{ $contact->contact_value }}" class="text-decoration-none">
-                                            <i class="fas fa-envelope"></i> {{ $contact->contact_value }}
-                                        </a>
-                                        @elseif($contact->contact_type === 'phone' || $contact->contact_type === 'mobile')
-                                        <a href="tel:{{ $contact->contact_value }}" class="text-decoration-none">
-                                            <i class="fas fa-phone"></i> {{ $contact->contact_value }}
-                                        </a>
-                                        @elseif($contact->contact_type === 'website')
-                                        <a href="{{ $contact->contact_value }}" target="_blank" class="text-decoration-none">
-                                            <i class="fas fa-globe"></i> {{ $contact->contact_value }}
+                                        @if($contact->email)
+                                        <a href="mailto:{{ $contact->email }}" class="text-decoration-none">
+                                            <i class="fas fa-envelope"></i> {{ $contact->email }}
                                         </a>
                                         @else
-                                        {{ $contact->contact_value }}
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
                                         @endif
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th>{{ __('app.status') }}:</th>
+                                    <th>{{ __('app.business_phone') }}:</th>
                                     <td>
-                                        @if($contact->is_primary)
-                                        <span class="badge bg-success">{{ __('app.primary') }}</span>
+                                        @if($contact->business_phone)
+                                        <a href="tel:{{ $contact->business_phone }}" class="text-decoration-none">
+                                            <i class="fas fa-phone"></i> {{ $contact->business_phone }}
+                                        </a>
                                         @else
-                                        <span class="badge bg-secondary">{{ __('app.secondary') }}</span>
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{{ __('app.home_phone') }}:</th>
+                                    <td>
+                                        @if($contact->home_phone)
+                                        <a href="tel:{{ $contact->home_phone }}" class="text-decoration-none">
+                                            <i class="fas fa-home"></i> {{ $contact->home_phone }}
+                                        </a>
+                                        @else
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{{ __('app.mobile_phone') }}:</th>
+                                    <td>
+                                        @if($contact->mobile_phone)
+                                        <a href="tel:{{ $contact->mobile_phone }}" class="text-decoration-none">
+                                            <i class="fas fa-mobile"></i> {{ $contact->mobile_phone }}
+                                        </a>
+                                        @else
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{{ __('app.fax_number') }}:</th>
+                                    <td>{{ $contact->fax_number ?? __('app.not_set') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{{ __('app.web_page') }}:</th>
+                                    <td>
+                                        @if($contact->web_page)
+                                        <a href="{{ $contact->web_page }}" target="_blank" class="text-decoration-none">
+                                            <i class="fas fa-globe"></i> {{ $contact->web_page }}
+                                        </a>
+                                        @else
+                                        <span class="text-muted">{{ __('app.not_set') }}</span>
                                         @endif
                                     </td>
                                 </tr>
                             </table>
                         </div>
                         <div class="col-md-6">
+                            <h5>{{ __('app.address_information') }}</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">{{ __('app.address') }}:</th>
+                                    <td>{{ $contact->address ?? __('app.not_set') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{{ __('app.city') }}:</th>
+                                    <td>{{ $contact->city ?? __('app.not_set') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{{ __('app.state') }}:</th>
+                                    <td>{{ $contact->state ?? __('app.not_set') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{{ __('app.country') }}:</th>
+                                    <td>{{ $contact->country ?? __('app.not_set') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{{ __('app.zip_code') }}:</th>
+                                    <td>{{ $contact->zip_code ?? __('app.not_set') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{{ __('app.attachments') }}:</th>
+                                    <td>{{ $contact->attachments ?? __('app.not_set') }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-12">
                             <h5>{{ __('app.system_information') }}</h5>
                             <table class="table table-borderless">
                                 <tr>
-                                    <th width="40%">{{ __('app.created_at') }}:</th>
+                                    <th width="20%">{{ __('app.created_at') }}:</th>
                                     <td>{{ $contact->created_at->format('Y-m-d H:i:s') }}</td>
-                                </tr>
-                                <tr>
-                                    <th>{{ __('app.updated_at') }}:</th>
+                                    <th width="20%">{{ __('app.updated_at') }}:</th>
                                     <td>{{ $contact->updated_at->format('Y-m-d H:i:s') }}</td>
                                 </tr>
                                 <tr>
                                     <th>{{ __('app.created_by') }}:</th>
                                     <td>{{ $contact->created_by ?? __('app.system') }}</td>
-                                </tr>
-                                <tr>
                                     <th>{{ __('app.updated_by') }}:</th>
                                     <td>{{ $contact->updated_by ?? __('app.system') }}</td>
                                 </tr>

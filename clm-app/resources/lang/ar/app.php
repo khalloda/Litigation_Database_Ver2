@@ -245,7 +245,7 @@ return [
     'principal_name' => 'اسم الموكل',
     'issuing_authority' => 'الجهة المصدرة',
     'capacity' => 'الصفة',
-    
+
     // Additional contact fields
     'city' => 'المدينة',
     'state' => 'الولاية',
@@ -255,14 +255,28 @@ return [
     'mobile_phone' => 'الهاتف المحمول',
     'fax_number' => 'رقم الفاكس',
     'web_page' => 'الصفحة الإلكترونية',
-    
+
     // Additional engagement letter fields
     'contract_details' => 'تفاصيل العقد',
     'matters' => 'القضايا',
-    
+
     // Additional power of attorney fields
     'client_print_name' => 'اسم العميل للطباعة',
     'authorized_lawyers' => 'المحامين المخولين',
     'year' => 'السنة',
     'serial' => 'الرقم التسلسلي',
+    
+    // Additional show view fields
+    'contract_structure' => 'هيكل العقد',
+    'address_information' => 'معلومات العنوان',
+    'authority_information' => 'معلومات الجهة',
+    'attachments' => 'المرفقات',
+    'principal_capacity' => 'صفة الموكل',
+    'letter' => 'الخطاب',
+    'copies_count' => 'عدد النسخ',
+    'inventory' => 'المخزون',
+    'yes' => 'نعم',
+    'no' => 'لا',
+    'system' => 'النظام',
+    'back_to_list' => 'العودة إلى القائمة',
 ];
