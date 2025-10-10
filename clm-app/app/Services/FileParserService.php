@@ -40,7 +40,7 @@ class FileParserService
             $reader = IOFactory::createReader('Xlsx');
             $reader->setReadDataOnly(true);
             $spreadsheet = $reader->load($filepath);
-            
+
             return $this->extractSheetData($spreadsheet->getActiveSheet(), $headerRow);
         } catch (Exception $e) {
             throw new Exception("Failed to parse XLSX file: " . $e->getMessage());
@@ -56,7 +56,7 @@ class FileParserService
             $reader = IOFactory::createReader('Xls');
             $reader->setReadDataOnly(true);
             $spreadsheet = $reader->load($filepath);
-            
+
             return $this->extractSheetData($spreadsheet->getActiveSheet(), $headerRow);
         } catch (Exception $e) {
             throw new Exception("Failed to parse XLS file: " . $e->getMessage());
@@ -77,9 +77,9 @@ class FileParserService
             $reader->setDelimiter($delimiter);
             $reader->setInputEncoding($encoding);
             $reader->setReadDataOnly(true);
-            
+
             $spreadsheet = $reader->load($filepath);
-            
+
             return $this->extractSheetData($spreadsheet->getActiveSheet(), $headerRow);
         } catch (Exception $e) {
             throw new Exception("Failed to parse CSV file: " . $e->getMessage());
@@ -92,7 +92,7 @@ class FileParserService
     protected function extractSheetData($worksheet, int $headerRow): array
     {
         $data = $worksheet->toArray(null, true, true, true);
-        
+
         // Remove empty rows
         $data = array_filter($data, function ($row) {
             return !empty(array_filter($row, fn($cell) => $cell !== null && $cell !== ''));
@@ -128,7 +128,8 @@ class FileParserService
             $colIndex = 0;
             foreach ($row as $cell) {
                 if ($colIndex < count($headers)) {
-                    $rowData[$headers[$colIndex]] = $cell;
+                    $header = $headers[$colIndex];
+                    $rowData[$header] = $this->convertExcelValue($cell, $header);
                     $colIndex++;
                 }
             }
@@ -145,6 +146,54 @@ class FileParserService
             'rows' => $rows,
             'total_rows' => count($rows),
         ];
+    }
+
+    /**
+     * Convert Excel cell value, handling date serial numbers.
+     */
+    protected function convertExcelValue($value, string $header): mixed
+    {
+        if ($value === null || $value === '') {
+            return $value;
+        }
+
+        // Check if this looks like a date column based on header name
+        $isDateColumn = $this->isDateColumn($header);
+        
+        // Check if value is a numeric Excel date serial number
+        if ($isDateColumn && is_numeric($value) && $value > 25569) { // 25569 = 1970-01-01 in Excel
+            // Convert Excel serial number to date
+            $timestamp = ($value - 25569) * 86400; // Convert to Unix timestamp
+            $date = date('Y-m-d', $timestamp);
+            
+            // Verify it's a reasonable date (between 1900 and 2100)
+            if ($timestamp > -2208988800 && $timestamp < 4102444800) {
+                return $date;
+            }
+        }
+
+        return $value;
+    }
+
+    /**
+     * Check if column header suggests it's a date column.
+     */
+    protected function isDateColumn(string $header): bool
+    {
+        $dateKeywords = [
+            'date', 'تاريخ', 'procedure_date', 'next_date', 'created_at', 'updated_at',
+            'الإجراء', 'الموعد', 'القادم'
+        ];
+        
+        $headerLower = strtolower($header);
+        
+        foreach ($dateKeywords as $keyword) {
+            if (strpos($headerLower, strtolower($keyword)) !== false) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     /**
@@ -176,7 +225,7 @@ class FileParserService
         fclose($handle);
 
         $encoding = mb_detect_encoding($sample, ['UTF-8', 'ISO-8859-1', 'Windows-1256', 'ASCII'], true);
-        
+
         return $encoding ?: 'UTF-8';
     }
 
@@ -237,4 +286,3 @@ class FileParserService
         ];
     }
 }
-
