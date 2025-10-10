@@ -120,7 +120,7 @@ class ImportController extends Controller
     {
         // Manually resolve the ImportSession instead of relying on route model binding
         $session = ImportSession::findOrFail($importSessionId);
-        
+
         $this->authorize('view', $session);
 
         // Get parsed data
@@ -161,7 +161,7 @@ class ImportController extends Controller
     public function saveMapping(Request $request, $importSessionId)
     {
         $session = ImportSession::findOrFail($importSessionId);
-        
+
         $this->authorize('update', $session);
 
         // Debug: Log the incoming request data
@@ -200,10 +200,21 @@ class ImportController extends Controller
                 'status' => ImportSession::STATUS_MAPPED,
             ]);
 
+            \Log::info('Mapping saved successfully, redirecting to preflight', [
+                'sessionId' => $session->id,
+                'newStatus' => $session->status
+            ]);
+
             return redirect()
                 ->route('import.preflight', $session)
                 ->with('success', __('app.mapping_saved_successfully'));
         } catch (Exception $e) {
+            \Log::error('Exception in saveMapping', [
+                'sessionId' => $importSessionId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return back()
                 ->withInput()
                 ->with('error', $e->getMessage());
@@ -216,7 +227,7 @@ class ImportController extends Controller
     public function preflight($importSessionId)
     {
         $session = ImportSession::findOrFail($importSessionId);
-        
+
         $this->authorize('view', $session);
 
         if (empty($session->column_mapping)) {
@@ -263,7 +274,7 @@ class ImportController extends Controller
     public function runImport(Request $request, $importSessionId)
     {
         $session = ImportSession::findOrFail($importSessionId);
-        
+
         $this->authorize('update', $session);
 
         if ($session->status !== ImportSession::STATUS_VALIDATED) {
@@ -357,7 +368,7 @@ class ImportController extends Controller
     public function show($importSessionId)
     {
         $session = ImportSession::findOrFail($importSessionId);
-        
+
         $this->authorize('view', $session);
 
         return view('import.show', compact('session'));
@@ -369,7 +380,7 @@ class ImportController extends Controller
     public function cancel($importSessionId)
     {
         $session = ImportSession::findOrFail($importSessionId);
-        
+
         $this->authorize('cancel', $session);
 
         $this->importService->cancelSession($session);
@@ -385,7 +396,7 @@ class ImportController extends Controller
     public function destroy($importSessionId)
     {
         $session = ImportSession::findOrFail($importSessionId);
-        
+
         $this->authorize('delete', $session);
 
         $this->importService->cleanupSession($session);
