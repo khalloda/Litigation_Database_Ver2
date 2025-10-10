@@ -112,10 +112,10 @@ class MappingEngine
 
         // Use simpler similarity calculation to avoid string offset issues
         $levenshteinScore = $this->levenshteinSimilarity($source, $target);
-        
+
         // Simple substring matching as fallback
         $substringScore = $this->substringSimilarity($source, $target);
-        
+
         // Weighted combination
         return ($levenshteinScore * 0.7) + ($substringScore * 0.3);
     }
@@ -169,27 +169,27 @@ class MappingEngine
     {
         $str1 = strtolower(trim($str1));
         $str2 = strtolower(trim($str2));
-        
+
         if ($str1 === '' || $str2 === '') {
             return 0.0;
         }
-        
+
         // Check if one string contains the other
         if (strpos($str1, $str2) !== false || strpos($str2, $str1) !== false) {
             return 0.8;
         }
-        
+
         // Check for common words
         $words1 = explode('_', $str1);
         $words2 = explode('_', $str2);
-        
+
         $commonWords = array_intersect($words1, $words2);
         $totalWords = count(array_unique(array_merge($words1, $words2)));
-        
+
         if ($totalWords === 0) {
             return 0.0;
         }
-        
+
         return count($commonWords) / $totalWords;
     }
 
@@ -201,7 +201,7 @@ class MappingEngine
         // Ensure both inputs are valid strings and not empty
         $str1 = trim((string) $str1);
         $str2 = trim((string) $str2);
-        
+
         if ($str1 === '' && $str2 === '') {
             return 1.0;
         }
@@ -351,6 +351,11 @@ class MappingEngine
         $dbColumns = $this->getDbColumnsForTable($tableName);
 
         foreach ($mapping as $sourceCol => $targetCol) {
+            // Skip validation for empty target columns (skipped columns)
+            if (empty($targetCol)) {
+                continue;
+            }
+            
             if (!in_array($targetCol, $dbColumns)) {
                 $errors[] = "Target column '{$targetCol}' does not exist in table '{$tableName}'";
             }
