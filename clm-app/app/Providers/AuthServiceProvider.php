@@ -25,6 +25,8 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\AdminTask::class => \App\Policies\AdminTaskPolicy::class,
         \App\Models\AdminSubtask::class => \App\Policies\AdminSubtaskPolicy::class,
         \App\Models\ImportSession::class => \App\Policies\ImportSessionPolicy::class,
+        \App\Models\OptionSet::class => \App\Policies\OptionSetPolicy::class,
+        \App\Models\OptionValue::class => \App\Policies\OptionValuePolicy::class,
     ];
 
     /**

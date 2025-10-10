@@ -242,3 +242,20 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/import/{importSession}/cancel', [App\Http\Controllers\ImportController::class, 'cancel'])->name('import.cancel');
     Route::delete('/import/{importSession}', [App\Http\Controllers\ImportController::class, 'destroy'])->name('import.destroy');
 });
+
+// Option Management (Admin only)
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/options/{setKey}', [App\Http\Controllers\Admin\OptionController::class, 'getOptions'])->name('options.get');
+    Route::get('/options', [App\Http\Controllers\Admin\OptionController::class, 'index'])->name('options.index');
+    Route::get('/options/create', [App\Http\Controllers\Admin\OptionController::class, 'create'])->name('options.create');
+    Route::post('/options', [App\Http\Controllers\Admin\OptionController::class, 'store'])->name('options.store');
+    Route::get('/options/{optionSet}', [App\Http\Controllers\Admin\OptionController::class, 'show'])->name('options.show');
+    Route::get('/options/{optionSet}/edit', [App\Http\Controllers\Admin\OptionController::class, 'edit'])->name('options.edit');
+    Route::put('/options/{optionSet}', [App\Http\Controllers\Admin\OptionController::class, 'update'])->name('options.update');
+    Route::delete('/options/{optionSet}', [App\Http\Controllers\Admin\OptionController::class, 'destroy'])->name('options.destroy');
+    
+    // Option Values
+    Route::post('/options/{optionSet}/values', [App\Http\Controllers\Admin\OptionController::class, 'storeValue'])->name('options.values.store');
+    Route::put('/options/values/{optionValue}', [App\Http\Controllers\Admin\OptionController::class, 'updateValue'])->name('options.values.update');
+    Route::delete('/options/values/{optionValue}', [App\Http\Controllers\Admin\OptionController::class, 'destroyValue'])->name('options.values.destroy');
+});
