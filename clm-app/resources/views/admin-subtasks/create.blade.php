@@ -20,16 +20,16 @@
                                 <select name="task_id" id="task_id" class="form-select @error('task_id') is-invalid @enderror" required>
                                     <option value="">{{ __('app.select_task') }}</option>
                                     @foreach($tasks as $task)
-                                        <option value="{{ $task->id }}" {{ old('task_id') == $task->id ? 'selected' : '' }}>
-                                            {{ __('app.task') }} #{{ $task->id }}
-                                            @if($task->case)
-                                                - {{ app()->getLocale() === 'ar' ? $task->case->matter_name_ar : $task->case->matter_name_en }}
-                                            @endif
-                                        </option>
+                                    <option value="{{ $task->id }}" {{ old('task_id') == $task->id ? 'selected' : '' }}>
+                                        {{ __('app.task') }} #{{ $task->id }}
+                                        @if($task->case)
+                                        - {{ app()->getLocale() === 'ar' ? $task->case->matter_name_ar : $task->case->matter_name_en }}
+                                        @endif
+                                    </option>
                                     @endforeach
                                 </select>
                                 @error('task_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
@@ -38,13 +38,13 @@
                                 <select name="lawyer_id" id="lawyer_id" class="form-select @error('lawyer_id') is-invalid @enderror">
                                     <option value="">{{ __('app.select_lawyer') }}</option>
                                     @foreach($lawyers as $lawyer)
-                                        <option value="{{ $lawyer->id }}" {{ old('lawyer_id') == $lawyer->id ? 'selected' : '' }}>
-                                            {{ app()->getLocale() === 'ar' ? $lawyer->lawyer_name_ar : $lawyer->lawyer_name_en }}
-                                        </option>
+                                    <option value="{{ $lawyer->id }}" {{ old('lawyer_id') == $lawyer->id ? 'selected' : '' }}>
+                                        {{ app()->getLocale() === 'ar' ? $lawyer->lawyer_name_ar : $lawyer->lawyer_name_en }}
+                                    </option>
                                     @endforeach
                                 </select>
                                 @error('lawyer_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -54,7 +54,7 @@
                                 <label for="performer" class="form-label">{{ __('app.performer') }}</label>
                                 <input type="text" name="performer" id="performer" class="form-control @error('performer') is-invalid @enderror" value="{{ old('performer') }}">
                                 @error('performer')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
@@ -72,7 +72,7 @@
                                 <label for="next_date" class="form-label">{{ __('app.next_date') }}</label>
                                 <input type="date" name="next_date" id="next_date" class="form-control @error('next_date') is-invalid @enderror" value="{{ old('next_date') }}">
                                 @error('next_date')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
@@ -80,7 +80,7 @@
                                 <label for="procedure_date" class="form-label">{{ __('app.procedure_date') }}</label>
                                 <input type="date" name="procedure_date" id="procedure_date" class="form-control @error('procedure_date') is-invalid @enderror" value="{{ old('procedure_date') }}">
                                 @error('procedure_date')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -89,7 +89,7 @@
                             <label for="result" class="form-label">{{ __('app.result') }}</label>
                             <textarea name="result" id="result" rows="4" class="form-control @error('result') is-invalid @enderror">{{ old('result') }}</textarea>
                             @error('result')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -104,4 +104,3 @@
     </div>
 </div>
 @endsection
-
