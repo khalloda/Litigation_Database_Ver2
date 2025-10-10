@@ -164,6 +164,14 @@ class ImportController extends Controller
         
         $this->authorize('update', $session);
 
+        // Debug: Log the incoming request data
+        \Log::info('ImportController::saveMapping - Request data', [
+            'sessionId' => $importSessionId,
+            'mapping' => $request->mapping,
+            'transforms' => $request->transforms,
+            'allInput' => $request->all()
+        ]);
+
         $request->validate([
             'mapping' => 'required|array',
             'transforms' => 'nullable|array',
@@ -176,7 +184,10 @@ class ImportController extends Controller
                 $session->table_name
             );
 
+            \Log::info('Mapping validation errors', ['errors' => $errors]);
+
             if (!empty($errors)) {
+                \Log::warning('Mapping validation failed', ['errors' => $errors]);
                 return back()
                     ->withInput()
                     ->with('error', 'Mapping validation failed: ' . implode(', ', $errors));
