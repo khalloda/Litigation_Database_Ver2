@@ -91,6 +91,17 @@ Route::middleware(['auth', 'permission:admin.users.manage'])->group(function () 
     Route::delete('/lawyers/{lawyer}', [App\Http\Controllers\LawyersController::class, 'destroy'])->name('lawyers.destroy');
 });
 
+// Engagement Letter Management
+Route::middleware(['auth'])->group(function () {
+    Route::get('/engagement-letters', [App\Http\Controllers\EngagementLetterController::class, 'index'])->name('engagement-letters.index');
+    Route::get('/engagement-letters/create', [App\Http\Controllers\EngagementLetterController::class, 'create'])->name('engagement-letters.create');
+    Route::post('/engagement-letters', [App\Http\Controllers\EngagementLetterController::class, 'store'])->name('engagement-letters.store');
+    Route::get('/engagement-letters/{engagementLetter}', [App\Http\Controllers\EngagementLetterController::class, 'show'])->name('engagement-letters.show');
+    Route::get('/engagement-letters/{engagementLetter}/edit', [App\Http\Controllers\EngagementLetterController::class, 'edit'])->name('engagement-letters.edit');
+    Route::put('/engagement-letters/{engagementLetter}', [App\Http\Controllers\EngagementLetterController::class, 'update'])->name('engagement-letters.update');
+    Route::delete('/engagement-letters/{engagementLetter}', [App\Http\Controllers\EngagementLetterController::class, 'destroy'])->name('engagement-letters.destroy');
+});
+
 // Trash/Recycle Bin routes (protected by permission middleware)
 Route::middleware(['auth', 'permission:trash.view'])->prefix('trash')->name('trash.')->group(function () {
     Route::get('/', [App\Http\Controllers\TrashController::class, 'index'])->name('index');

@@ -73,6 +73,9 @@
                         @can('hearings.view')
                         <li class="nav-item"><a class="nav-link" href="{{ route('hearings.index') }}">{{ __('app.hearings') }}</a></li>
                         @endcan
+                        @can('viewAny', App\Models\EngagementLetter::class)
+                        <li class="nav-item"><a class="nav-link" href="{{ route('engagement-letters.index') }}">{{ __('app.engagement_letters') }}</a></li>
+                        @endcan
                         @can('admin.users.manage')
                         <li class="nav-item"><a class="nav-link" href="{{ route('lawyers.index') }}">{{ __('app.lawyers') }}</a></li>
                         @endcan
