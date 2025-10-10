@@ -21,8 +21,7 @@ class ImportController extends Controller
         protected MappingEngine $mappingEngine,
         protected PreflightEngine $preflightEngine,
         protected BackupService $backupService,
-    ) {
-    }
+    ) {}
 
     /**
      * Show import sessions list.
@@ -117,12 +116,15 @@ class ImportController extends Controller
     /**
      * Show mapping configuration page.
      */
-    public function map(ImportSession $session)
+    public function map($importSessionId)
     {
+        // Manually resolve the ImportSession instead of relying on route model binding
+        $session = ImportSession::findOrFail($importSessionId);
+        
         $this->authorize('view', $session);
 
-        // Debug: Log the session object received from route model binding
-        \Log::info('ImportController::map - Session from route model binding', [
+        // Debug: Log the session object after manual resolution
+        \Log::info('ImportController::map - Session after manual resolution', [
             'id' => $session->id,
             'session_id' => $session->session_id,
             'attributes' => $session->getAttributes(),
@@ -163,8 +165,10 @@ class ImportController extends Controller
     /**
      * Save mapping configuration.
      */
-    public function saveMapping(Request $request, ImportSession $session)
+    public function saveMapping(Request $request, $importSessionId)
     {
+        $session = ImportSession::findOrFail($importSessionId);
+        
         $this->authorize('update', $session);
 
         $request->validate([
@@ -205,8 +209,10 @@ class ImportController extends Controller
     /**
      * Run preflight validation.
      */
-    public function preflight(ImportSession $session)
+    public function preflight($importSessionId)
     {
+        $session = ImportSession::findOrFail($importSessionId);
+        
         $this->authorize('view', $session);
 
         if (empty($session->column_mapping)) {
@@ -250,8 +256,10 @@ class ImportController extends Controller
     /**
      * Execute the import.
      */
-    public function runImport(Request $request, ImportSession $session)
+    public function runImport(Request $request, $importSessionId)
     {
+        $session = ImportSession::findOrFail($importSessionId);
+        
         $this->authorize('update', $session);
 
         if ($session->status !== ImportSession::STATUS_VALIDATED) {
@@ -342,8 +350,10 @@ class ImportController extends Controller
     /**
      * Show import session details.
      */
-    public function show(ImportSession $session)
+    public function show($importSessionId)
     {
+        $session = ImportSession::findOrFail($importSessionId);
+        
         $this->authorize('view', $session);
 
         return view('import.show', compact('session'));
@@ -352,8 +362,10 @@ class ImportController extends Controller
     /**
      * Cancel an import session.
      */
-    public function cancel(ImportSession $session)
+    public function cancel($importSessionId)
     {
+        $session = ImportSession::findOrFail($importSessionId);
+        
         $this->authorize('cancel', $session);
 
         $this->importService->cancelSession($session);
@@ -366,8 +378,10 @@ class ImportController extends Controller
     /**
      * Delete an import session.
      */
-    public function destroy(ImportSession $session)
+    public function destroy($importSessionId)
     {
+        $session = ImportSession::findOrFail($importSessionId);
+        
         $this->authorize('delete', $session);
 
         $this->importService->cleanupSession($session);
@@ -378,4 +392,3 @@ class ImportController extends Controller
             ->with('success', __('app.import_deleted_successfully'));
     }
 }
-
