@@ -246,9 +246,14 @@ class ImportController extends Controller
         }
 
         try {
+            \Log::info('Starting preflight processing', ['sessionId' => $session->id]);
+            
             // Parse file
             $filepath = $this->importService->getSessionFilePath($session);
+            \Log::info('Got file path', ['filepath' => $filepath]);
+            
             $parsed = $this->parserService->parseFile($filepath, $session->file_type);
+            \Log::info('File parsed successfully', ['rowCount' => count($parsed['rows'])]);
 
             // Run preflight validation
             $results = $this->preflightEngine->runPreflight(
@@ -256,6 +261,7 @@ class ImportController extends Controller
                 $session->column_mapping,
                 $session->table_name
             );
+            \Log::info('Preflight validation completed', ['errorCount' => $results['error_count']]);
 
             // Save preflight results
             $session->update([
@@ -273,6 +279,11 @@ class ImportController extends Controller
 
             return view('import.preflight', compact('session', 'results', 'exceedsThreshold'));
         } catch (Exception $e) {
+            \Log::error('Exception in preflight method', [
+                'sessionId' => $session->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return back()->with('error', $e->getMessage());
         }
     }
