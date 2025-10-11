@@ -531,7 +531,7 @@ return [
     'cash_or_probono_ar' => 'نقدي أو مجاني (عربي)',
     'cash_or_probono_en' => 'نقدي أو مجاني (إنجليزي)',
     'cases_count' => 'عدد القضايا',
-    
+
     // Search and Filter
     'search' => 'بحث',
     'filter' => 'تصفية',

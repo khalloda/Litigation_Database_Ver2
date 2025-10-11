@@ -531,7 +531,7 @@ return [
     'cash_or_probono_ar' => 'Cash or Pro Bono (Arabic)',
     'cash_or_probono_en' => 'Cash or Pro Bono (English)',
     'cases_count' => 'Cases Count',
-    
+
     // Search and Filter
     'search' => 'Search',
     'filter' => 'Filter',

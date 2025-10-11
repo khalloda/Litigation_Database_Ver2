@@ -18,33 +18,33 @@
                 <!-- Search Input -->
                 <div class="col-md-3">
                     <label for="search" class="form-label">{{ __('app.search') }}</label>
-                    <input type="text" 
-                           class="form-control" 
-                           id="search" 
-                           name="search" 
-                           value="{{ $search }}" 
-                           placeholder="{{ __('app.search_clients_placeholder') }}">
+                    <input type="text"
+                        class="form-control"
+                        id="search"
+                        name="search"
+                        value="{{ $search }}"
+                        placeholder="{{ __('app.search_clients_placeholder') }}">
                 </div>
 
                 <!-- Status Filter -->
                 <div class="col-md-2">
                     <label for="status_id" class="form-label">
                         @if(app()->getLocale() == 'ar')
-                            {{ __('app.status_ar') }}
+                        {{ __('app.status_ar') }}
                         @else
-                            {{ __('app.status_en') }}
+                        {{ __('app.status_en') }}
                         @endif
                     </label>
                     <select class="form-select" id="status_id" name="status_id">
                         <option value="">{{ __('app.all_statuses') }}</option>
                         @foreach($statuses as $status)
-                            <option value="{{ $status->id }}" {{ $status_id == $status->id ? 'selected' : '' }}>
-                                @if(app()->getLocale() == 'ar')
-                                    {{ $status->label_ar }}
-                                @else
-                                    {{ $status->label_en }}
-                                @endif
-                            </option>
+                        <option value="{{ $status->id }}" {{ $status_id == $status->id ? 'selected' : '' }}>
+                            @if(app()->getLocale() == 'ar')
+                            {{ $status->label_ar }}
+                            @else
+                            {{ $status->label_en }}
+                            @endif
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -53,21 +53,21 @@
                 <div class="col-md-2">
                     <label for="cash_or_probono_id" class="form-label">
                         @if(app()->getLocale() == 'ar')
-                            {{ __('app.cash_or_probono_ar') }}
+                        {{ __('app.cash_or_probono_ar') }}
                         @else
-                            {{ __('app.cash_or_probono_en') }}
+                        {{ __('app.cash_or_probono_en') }}
                         @endif
                     </label>
                     <select class="form-select" id="cash_or_probono_id" name="cash_or_probono_id">
                         <option value="">{{ __('app.all_types') }}</option>
                         @foreach($cashOrProbonoOptions as $option)
-                            <option value="{{ $option->id }}" {{ $cash_or_probono_id == $option->id ? 'selected' : '' }}>
-                                @if(app()->getLocale() == 'ar')
-                                    {{ $option->label_ar }}
-                                @else
-                                    {{ $option->label_en }}
-                                @endif
-                            </option>
+                        <option value="{{ $option->id }}" {{ $cash_or_probono_id == $option->id ? 'selected' : '' }}>
+                            @if(app()->getLocale() == 'ar')
+                            {{ $option->label_ar }}
+                            @else
+                            {{ $option->label_en }}
+                            @endif
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -76,21 +76,21 @@
                 <div class="col-md-3">
                     <label for="contact_lawyer_id" class="form-label">
                         @if(app()->getLocale() == 'ar')
-                            {{ __('app.lawyer_name_ar') }}
+                        {{ __('app.lawyer_name_ar') }}
                         @else
-                            {{ __('app.lawyer_name_en') }}
+                        {{ __('app.lawyer_name_en') }}
                         @endif
                     </label>
                     <select class="form-select" id="contact_lawyer_id" name="contact_lawyer_id">
                         <option value="">{{ __('app.all_lawyers') }}</option>
                         @foreach($lawyers as $lawyer)
-                            <option value="{{ $lawyer->id }}" {{ $contact_lawyer_id == $lawyer->id ? 'selected' : '' }}>
-                                @if(app()->getLocale() == 'ar')
-                                    {{ $lawyer->lawyer_name_ar }}
-                                @else
-                                    {{ $lawyer->lawyer_name_en }}
-                                @endif
-                            </option>
+                        <option value="{{ $lawyer->id }}" {{ $contact_lawyer_id == $lawyer->id ? 'selected' : '' }}>
+                            @if(app()->getLocale() == 'ar')
+                            {{ $lawyer->lawyer_name_ar }}
+                            @else
+                            {{ $lawyer->lawyer_name_en }}
+                            @endif
+                        </option>
                         @endforeach
                     </select>
                 </div>
