@@ -12,19 +12,65 @@ class ClientsController extends Controller
     {
         $this->authorize('viewAny', Client::class);
         
-        // Load clients with necessary relationships for display
-        $clients = Client::select('id', 'client_name_ar', 'client_name_en', 'contact_lawyer_id', 'status_id', 'cash_or_probono_id')
+        // Get filter parameters
+        $search = $request->get('search');
+        $status_id = $request->get('status_id');
+        $cash_or_probono_id = $request->get('cash_or_probono_id');
+        $contact_lawyer_id = $request->get('contact_lawyer_id');
+        
+        // Build query
+        $query = Client::select('id', 'client_name_ar', 'client_name_en', 'contact_lawyer_id', 'status_id', 'cash_or_probono_id')
             ->with([
                 'contactLawyer:id,lawyer_name_ar,lawyer_name_en',
                 'statusRef:id,label_ar,label_en',
                 'cashOrProbono:id,label_ar,label_en',
                 'cases:id,client_id' // For case count
             ])
-            ->withCount('cases')
-            ->orderBy(app()->getLocale() == 'ar' ? 'client_name_ar' : 'client_name_en')
-            ->paginate(25);
+            ->withCount('cases');
+        
+        // Apply search filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('client_name_ar', 'LIKE', "%{$search}%")
+                  ->orWhere('client_name_en', 'LIKE', "%{$search}%")
+                  ->orWhere('client_print_name', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        // Apply status filter
+        if ($status_id) {
+            $query->where('status_id', $status_id);
+        }
+        
+        // Apply cash or probono filter
+        if ($cash_or_probono_id) {
+            $query->where('cash_or_probono_id', $cash_or_probono_id);
+        }
+        
+        // Apply contact lawyer filter
+        if ($contact_lawyer_id) {
+            $query->where('contact_lawyer_id', $contact_lawyer_id);
+        }
+        
+        // Order and paginate
+        $clients = $query->orderBy(app()->getLocale() == 'ar' ? 'client_name_ar' : 'client_name_en')
+            ->paginate(25)
+            ->appends($request->query());
+        
+        // Get filter options
+        $statuses = \App\Models\OptionValue::whereHas('optionSet', function($q) {
+            $q->where('key', 'client_status');
+        })->orderBy('sort_order')->get();
+        
+        $cashOrProbonoOptions = \App\Models\OptionValue::whereHas('optionSet', function($q) {
+            $q->where('key', 'cash_or_probono');
+        })->orderBy('sort_order')->get();
+        
+        $lawyers = \App\Models\Lawyer::select('id', 'lawyer_name_ar', 'lawyer_name_en')
+            ->orderBy(app()->getLocale() == 'ar' ? 'lawyer_name_ar' : 'lawyer_name_en')
+            ->get();
             
-        return view('clients.index', compact('clients'));
+        return view('clients.index', compact('clients', 'statuses', 'cashOrProbonoOptions', 'lawyers', 'search', 'status_id', 'cash_or_probono_id', 'contact_lawyer_id'));
     }
 
     public function show(Client $client)

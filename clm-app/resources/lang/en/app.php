@@ -508,7 +508,7 @@ return [
     'option_value_created_successfully' => 'Option value created successfully',
     'option_value_updated_successfully' => 'Option value updated successfully',
     'option_value_deleted_successfully' => 'Option value deleted successfully',
-    
+
     // Client Audit Fields
     'created_by' => 'Created By',
     'updated_by' => 'Updated By',
@@ -522,7 +522,7 @@ return [
     'client_created' => 'Client created',
     'client_deleted' => 'Client deleted',
     'no_change_history' => 'No change history available',
-    
+
     // Clients Index Columns
     'lawyer_name_ar' => 'Lawyer Name (Arabic)',
     'lawyer_name_en' => 'Lawyer Name (English)',
@@ -531,4 +531,13 @@ return [
     'cash_or_probono_ar' => 'Cash or Pro Bono (Arabic)',
     'cash_or_probono_en' => 'Cash or Pro Bono (English)',
     'cases_count' => 'Cases Count',
+    
+    // Search and Filter
+    'search' => 'Search',
+    'filter' => 'Filter',
+    'clear' => 'Clear',
+    'search_clients_placeholder' => 'Search by client name...',
+    'all_statuses' => 'All Statuses',
+    'all_types' => 'All Types',
+    'all_lawyers' => 'All Lawyers',
 ];
