@@ -522,4 +522,11 @@ return [
     'client_created' => 'Client created',
     'client_deleted' => 'Client deleted',
     'no_change_history' => 'No change history available',
+    
+    // Clients Index Columns
+    'lawyer_name_ar' => 'Lawyer Name (Arabic)',
+    'lawyer_name_en' => 'Lawyer Name (English)',
+    'status_ar' => 'Status (Arabic)',
+    'status_en' => 'Status (English)',
+    'cases_count' => 'Cases Count',
 ];

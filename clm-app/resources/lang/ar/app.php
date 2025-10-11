@@ -522,4 +522,11 @@ return [
     'client_created' => 'تم إنشاء العميل',
     'client_deleted' => 'تم حذف العميل',
     'no_change_history' => 'لا يوجد تاريخ تغييرات متاح',
+    
+    // Clients Index Columns
+    'lawyer_name_ar' => 'اسم المحامي (عربي)',
+    'lawyer_name_en' => 'اسم المحامي (إنجليزي)',
+    'status_ar' => 'الحالة (عربي)',
+    'status_en' => 'الحالة (إنجليزي)',
+    'cases_count' => 'عدد القضايا',
 ];

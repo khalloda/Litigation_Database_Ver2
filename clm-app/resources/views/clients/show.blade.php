@@ -108,9 +108,9 @@
                             <td><strong>{{ __('app.logo') }}</strong></td>
                             <td>
                                 @if(file_exists(public_path($client->logo)))
-                                    <img src="{{ asset($client->logo) }}" alt="Client Logo" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
+                                <img src="{{ asset($client->logo) }}" alt="Client Logo" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
                                 @else
-                                    <span class="text-muted">{{ __('app.logo_file_not_found') }}</span>
+                                <span class="text-muted">{{ __('app.logo_file_not_found') }}</span>
                                 @endif
                             </td>
                         </tr>
@@ -179,56 +179,56 @@
                 </div>
                 <div class="card-body">
                     @if($client->activities && $client->activities->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-hover table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>{{ __('app.date_time') }}</th>
-                                        <th>{{ __('app.event') }}</th>
-                                        <th>{{ __('app.user') }}</th>
-                                        <th>{{ __('app.changes') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($client->activities->sortByDesc('created_at') as $activity)
-                                    <tr>
-                                        <td>{{ $activity->created_at->format('Y-m-d H:i:s') }}</td>
-                                        <td>
-                                            <span class="badge bg-{{ $activity->event === 'created' ? 'success' : ($activity->event === 'updated' ? 'warning' : 'danger') }}">
-                                                {{ __('app.' . $activity->event) }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            @if($activity->causer)
-                                                {{ $activity->causer->name }}
-                                            @else
-                                                <span class="text-muted">{{ __('app.system') }}</span>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm">
+                            <thead>
+                                <tr>
+                                    <th>{{ __('app.date_time') }}</th>
+                                    <th>{{ __('app.event') }}</th>
+                                    <th>{{ __('app.user') }}</th>
+                                    <th>{{ __('app.changes') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($client->activities->sortByDesc('created_at') as $activity)
+                                <tr>
+                                    <td>{{ $activity->created_at->format('Y-m-d H:i:s') }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ $activity->event === 'created' ? 'success' : ($activity->event === 'updated' ? 'warning' : 'danger') }}">
+                                            {{ __('app.' . $activity->event) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if($activity->causer)
+                                        {{ $activity->causer->name }}
+                                        @else
+                                        <span class="text-muted">{{ __('app.system') }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($activity->event === 'updated' && isset($activity->properties['old']) && isset($activity->properties['attributes']))
+                                        <small>
+                                            @foreach($activity->properties['old'] as $field => $oldValue)
+                                            @if(isset($activity->properties['attributes'][$field]) && $activity->properties['attributes'][$field] != $oldValue)
+                                            <strong>{{ $field }}:</strong>
+                                            <span class="text-danger">{{ $oldValue }}</span> →
+                                            <span class="text-success">{{ $activity->properties['attributes'][$field] }}</span><br>
                                             @endif
-                                        </td>
-                                        <td>
-                                            @if($activity->event === 'updated' && isset($activity->properties['old']) && isset($activity->properties['attributes']))
-                                                <small>
-                                                    @foreach($activity->properties['old'] as $field => $oldValue)
-                                                        @if(isset($activity->properties['attributes'][$field]) && $activity->properties['attributes'][$field] != $oldValue)
-                                                            <strong>{{ $field }}:</strong> 
-                                                            <span class="text-danger">{{ $oldValue }}</span> → 
-                                                            <span class="text-success">{{ $activity->properties['attributes'][$field] }}</span><br>
-                                                        @endif
-                                                    @endforeach
-                                                </small>
-                                            @elseif($activity->event === 'created' && isset($activity->properties['attributes']))
-                                                <small class="text-success">{{ __('app.client_created') }}</small>
-                                            @elseif($activity->event === 'deleted')
-                                                <small class="text-danger">{{ __('app.client_deleted') }}</small>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                                            @endforeach
+                                        </small>
+                                        @elseif($activity->event === 'created' && isset($activity->properties['attributes']))
+                                        <small class="text-success">{{ __('app.client_created') }}</small>
+                                        @elseif($activity->event === 'deleted')
+                                        <small class="text-danger">{{ __('app.client_deleted') }}</small>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                     @else
-                        <p class="text-muted mb-0">{{ __('app.no_change_history') }}</p>
+                    <p class="text-muted mb-0">{{ __('app.no_change_history') }}</p>
                     @endif
                 </div>
             </div>

@@ -11,25 +11,39 @@ class ClientsController extends Controller
     public function index(Request $request)
     {
         $this->authorize('viewAny', Client::class);
-        $clients = Client::select('id', 'client_name_ar', 'client_name_en')
-            ->orderBy('client_name_ar')
+        
+        // Load clients with necessary relationships for display
+        $clients = Client::select('id', 'client_name_ar', 'client_name_en', 'contact_lawyer_id', 'status_id')
+            ->with([
+                'contactLawyer:id,lawyer_name_ar,lawyer_name_en',
+                'statusRef:id,label_ar,label_en',
+                'cases:id,client_id' // For case count
+            ])
+            ->withCount('cases')
+            ->orderBy(app()->getLocale() == 'ar' ? 'client_name_ar' : 'client_name_en')
             ->paginate(25);
+            
         return view('clients.index', compact('clients'));
     }
 
     public function show(Client $client)
     {
         $this->authorize('view', $client);
-        
+
         // Load relationships for the client
         $client->load([
-            'cashOrProbono', 'statusRef', 'powerOfAttorneyLocation', 
-            'documentsLocation', 'contactLawyer', 'createdBy', 'updatedBy',
-            'activities' => function($query) {
+            'cashOrProbono',
+            'statusRef',
+            'powerOfAttorneyLocation',
+            'documentsLocation',
+            'contactLawyer',
+            'createdBy',
+            'updatedBy',
+            'activities' => function ($query) {
                 $query->orderBy('created_at', 'desc');
             }
         ]);
-        
+
         $cases = \App\Models\CaseModel::where('client_id', $client->id)
             ->select('id', 'matter_name_ar', 'matter_name_en')
             ->orderBy('matter_name_ar')

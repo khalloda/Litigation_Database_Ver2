@@ -18,8 +18,28 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>{{ __('app.client_name_ar') }}</th>
-                            <th>{{ __('app.client_name_en') }}</th>
+                            <th>
+                                @if(app()->getLocale() == 'ar')
+                                    {{ __('app.client_name_ar') }}
+                                @else
+                                    {{ __('app.client_name_en') }}
+                                @endif
+                            </th>
+                            <th>
+                                @if(app()->getLocale() == 'ar')
+                                    {{ __('app.lawyer_name_ar') }}
+                                @else
+                                    {{ __('app.lawyer_name_en') }}
+                                @endif
+                            </th>
+                            <th>
+                                @if(app()->getLocale() == 'ar')
+                                    {{ __('app.status_ar') }}
+                                @else
+                                    {{ __('app.status_en') }}
+                                @endif
+                            </th>
+                            <th>{{ __('app.cases_count') }}</th>
                             @if(app()->getLocale() == 'ar')
                             <th>{{ __('app.actions') }}</th>
                             @else
@@ -31,8 +51,40 @@
                         @foreach($clients as $client)
                         <tr>
                             <td><a href="{{ route('clients.show', $client) }}">{{ $client->id }}</a></td>
-                            <td>{{ $client->client_name_ar }}</td>
-                            <td>{{ $client->client_name_en }}</td>
+                            <td>
+                                @if(app()->getLocale() == 'ar')
+                                    {{ $client->client_name_ar }}
+                                @else
+                                    {{ $client->client_name_en }}
+                                @endif
+                            </td>
+                            <td>
+                                @if($client->contactLawyer)
+                                    @if(app()->getLocale() == 'ar')
+                                        {{ $client->contactLawyer->lawyer_name_ar }}
+                                    @else
+                                        {{ $client->contactLawyer->lawyer_name_en }}
+                                    @endif
+                                @else
+                                    <span class="text-muted">{{ __('app.not_set') }}</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($client->statusRef)
+                                    <span class="badge bg-success">
+                                        @if(app()->getLocale() == 'ar')
+                                            {{ $client->statusRef->label_ar }}
+                                        @else
+                                            {{ $client->statusRef->label_en }}
+                                        @endif
+                                    </span>
+                                @else
+                                    <span class="text-muted">{{ __('app.not_set') }}</span>
+                                @endif
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ $client->cases_count }}</span>
+                            </td>
                             <td class="{{ app()->getLocale() == 'ar' ? 'text-start' : 'text-end' }}">
                                 <div class="btn-group btn-group-sm" role="group">
                                     <a href="{{ route('clients.show', $client) }}" class="btn btn-outline-primary btn-sm">{{ __('app.view') }}</a>
