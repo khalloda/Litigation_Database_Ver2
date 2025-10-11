@@ -69,7 +69,7 @@
                     <h5 class="mb-0">{{ __('app.related_assigned_cases') }}</h5>
                 </div>
                 <div class="card-body">
-                    @forelse($lawyer->cases()->limit(10)->get() as $case)
+                    @forelse($cases->take(10) as $case)
                     <div class="mb-2">
                         <a href="{{ route('cases.show', $case) }}">
                             <strong>{{ $case->matter_name_ar ?? $case->matter_name_en }}</strong>

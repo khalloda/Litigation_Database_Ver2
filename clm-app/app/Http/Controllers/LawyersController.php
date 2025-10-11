@@ -37,8 +37,14 @@ class LawyersController extends Controller
     public function show(Lawyer $lawyer)
     {
         $this->authorize('view', $lawyer);
-        $lawyer->load('cases', 'adminTasks');
-        return view('lawyers.show', compact('lawyer'));
+        
+        // Load relationships
+        $lawyer->load(['casesAsLawyerA', 'casesAsLawyerB', 'adminTasks']);
+        
+        // Get all cases (merge both relationships)
+        $cases = $lawyer->getAllCases();
+        
+        return view('lawyers.show', compact('lawyer', 'cases'));
     }
 
     public function edit(Lawyer $lawyer)

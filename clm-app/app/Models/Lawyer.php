@@ -26,9 +26,24 @@ class Lawyer extends Model
     ];
 
     // Relationships
-    public function cases()
+    // Cases where this lawyer is lawyer A
+    public function casesAsLawyerA()
     {
-        return $this->hasMany(CaseModel::class);
+        return $this->hasMany(CaseModel::class, 'lawyer_a', 'id');
+    }
+
+    // Cases where this lawyer is lawyer B
+    public function casesAsLawyerB()
+    {
+        return $this->hasMany(CaseModel::class, 'lawyer_b', 'id');
+    }
+
+    // Get all cases (lawyer A or lawyer B) - not a relationship, returns collection
+    public function getAllCases()
+    {
+        return CaseModel::where('lawyer_a', $this->id)
+            ->orWhere('lawyer_b', $this->id)
+            ->get();
     }
 
     public function adminTasks()
