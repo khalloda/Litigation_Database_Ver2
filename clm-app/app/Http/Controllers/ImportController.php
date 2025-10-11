@@ -11,6 +11,7 @@ use App\Services\PreflightEngine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Exception;
 
 class ImportController extends Controller
@@ -350,6 +351,13 @@ class ImportController extends Controller
         $skipped = 0;
         $errors = [];
 
+        // Get table columns once for performance
+        $tableColumns = Schema::getColumnListing($session->table_name);
+        $hasCreatedBy = in_array('created_by', $tableColumns);
+        $hasUpdatedBy = in_array('updated_by', $tableColumns);
+        $hasCreatedAt = in_array('created_at', $tableColumns);
+        $hasUpdatedAt = in_array('updated_at', $tableColumns);
+
         foreach ($rows as $index => $row) {
             try {
                 // Map row data
@@ -361,13 +369,21 @@ class ImportController extends Controller
                     }
                 }
 
-                // Add audit fields
-                $data['created_by'] = Auth::id();
-                $data['updated_by'] = Auth::id();
+                // Add audit fields if they exist in the table
+                if ($hasCreatedBy) {
+                    $data['created_by'] = Auth::id();
+                }
+                if ($hasUpdatedBy) {
+                    $data['updated_by'] = Auth::id();
+                }
                 
-                // Add timestamps
-                $data['created_at'] = now();
-                $data['updated_at'] = now();
+                // Add timestamps if they exist in the table
+                if ($hasCreatedAt) {
+                    $data['created_at'] = now();
+                }
+                if ($hasUpdatedAt) {
+                    $data['updated_at'] = now();
+                }
 
                 // Insert into database
                 DB::table($session->table_name)->insert($data);

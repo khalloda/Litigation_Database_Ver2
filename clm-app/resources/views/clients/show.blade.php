@@ -117,11 +117,11 @@
                         @endif
                         <tr>
                             <td><strong>{{ __('app.created_at') }}</strong></td>
-                            <td>{{ $client->created_at ? $client->created_at->format('Y-m-d H:i') : __('app.not_set') }}</td>
+                            <td>@formatTimestamp($client->created_at)</td>
                         </tr>
                         <tr>
                             <td><strong>{{ __('app.updated_at') }}</strong></td>
-                            <td>{{ $client->updated_at ? $client->updated_at->format('Y-m-d H:i') : __('app.not_set') }}</td>
+                            <td>@formatTimestamp($client->updated_at)</td>
                         </tr>
                         @if($client->createdBy)
                         <tr>
