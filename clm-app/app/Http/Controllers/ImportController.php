@@ -411,6 +411,82 @@ class ImportController extends Controller
     }
 
     /**
+     * Resolve client option values to their corresponding IDs
+     */
+    private function resolveClientOptionValues(array $data): array
+    {
+        // Resolve status
+        if (!empty($data['status'])) {
+            $statusId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'client.status');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', $data['status'])
+                  ->orWhere('label_ar', $data['status']);
+            })->value('id');
+            
+            if ($statusId) {
+                $data['status_id'] = $statusId;
+            }
+        }
+
+        // Resolve cash_or_probono
+        if (!empty($data['cash_or_probono'])) {
+            $cashOrProbonoId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'client.cash_or_probono');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', $data['cash_or_probono'])
+                  ->orWhere('label_ar', $data['cash_or_probono']);
+            })->value('id');
+            
+            if ($cashOrProbonoId) {
+                $data['cash_or_probono_id'] = $cashOrProbonoId;
+            }
+        }
+
+        // Resolve power_of_attorney_location
+        if (!empty($data['power_of_attorney_location'])) {
+            $poaLocationId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'client.power_of_attorney_location');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', $data['power_of_attorney_location'])
+                  ->orWhere('label_ar', $data['power_of_attorney_location']);
+            })->value('id');
+            
+            if ($poaLocationId) {
+                $data['power_of_attorney_location_id'] = $poaLocationId;
+            }
+        }
+
+        // Resolve documents_location
+        if (!empty($data['documents_location'])) {
+            $docLocationId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'client.documents_location');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', $data['documents_location'])
+                  ->orWhere('label_ar', $data['documents_location']);
+            })->value('id');
+            
+            if ($docLocationId) {
+                $data['documents_location_id'] = $docLocationId;
+            }
+        }
+
+        // Resolve contact_lawyer
+        if (!empty($data['contact_lawyer'])) {
+            $lawyerId = \App\Models\Lawyer::where(function ($q) use ($data) {
+                $q->where('lawyer_name_en', $data['contact_lawyer'])
+                  ->orWhere('lawyer_name_ar', $data['contact_lawyer']);
+            })->value('id');
+            
+            if ($lawyerId) {
+                $data['contact_lawyer_id'] = $lawyerId;
+            }
+        }
+
+        return $data;
+    }
+
+    /**
      * Show import session details.
      */
     public function show($importSessionId)
