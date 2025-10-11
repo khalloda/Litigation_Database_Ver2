@@ -364,6 +364,10 @@ class ImportController extends Controller
                 // Add audit fields
                 $data['created_by'] = Auth::id();
                 $data['updated_by'] = Auth::id();
+                
+                // Add timestamps
+                $data['created_at'] = now();
+                $data['updated_at'] = now();
 
                 // Insert into database
                 DB::table($session->table_name)->insert($data);
