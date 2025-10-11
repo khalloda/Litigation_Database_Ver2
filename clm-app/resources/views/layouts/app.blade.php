@@ -85,13 +85,13 @@
                         @can('documents.view')
                         <li class="nav-item"><a class="nav-link" href="{{ route('documents.index') }}">{{ __('app.documents') }}</a></li>
                         @endcan
-                        
+
                         <!-- Admin Dropdown -->
-                        @if(auth()->user()->hasAnyPermission(['admin.users.manage', 'viewAny', 'admin.audit.view']) || 
-                            auth()->user()->can('viewAny', App\Models\AdminTask::class) ||
-                            auth()->user()->can('viewAny', App\Models\AdminSubtask::class) ||
-                            auth()->user()->can('viewAny', App\Models\ImportSession::class) ||
-                            auth()->user()->can('viewAny', App\Models\OptionSet::class))
+                        @if(auth()->user()->hasAnyPermission(['admin.users.manage', 'viewAny', 'admin.audit.view']) ||
+                        auth()->user()->can('viewAny', App\Models\AdminTask::class) ||
+                        auth()->user()->can('viewAny', App\Models\AdminSubtask::class) ||
+                        auth()->user()->can('viewAny', App\Models\ImportSession::class) ||
+                        auth()->user()->can('viewAny', App\Models\OptionSet::class))
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 {{ __('app.admin') }}

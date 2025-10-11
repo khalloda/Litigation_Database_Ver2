@@ -508,4 +508,18 @@ return [
     'option_value_created_successfully' => 'تم إنشاء قيمة الخيار بنجاح',
     'option_value_updated_successfully' => 'تم تحديث قيمة الخيار بنجاح',
     'option_value_deleted_successfully' => 'تم حذف قيمة الخيار بنجاح',
+    
+    // Client Audit Fields
+    'created_by' => 'تم الإنشاء بواسطة',
+    'updated_by' => 'تم التحديث بواسطة',
+    'logo_file_not_found' => 'ملف الشعار غير موجود',
+    'change_history' => 'تاريخ التغييرات',
+    'date_time' => 'التاريخ والوقت',
+    'event' => 'الحدث',
+    'user' => 'المستخدم',
+    'changes' => 'التغييرات',
+    'system' => 'النظام',
+    'client_created' => 'تم إنشاء العميل',
+    'client_deleted' => 'تم حذف العميل',
+    'no_change_history' => 'لا يوجد تاريخ تغييرات متاح',
 ];

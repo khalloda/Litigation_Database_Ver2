@@ -508,4 +508,18 @@ return [
     'option_value_created_successfully' => 'Option value created successfully',
     'option_value_updated_successfully' => 'Option value updated successfully',
     'option_value_deleted_successfully' => 'Option value deleted successfully',
+    
+    // Client Audit Fields
+    'created_by' => 'Created By',
+    'updated_by' => 'Updated By',
+    'logo_file_not_found' => 'Logo file not found',
+    'change_history' => 'Change History',
+    'date_time' => 'Date & Time',
+    'event' => 'Event',
+    'user' => 'User',
+    'changes' => 'Changes',
+    'system' => 'System',
+    'client_created' => 'Client created',
+    'client_deleted' => 'Client deleted',
+    'no_change_history' => 'No change history available',
 ];

@@ -20,6 +20,16 @@ class ClientsController extends Controller
     public function show(Client $client)
     {
         $this->authorize('view', $client);
+        
+        // Load relationships for the client
+        $client->load([
+            'cashOrProbono', 'statusRef', 'powerOfAttorneyLocation', 
+            'documentsLocation', 'contactLawyer', 'createdBy', 'updatedBy',
+            'activities' => function($query) {
+                $query->orderBy('created_at', 'desc');
+            }
+        ]);
+        
         $cases = \App\Models\CaseModel::where('client_id', $client->id)
             ->select('id', 'matter_name_ar', 'matter_name_en')
             ->orderBy('matter_name_ar')
