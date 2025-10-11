@@ -376,7 +376,7 @@ class ImportController extends Controller
                 if ($hasUpdatedBy) {
                     $data['updated_by'] = Auth::id();
                 }
-                
+
                 // Add timestamps if they exist in the table
                 if ($hasCreatedAt) {
                     $data['created_at'] = now();

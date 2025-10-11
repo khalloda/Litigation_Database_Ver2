@@ -23,10 +23,10 @@ class AppServiceProvider extends ServiceProvider
     {
         // Fix for MySQL utf8mb4 index length issue
         Schema::defaultStringLength(191);
-        
+
         // Universal timestamp formatter directive
         Blade::directive('formatTimestamp', function ($expression) {
-            return "<?php echo $expression ? $expression->format('Y-m-d H:i') : __('app.not_set'); ?>";
+            return "<?php echo ($expression && is_object($expression) && method_exists($expression, 'format')) ? $expression->format('Y-m-d H:i') : __('app.not_set'); ?>";
         });
     }
 }
