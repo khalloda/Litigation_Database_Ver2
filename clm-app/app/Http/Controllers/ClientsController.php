@@ -59,11 +59,11 @@ class ClientsController extends Controller
 
         // Get filter options
         $statuses = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
-            $q->where('key', 'client_status');
+            $q->where('key', 'client.status');
         })->orderBy('id')->get();
 
         $cashOrProbonoOptions = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
-            $q->where('key', 'cash_or_probono');
+            $q->where('key', 'client.cash_or_probono');
         })->orderBy('id')->get();
 
         $lawyers = \App\Models\Lawyer::select('id', 'lawyer_name_ar', 'lawyer_name_en')
