@@ -107,8 +107,8 @@
                         <tr>
                             <td><strong>{{ __('app.logo') }}</strong></td>
                             <td>
-                                @if(file_exists(public_path('storage/' . $client->logo)))
-                                    <img src="{{ asset('storage/' . $client->logo) }}" alt="Client Logo" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
+                                @if(file_exists(public_path($client->logo)))
+                                    <img src="{{ asset($client->logo) }}" alt="Client Logo" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
                                 @else
                                     <span class="text-muted">{{ __('app.logo_file_not_found') }}</span>
                                 @endif

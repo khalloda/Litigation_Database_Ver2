@@ -109,11 +109,12 @@ class ClientsController extends Controller
             'updated_by' => auth()->id(),
         ];
 
-        // Handle logo upload
+        // Handle logo upload - store directly in public/uploads for production compatibility
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $data['logo'] = $file->storeAs('logos', $filename, 'public');
+            $file->move(public_path('uploads/logos'), $filename);
+            $data['logo'] = 'uploads/logos/' . $filename;
         }
 
         $client = Client::create($data);
@@ -162,11 +163,12 @@ class ClientsController extends Controller
             'updated_by' => auth()->id(),
         ];
 
-        // Handle logo upload
+        // Handle logo upload - store directly in public/uploads for production compatibility
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $data['logo'] = $file->storeAs('logos', $filename, 'public');
+            $file->move(public_path('uploads/logos'), $filename);
+            $data['logo'] = 'uploads/logos/' . $filename;
         }
 
         $client->update($data);
