@@ -508,7 +508,7 @@ return [
     'option_value_created_successfully' => 'تم إنشاء قيمة الخيار بنجاح',
     'option_value_updated_successfully' => 'تم تحديث قيمة الخيار بنجاح',
     'option_value_deleted_successfully' => 'تم حذف قيمة الخيار بنجاح',
-    
+
     // Client Audit Fields
     'created_by' => 'تم الإنشاء بواسطة',
     'updated_by' => 'تم التحديث بواسطة',
@@ -522,11 +522,13 @@ return [
     'client_created' => 'تم إنشاء العميل',
     'client_deleted' => 'تم حذف العميل',
     'no_change_history' => 'لا يوجد تاريخ تغييرات متاح',
-    
+
     // Clients Index Columns
     'lawyer_name_ar' => 'اسم المحامي (عربي)',
     'lawyer_name_en' => 'اسم المحامي (إنجليزي)',
     'status_ar' => 'الحالة (عربي)',
     'status_en' => 'الحالة (إنجليزي)',
+    'cash_or_probono_ar' => 'نقدي أو مجاني (عربي)',
+    'cash_or_probono_en' => 'نقدي أو مجاني (إنجليزي)',
     'cases_count' => 'عدد القضايا',
 ];

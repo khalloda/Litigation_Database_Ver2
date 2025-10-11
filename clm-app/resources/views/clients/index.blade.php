@@ -39,6 +39,13 @@
                                     {{ __('app.status_en') }}
                                 @endif
                             </th>
+                            <th>
+                                @if(app()->getLocale() == 'ar')
+                                    {{ __('app.cash_or_probono_ar') }}
+                                @else
+                                    {{ __('app.cash_or_probono_en') }}
+                                @endif
+                            </th>
                             <th>{{ __('app.cases_count') }}</th>
                             @if(app()->getLocale() == 'ar')
                             <th>{{ __('app.actions') }}</th>
@@ -76,6 +83,19 @@
                                             {{ $client->statusRef->label_ar }}
                                         @else
                                             {{ $client->statusRef->label_en }}
+                                        @endif
+                                    </span>
+                                @else
+                                    <span class="text-muted">{{ __('app.not_set') }}</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($client->cashOrProbono)
+                                    <span class="badge bg-warning">
+                                        @if(app()->getLocale() == 'ar')
+                                            {{ $client->cashOrProbono->label_ar }}
+                                        @else
+                                            {{ $client->cashOrProbono->label_en }}
                                         @endif
                                     </span>
                                 @else

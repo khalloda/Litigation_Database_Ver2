@@ -13,10 +13,11 @@ class ClientsController extends Controller
         $this->authorize('viewAny', Client::class);
         
         // Load clients with necessary relationships for display
-        $clients = Client::select('id', 'client_name_ar', 'client_name_en', 'contact_lawyer_id', 'status_id')
+        $clients = Client::select('id', 'client_name_ar', 'client_name_en', 'contact_lawyer_id', 'status_id', 'cash_or_probono_id')
             ->with([
                 'contactLawyer:id,lawyer_name_ar,lawyer_name_en',
                 'statusRef:id,label_ar,label_en',
+                'cashOrProbono:id,label_ar,label_en',
                 'cases:id,client_id' // For case count
             ])
             ->withCount('cases')

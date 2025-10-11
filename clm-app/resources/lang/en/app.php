@@ -528,5 +528,7 @@ return [
     'lawyer_name_en' => 'Lawyer Name (English)',
     'status_ar' => 'Status (Arabic)',
     'status_en' => 'Status (English)',
+    'cash_or_probono_ar' => 'Cash or Pro Bono (Arabic)',
+    'cash_or_probono_en' => 'Cash or Pro Bono (English)',
     'cases_count' => 'Cases Count',
 ];
