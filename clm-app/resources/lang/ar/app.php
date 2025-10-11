@@ -37,6 +37,7 @@ return [
     'file_upload_optional' => 'رفع الملف اختياري للمستندات الورقية',
     'mfiles_id_required' => 'معرف M-Files مطلوب عند رفع المستند إلى M-Files',
     'audit_logs' => 'سجلات التدقيق',
+    'admin' => 'إدارة',
     'data_quality' => 'جودة البيانات',
     'login' => 'تسجيل الدخول',
     'register' => 'تسجيل',
@@ -299,6 +300,12 @@ return [
 
     // Additional power of attorney fields
     'client_print_name' => 'اسم العميل للطباعة',
+    'client_start' => 'تاريخ بداية العميل',
+    'client_end' => 'تاريخ انتهاء العميل',
+    'contact_lawyer' => 'المحامي المسؤول',
+    'power_of_attorney_location' => 'مكان التوكيل',
+    'documents_location' => 'مكان المستندات',
+    'logo' => 'الشعار',
     'authorized_lawyers' => 'المحامين المخولين',
     'year' => 'السنة',
     'serial' => 'الرقم التسلسلي',
@@ -469,7 +476,7 @@ return [
     'import_completed_successfully' => 'تم الاستيراد بنجاح',
     'import_cancelled_successfully' => 'تم إلغاء الاستيراد بنجاح',
     'import_deleted_successfully' => 'تم حذف جلسة الاستيراد بنجاح',
-    
+
     // Options Management
     'manage_option_sets' => 'إدارة مجموعات الخيارات',
     'option_sets' => 'مجموعات الخيارات',

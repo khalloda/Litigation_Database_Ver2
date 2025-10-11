@@ -30,7 +30,7 @@
                 <div class="card-body">
                     <table class="table table-borderless">
                         <tr>
-                            <td><strong>ID</strong></td>
+                            <td><strong>{{ __('app.id') }}</strong></td>
                             <td>{{ $client->id }}</td>
                         </tr>
                         <tr>
@@ -40,6 +40,84 @@
                         <tr>
                             <td><strong>{{ __('app.client_name_en') }}</strong></td>
                             <td>{{ $client->client_name_en }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.client_print_name') }}</strong></td>
+                            <td>{{ $client->client_print_name }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.cash_or_probono') }}</strong></td>
+                            <td>
+                                @if($client->cashOrProbono)
+                                    <span class="badge bg-info">{{ $client->cash_or_probono_label }}</span>
+                                @else
+                                    <span class="text-muted">{{ __('app.not_set') }}</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.status') }}</strong></td>
+                            <td>
+                                @if($client->statusRef)
+                                    <span class="badge bg-success">{{ $client->status_label }}</span>
+                                @else
+                                    <span class="text-muted">{{ __('app.not_set') }}</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.client_start') }}</strong></td>
+                            <td>{{ $client->client_start ? $client->client_start->format('Y-m-d') : __('app.not_set') }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.client_end') }}</strong></td>
+                            <td>{{ $client->client_end ? $client->client_end->format('Y-m-d') : __('app.not_set') }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.contact_lawyer') }}</strong></td>
+                            <td>
+                                @if($client->contactLawyer)
+                                    <span class="badge bg-primary">{{ $client->contact_lawyer_name }}</span>
+                                @else
+                                    <span class="text-muted">{{ __('app.not_set') }}</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.power_of_attorney_location') }}</strong></td>
+                            <td>
+                                @if($client->powerOfAttorneyLocation)
+                                    <span class="badge bg-warning">{{ $client->power_of_attorney_location_label }}</span>
+                                @else
+                                    <span class="text-muted">{{ __('app.not_set') }}</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.documents_location') }}</strong></td>
+                            <td>
+                                @if($client->documentsLocation)
+                                    <span class="badge bg-secondary">{{ $client->documents_location_label }}</span>
+                                @else
+                                    <span class="text-muted">{{ __('app.not_set') }}</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @if($client->logo)
+                        <tr>
+                            <td><strong>{{ __('app.logo') }}</strong></td>
+                            <td>
+                                <img src="{{ asset('storage/' . $client->logo) }}" alt="Client Logo" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
+                            </td>
+                        </tr>
+                        @endif
+                        <tr>
+                            <td><strong>{{ __('app.created_at') }}</strong></td>
+                            <td>{{ $client->created_at->format('Y-m-d H:i') }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.updated_at') }}</strong></td>
+                            <td>{{ $client->updated_at->format('Y-m-d H:i') }}</td>
                         </tr>
                     </table>
                 </div>

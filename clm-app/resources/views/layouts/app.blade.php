@@ -82,28 +82,43 @@
                         @can('viewAny', App\Models\PowerOfAttorney::class)
                         <li class="nav-item"><a class="nav-link" href="{{ route('power-of-attorneys.index') }}">{{ __('app.power_of_attorneys') }}</a></li>
                         @endcan
-                        @can('admin.users.manage')
-                        <li class="nav-item"><a class="nav-link" href="{{ route('lawyers.index') }}">{{ __('app.lawyers') }}</a></li>
-                        @endcan
-                        @can('viewAny', App\Models\AdminTask::class)
-                        <li class="nav-item"><a class="nav-link" href="{{ route('admin-tasks.index') }}">{{ __('app.admin_tasks') }}</a></li>
-                        @endcan
-                        @can('viewAny', App\Models\AdminSubtask::class)
-                        <li class="nav-item"><a class="nav-link" href="{{ route('admin-subtasks.index') }}">{{ __('app.admin_subtasks') }}</a></li>
-                        @endcan
                         @can('documents.view')
                         <li class="nav-item"><a class="nav-link" href="{{ route('documents.index') }}">{{ __('app.documents') }}</a></li>
                         @endcan
-                        @can('viewAny', App\Models\ImportSession::class)
-                        <li class="nav-item"><a class="nav-link" href="{{ route('import.index') }}">{{ __('app.import_export') }}</a></li>
-                        @endcan
-                        @can('viewAny', App\Models\OptionSet::class)
-                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.options.index') }}">{{ __('app.option_sets') }}</a></li>
-                        @endcan
-                        @can('admin.audit.view')
-                        <li class="nav-item"><a class="nav-link" href="{{ route('audit-logs.index') }}">Audit Logs</a></li>
-                        @endcan
-                        <li class="nav-item"><a class="nav-link" href="{{ route('data-quality.index') }}">Data Quality</a></li>
+                        
+                        <!-- Admin Dropdown -->
+                        @if(auth()->user()->hasAnyPermission(['admin.users.manage', 'viewAny', 'admin.audit.view']) || 
+                            auth()->user()->can('viewAny', App\Models\AdminTask::class) ||
+                            auth()->user()->can('viewAny', App\Models\AdminSubtask::class) ||
+                            auth()->user()->can('viewAny', App\Models\ImportSession::class) ||
+                            auth()->user()->can('viewAny', App\Models\OptionSet::class))
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ __('app.admin') }}
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                @can('admin.users.manage')
+                                <li><a class="dropdown-item" href="{{ route('lawyers.index') }}">{{ __('app.lawyers') }}</a></li>
+                                @endcan
+                                @can('viewAny', App\Models\AdminTask::class)
+                                <li><a class="dropdown-item" href="{{ route('admin-tasks.index') }}">{{ __('app.admin_tasks') }}</a></li>
+                                @endcan
+                                @can('viewAny', App\Models\AdminSubtask::class)
+                                <li><a class="dropdown-item" href="{{ route('admin-subtasks.index') }}">{{ __('app.admin_subtasks') }}</a></li>
+                                @endcan
+                                @can('viewAny', App\Models\ImportSession::class)
+                                <li><a class="dropdown-item" href="{{ route('import.index') }}">{{ __('app.import_export') }}</a></li>
+                                @endcan
+                                @can('viewAny', App\Models\OptionSet::class)
+                                <li><a class="dropdown-item" href="{{ route('admin.options.index') }}">{{ __('app.option_sets') }}</a></li>
+                                @endcan
+                                @can('admin.audit.view')
+                                <li><a class="dropdown-item" href="{{ route('audit-logs.index') }}">{{ __('app.audit_logs') }}</a></li>
+                                @endcan
+                                <li><a class="dropdown-item" href="{{ route('data-quality.index') }}">{{ __('app.data_quality') }}</a></li>
+                            </ul>
+                        </li>
+                        @endif
                         @endauth
                     </ul>
 

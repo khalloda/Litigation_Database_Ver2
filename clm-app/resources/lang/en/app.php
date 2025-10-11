@@ -37,6 +37,7 @@ return [
     'file_upload_optional' => 'File upload is optional for physical documents',
     'mfiles_id_required' => 'M-Files ID is required when document is uploaded to M-Files',
     'audit_logs' => 'Audit Logs',
+    'admin' => 'Admin',
     'data_quality' => 'Data Quality',
     'login' => 'Login',
     'register' => 'Register',
@@ -299,6 +300,12 @@ return [
 
     // Additional power of attorney fields
     'client_print_name' => 'Client Print Name',
+    'client_start' => 'Client Start Date',
+    'client_end' => 'Client End Date',
+    'contact_lawyer' => 'Contact Lawyer',
+    'power_of_attorney_location' => 'Power of Attorney Location',
+    'documents_location' => 'Documents Location',
+    'logo' => 'Logo',
     'authorized_lawyers' => 'Authorized Lawyers',
     'year' => 'Year',
     'serial' => 'Serial',
@@ -469,7 +476,7 @@ return [
     'import_completed_successfully' => 'Import completed successfully',
     'import_cancelled_successfully' => 'Import cancelled successfully',
     'import_deleted_successfully' => 'Import session deleted successfully',
-    
+
     // Options Management
     'manage_option_sets' => 'Manage Option Sets',
     'option_sets' => 'Option Sets',

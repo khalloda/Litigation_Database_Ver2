@@ -246,7 +246,7 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     // AJAX endpoint for getting options by set key
     Route::get('/options/api/{setKey}', [App\Http\Controllers\Admin\OptionController::class, 'getOptions'])->name('options.get');
-    
+
     // Option Set CRUD
     Route::get('/options', [App\Http\Controllers\Admin\OptionController::class, 'index'])->name('options.index');
     Route::get('/options/create', [App\Http\Controllers\Admin\OptionController::class, 'create'])->name('options.create');
