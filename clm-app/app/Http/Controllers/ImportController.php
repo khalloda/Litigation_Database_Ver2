@@ -421,9 +421,9 @@ class ImportController extends Controller
                 $q->where('key', 'client.status');
             })->where(function ($q) use ($data) {
                 $q->where('label_en', $data['status'])
-                  ->orWhere('label_ar', $data['status']);
+                    ->orWhere('label_ar', $data['status']);
             })->value('id');
-            
+
             if ($statusId) {
                 $data['status_id'] = $statusId;
             }
@@ -435,9 +435,9 @@ class ImportController extends Controller
                 $q->where('key', 'client.cash_or_probono');
             })->where(function ($q) use ($data) {
                 $q->where('label_en', $data['cash_or_probono'])
-                  ->orWhere('label_ar', $data['cash_or_probono']);
+                    ->orWhere('label_ar', $data['cash_or_probono']);
             })->value('id');
-            
+
             if ($cashOrProbonoId) {
                 $data['cash_or_probono_id'] = $cashOrProbonoId;
             }
@@ -449,9 +449,9 @@ class ImportController extends Controller
                 $q->where('key', 'client.power_of_attorney_location');
             })->where(function ($q) use ($data) {
                 $q->where('label_en', $data['power_of_attorney_location'])
-                  ->orWhere('label_ar', $data['power_of_attorney_location']);
+                    ->orWhere('label_ar', $data['power_of_attorney_location']);
             })->value('id');
-            
+
             if ($poaLocationId) {
                 $data['power_of_attorney_location_id'] = $poaLocationId;
             }
@@ -463,9 +463,9 @@ class ImportController extends Controller
                 $q->where('key', 'client.documents_location');
             })->where(function ($q) use ($data) {
                 $q->where('label_en', $data['documents_location'])
-                  ->orWhere('label_ar', $data['documents_location']);
+                    ->orWhere('label_ar', $data['documents_location']);
             })->value('id');
-            
+
             if ($docLocationId) {
                 $data['documents_location_id'] = $docLocationId;
             }
@@ -475,9 +475,9 @@ class ImportController extends Controller
         if (!empty($data['contact_lawyer'])) {
             $lawyerId = \App\Models\Lawyer::where(function ($q) use ($data) {
                 $q->where('lawyer_name_en', $data['contact_lawyer'])
-                  ->orWhere('lawyer_name_ar', $data['contact_lawyer']);
+                    ->orWhere('lawyer_name_ar', $data['contact_lawyer']);
             })->value('id');
-            
+
             if ($lawyerId) {
                 $data['contact_lawyer_id'] = $lawyerId;
             }
