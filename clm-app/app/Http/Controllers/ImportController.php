@@ -385,6 +385,11 @@ class ImportController extends Controller
                     $data['updated_at'] = now();
                 }
 
+                // Special handling for clients table - resolve option values to IDs
+                if ($session->table_name === 'clients') {
+                    $data = $this->resolveClientOptionValues($data);
+                }
+
                 // Insert into database
                 DB::table($session->table_name)->insert($data);
                 $imported++;

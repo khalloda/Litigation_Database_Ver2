@@ -26,7 +26,14 @@ class AppServiceProvider extends ServiceProvider
 
         // Universal timestamp formatter directive
         Blade::directive('formatTimestamp', function ($expression) {
-            return "<?php echo ($expression && is_object($expression) && method_exists($expression, 'format')) ? $expression->format('Y-m-d H:i') : __('app.not_set'); ?>";
+            return "<?php 
+                \$value = $expression;
+                if (\$value && is_object(\$value) && method_exists(\$value, 'format')) {
+                    echo \$value->format('Y-m-d H:i');
+                } else {
+                    echo __('app.not_set');
+                }
+            ?>";
         });
     }
 }
