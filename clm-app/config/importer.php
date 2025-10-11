@@ -92,6 +92,7 @@ return [
         // Default column mappings (source => target)
         'defaults' => [
             'clients' => [
+                'id' => 'id', // For ID preservation during import
                 'client_code' => 'client_code',
                 'client_name_ar' => 'client_name_ar',
                 'client_name_en' => 'client_name_en',
