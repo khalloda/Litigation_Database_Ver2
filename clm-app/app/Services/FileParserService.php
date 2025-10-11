@@ -187,6 +187,10 @@ class FileParserService
             'next_date',
             'created_at',
             'updated_at',
+            'client_start',
+            'client_end',
+            'start',
+            'end',
             'الإجراء',
             'الموعد',
             'القادم'

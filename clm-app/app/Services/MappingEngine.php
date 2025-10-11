@@ -88,7 +88,7 @@ class MappingEngine
 
         // Filter out system columns
         $excludedColumns = ['created_at', 'updated_at', 'deleted_at', 'created_by', 'updated_by'];
-        
+
         // Include 'id' column for tables that need ID preservation during import
         $idPreservationTables = ['lawyers', 'clients'];
         if (!in_array($tableName, $idPreservationTables)) {
