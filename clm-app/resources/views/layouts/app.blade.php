@@ -97,6 +97,9 @@
                         @can('viewAny', App\Models\ImportSession::class)
                         <li class="nav-item"><a class="nav-link" href="{{ route('import.index') }}">{{ __('app.import_export') }}</a></li>
                         @endcan
+                        @can('viewAny', App\Models\OptionSet::class)
+                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.options.index') }}">{{ __('app.option_sets') }}</a></li>
+                        @endcan
                         @can('admin.audit.view')
                         <li class="nav-item"><a class="nav-link" href="{{ route('audit-logs.index') }}">Audit Logs</a></li>
                         @endcan

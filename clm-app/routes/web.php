@@ -244,7 +244,10 @@ Route::middleware(['auth'])->group(function () {
 
 // Option Management (Admin only)
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/options/{setKey}', [App\Http\Controllers\Admin\OptionController::class, 'getOptions'])->name('options.get');
+    // AJAX endpoint for getting options by set key
+    Route::get('/options/api/{setKey}', [App\Http\Controllers\Admin\OptionController::class, 'getOptions'])->name('options.get');
+    
+    // Option Set CRUD
     Route::get('/options', [App\Http\Controllers\Admin\OptionController::class, 'index'])->name('options.index');
     Route::get('/options/create', [App\Http\Controllers\Admin\OptionController::class, 'create'])->name('options.create');
     Route::post('/options', [App\Http\Controllers\Admin\OptionController::class, 'store'])->name('options.store');
