@@ -54,6 +54,8 @@ return [
     'save' => 'Save',
     'cancel' => 'Cancel',
     'edit_client' => 'Edit Client',
+    'update_client' => 'Update Client',
+    'current_logo' => 'Current Logo',
     'client_details' => 'Client Details',
     'related_cases' => 'Related Cases',
     'no_cases_found' => 'No cases found for this client.',

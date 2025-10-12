@@ -187,7 +187,36 @@ class ClientsController extends Controller
     public function edit(Client $client)
     {
         $this->authorize('edit', $client);
-        return view('clients.edit', compact('client'));
+        
+        // Load dropdown options
+        $cashOrProbonoOptions = \App\Models\OptionValue::whereHas('optionSet', function ($query) {
+            $query->where('key', 'client.cash_or_probono');
+        })->orderBy('id')->get();
+
+        $statusOptions = \App\Models\OptionValue::whereHas('optionSet', function ($query) {
+            $query->where('key', 'client.status');
+        })->orderBy('id')->get();
+
+        $powerOfAttorneyLocationOptions = \App\Models\OptionValue::whereHas('optionSet', function ($query) {
+            $query->where('key', 'client.power_of_attorney_location');
+        })->orderBy('id')->get();
+
+        $documentsLocationOptions = \App\Models\OptionValue::whereHas('optionSet', function ($query) {
+            $query->where('key', 'client.documents_location');
+        })->orderBy('id')->get();
+
+        $lawyers = \App\Models\Lawyer::select('id', 'lawyer_name_ar', 'lawyer_name_en')
+            ->orderBy('lawyer_name_ar')
+            ->get();
+
+        return view('clients.edit', compact(
+            'client',
+            'cashOrProbonoOptions',
+            'statusOptions',
+            'powerOfAttorneyLocationOptions',
+            'documentsLocationOptions',
+            'lawyers'
+        ));
     }
 
     public function update(ClientRequest $request, Client $client)

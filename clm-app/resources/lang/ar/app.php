@@ -54,6 +54,8 @@ return [
     'save' => 'حفظ',
     'cancel' => 'إلغاء',
     'edit_client' => 'تعديل العميل',
+    'update_client' => 'تحديث العميل',
+    'current_logo' => 'الشعار الحالي',
     'client_details' => 'تفاصيل العميل',
     'related_cases' => 'القضايا ذات الصلة',
     'no_cases_found' => 'لا توجد قضايا لهذا العميل.',
