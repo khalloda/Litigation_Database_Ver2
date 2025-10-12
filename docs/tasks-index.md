@@ -508,5 +508,40 @@ php artisan migrate:rollback  # Rolls back permission tables
 
 ---
 
-**Last Updated**: 2025-01-11 15:30 UTC
+## 13. Universal ID Preservation Strategy
+
+### 13.1 Universal ID Preservation Implementation
+- **ID**: T-13.1
+- **Status**: Done
+- **Branch**: `mod/clients-model`
+- **Description**: Implement universal ID preservation across all core model tables
+- **DoD**:
+  - [x] Created migrations to disable auto-increment on all 12 core tables
+  - [x] Updated MappingEngine to include id column for all tables
+  - [x] Applied all migrations successfully
+  - [x] Created comprehensive ADR documentation
+  - [x] Created detailed runbook for ID preservation operations
+  - [x] Documented rollback procedures and troubleshooting
+- **Commits**: TBD
+- **Docs**: 
+  - `docs/adr/ADR-20250111-001-Universal-ID-Preservation-Strategy.md`
+  - `docs/runbooks/Universal-ID-Preservation-Runbook.md`
+
+### Tables with ID Preservation Enabled
+- ✅ `lawyers` - Auto-increment disabled
+- ✅ `clients` - Auto-increment disabled  
+- ✅ `cases` - Auto-increment disabled
+- ✅ `hearings` - Auto-increment disabled
+- ✅ `engagement_letters` - Auto-increment disabled
+- ✅ `contacts` - Auto-increment disabled
+- ✅ `power_of_attorneys` - Auto-increment disabled
+- ✅ `admin_tasks` - Auto-increment disabled
+- ✅ `admin_subtasks` - Auto-increment disabled
+- ✅ `client_documents` - Auto-increment disabled
+- ✅ `option_sets` - Auto-increment disabled
+- ✅ `option_values` - Auto-increment disabled
+
+---
+
+**Last Updated**: 2025-01-11 16:45 UTC
 

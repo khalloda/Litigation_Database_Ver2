@@ -90,7 +90,21 @@ class MappingEngine
         $excludedColumns = ['created_at', 'updated_at', 'deleted_at', 'created_by', 'updated_by'];
 
         // Include 'id' column for tables that need ID preservation during import
-        $idPreservationTables = ['lawyers', 'clients'];
+        // All core tables have auto-increment disabled for ID preservation
+        $idPreservationTables = [
+            'lawyers', 
+            'clients', 
+            'cases', 
+            'hearings', 
+            'engagement_letters', 
+            'contacts', 
+            'power_of_attorneys', 
+            'admin_tasks', 
+            'admin_subtasks', 
+            'client_documents',
+            'option_sets',
+            'option_values'
+        ];
         if (!in_array($tableName, $idPreservationTables)) {
             $excludedColumns[] = 'id';
         }
