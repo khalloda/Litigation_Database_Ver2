@@ -477,5 +477,36 @@ php artisan migrate:rollback  # Rolls back permission tables
 
 ---
 
-**Last Updated**: 2025-01-10 01:00 UTC
+## 12. Bug Fixes & UI Improvements
+
+### 12.1 Lawyer View Case Relationship Fix
+- **ID**: T-12.1
+- **Status**: Done
+- **Branch**: `mod/clients-model`
+- **Description**: Fix lawyer view case relationship to use correct database columns
+- **DoD**:
+  - [x] Updated Lawyer model with proper case relationships (lawyer_a, lawyer_b)
+  - [x] Fixed LawyersController show method to load both relationships
+  - [x] Updated lawyers.show view to use combined cases collection
+  - [x] Tested lawyer view without database errors
+- **Commits**: 33392e7
+- **Docs**: `docs/bugfixes/Lawyer-View-Client-Edit-Fixes.md`
+
+### 12.2 Client Edit Form Completion
+- **ID**: T-12.2
+- **Status**: Done
+- **Branch**: `mod/clients-model`
+- **Description**: Complete client edit form with all fields matching create/view forms
+- **DoD**:
+  - [x] Updated ClientsController edit method to load dropdown options
+  - [x] Completely rewrote clients/edit.blade.php with all fields
+  - [x] Added current logo preview functionality
+  - [x] Added missing translation keys (update_client, current_logo)
+  - [x] Tested edit form with all fields functional
+- **Commits**: 10c74c1
+- **Docs**: `docs/bugfixes/Lawyer-View-Client-Edit-Fixes.md`
+
+---
+
+**Last Updated**: 2025-01-11 15:30 UTC
 

@@ -187,7 +187,7 @@ class ClientsController extends Controller
     public function edit(Client $client)
     {
         $this->authorize('edit', $client);
-        
+
         // Load dropdown options
         $cashOrProbonoOptions = \App\Models\OptionValue::whereHas('optionSet', function ($query) {
             $query->where('key', 'client.cash_or_probono');
