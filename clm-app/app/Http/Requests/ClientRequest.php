@@ -15,7 +15,7 @@ class ClientRequest extends FormRequest
     {
         return [
             'mfiles_id' => ['nullable', 'integer', 'min:1'],
-            'client_code' => ['nullable', 'string', 'max:50', 'unique:clients,client_code,' . ($this->client ? $this->client->id : 'NULL')],
+            'client_code' => ['nullable', 'string', 'max:50', 'unique:clients,client_code,' . ($this->route('client') ? $this->route('client')->id : 'NULL')],
             'client_name_ar' => ['nullable', 'string', 'max:255', 'required_without:client_name_en'],
             'client_name_en' => ['nullable', 'string', 'max:255', 'required_without:client_name_ar'],
             'client_print_name' => ['nullable', 'string', 'max:255'],

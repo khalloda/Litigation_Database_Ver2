@@ -148,6 +148,9 @@ class ClientsController extends Controller
 
         // Prepare data
         $data = [
+            // New fields (MFiles ID and Client Code)
+            'mfiles_id' => $request->mfiles_id,
+            'client_code' => $request->client_code,
             'client_name_ar' => $request->client_name_ar,
             'client_name_en' => $request->client_name_en,
             'client_print_name' => $request->client_print_name ?: $request->client_name_en ?: $request->client_name_ar,
@@ -232,6 +235,9 @@ class ClientsController extends Controller
 
         // Prepare update data
         $data = [
+            // New fields (MFiles ID and Client Code)
+            'mfiles_id' => $request->mfiles_id,
+            'client_code' => $request->client_code,
             'client_name_ar' => $request->client_name_ar,
             'client_name_en' => $request->client_name_en,
             'client_print_name' => $request->client_print_name ?: $request->client_name_en ?: $request->client_name_ar,
