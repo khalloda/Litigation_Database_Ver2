@@ -35,10 +35,14 @@ class CourtRequest extends FormRequest
                 'max:255',
                 Rule::requiredIf(empty($this->court_name_ar)),
             ],
-            'court_circuit' => 'nullable|exists:option_values,id',
-            'court_circuit_secretary' => 'nullable|exists:option_values,id',
-            'court_floor' => 'nullable|exists:option_values,id',
-            'court_hall' => 'nullable|exists:option_values,id',
+            'court_circuits' => 'nullable|array',
+            'court_circuits.*' => 'exists:option_values,id',
+            'court_secretaries' => 'nullable|array',
+            'court_secretaries.*' => 'exists:option_values,id',
+            'court_floors' => 'nullable|array',
+            'court_floors.*' => 'exists:option_values,id',
+            'court_halls' => 'nullable|array',
+            'court_halls.*' => 'exists:option_values,id',
             'is_active' => 'boolean',
         ];
     }

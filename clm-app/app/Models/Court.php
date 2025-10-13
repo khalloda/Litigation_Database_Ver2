@@ -15,10 +15,6 @@ class Court extends Model
     protected $fillable = [
         'court_name_ar',
         'court_name_en',
-        'court_circuit',
-        'court_circuit_secretary',
-        'court_floor',
-        'court_hall',
         'is_active',
     ];
 
@@ -26,25 +22,29 @@ class Court extends Model
         'is_active' => 'boolean',
     ];
 
-    // Relationships
-    public function courtCircuit()
+    // Many-to-Many Relationships via Pivot Tables
+    public function circuits()
     {
-        return $this->belongsTo(OptionValue::class, 'court_circuit');
+        return $this->belongsToMany(OptionValue::class, 'court_circuit', 'court_id', 'option_value_id')
+                    ->withTimestamps();
     }
 
-    public function courtCircuitSecretary()
+    public function secretaries()
     {
-        return $this->belongsTo(OptionValue::class, 'court_circuit_secretary');
+        return $this->belongsToMany(OptionValue::class, 'court_secretary', 'court_id', 'option_value_id')
+                    ->withTimestamps();
     }
 
-    public function courtFloor()
+    public function floors()
     {
-        return $this->belongsTo(OptionValue::class, 'court_floor');
+        return $this->belongsToMany(OptionValue::class, 'court_floor', 'court_id', 'option_value_id')
+                    ->withTimestamps();
     }
 
-    public function courtHall()
+    public function halls()
     {
-        return $this->belongsTo(OptionValue::class, 'court_hall');
+        return $this->belongsToMany(OptionValue::class, 'court_hall', 'court_id', 'option_value_id')
+                    ->withTimestamps();
     }
 
     public function cases()
@@ -72,7 +72,7 @@ class Court extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['court_name_ar', 'court_name_en', 'court_circuit', 'court_circuit_secretary', 'court_floor', 'court_hall', 'is_active'])
+            ->logOnly(['court_name_ar', 'court_name_en', 'is_active'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('court')

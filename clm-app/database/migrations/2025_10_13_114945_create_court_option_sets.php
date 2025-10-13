@@ -15,11 +15,11 @@ return new class extends Migration
     {
         // Create 4 option sets for court dropdown fields
         // Values will be seeded later by the user
-
+        
         // Get the next available ID
         $maxId = DB::table('option_sets')->max('id') ?? 0;
         $nextId = $maxId + 1;
-
+        
         // Check if option sets already exist before creating
         if (!OptionSet::where('key', 'court.circuit')->exists()) {
             DB::table('option_sets')->insert([
@@ -85,7 +85,7 @@ return new class extends Migration
     {
         // Delete the option sets and their values
         $keys = ['court.circuit', 'court.circuit_secretary', 'court.floor', 'court.hall'];
-
+        
         foreach ($keys as $key) {
             $optionSet = OptionSet::where('key', $key)->first();
             if ($optionSet) {

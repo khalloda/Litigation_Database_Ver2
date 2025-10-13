@@ -207,44 +207,40 @@ $(document).ready(function() {
     // Handle court selection change - cascading dropdowns
     $('#court_id').on('change', function() {
         const courtId = $(this).val();
-
+        
         if (courtId) {
             // Fetch court details via AJAX
             $.ajax({
                 url: `/api/courts/${courtId}/details`,
                 method: 'GET',
                 success: function(data) {
-                    // Populate circuit dropdown
+                    // Populate circuit dropdown with MULTIPLE options
                     $('#matter_circuit').empty().prop('disabled', false);
-                    if (data.circuit) {
-                        $('#matter_circuit').append(new Option(data.circuit.label, data.circuit.id, true, true));
-                    } else {
-                        $('#matter_circuit').append(new Option('{{ __("app.select_option") }}', '', true, true));
-                    }
+                    $('#matter_circuit').append(new Option('{{ __("app.select_option") }}', ''));
+                    data.circuits.forEach(function(circuit) {
+                        $('#matter_circuit').append(new Option(circuit.label, circuit.id));
+                    });
 
-                    // Populate secretary dropdown
+                    // Populate secretary dropdown with MULTIPLE options
                     $('#circuit_secretary').empty().prop('disabled', false);
-                    if (data.secretary) {
-                        $('#circuit_secretary').append(new Option(data.secretary.label, data.secretary.id, true, true));
-                    } else {
-                        $('#circuit_secretary').append(new Option('{{ __("app.select_option") }}', '', true, true));
-                    }
+                    $('#circuit_secretary').append(new Option('{{ __("app.select_option") }}', ''));
+                    data.secretaries.forEach(function(secretary) {
+                        $('#circuit_secretary').append(new Option(secretary.label, secretary.id));
+                    });
 
-                    // Populate floor dropdown
+                    // Populate floor dropdown with MULTIPLE options
                     $('#court_floor').empty().prop('disabled', false);
-                    if (data.floor) {
-                        $('#court_floor').append(new Option(data.floor.label, data.floor.id, true, true));
-                    } else {
-                        $('#court_floor').append(new Option('{{ __("app.select_option") }}', '', true, true));
-                    }
+                    $('#court_floor').append(new Option('{{ __("app.select_option") }}', ''));
+                    data.floors.forEach(function(floor) {
+                        $('#court_floor').append(new Option(floor.label, floor.id));
+                    });
 
-                    // Populate hall dropdown
+                    // Populate hall dropdown with MULTIPLE options
                     $('#court_hall').empty().prop('disabled', false);
-                    if (data.hall) {
-                        $('#court_hall').append(new Option(data.hall.label, data.hall.id, true, true));
-                    } else {
-                        $('#court_hall').append(new Option('{{ __("app.select_option") }}', '', true, true));
-                    }
+                    $('#court_hall').append(new Option('{{ __("app.select_option") }}', ''));
+                    data.halls.forEach(function(hall) {
+                        $('#court_hall').append(new Option(hall.label, hall.id));
+                    });
 
                     // Trigger change to refresh Select2
                     $('.select2-cascade').trigger('change');

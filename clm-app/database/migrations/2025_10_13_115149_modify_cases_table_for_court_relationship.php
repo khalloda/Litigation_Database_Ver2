@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -24,11 +23,8 @@ return new class extends Migration
         });
 
         // 3. Convert text fields to foreign keys (need to drop and recreate)
-        // First, backup any existing data if needed, then modify columns
-
-        // Drop existing text columns and recreate as foreign keys
         Schema::table('cases', function (Blueprint $table) {
-            // Drop old text columns
+            // Drop old columns
             $table->dropColumn(['matter_circuit', 'circuit_secretary', 'court_floor', 'court_hall']);
         });
 
@@ -57,7 +53,7 @@ return new class extends Migration
             $table->dropForeign(['circuit_secretary']);
             $table->dropForeign(['court_floor']);
             $table->dropForeign(['court_hall']);
-
+            
             // Drop columns
             $table->dropColumn(['court_id', 'matter_circuit', 'circuit_secretary', 'court_floor', 'court_hall']);
         });

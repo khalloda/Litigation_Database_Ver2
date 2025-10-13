@@ -237,37 +237,37 @@ $(document).ready(function() {
             url: `/api/courts/${courtId}/details`,
             method: 'GET',
             success: function(data) {
-                // Populate circuit dropdown
+                // Populate circuit dropdown with MULTIPLE options
                 $('#matter_circuit').empty().prop('disabled', false);
                 $('#matter_circuit').append(new Option('{{ __("app.select_option") }}', ''));
-                if (data.circuit) {
-                    const isSelected = selectedValues.circuit == data.circuit.id;
-                    $('#matter_circuit').append(new Option(data.circuit.label, data.circuit.id, isSelected, isSelected));
-                }
+                data.circuits.forEach(function(circuit) {
+                    const isSelected = selectedValues.circuit == circuit.id;
+                    $('#matter_circuit').append(new Option(circuit.label, circuit.id, isSelected, isSelected));
+                });
 
-                // Populate secretary dropdown
+                // Populate secretary dropdown with MULTIPLE options
                 $('#circuit_secretary').empty().prop('disabled', false);
                 $('#circuit_secretary').append(new Option('{{ __("app.select_option") }}', ''));
-                if (data.secretary) {
-                    const isSelected = selectedValues.secretary == data.secretary.id;
-                    $('#circuit_secretary').append(new Option(data.secretary.label, data.secretary.id, isSelected, isSelected));
-                }
+                data.secretaries.forEach(function(secretary) {
+                    const isSelected = selectedValues.secretary == secretary.id;
+                    $('#circuit_secretary').append(new Option(secretary.label, secretary.id, isSelected, isSelected));
+                });
 
-                // Populate floor dropdown
+                // Populate floor dropdown with MULTIPLE options
                 $('#court_floor').empty().prop('disabled', false);
                 $('#court_floor').append(new Option('{{ __("app.select_option") }}', ''));
-                if (data.floor) {
-                    const isSelected = selectedValues.floor == data.floor.id;
-                    $('#court_floor').append(new Option(data.floor.label, data.floor.id, isSelected, isSelected));
-                }
+                data.floors.forEach(function(floor) {
+                    const isSelected = selectedValues.floor == floor.id;
+                    $('#court_floor').append(new Option(floor.label, floor.id, isSelected, isSelected));
+                });
 
-                // Populate hall dropdown
+                // Populate hall dropdown with MULTIPLE options
                 $('#court_hall').empty().prop('disabled', false);
                 $('#court_hall').append(new Option('{{ __("app.select_option") }}', ''));
-                if (data.hall) {
-                    const isSelected = selectedValues.hall == data.hall.id;
-                    $('#court_hall').append(new Option(data.hall.label, data.hall.id, isSelected, isSelected));
-                }
+                data.halls.forEach(function(hall) {
+                    const isSelected = selectedValues.hall == hall.id;
+                    $('#court_hall').append(new Option(hall.label, hall.id, isSelected, isSelected));
+                });
 
                 // Trigger change to refresh Select2
                 $('.select2-cascade').trigger('change');

@@ -16,26 +16,19 @@ return new class extends Migration
             $table->id();
             $table->string('court_name_ar')->nullable();
             $table->string('court_name_en')->nullable();
-
-            // Court-specific dropdown fields (will be populated later)
-            $table->foreignId('court_circuit')->nullable()->constrained('option_values')->nullOnDelete();
-            $table->foreignId('court_circuit_secretary')->nullable()->constrained('option_values')->nullOnDelete();
-            $table->foreignId('court_floor')->nullable()->constrained('option_values')->nullOnDelete();
-            $table->foreignId('court_hall')->nullable()->constrained('option_values')->nullOnDelete();
-
             $table->boolean('is_active')->default(true);
-
+            
             // Audit columns
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
-
+            
             // Indexes
             $table->index('court_name_ar');
             $table->index('court_name_en');
             $table->index('is_active');
-
+            
             // Foreign keys
             $table->foreign('created_by')->references('id')->on('users')->nullOnDelete();
             $table->foreign('updated_by')->references('id')->on('users')->nullOnDelete();
@@ -120,7 +113,7 @@ return new class extends Migration
     {
         // Re-enable auto-increment
         DB::statement('ALTER TABLE courts MODIFY COLUMN id INT(11) NOT NULL AUTO_INCREMENT');
-
+        
         Schema::dropIfExists('courts');
     }
 };

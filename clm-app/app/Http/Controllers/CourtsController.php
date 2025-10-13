@@ -63,10 +63,27 @@ class CourtsController extends Controller
     {
         $this->authorize('create', Court::class);
         
-        $court = Court::create($request->validated() + [
+        $court = Court::create([
+            'court_name_ar' => $request->court_name_ar,
+            'court_name_en' => $request->court_name_en,
+            'is_active' => $request->is_active ?? true,
             'created_by' => auth()->id(),
             'updated_by' => auth()->id(),
         ]);
+        
+        // Sync many-to-many relationships
+        if ($request->filled('court_circuits')) {
+            $court->circuits()->sync($request->court_circuits);
+        }
+        if ($request->filled('court_secretaries')) {
+            $court->secretaries()->sync($request->court_secretaries);
+        }
+        if ($request->filled('court_floors')) {
+            $court->floors()->sync($request->court_floors);
+        }
+        if ($request->filled('court_halls')) {
+            $court->halls()->sync($request->court_halls);
+        }
         
         return redirect()->route('courts.show', $court)
             ->with('success', __('app.court_created_success'));
@@ -76,8 +93,8 @@ class CourtsController extends Controller
     {
         $this->authorize('view', $court);
         
-        // Load relationships
-        $court->load(['courtCircuit', 'courtCircuitSecretary', 'courtFloor', 'courtHall']);
+        // Load many-to-many relationships
+        $court->load(['circuits', 'secretaries', 'floors', 'halls']);
         
         // Load related cases with pagination
         $cases = CaseModel::where('court_id', $court->id)
@@ -96,6 +113,9 @@ class CourtsController extends Controller
     public function edit(Court $court)
     {
         $this->authorize('update', $court);
+        
+        // Load current many-to-many relationships
+        $court->load(['circuits', 'secretaries', 'floors', 'halls']);
         
         // Load option values for dropdowns
         $circuitOptions = OptionValue::whereHas('optionSet', function ($q) {
@@ -121,9 +141,18 @@ class CourtsController extends Controller
     {
         $this->authorize('update', $court);
         
-        $court->update($request->validated() + [
+        $court->update([
+            'court_name_ar' => $request->court_name_ar,
+            'court_name_en' => $request->court_name_en,
+            'is_active' => $request->is_active ?? $court->is_active,
             'updated_by' => auth()->id(),
         ]);
+        
+        // Sync many-to-many relationships
+        $court->circuits()->sync($request->court_circuits ?? []);
+        $court->secretaries()->sync($request->court_secretaries ?? []);
+        $court->floors()->sync($request->court_floors ?? []);
+        $court->halls()->sync($request->court_halls ?? []);
         
         return redirect()->route('courts.show', $court)
             ->with('success', __('app.court_updated_success'));

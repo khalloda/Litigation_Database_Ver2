@@ -35,32 +35,30 @@
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label for="court_circuit" class="form-label">{{ __('app.court_circuit') }}</label>
-                        <select class="form-select select2 @error('court_circuit') is-invalid @enderror"
-                                id="court_circuit" name="court_circuit">
-                            <option value="">{{ __('app.select_option') }}</option>
+                        <label for="court_circuits" class="form-label">{{ __('app.court_circuits') }}</label>
+                        <select class="form-select select2-multi @error('court_circuits') is-invalid @enderror" 
+                                id="court_circuits" name="court_circuits[]" multiple>
                             @foreach($circuitOptions as $option)
-                            <option value="{{ $option->id }}" {{ old('court_circuit') == $option->id ? 'selected' : '' }}>
+                            <option value="{{ $option->id }}" {{ in_array($option->id, old('court_circuits', [])) ? 'selected' : '' }}>
                                 {{ app()->getLocale() === 'ar' ? $option->label_ar : $option->label_en }}
                             </option>
                             @endforeach
                         </select>
-                        @error('court_circuit')
+                        @error('court_circuits')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
-                        <label for="court_circuit_secretary" class="form-label">{{ __('app.court_circuit_secretary') }}</label>
-                        <select class="form-select select2 @error('court_circuit_secretary') is-invalid @enderror"
-                                id="court_circuit_secretary" name="court_circuit_secretary">
-                            <option value="">{{ __('app.select_option') }}</option>
+                        <label for="court_secretaries" class="form-label">{{ __('app.court_secretaries') }}</label>
+                        <select class="form-select select2-multi @error('court_secretaries') is-invalid @enderror" 
+                                id="court_secretaries" name="court_secretaries[]" multiple>
                             @foreach($secretaryOptions as $option)
-                            <option value="{{ $option->id }}" {{ old('court_circuit_secretary') == $option->id ? 'selected' : '' }}>
+                            <option value="{{ $option->id }}" {{ in_array($option->id, old('court_secretaries', [])) ? 'selected' : '' }}>
                                 {{ app()->getLocale() === 'ar' ? $option->label_ar : $option->label_en }}
                             </option>
                             @endforeach
                         </select>
-                        @error('court_circuit_secretary')
+                        @error('court_secretaries')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -68,32 +66,30 @@
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label for="court_floor" class="form-label">{{ __('app.court_floor') }}</label>
-                        <select class="form-select select2 @error('court_floor') is-invalid @enderror"
-                                id="court_floor" name="court_floor">
-                            <option value="">{{ __('app.select_option') }}</option>
+                        <label for="court_floors" class="form-label">{{ __('app.court_floors') }}</label>
+                        <select class="form-select select2-multi @error('court_floors') is-invalid @enderror" 
+                                id="court_floors" name="court_floors[]" multiple>
                             @foreach($floorOptions as $option)
-                            <option value="{{ $option->id }}" {{ old('court_floor') == $option->id ? 'selected' : '' }}>
+                            <option value="{{ $option->id }}" {{ in_array($option->id, old('court_floors', [])) ? 'selected' : '' }}>
                                 {{ app()->getLocale() === 'ar' ? $option->label_ar : $option->label_en }}
                             </option>
                             @endforeach
                         </select>
-                        @error('court_floor')
+                        @error('court_floors')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
-                        <label for="court_hall" class="form-label">{{ __('app.court_hall') }}</label>
-                        <select class="form-select select2 @error('court_hall') is-invalid @enderror"
-                                id="court_hall" name="court_hall">
-                            <option value="">{{ __('app.select_option') }}</option>
+                        <label for="court_halls" class="form-label">{{ __('app.court_halls') }}</label>
+                        <select class="form-select select2-multi @error('court_halls') is-invalid @enderror" 
+                                id="court_halls" name="court_halls[]" multiple>
                             @foreach($hallOptions as $option)
-                            <option value="{{ $option->id }}" {{ old('court_hall') == $option->id ? 'selected' : '' }}>
+                            <option value="{{ $option->id }}" {{ in_array($option->id, old('court_halls', [])) ? 'selected' : '' }}>
                                 {{ app()->getLocale() === 'ar' ? $option->label_ar : $option->label_en }}
                             </option>
                             @endforeach
                         </select>
-                        @error('court_hall')
+                        @error('court_halls')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -122,9 +118,11 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
-    $('.select2').select2({
+    $('.select2-multi').select2({
         theme: 'bootstrap-5',
+        multiple: true,
         allowClear: true,
+        placeholder: '{{ __("app.select_multiple") }}',
         width: '100%'
     });
 });

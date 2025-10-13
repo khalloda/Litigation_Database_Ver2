@@ -88,25 +88,33 @@ class CasesController extends Controller
      */
     public function getCourtDetails(Court $court)
     {
-        $court->load(['courtCircuit', 'courtCircuitSecretary', 'courtFloor', 'courtHall']);
+        $court->load(['circuits', 'secretaries', 'floors', 'halls']);
         
         return response()->json([
-            'circuit' => $court->courtCircuit ? [
-                'id' => $court->courtCircuit->id,
-                'label' => app()->getLocale() === 'ar' ? $court->courtCircuit->label_ar : $court->courtCircuit->label_en,
-            ] : null,
-            'secretary' => $court->courtCircuitSecretary ? [
-                'id' => $court->courtCircuitSecretary->id,
-                'label' => app()->getLocale() === 'ar' ? $court->courtCircuitSecretary->label_ar : $court->courtCircuitSecretary->label_en,
-            ] : null,
-            'floor' => $court->courtFloor ? [
-                'id' => $court->courtFloor->id,
-                'label' => app()->getLocale() === 'ar' ? $court->courtFloor->label_ar : $court->courtFloor->label_en,
-            ] : null,
-            'hall' => $court->courtHall ? [
-                'id' => $court->courtHall->id,
-                'label' => app()->getLocale() === 'ar' ? $court->courtHall->label_ar : $court->courtHall->label_en,
-            ] : null,
+            'circuits' => $court->circuits->map(function($circuit) {
+                return [
+                    'id' => $circuit->id,
+                    'label' => app()->getLocale() === 'ar' ? $circuit->label_ar : $circuit->label_en,
+                ];
+            }),
+            'secretaries' => $court->secretaries->map(function($secretary) {
+                return [
+                    'id' => $secretary->id,
+                    'label' => app()->getLocale() === 'ar' ? $secretary->label_ar : $secretary->label_en,
+                ];
+            }),
+            'floors' => $court->floors->map(function($floor) {
+                return [
+                    'id' => $floor->id,
+                    'label' => app()->getLocale() === 'ar' ? $floor->label_ar : $floor->label_en,
+                ];
+            }),
+            'halls' => $court->halls->map(function($hall) {
+                return [
+                    'id' => $hall->id,
+                    'label' => app()->getLocale() === 'ar' ? $hall->label_ar : $hall->label_en,
+                ];
+            }),
         ]);
     }
 }

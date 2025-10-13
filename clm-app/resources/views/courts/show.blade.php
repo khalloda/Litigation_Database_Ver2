@@ -52,27 +52,55 @@
                     <p><strong>{{ __('app.court_name_en') }}:</strong> {{ $court->court_name_en ?? '-' }}</p>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>{{ __('app.court_circuit') }}:</strong>
-                        {{ $court->courtCircuit ? (app()->getLocale() === 'ar' ? $court->courtCircuit->label_ar : $court->courtCircuit->label_en) : '-' }}
-                    </p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>{{ __('app.court_circuit_secretary') }}:</strong>
-                        {{ $court->courtCircuitSecretary ? (app()->getLocale() === 'ar' ? $court->courtCircuitSecretary->label_ar : $court->courtCircuitSecretary->label_en) : '-' }}
+            <div class="row mb-2">
+                <div class="col-md-12">
+                    <p><strong>{{ __('app.court_circuits') }}:</strong><br>
+                        @forelse($court->circuits as $circuit)
+                            <span class="badge bg-primary me-1 mb-1">
+                                {{ app()->getLocale() === 'ar' ? $circuit->label_ar : $circuit->label_en }}
+                            </span>
+                        @empty
+                            <span class="text-muted">-</span>
+                        @endforelse
                     </p>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>{{ __('app.court_floor') }}:</strong>
-                        {{ $court->courtFloor ? (app()->getLocale() === 'ar' ? $court->courtFloor->label_ar : $court->courtFloor->label_en) : '-' }}
+            <div class="row mb-2">
+                <div class="col-md-12">
+                    <p><strong>{{ __('app.court_secretaries') }}:</strong><br>
+                        @forelse($court->secretaries as $secretary)
+                            <span class="badge bg-info me-1 mb-1">
+                                {{ app()->getLocale() === 'ar' ? $secretary->label_ar : $secretary->label_en }}
+                            </span>
+                        @empty
+                            <span class="text-muted">-</span>
+                        @endforelse
                     </p>
                 </div>
-                <div class="col-md-6">
-                    <p><strong>{{ __('app.court_hall') }}:</strong>
-                        {{ $court->courtHall ? (app()->getLocale() === 'ar' ? $court->courtHall->label_ar : $court->courtHall->label_en) : '-' }}
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-12">
+                    <p><strong>{{ __('app.court_floors') }}:</strong><br>
+                        @forelse($court->floors as $floor)
+                            <span class="badge bg-secondary me-1 mb-1">
+                                {{ app()->getLocale() === 'ar' ? $floor->label_ar : $floor->label_en }}
+                            </span>
+                        @empty
+                            <span class="text-muted">-</span>
+                        @endforelse
+                    </p>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-12">
+                    <p><strong>{{ __('app.court_halls') }}:</strong><br>
+                        @forelse($court->halls as $hall)
+                            <span class="badge bg-warning text-dark me-1 mb-1">
+                                {{ app()->getLocale() === 'ar' ? $hall->label_ar : $hall->label_en }}
+                            </span>
+                        @empty
+                            <span class="text-muted">-</span>
+                        @endforelse
                     </p>
                 </div>
             </div>
