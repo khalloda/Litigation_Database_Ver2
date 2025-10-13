@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CaseRequest;
 use App\Models\CaseModel;
 use App\Models\Client;
+use App\Models\Court;
 use Illuminate\Http\Request;
 
 class CasesController extends Controller
@@ -25,7 +26,12 @@ class CasesController extends Controller
         $clients = Client::select('id', 'client_name_ar', 'client_name_en')
             ->orderBy('client_name_ar')
             ->get();
-        return view('cases.create', compact('clients'));
+        
+        $courts = Court::where('is_active', true)
+            ->orderBy('court_name_ar')
+            ->get();
+        
+        return view('cases.create', compact('clients', 'courts'));
     }
 
     public function store(CaseRequest $request)
@@ -42,7 +48,7 @@ class CasesController extends Controller
     public function show(CaseModel $case)
     {
         $this->authorize('view', $case);
-        $case->load('client', 'hearings', 'adminTasks', 'documents');
+        $case->load('client', 'court', 'matterCircuit', 'circuitSecretaryRef', 'courtFloorRef', 'courtHallRef', 'hearings', 'adminTasks', 'documents');
         return view('cases.show', compact('case'));
     }
 
@@ -52,7 +58,12 @@ class CasesController extends Controller
         $clients = Client::select('id', 'client_name_ar', 'client_name_en')
             ->orderBy('client_name_ar')
             ->get();
-        return view('cases.edit', compact('case', 'clients'));
+        
+        $courts = Court::where('is_active', true)
+            ->orderBy('court_name_ar')
+            ->get();
+        
+        return view('cases.edit', compact('case', 'clients', 'courts'));
     }
 
     public function update(CaseRequest $request, CaseModel $case)
@@ -70,5 +81,32 @@ class CasesController extends Controller
         $this->authorize('delete', $case);
         $case->delete();
         return redirect()->route('cases.index')->with('success', __('app.case_deleted_success'));
+    }
+
+    /**
+     * AJAX endpoint to get court details for cascading dropdowns
+     */
+    public function getCourtDetails(Court $court)
+    {
+        $court->load(['courtCircuit', 'courtCircuitSecretary', 'courtFloor', 'courtHall']);
+        
+        return response()->json([
+            'circuit' => $court->courtCircuit ? [
+                'id' => $court->courtCircuit->id,
+                'label' => app()->getLocale() === 'ar' ? $court->courtCircuit->label_ar : $court->courtCircuit->label_en,
+            ] : null,
+            'secretary' => $court->courtCircuitSecretary ? [
+                'id' => $court->courtCircuitSecretary->id,
+                'label' => app()->getLocale() === 'ar' ? $court->courtCircuitSecretary->label_ar : $court->courtCircuitSecretary->label_en,
+            ] : null,
+            'floor' => $court->courtFloor ? [
+                'id' => $court->courtFloor->id,
+                'label' => app()->getLocale() === 'ar' ? $court->courtFloor->label_ar : $court->courtFloor->label_en,
+            ] : null,
+            'hall' => $court->courtHall ? [
+                'id' => $court->courtHall->id,
+                'label' => app()->getLocale() === 'ar' ? $court->courtHall->label_ar : $court->courtHall->label_en,
+            ] : null,
+        ]);
     }
 }
