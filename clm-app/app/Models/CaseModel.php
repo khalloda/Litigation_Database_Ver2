@@ -24,7 +24,8 @@ class CaseModel extends Model
         'matter_status',
         'matter_category',
         'matter_degree',
-        'matter_court',
+        'court_id',
+        'matter_court_text',
         'matter_circuit',
         'matter_destination',
         'matter_importance',
@@ -92,10 +93,35 @@ class CaseModel extends Model
         return $this->hasMany(ClientDocument::class, 'matter_id');
     }
 
+    public function court()
+    {
+        return $this->belongsTo(Court::class, 'court_id');
+    }
+
+    public function matterCircuit()
+    {
+        return $this->belongsTo(OptionValue::class, 'matter_circuit');
+    }
+
+    public function circuitSecretaryRef()
+    {
+        return $this->belongsTo(OptionValue::class, 'circuit_secretary');
+    }
+
+    public function courtFloorRef()
+    {
+        return $this->belongsTo(OptionValue::class, 'court_floor');
+    }
+
+    public function courtHallRef()
+    {
+        return $this->belongsTo(OptionValue::class, 'court_hall');
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['client_id', 'contract_id', 'matter_name_ar', 'matter_name_en', 'matter_status', 'matter_start_date', 'matter_end_date', 'court_name', 'case_number'])
+            ->logOnly(['client_id', 'contract_id', 'matter_name_ar', 'matter_name_en', 'matter_status', 'court_id', 'matter_start_date', 'matter_end_date'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('case')

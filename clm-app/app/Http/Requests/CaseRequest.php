@@ -40,8 +40,8 @@ class CaseRequest extends FormRequest
             'matter_status' => 'nullable|string|max:255',
             'matter_category' => 'nullable|string|max:255',
             'matter_degree' => 'nullable|string|max:255',
-            'matter_court' => 'nullable|string|max:255',
-            'matter_circuit' => 'nullable|string|max:255',
+            'court_id' => 'nullable|exists:courts,id',
+            'matter_circuit' => 'nullable|exists:option_values,id',
             'matter_destination' => 'nullable|string|max:255',
             'matter_importance' => 'nullable|string|max:255',
             'matter_evaluation' => 'nullable|string|max:255',
@@ -53,9 +53,9 @@ class CaseRequest extends FormRequest
             'matter_partner' => 'nullable|string|max:255',
             'lawyer_a' => 'nullable|string|max:255',
             'lawyer_b' => 'nullable|string|max:255',
-            'circuit_secretary' => 'nullable|string|max:255',
-            'court_floor' => 'nullable|integer',
-            'court_hall' => 'nullable|integer',
+            'circuit_secretary' => 'nullable|exists:option_values,id',
+            'court_floor' => 'nullable|exists:option_values,id',
+            'court_hall' => 'nullable|exists:option_values,id',
             'notes_1' => 'nullable|string|max:5000',
             'notes_2' => 'nullable|string|max:5000',
             'client_and_capacity' => 'nullable|string|max:1000',
@@ -79,4 +79,3 @@ class CaseRequest extends FormRequest
         ];
     }
 }
-

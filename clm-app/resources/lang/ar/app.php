@@ -110,6 +110,7 @@ return [
     'matter_category' => 'الفئة',
     'matter_degree' => 'الدرجة',
     'matter_court' => 'المحكمة',
+    'select_court' => 'اختر المحكمة',
     'matter_circuit' => 'الدائرة',
     'matter_destination' => 'الوجهة',
     'matter_importance' => 'الأهمية',
@@ -183,6 +184,13 @@ return [
     'attendance_track' => 'تتبع الحضور',
     'related_assigned_cases' => 'القضايا المعينة',
     'no_assigned_cases_found' => 'لا توجد قضايا معينة لهذا المحامي.',
+
+    // Court related
+    'courts' => 'المحاكم',
+    'court_details' => 'تفاصيل المحكمة',
+    'related_hearings' => 'الجلسات المرتبطة',
+    'related_tasks' => 'المهام المرتبطة',
+    'coming_soon' => 'قريبا',
 
     // Engagement Letter related
     'engagement_letters' => 'رسائل التعاقد',

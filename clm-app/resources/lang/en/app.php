@@ -110,6 +110,7 @@ return [
     'matter_category' => 'Category',
     'matter_degree' => 'Degree',
     'matter_court' => 'Court',
+    'select_court' => 'Select Court',
     'matter_circuit' => 'Circuit',
     'matter_destination' => 'Destination',
     'matter_importance' => 'Importance',
@@ -183,6 +184,13 @@ return [
     'attendance_track' => 'Attendance Tracking',
     'related_assigned_cases' => 'Assigned Cases',
     'no_assigned_cases_found' => 'No assigned cases found for this lawyer.',
+
+    // Court related
+    'courts' => 'Courts',
+    'court_details' => 'Court Details',
+    'related_hearings' => 'Related Hearings',
+    'related_tasks' => 'Related Tasks',
+    'coming_soon' => 'Coming Soon',
 
     // Engagement Letter related
     'engagement_letters' => 'Engagement Letters',

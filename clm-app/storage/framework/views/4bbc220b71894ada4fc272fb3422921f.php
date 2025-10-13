@@ -176,19 +176,17 @@
                             <td><a href="<?php echo e(route('clients.show', $client)); ?>"><?php echo e($client->id); ?></a></td>
                             <td>
                                 <?php if($client->mfiles_id && $client->mfiles_id != ''): ?>
-                                <span class="badge bg-primary"><?php echo e($client->mfiles_id); ?></span>
+                                    <span class="badge bg-primary"><?php echo e($client->mfiles_id); ?></span>
                                 <?php else: ?>
-                                <span class="text-muted">-</span>
+                                    <span class="text-muted">-</span>
                                 <?php endif; ?>
-                                <!-- Debug: <?php echo e($client->mfiles_id ?? 'NULL'); ?> -->
                             </td>
                             <td>
                                 <?php if($client->client_code && $client->client_code != ''): ?>
-                                <span class="badge bg-secondary"><?php echo e($client->client_code); ?></span>
+                                    <span class="badge bg-secondary"><?php echo e($client->client_code); ?></span>
                                 <?php else: ?>
-                                <span class="text-muted">-</span>
+                                    <span class="text-muted">-</span>
                                 <?php endif; ?>
-                                <!-- Debug: <?php echo e($client->client_code ?? 'NULL'); ?> -->
                             </td>
                             <td>
                                 <?php if(app()->getLocale() == 'ar'): ?>
