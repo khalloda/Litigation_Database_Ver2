@@ -34,6 +34,26 @@
                             <td>{{ $client->id }}</td>
                         </tr>
                         <tr>
+                            <td><strong>{{ __('app.mfiles_id') }}</strong></td>
+                            <td>
+                                @if($client->mfiles_id)
+                                    <span class="badge bg-primary">{{ $client->mfiles_id }}</span>
+                                @else
+                                    <span class="text-muted">{{ __('app.not_set') }}</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.client_code') }}</strong></td>
+                            <td>
+                                @if($client->client_code)
+                                    <span class="badge bg-secondary">{{ $client->client_code }}</span>
+                                @else
+                                    <span class="text-muted">{{ __('app.not_set') }}</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
                             <td><strong>{{ __('app.client_name_ar') }}</strong></td>
                             <td>{{ $client->client_name_ar }}</td>
                         </tr>

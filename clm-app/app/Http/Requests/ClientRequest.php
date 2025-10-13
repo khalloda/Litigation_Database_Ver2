@@ -14,6 +14,8 @@ class ClientRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'mfiles_id' => ['nullable', 'integer', 'min:1'],
+            'client_code' => ['nullable', 'string', 'max:50', 'unique:clients,client_code,' . ($this->client ? $this->client->id : 'NULL')],
             'client_name_ar' => ['nullable', 'string', 'max:255', 'required_without:client_name_en'],
             'client_name_en' => ['nullable', 'string', 'max:255', 'required_without:client_name_ar'],
             'client_print_name' => ['nullable', 'string', 'max:255'],
@@ -31,6 +33,10 @@ class ClientRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'mfiles_id.integer' => __('app.mfiles_id_must_be_number'),
+            'mfiles_id.min' => __('app.mfiles_id_must_be_positive'),
+            'client_code.max' => __('app.client_code_max_length'),
+            'client_code.unique' => __('app.client_code_already_exists'),
             'client_name_ar.required_without' => __('app.at_least_one_name_required'),
             'client_name_en.required_without' => __('app.at_least_one_name_required'),
             'client_end.after_or_equal' => __('app.client_end_must_be_after_start'),

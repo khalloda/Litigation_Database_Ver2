@@ -32,6 +32,24 @@
                     </div>
                 </div>
 
+                {{-- MFiles ID and Client Code at the top --}}
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">{{ __('app.mfiles_id') }}</label>
+                        <input type="number" name="mfiles_id" class="form-control @error('mfiles_id') is-invalid @enderror" value="{{ old('mfiles_id', $client->mfiles_id) }}" min="1">
+                        @error('mfiles_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">{{ __('app.client_code') }}</label>
+                        <input type="text" name="client_code" class="form-control @error('client_code') is-invalid @enderror" value="{{ old('client_code', $client->client_code) }}" maxlength="50">
+                        @error('client_code')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
                 <div class="row g-3 mb-3">
                     <div class="col-md-4">
                         <label class="form-label">{{ __('app.client_name_ar') }} <span class="text-danger">*</span></label>

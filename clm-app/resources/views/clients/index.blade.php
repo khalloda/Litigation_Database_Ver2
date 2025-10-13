@@ -114,6 +114,8 @@
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>{{ __('app.mfiles_id') }}</th>
+                            <th>{{ __('app.client_code') }}</th>
                             <th>
                                 @if(app()->getLocale() == 'ar')
                                 {{ __('app.client_name_ar') }}
@@ -154,6 +156,20 @@
                         @foreach($clients as $client)
                         <tr>
                             <td><a href="{{ route('clients.show', $client) }}">{{ $client->id }}</a></td>
+                            <td>
+                                @if($client->mfiles_id)
+                                    <span class="badge bg-primary">{{ $client->mfiles_id }}</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($client->client_code)
+                                    <span class="badge bg-secondary">{{ $client->client_code }}</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
                             <td>
                                 @if(app()->getLocale() == 'ar')
                                 {{ $client->client_name_ar }}

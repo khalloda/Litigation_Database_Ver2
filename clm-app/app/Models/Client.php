@@ -15,6 +15,8 @@ class Client extends Model
     use HasFactory, SoftDeletes, InteractsWithDeletionBundles, LogsActivity;
 
     protected $fillable = [
+        'mfiles_id', // MFiles system identifier
+        'client_code', // Unique client code
         'client_name_ar',
         'client_name_en',
         'client_print_name',
@@ -169,7 +171,7 @@ class Client extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['client_name_ar', 'client_name_en', 'client_print_name', 'status', 'cash_or_probono', 'cash_or_probono_id', 'status_id', 'power_of_attorney_location_id', 'documents_location_id', 'client_start', 'client_end', 'contact_lawyer', 'contact_lawyer_id', 'logo', 'power_of_attorney_location', 'documents_location'])
+            ->logOnly(['mfiles_id', 'client_code', 'client_name_ar', 'client_name_en', 'client_print_name', 'status', 'cash_or_probono', 'cash_or_probono_id', 'status_id', 'power_of_attorney_location_id', 'documents_location_id', 'client_start', 'client_end', 'contact_lawyer', 'contact_lawyer_id', 'logo', 'power_of_attorney_location', 'documents_location'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('client')
