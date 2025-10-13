@@ -261,3 +261,11 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::put('/options/values/{optionValue}', [App\Http\Controllers\Admin\OptionController::class, 'updateValue'])->name('options.values.update');
     Route::delete('/options/values/{optionValue}', [App\Http\Controllers\Admin\OptionController::class, 'destroyValue'])->name('options.values.destroy');
 });
+
+// Courts Management
+Route::middleware(['auth'])->group(function () {
+    Route::resource('courts', App\Http\Controllers\CourtsController::class);
+    
+    // AJAX endpoint for cascading dropdowns
+    Route::get('/api/courts/{court}/details', [App\Http\Controllers\CasesController::class, 'getCourtDetails'])->name('courts.details');
+});

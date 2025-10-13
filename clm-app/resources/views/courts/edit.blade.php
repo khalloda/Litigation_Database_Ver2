@@ -18,7 +18,7 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="court_name_ar" class="form-label">{{ __('app.court_name_ar') }} *</label>
-                        <input type="text" class="form-control @error('court_name_ar') is-invalid @enderror" 
+                        <input type="text" class="form-control @error('court_name_ar') is-invalid @enderror"
                                id="court_name_ar" name="court_name_ar" value="{{ old('court_name_ar', $court->court_name_ar) }}">
                         @error('court_name_ar')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -26,7 +26,7 @@
                     </div>
                     <div class="col-md-6">
                         <label for="court_name_en" class="form-label">{{ __('app.court_name_en') }} *</label>
-                        <input type="text" class="form-control @error('court_name_en') is-invalid @enderror" 
+                        <input type="text" class="form-control @error('court_name_en') is-invalid @enderror"
                                id="court_name_en" name="court_name_en" value="{{ old('court_name_en', $court->court_name_en) }}">
                         @error('court_name_en')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -37,7 +37,7 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="court_circuit" class="form-label">{{ __('app.court_circuit') }}</label>
-                        <select class="form-select select2 @error('court_circuit') is-invalid @enderror" 
+                        <select class="form-select select2 @error('court_circuit') is-invalid @enderror"
                                 id="court_circuit" name="court_circuit">
                             <option value="">{{ __('app.select_option') }}</option>
                             @foreach($circuitOptions as $option)
@@ -52,7 +52,7 @@
                     </div>
                     <div class="col-md-6">
                         <label for="court_circuit_secretary" class="form-label">{{ __('app.court_circuit_secretary') }}</label>
-                        <select class="form-select select2 @error('court_circuit_secretary') is-invalid @enderror" 
+                        <select class="form-select select2 @error('court_circuit_secretary') is-invalid @enderror"
                                 id="court_circuit_secretary" name="court_circuit_secretary">
                             <option value="">{{ __('app.select_option') }}</option>
                             @foreach($secretaryOptions as $option)
@@ -70,7 +70,7 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="court_floor" class="form-label">{{ __('app.court_floor') }}</label>
-                        <select class="form-select select2 @error('court_floor') is-invalid @enderror" 
+                        <select class="form-select select2 @error('court_floor') is-invalid @enderror"
                                 id="court_floor" name="court_floor">
                             <option value="">{{ __('app.select_option') }}</option>
                             @foreach($floorOptions as $option)
@@ -85,7 +85,7 @@
                     </div>
                     <div class="col-md-6">
                         <label for="court_hall" class="form-label">{{ __('app.court_hall') }}</label>
-                        <select class="form-select select2 @error('court_hall') is-invalid @enderror" 
+                        <select class="form-select select2 @error('court_hall') is-invalid @enderror"
                                 id="court_hall" name="court_hall">
                             <option value="">{{ __('app.select_option') }}</option>
                             @foreach($hallOptions as $option)
@@ -102,7 +102,7 @@
 
                 <div class="mb-3">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active"
                                value="1" {{ old('is_active', $court->is_active) ? 'checked' : '' }}>
                         <label class="form-check-label" for="is_active">
                             {{ __('app.active') }}

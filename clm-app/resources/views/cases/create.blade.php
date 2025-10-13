@@ -91,7 +91,7 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="matter_circuit" class="form-label">{{ __('app.matter_circuit') }}</label>
-                        <select class="form-select select2-cascade @error('matter_circuit') is-invalid @enderror" 
+                        <select class="form-select select2-cascade @error('matter_circuit') is-invalid @enderror"
                                 id="matter_circuit" name="matter_circuit" disabled>
                             <option value="">{{ __('app.select_court_first') }}</option>
                         </select>
@@ -101,7 +101,7 @@
                     </div>
                     <div class="col-md-6">
                         <label for="circuit_secretary" class="form-label">{{ __('app.circuit_secretary') }}</label>
-                        <select class="form-select select2-cascade @error('circuit_secretary') is-invalid @enderror" 
+                        <select class="form-select select2-cascade @error('circuit_secretary') is-invalid @enderror"
                                 id="circuit_secretary" name="circuit_secretary" disabled>
                             <option value="">{{ __('app.select_court_first') }}</option>
                         </select>
@@ -114,7 +114,7 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="court_floor" class="form-label">{{ __('app.court_floor') }}</label>
-                        <select class="form-select select2-cascade @error('court_floor') is-invalid @enderror" 
+                        <select class="form-select select2-cascade @error('court_floor') is-invalid @enderror"
                                 id="court_floor" name="court_floor" disabled>
                             <option value="">{{ __('app.select_court_first') }}</option>
                         </select>
@@ -124,7 +124,7 @@
                     </div>
                     <div class="col-md-6">
                         <label for="court_hall" class="form-label">{{ __('app.court_hall') }}</label>
-                        <select class="form-select select2-cascade @error('court_hall') is-invalid @enderror" 
+                        <select class="form-select select2-cascade @error('court_hall') is-invalid @enderror"
                                 id="court_hall" name="court_hall" disabled>
                             <option value="">{{ __('app.select_court_first') }}</option>
                         </select>
@@ -207,7 +207,7 @@ $(document).ready(function() {
     // Handle court selection change - cascading dropdowns
     $('#court_id').on('change', function() {
         const courtId = $(this).val();
-        
+
         if (courtId) {
             // Fetch court details via AJAX
             $.ajax({

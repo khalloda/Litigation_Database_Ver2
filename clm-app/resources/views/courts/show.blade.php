@@ -14,7 +14,7 @@
             <a href="{{ route('courts.edit', $court) }}" class="btn btn-primary me-2">{{ __('app.edit') }}</a>
             @endcan
             @can('delete', $court)
-            <form action="{{ route('courts.destroy', $court) }}" method="POST" class="d-inline" 
+            <form action="{{ route('courts.destroy', $court) }}" method="POST" class="d-inline"
                   onsubmit="return confirm('{{ __('app.confirm_delete') }}')">
                 @csrf
                 @method('DELETE')
@@ -54,31 +54,31 @@
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <p><strong>{{ __('app.court_circuit') }}:</strong> 
+                    <p><strong>{{ __('app.court_circuit') }}:</strong>
                         {{ $court->courtCircuit ? (app()->getLocale() === 'ar' ? $court->courtCircuit->label_ar : $court->courtCircuit->label_en) : '-' }}
                     </p>
                 </div>
                 <div class="col-md-6">
-                    <p><strong>{{ __('app.court_circuit_secretary') }}:</strong> 
+                    <p><strong>{{ __('app.court_circuit_secretary') }}:</strong>
                         {{ $court->courtCircuitSecretary ? (app()->getLocale() === 'ar' ? $court->courtCircuitSecretary->label_ar : $court->courtCircuitSecretary->label_en) : '-' }}
                     </p>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <p><strong>{{ __('app.court_floor') }}:</strong> 
+                    <p><strong>{{ __('app.court_floor') }}:</strong>
                         {{ $court->courtFloor ? (app()->getLocale() === 'ar' ? $court->courtFloor->label_ar : $court->courtFloor->label_en) : '-' }}
                     </p>
                 </div>
                 <div class="col-md-6">
-                    <p><strong>{{ __('app.court_hall') }}:</strong> 
+                    <p><strong>{{ __('app.court_hall') }}:</strong>
                         {{ $court->courtHall ? (app()->getLocale() === 'ar' ? $court->courtHall->label_ar : $court->courtHall->label_en) : '-' }}
                     </p>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <p><strong>{{ __('app.status') }}:</strong> 
+                    <p><strong>{{ __('app.status') }}:</strong>
                         <span class="badge {{ $court->is_active ? 'bg-success' : 'bg-secondary' }}">
                             {{ $court->is_active ? __('app.active') : __('app.inactive') }}
                         </span>
@@ -134,7 +134,7 @@
                     </tbody>
                 </table>
             </div>
-            
+
             <div class="d-flex justify-content-center mt-3">
                 {{ $cases->links() }}
             </div>

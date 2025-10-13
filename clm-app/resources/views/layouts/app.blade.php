@@ -70,6 +70,7 @@
                         @can('cases.view')
                         <li class="nav-item"><a class="nav-link" href="{{ route('cases.index') }}">{{ __('app.cases') }}</a></li>
                         @endcan
+                        <li class="nav-item"><a class="nav-link" href="{{ route('courts.index') }}">{{ __('app.courts') }}</a></li>
                         @can('hearings.view')
                         <li class="nav-item"><a class="nav-link" href="{{ route('hearings.index') }}">{{ __('app.hearings') }}</a></li>
                         @endcan

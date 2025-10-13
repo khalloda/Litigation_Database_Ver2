@@ -73,9 +73,63 @@
                         @enderror
                     </div>
                     <div class="col-md-6">
-                        <label for="matter_court" class="form-label">{{ __('app.matter_court') }}</label>
-                        <input type="text" class="form-control @error('matter_court') is-invalid @enderror" id="matter_court" name="matter_court" value="{{ old('matter_court', $case->matter_court) }}">
-                        @error('matter_court')
+                        <label for="court_id" class="form-label">{{ __('app.matter_court') }}</label>
+                        <select class="form-select select2-court @error('court_id') is-invalid @enderror" id="court_id" name="court_id">
+                            <option value="">{{ __('app.select_court') }}</option>
+                            @foreach($courts as $court)
+                            <option value="{{ $court->id }}" {{ (old('court_id', $case->court_id) == $court->id) ? 'selected' : '' }}>
+                                {{ app()->getLocale() === 'ar' ? $court->court_name_ar : $court->court_name_en }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('court_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Cascading Court Details -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="matter_circuit" class="form-label">{{ __('app.matter_circuit') }}</label>
+                        <select class="form-select select2-cascade @error('matter_circuit') is-invalid @enderror" 
+                                id="matter_circuit" name="matter_circuit" {{ $case->court_id ? '' : 'disabled' }}>
+                            <option value="">{{ __('app.select_court_first') }}</option>
+                        </select>
+                        @error('matter_circuit')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label for="circuit_secretary" class="form-label">{{ __('app.circuit_secretary') }}</label>
+                        <select class="form-select select2-cascade @error('circuit_secretary') is-invalid @enderror" 
+                                id="circuit_secretary" name="circuit_secretary" {{ $case->court_id ? '' : 'disabled' }}>
+                            <option value="">{{ __('app.select_court_first') }}</option>
+                        </select>
+                        @error('circuit_secretary')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="court_floor" class="form-label">{{ __('app.court_floor') }}</label>
+                        <select class="form-select select2-cascade @error('court_floor') is-invalid @enderror" 
+                                id="court_floor" name="court_floor" {{ $case->court_id ? '' : 'disabled' }}>
+                            <option value="">{{ __('app.select_court_first') }}</option>
+                        </select>
+                        @error('court_floor')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label for="court_hall" class="form-label">{{ __('app.court_hall') }}</label>
+                        <select class="form-select select2-cascade @error('court_hall') is-invalid @enderror" 
+                                id="court_hall" name="court_hall" {{ $case->court_id ? '' : 'disabled' }}>
+                            <option value="">{{ __('app.select_court_first') }}</option>
+                        </select>
+                        @error('court_hall')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -133,4 +187,97 @@
 </div>
 @endsection
 
+@push('scripts')
+<script>
+$(document).ready(function() {
+    // Initialize Select2 for court dropdown
+    $('.select2-court').select2({
+        theme: 'bootstrap-5',
+        placeholder: '{{ __("app.select_court") }}',
+        allowClear: true,
+        width: '100%'
+    });
+
+    // Initialize Select2 for cascading dropdowns
+    $('.select2-cascade').select2({
+        theme: 'bootstrap-5',
+        allowClear: true,
+        width: '100%'
+    });
+
+    // Load existing court details on page load if court is selected
+    const initialCourtId = $('#court_id').val();
+    if (initialCourtId) {
+        loadCourtDetails(initialCourtId, {
+            circuit: '{{ old("matter_circuit", $case->matter_circuit) }}',
+            secretary: '{{ old("circuit_secretary", $case->circuit_secretary) }}',
+            floor: '{{ old("court_floor", $case->court_floor) }}',
+            hall: '{{ old("court_hall", $case->court_hall) }}'
+        });
+    }
+
+    // Handle court selection change - cascading dropdowns
+    $('#court_id').on('change', function() {
+        const courtId = $(this).val();
+        
+        if (courtId) {
+            loadCourtDetails(courtId);
+        } else {
+            // Clear and disable all cascading dropdowns
+            $('#matter_circuit, #circuit_secretary, #court_floor, #court_hall')
+                .empty()
+                .append(new Option('{{ __("app.select_court_first") }}', ''))
+                .prop('disabled', true)
+                .trigger('change');
+        }
+    });
+
+    function loadCourtDetails(courtId, selectedValues = {}) {
+        $.ajax({
+            url: `/api/courts/${courtId}/details`,
+            method: 'GET',
+            success: function(data) {
+                // Populate circuit dropdown
+                $('#matter_circuit').empty().prop('disabled', false);
+                $('#matter_circuit').append(new Option('{{ __("app.select_option") }}', ''));
+                if (data.circuit) {
+                    const isSelected = selectedValues.circuit == data.circuit.id;
+                    $('#matter_circuit').append(new Option(data.circuit.label, data.circuit.id, isSelected, isSelected));
+                }
+
+                // Populate secretary dropdown
+                $('#circuit_secretary').empty().prop('disabled', false);
+                $('#circuit_secretary').append(new Option('{{ __("app.select_option") }}', ''));
+                if (data.secretary) {
+                    const isSelected = selectedValues.secretary == data.secretary.id;
+                    $('#circuit_secretary').append(new Option(data.secretary.label, data.secretary.id, isSelected, isSelected));
+                }
+
+                // Populate floor dropdown
+                $('#court_floor').empty().prop('disabled', false);
+                $('#court_floor').append(new Option('{{ __("app.select_option") }}', ''));
+                if (data.floor) {
+                    const isSelected = selectedValues.floor == data.floor.id;
+                    $('#court_floor').append(new Option(data.floor.label, data.floor.id, isSelected, isSelected));
+                }
+
+                // Populate hall dropdown
+                $('#court_hall').empty().prop('disabled', false);
+                $('#court_hall').append(new Option('{{ __("app.select_option") }}', ''));
+                if (data.hall) {
+                    const isSelected = selectedValues.hall == data.hall.id;
+                    $('#court_hall').append(new Option(data.hall.label, data.hall.id, isSelected, isSelected));
+                }
+
+                // Trigger change to refresh Select2
+                $('.select2-cascade').trigger('change');
+            },
+            error: function() {
+                alert('{{ __("app.error_loading_court_details") }}');
+            }
+        });
+    }
+});
+</script>
+@endpush
 

@@ -66,7 +66,31 @@
                         </tr>
                         <tr>
                             <td><strong>{{ __('app.matter_court') }}</strong></td>
-                            <td>{{ $case->matter_court }}</td>
+                            <td>
+                                @if($case->court)
+                                    <a href="{{ route('courts.show', $case->court) }}">
+                                        {{ app()->getLocale() === 'ar' ? $case->court->court_name_ar : $case->court->court_name_en }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.matter_circuit') }}</strong></td>
+                            <td>{{ $case->matterCircuit ? (app()->getLocale() === 'ar' ? $case->matterCircuit->label_ar : $case->matterCircuit->label_en) : '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.circuit_secretary') }}</strong></td>
+                            <td>{{ $case->circuitSecretaryRef ? (app()->getLocale() === 'ar' ? $case->circuitSecretaryRef->label_ar : $case->circuitSecretaryRef->label_en) : '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.court_floor') }}</strong></td>
+                            <td>{{ $case->courtFloorRef ? (app()->getLocale() === 'ar' ? $case->courtFloorRef->label_ar : $case->courtFloorRef->label_en) : '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.court_hall') }}</strong></td>
+                            <td>{{ $case->courtHallRef ? (app()->getLocale() === 'ar' ? $case->courtHallRef->label_ar : $case->courtHallRef->label_en) : '-' }}</td>
                         </tr>
                         <tr>
                             <td><strong>{{ __('app.matter_start_date') }}</strong></td>

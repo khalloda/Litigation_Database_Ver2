@@ -71,6 +71,7 @@
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cases.view')): ?>
                         <li class="nav-item"><a class="nav-link" href="<?php echo e(route('cases.index')); ?>"><?php echo e(__('app.cases')); ?></a></li>
                         <?php endif; ?>
+                        <li class="nav-item"><a class="nav-link" href="<?php echo e(route('courts.index')); ?>"><?php echo e(__('app.courts')); ?></a></li>
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('hearings.view')): ?>
                         <li class="nav-item"><a class="nav-link" href="<?php echo e(route('hearings.index')); ?>"><?php echo e(__('app.hearings')); ?></a></li>
                         <?php endif; ?>
