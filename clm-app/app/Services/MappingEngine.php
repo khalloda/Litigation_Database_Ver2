@@ -94,6 +94,7 @@ class MappingEngine
         $idPreservationTables = [
             'lawyers', 
             'clients', 
+            'courts',
             'cases', 
             'hearings', 
             'engagement_letters', 
