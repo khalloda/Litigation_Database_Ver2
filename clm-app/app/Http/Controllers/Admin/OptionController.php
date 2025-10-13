@@ -15,7 +15,7 @@ class OptionController extends Controller
     public function getOptions(string $setKey)
     {
         $optionSet = OptionSet::byKey($setKey)->first();
-        
+
         if (!$optionSet) {
             return response()->json(['error' => 'Option set not found'], 404);
         }
@@ -42,7 +42,7 @@ class OptionController extends Controller
     public function index()
     {
         $optionSets = OptionSet::with('optionValues')->orderBy('name_en')->get();
-        
+
         return view('admin.options.index', compact('optionSets'));
     }
 
@@ -52,7 +52,7 @@ class OptionController extends Controller
     public function show(OptionSet $optionSet)
     {
         $optionSet->load('optionValues');
-        
+
         return view('admin.options.show', compact('optionSet'));
     }
 
@@ -89,7 +89,7 @@ class OptionController extends Controller
     public function edit(OptionSet $optionSet)
     {
         $optionSet->load('optionValues');
-        
+
         return view('admin.options.edit', compact('optionSet'));
     }
 
@@ -118,7 +118,7 @@ class OptionController extends Controller
     public function destroy(OptionSet $optionSet)
     {
         $usageCount = $optionSet->getUsageCount();
-        
+
         if ($usageCount > 0) {
             return back()->with('error', "Cannot delete option set. It is being used by {$usageCount} records.");
         }
@@ -171,7 +171,7 @@ class OptionController extends Controller
     public function destroyValue(OptionValue $optionValue)
     {
         $usageCount = $optionValue->getUsageCount();
-        
+
         if ($usageCount > 0) {
             return back()->with('error', "Cannot delete option value. It is being used by {$usageCount} records.");
         }
