@@ -234,13 +234,13 @@ $(document).ready(function() {
 
     function loadCourtDetails(courtId, selectedValues = {}) {
         console.log('Loading court details for:', courtId, 'Selected values:', selectedValues);
-        
+
         $.ajax({
             url: `/api/courts/${courtId}/details`,
             method: 'GET',
             success: function(data) {
                 console.log('Court details received:', data);
-                
+
                 // Populate circuit dropdown with MULTIPLE options
                 $('#matter_circuit').empty().prop('disabled', false);
                 $('#matter_circuit').append(new Option('{{ __("app.select_option") }}', ''));
@@ -284,7 +284,7 @@ $(document).ready(function() {
                     });
                 }
                 $('#court_hall').trigger('change');
-                
+
                 console.log('Dropdowns populated successfully');
             },
             error: function(xhr, status, error) {

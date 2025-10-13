@@ -207,9 +207,9 @@ $(document).ready(function() {
     // Handle court selection change - cascading dropdowns
     $('#court_id').on('change', function() {
         const courtId = $(this).val();
-        
+
         console.log('Court selected:', courtId);
-        
+
         if (courtId) {
             // Fetch court details via AJAX
             $.ajax({
@@ -217,7 +217,7 @@ $(document).ready(function() {
                 method: 'GET',
                 success: function(data) {
                     console.log('Court details received:', data);
-                    
+
                     // Populate circuit dropdown with MULTIPLE options
                     $('#matter_circuit').empty().prop('disabled', false);
                     $('#matter_circuit').append(new Option('{{ __("app.select_option") }}', ''));
@@ -257,7 +257,7 @@ $(document).ready(function() {
                         });
                     }
                     $('#court_hall').trigger('change');
-                    
+
                     console.log('Dropdowns populated successfully');
                 },
                 error: function(xhr, status, error) {
