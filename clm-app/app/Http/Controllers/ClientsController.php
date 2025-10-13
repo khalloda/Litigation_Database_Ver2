@@ -19,7 +19,7 @@ class ClientsController extends Controller
         $contact_lawyer_id = $request->get('contact_lawyer_id');
 
         // Build query
-        $query = Client::select('id', 'client_name_ar', 'client_name_en', 'contact_lawyer_id', 'status_id', 'cash_or_probono_id')
+        $query = Client::select('id', 'client_name_ar', 'client_name_en', 'contact_lawyer_id', 'status_id', 'cash_or_probono_id', 'mfiles_id', 'client_code')
             ->with([
                 'contactLawyer:id,lawyer_name_ar,lawyer_name_en',
                 'statusRef:id,label_ar,label_en',

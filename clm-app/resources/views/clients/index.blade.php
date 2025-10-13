@@ -157,14 +157,14 @@
                         <tr>
                             <td><a href="{{ route('clients.show', $client) }}">{{ $client->id }}</a></td>
                             <td>
-                                @if($client->mfiles_id)
+                                @if($client->mfiles_id && $client->mfiles_id != '')
                                     <span class="badge bg-primary">{{ $client->mfiles_id }}</span>
                                 @else
                                     <span class="text-muted">-</span>
                                 @endif
                             </td>
                             <td>
-                                @if($client->client_code)
+                                @if($client->client_code && $client->client_code != '')
                                     <span class="badge bg-secondary">{{ $client->client_code }}</span>
                                 @else
                                     <span class="text-muted">-</span>
