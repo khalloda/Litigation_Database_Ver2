@@ -265,7 +265,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 // Courts Management
 Route::middleware(['auth'])->group(function () {
     Route::resource('courts', App\Http\Controllers\CourtsController::class);
-    
+
     // AJAX endpoint for cascading dropdowns
     Route::get('/api/courts/{court}/details', [App\Http\Controllers\CasesController::class, 'getCourtDetails'])->name('courts.details');
 });

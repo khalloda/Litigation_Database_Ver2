@@ -92,16 +92,16 @@ class MappingEngine
         // Include 'id' column for tables that need ID preservation during import
         // All core tables have auto-increment disabled for ID preservation
         $idPreservationTables = [
-            'lawyers', 
-            'clients', 
+            'lawyers',
+            'clients',
             'courts',
-            'cases', 
-            'hearings', 
-            'engagement_letters', 
-            'contacts', 
-            'power_of_attorneys', 
-            'admin_tasks', 
-            'admin_subtasks', 
+            'cases',
+            'hearings',
+            'engagement_letters',
+            'contacts',
+            'power_of_attorneys',
+            'admin_tasks',
+            'admin_subtasks',
             'client_documents',
             'option_sets',
             'option_values'
