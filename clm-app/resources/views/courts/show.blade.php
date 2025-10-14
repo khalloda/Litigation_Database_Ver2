@@ -57,7 +57,7 @@
                     <p><strong>{{ __('app.court_circuits') }}:</strong><br>
                         @forelse($court->circuits as $circuit)
                             <span class="badge bg-primary me-1 mb-1">
-                                {{ app()->getLocale() === 'ar' ? $circuit->label_ar : $circuit->label_en }}
+                                {{ $circuit->full_name }}
                             </span>
                         @empty
                             <span class="text-muted">-</span>

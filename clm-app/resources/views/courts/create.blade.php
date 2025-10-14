@@ -33,21 +33,71 @@
                     </div>
                 </div>
 
+                <!-- Circuit Rows Container -->
                 <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="court_circuits" class="form-label">{{ __('app.court_circuits') }}</label>
-                        <select class="form-select select2-multi @error('court_circuits') is-invalid @enderror" 
-                                id="court_circuits" name="court_circuits[]" multiple>
-                            @foreach($circuitOptions as $option)
-                            <option value="{{ $option->id }}" {{ in_array($option->id, old('court_circuits', [])) ? 'selected' : '' }}>
-                                {{ app()->getLocale() === 'ar' ? $option->label_ar : $option->label_en }}
-                            </option>
-                            @endforeach
-                        </select>
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">{{ __('app.court_circuits') }}</h6>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="add-circuit-row">
+                                <i class="fas fa-plus"></i> {{ __('app.add_circuit') }}
+                            </button>
+                        </div>
+                        
+                        <div id="circuit-rows-container">
+                            <!-- Circuit Row Template -->
+                            <div class="circuit-row card border-secondary mb-2">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label class="form-label">{{ __('app.circuit_name') }}</label>
+                                            <select class="form-select circuit-name-select" name="court_circuits[0][name_id]">
+                                                <option value="">{{ __('app.select_circuit_name') }}</option>
+                                                @foreach($circuitNames as $circuitName)
+                                                <option value="{{ $circuitName->id }}">
+                                                    {{ app()->getLocale() === 'ar' ? $circuitName->label_ar : $circuitName->label_en }}
+                                                </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">{{ __('app.circuit_serial') }}</label>
+                                            <select class="form-select circuit-serial-select" name="court_circuits[0][serial_id]">
+                                                <option value="">{{ __('app.select_circuit_serial') }}</option>
+                                                @foreach($circuitSerials as $circuitSerial)
+                                                <option value="{{ $circuitSerial->id }}">
+                                                    {{ app()->getLocale() === 'ar' ? $circuitSerial->label_ar : $circuitSerial->label_en }}
+                                                </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">{{ __('app.circuit_shift') }}</label>
+                                            <select class="form-select circuit-shift-select" name="court_circuits[0][shift_id]">
+                                                <option value="">{{ __('app.select_circuit_shift') }}</option>
+                                                @foreach($circuitShifts as $circuitShift)
+                                                <option value="{{ $circuitShift->id }}">
+                                                    {{ app()->getLocale() === 'ar' ? $circuitShift->label_ar : $circuitShift->label_en }}
+                                                </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 d-flex align-items-end">
+                                            <button type="button" class="btn btn-sm btn-outline-danger remove-circuit-row">
+                                                <i class="fas fa-trash"></i> {{ __('app.remove_circuit') }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         @error('court_circuits')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
+                </div>
+
+                <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="court_secretaries" class="form-label">{{ __('app.court_secretaries') }}</label>
                         <select class="form-select select2-multi @error('court_secretaries') is-invalid @enderror" 
@@ -124,6 +174,66 @@ $(document).ready(function() {
         allowClear: true,
         placeholder: '{{ __("app.select_multiple") }}',
         width: '100%'
+    });
+
+    let circuitRowIndex = 1;
+
+    // Add circuit row
+    $('#add-circuit-row').on('click', function() {
+        const template = `
+            <div class="circuit-row card border-secondary mb-2">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="form-label">{{ __('app.circuit_name') }}</label>
+                            <select class="form-select circuit-name-select" name="court_circuits[${circuitRowIndex}][name_id]">
+                                <option value="">{{ __('app.select_circuit_name') }}</option>
+                                @foreach($circuitNames as $circuitName)
+                                <option value="{{ $circuitName->id }}">
+                                    {{ app()->getLocale() === 'ar' ? $circuitName->label_ar : $circuitName->label_en }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">{{ __('app.circuit_serial') }}</label>
+                            <select class="form-select circuit-serial-select" name="court_circuits[${circuitRowIndex}][serial_id]">
+                                <option value="">{{ __('app.select_circuit_serial') }}</option>
+                                @foreach($circuitSerials as $circuitSerial)
+                                <option value="{{ $circuitSerial->id }}">
+                                    {{ app()->getLocale() === 'ar' ? $circuitSerial->label_ar : $circuitSerial->label_en }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">{{ __('app.circuit_shift') }}</label>
+                            <select class="form-select circuit-shift-select" name="court_circuits[${circuitRowIndex}][shift_id]">
+                                <option value="">{{ __('app.select_circuit_shift') }}</option>
+                                @foreach($circuitShifts as $circuitShift)
+                                <option value="{{ $circuitShift->id }}">
+                                    {{ app()->getLocale() === 'ar' ? $circuitShift->label_ar : $circuitShift->label_en }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-circuit-row">
+                                <i class="fas fa-trash"></i> {{ __('app.remove_circuit') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('#circuit-rows-container').append(template);
+        circuitRowIndex++;
+    });
+
+    // Remove circuit row
+    $(document).on('click', '.remove-circuit-row', function() {
+        $(this).closest('.circuit-row').remove();
     });
 });
 </script>

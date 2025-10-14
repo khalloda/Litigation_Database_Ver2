@@ -77,8 +77,23 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>{{ __('app.matter_circuit') }}</strong></td>
-                            <td>{{ $case->matterCircuit ? (app()->getLocale() === 'ar' ? $case->matterCircuit->label_ar : $case->matterCircuit->label_en) : '-' }}</td>
+                            <td><strong>{{ __('app.circuit') }}</strong></td>
+                            <td>
+                                @if($case->circuitName || $case->circuitSerial || $case->circuitShift)
+                                    @php
+                                        $name = $case->circuitName ? (app()->getLocale() === 'ar' ? $case->circuitName->label_ar : $case->circuitName->label_en) : '';
+                                        $serial = $case->circuitSerial ? (app()->getLocale() === 'ar' ? $case->circuitSerial->label_ar : $case->circuitSerial->label_en) : '';
+                                        $shift = $case->circuitShift ? (app()->getLocale() === 'ar' ? $case->circuitShift->label_ar : $case->circuitShift->label_en) : '';
+                                        
+                                        $result = $name;
+                                        if ($serial) $result .= " {$serial}";
+                                        if ($shift && $shift !== 'Morning') $result .= " ({$shift})";
+                                    @endphp
+                                    {{ $result }}
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>{{ __('app.circuit_secretary') }}</strong></td>

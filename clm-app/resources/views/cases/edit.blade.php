@@ -88,18 +88,68 @@
                     </div>
                 </div>
 
+                <!-- Circuit Container -->
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="card border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">{{ __('app.circuit_container') }}</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label for="circuit_name_id" class="form-label">{{ __('app.circuit_name') }}</label>
+                                        <select class="form-select select2-cascade @error('circuit_name_id') is-invalid @enderror"
+                                                id="circuit_name_id" name="circuit_name_id" {{ $case->court_id ? '' : 'disabled' }}>
+                                            <option value="">{{ __('app.select_court_first') }}</option>
+                                            @foreach($circuitNames as $circuitName)
+                                            <option value="{{ $circuitName->id }}" {{ (old('circuit_name_id', $case->circuit_name_id) == $circuitName->id) ? 'selected' : '' }}>
+                                                {{ app()->getLocale() === 'ar' ? $circuitName->label_ar : $circuitName->label_en }}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                        @error('circuit_name_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="circuit_serial_id" class="form-label">{{ __('app.circuit_serial') }}</label>
+                                        <select class="form-select select2-cascade @error('circuit_serial_id') is-invalid @enderror"
+                                                id="circuit_serial_id" name="circuit_serial_id" {{ $case->court_id ? '' : 'disabled' }}>
+                                            <option value="">{{ __('app.select_court_first') }}</option>
+                                            @foreach($circuitSerials as $circuitSerial)
+                                            <option value="{{ $circuitSerial->id }}" {{ (old('circuit_serial_id', $case->circuit_serial_id) == $circuitSerial->id) ? 'selected' : '' }}>
+                                                {{ app()->getLocale() === 'ar' ? $circuitSerial->label_ar : $circuitSerial->label_en }}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                        @error('circuit_serial_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="circuit_shift_id" class="form-label">{{ __('app.circuit_shift') }}</label>
+                                        <select class="form-select select2-cascade @error('circuit_shift_id') is-invalid @enderror"
+                                                id="circuit_shift_id" name="circuit_shift_id" {{ $case->court_id ? '' : 'disabled' }}>
+                                            <option value="">{{ __('app.select_court_first') }}</option>
+                                            @foreach($circuitShifts as $circuitShift)
+                                            <option value="{{ $circuitShift->id }}" {{ (old('circuit_shift_id', $case->circuit_shift_id) == $circuitShift->id) ? 'selected' : '' }}>
+                                                {{ app()->getLocale() === 'ar' ? $circuitShift->label_ar : $circuitShift->label_en }}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                        @error('circuit_shift_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Cascading Court Details -->
                 <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="matter_circuit" class="form-label">{{ __('app.matter_circuit') }}</label>
-                        <select class="form-select select2-cascade @error('matter_circuit') is-invalid @enderror"
-                                id="matter_circuit" name="matter_circuit" {{ $case->court_id ? '' : 'disabled' }}>
-                            <option value="">{{ __('app.select_court_first') }}</option>
-                        </select>
-                        @error('matter_circuit')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
                     <div class="col-md-6">
                         <label for="circuit_secretary" class="form-label">{{ __('app.circuit_secretary') }}</label>
                         <select class="form-select select2-cascade @error('circuit_secretary') is-invalid @enderror"
@@ -209,7 +259,6 @@ $(document).ready(function() {
     const initialCourtId = $('#court_id').val();
     if (initialCourtId) {
         loadCourtDetails(initialCourtId, {
-            circuit: '{{ old("matter_circuit", $case->matter_circuit) }}',
             secretary: '{{ old("circuit_secretary", $case->circuit_secretary) }}',
             floor: '{{ old("court_floor", $case->court_floor) }}',
             hall: '{{ old("court_hall", $case->court_hall) }}'
@@ -224,7 +273,7 @@ $(document).ready(function() {
             loadCourtDetails(courtId);
         } else {
             // Clear and disable all cascading dropdowns
-            $('#matter_circuit, #circuit_secretary, #court_floor, #court_hall')
+            $('#circuit_name_id, #circuit_serial_id, #circuit_shift_id, #circuit_secretary, #court_floor, #court_hall')
                 .empty()
                 .append(new Option('{{ __("app.select_court_first") }}', ''))
                 .prop('disabled', true)
@@ -241,16 +290,12 @@ $(document).ready(function() {
             success: function(data) {
                 console.log('Court details received:', data);
 
-                // Populate circuit dropdown with MULTIPLE options
-                $('#matter_circuit').empty().prop('disabled', false);
-                $('#matter_circuit').append(new Option('{{ __("app.select_option") }}', ''));
-                if (data.circuits && data.circuits.length > 0) {
-                    data.circuits.forEach(function(circuit) {
-                        const isSelected = selectedValues.circuit == circuit.id;
-                        $('#matter_circuit').append(new Option(circuit.label, circuit.id, isSelected, isSelected));
-                    });
-                }
-                $('#matter_circuit').trigger('change');
+                // Enable circuit dropdowns and show all options
+                $('#circuit_name_id, #circuit_serial_id, #circuit_shift_id').prop('disabled', false);
+                
+                // Note: All circuit options are already loaded in the form
+                // The court selection doesn't filter circuit options anymore
+                // Users can select any circuit combination
 
                 // Populate secretary dropdown with MULTIPLE options
                 $('#circuit_secretary').empty().prop('disabled', false);
