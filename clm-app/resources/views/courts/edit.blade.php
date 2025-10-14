@@ -43,7 +43,7 @@
                                 <i class="fas fa-plus"></i> {{ __('app.add_circuit') }}
                             </button>
                         </div>
-                        
+
                         <div id="circuit-rows-container">
                             @if($court->circuits->count() > 0)
                                 @foreach($court->circuits as $index => $circuit)
@@ -140,7 +140,7 @@
                                 </div>
                             @endif
                         </div>
-                        
+
                         @error('court_circuits')
                         <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
@@ -150,10 +150,10 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="court_secretaries" class="form-label">{{ __('app.court_secretaries') }}</label>
-                        <select class="form-select select2-multi @error('court_secretaries') is-invalid @enderror" 
+                        <select class="form-select select2-multi @error('court_secretaries') is-invalid @enderror"
                                 id="court_secretaries" name="court_secretaries[]" multiple>
                             @foreach($secretaryOptions as $option)
-                            <option value="{{ $option->id }}" 
+                            <option value="{{ $option->id }}"
                                 {{ in_array($option->id, old('court_secretaries', $court->secretaries->pluck('id')->toArray())) ? 'selected' : '' }}>
                                 {{ app()->getLocale() === 'ar' ? $option->label_ar : $option->label_en }}
                             </option>
@@ -168,10 +168,10 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="court_floors" class="form-label">{{ __('app.court_floors') }}</label>
-                        <select class="form-select select2-multi @error('court_floors') is-invalid @enderror" 
+                        <select class="form-select select2-multi @error('court_floors') is-invalid @enderror"
                                 id="court_floors" name="court_floors[]" multiple>
                             @foreach($floorOptions as $option)
-                            <option value="{{ $option->id }}" 
+                            <option value="{{ $option->id }}"
                                 {{ in_array($option->id, old('court_floors', $court->floors->pluck('id')->toArray())) ? 'selected' : '' }}>
                                 {{ app()->getLocale() === 'ar' ? $option->label_ar : $option->label_en }}
                             </option>
@@ -183,10 +183,10 @@
                     </div>
                     <div class="col-md-6">
                         <label for="court_halls" class="form-label">{{ __('app.court_halls') }}</label>
-                        <select class="form-select select2-multi @error('court_halls') is-invalid @enderror" 
+                        <select class="form-select select2-multi @error('court_halls') is-invalid @enderror"
                                 id="court_halls" name="court_halls[]" multiple>
                             @foreach($hallOptions as $option)
-                            <option value="{{ $option->id }}" 
+                            <option value="{{ $option->id }}"
                                 {{ in_array($option->id, old('court_halls', $court->halls->pluck('id')->toArray())) ? 'selected' : '' }}>
                                 {{ app()->getLocale() === 'ar' ? $option->label_ar : $option->label_en }}
                             </option>
@@ -279,7 +279,7 @@ $(document).ready(function() {
                 </div>
             </div>
         `;
-        
+
         $('#circuit-rows-container').append(template);
         circuitRowIndex++;
     });

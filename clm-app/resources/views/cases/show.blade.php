@@ -84,7 +84,7 @@
                                         $name = $case->circuitName ? (app()->getLocale() === 'ar' ? $case->circuitName->label_ar : $case->circuitName->label_en) : '';
                                         $serial = $case->circuitSerial ? (app()->getLocale() === 'ar' ? $case->circuitSerial->label_ar : $case->circuitSerial->label_en) : '';
                                         $shift = $case->circuitShift ? (app()->getLocale() === 'ar' ? $case->circuitShift->label_ar : $case->circuitShift->label_en) : '';
-                                        
+
                                         $result = $name;
                                         if ($serial) $result .= " {$serial}";
                                         if ($shift && $shift !== 'Morning') $result .= " ({$shift})";

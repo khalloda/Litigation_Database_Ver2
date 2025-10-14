@@ -270,7 +270,7 @@ $(document).ready(function() {
 
                     // Enable circuit dropdowns and show all options
                     $('#circuit_name_id, #circuit_serial_id, #circuit_shift_id').prop('disabled', false);
-                    
+
                     // Note: All circuit options are already loaded in the form
                     // The court selection doesn't filter circuit options anymore
                     // Users can select any circuit combination

@@ -184,11 +184,18 @@ unset($__errorArgs, $__bag); ?>
                     </div>
                 </div>
 
-                <!-- Cascading Court Details -->
+                <!-- Circuit Container -->
                 <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="matter_circuit" class="form-label"><?php echo e(__('app.matter_circuit')); ?></label>
-                        <select class="form-select select2-cascade <?php $__errorArgs = ['matter_circuit'];
+                    <div class="col-12">
+                        <div class="card border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0"><?php echo e(__('app.circuit_container')); ?></h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label for="circuit_name_id" class="form-label"><?php echo e(__('app.circuit_name')); ?></label>
+                                        <select class="form-select select2-cascade <?php $__errorArgs = ['circuit_name_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -196,20 +203,94 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>"
-                                id="matter_circuit" name="matter_circuit" disabled>
-                            <option value=""><?php echo e(__('app.select_court_first')); ?></option>
-                        </select>
-                        <?php $__errorArgs = ['matter_circuit'];
+                                                id="circuit_name_id" name="circuit_name_id" disabled>
+                                            <option value=""><?php echo e(__('app.select_court_first')); ?></option>
+                                            <?php $__currentLoopData = $circuitNames; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $circuitName): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($circuitName->id); ?>" <?php echo e(old('circuit_name_id') == $circuitName->id ? 'selected' : ''); ?>>
+                                                <?php echo e(app()->getLocale() === 'ar' ? $circuitName->label_ar : $circuitName->label_en); ?>
+
+                                            </option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        </select>
+                                        <?php $__errorArgs = ['circuit_name_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                        <div class="invalid-feedback"><?php echo e($message); ?></div>
-                        <?php unset($message);
+                                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                        <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="circuit_serial_id" class="form-label"><?php echo e(__('app.circuit_serial')); ?></label>
+                                        <select class="form-select select2-cascade <?php $__errorArgs = ['circuit_serial_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                                                id="circuit_serial_id" name="circuit_serial_id" disabled>
+                                            <option value=""><?php echo e(__('app.select_court_first')); ?></option>
+                                            <?php $__currentLoopData = $circuitSerials; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $circuitSerial): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($circuitSerial->id); ?>" <?php echo e(old('circuit_serial_id') == $circuitSerial->id ? 'selected' : ''); ?>>
+                                                <?php echo e(app()->getLocale() === 'ar' ? $circuitSerial->label_ar : $circuitSerial->label_en); ?>
+
+                                            </option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        </select>
+                                        <?php $__errorArgs = ['circuit_serial_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="circuit_shift_id" class="form-label"><?php echo e(__('app.circuit_shift')); ?></label>
+                                        <select class="form-select select2-cascade <?php $__errorArgs = ['circuit_shift_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                                                id="circuit_shift_id" name="circuit_shift_id" disabled>
+                                            <option value=""><?php echo e(__('app.select_court_first')); ?></option>
+                                            <?php $__currentLoopData = $circuitShifts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $circuitShift): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($circuitShift->id); ?>" <?php echo e(old('circuit_shift_id') == $circuitShift->id ? 'selected' : ''); ?>>
+                                                <?php echo e(app()->getLocale() === 'ar' ? $circuitShift->label_ar : $circuitShift->label_en); ?>
+
+                                            </option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        </select>
+                                        <?php $__errorArgs = ['circuit_shift_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Cascading Court Details -->
+                <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="circuit_secretary" class="form-label"><?php echo e(__('app.circuit_secretary')); ?></label>
                         <select class="form-select select2-cascade <?php $__errorArgs = ['circuit_secretary'];
@@ -441,15 +522,12 @@ $(document).ready(function() {
                 success: function(data) {
                     console.log('Court details received:', data);
 
-                    // Populate circuit dropdown with MULTIPLE options
-                    $('#matter_circuit').empty().prop('disabled', false);
-                    $('#matter_circuit').append(new Option('<?php echo e(__("app.select_option")); ?>', ''));
-                    if (data.circuits && data.circuits.length > 0) {
-                        data.circuits.forEach(function(circuit) {
-                            $('#matter_circuit').append(new Option(circuit.label, circuit.id));
-                        });
-                    }
-                    $('#matter_circuit').trigger('change');
+                    // Enable circuit dropdowns and show all options
+                    $('#circuit_name_id, #circuit_serial_id, #circuit_shift_id').prop('disabled', false);
+
+                    // Note: All circuit options are already loaded in the form
+                    // The court selection doesn't filter circuit options anymore
+                    // Users can select any circuit combination
 
                     // Populate secretary dropdown with MULTIPLE options
                     $('#circuit_secretary').empty().prop('disabled', false);
@@ -490,7 +568,7 @@ $(document).ready(function() {
             });
         } else {
             // Clear and disable all cascading dropdowns
-            $('#matter_circuit, #circuit_secretary, #court_floor, #court_hall')
+            $('#circuit_name_id, #circuit_serial_id, #circuit_shift_id, #circuit_secretary, #court_floor, #court_hall')
                 .empty()
                 .append(new Option('<?php echo e(__("app.select_court_first")); ?>', ''))
                 .prop('disabled', true)
