@@ -6,6 +6,7 @@ use App\Http\Requests\CaseRequest;
 use App\Models\CaseModel;
 use App\Models\Client;
 use App\Models\Court;
+use App\Models\OptionValue;
 use Illuminate\Http\Request;
 
 class CasesController extends Controller
@@ -31,7 +32,20 @@ class CasesController extends Controller
             ->orderBy('court_name_ar')
             ->get();
         
-        return view('cases.create', compact('clients', 'courts'));
+        // Load circuit option values
+        $circuitNames = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.name');
+        })->where('is_active', true)->orderBy('id')->get();
+        
+        $circuitSerials = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.serial');
+        })->where('is_active', true)->orderBy('id')->get();
+        
+        $circuitShifts = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.shift');
+        })->where('is_active', true)->orderBy('id')->get();
+        
+        return view('cases.create', compact('clients', 'courts', 'circuitNames', 'circuitSerials', 'circuitShifts'));
     }
 
     public function store(CaseRequest $request)
@@ -48,7 +62,7 @@ class CasesController extends Controller
     public function show(CaseModel $case)
     {
         $this->authorize('view', $case);
-        $case->load('client', 'court', 'matterCircuit', 'circuitSecretaryRef', 'courtFloorRef', 'courtHallRef', 'hearings', 'adminTasks', 'documents');
+        $case->load('client', 'court', 'circuitName', 'circuitSerial', 'circuitShift', 'circuitSecretaryRef', 'courtFloorRef', 'courtHallRef', 'hearings', 'adminTasks', 'documents');
         return view('cases.show', compact('case'));
     }
 
@@ -63,7 +77,20 @@ class CasesController extends Controller
             ->orderBy('court_name_ar')
             ->get();
         
-        return view('cases.edit', compact('case', 'clients', 'courts'));
+        // Load circuit option values
+        $circuitNames = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.name');
+        })->where('is_active', true)->orderBy('id')->get();
+        
+        $circuitSerials = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.serial');
+        })->where('is_active', true)->orderBy('id')->get();
+        
+        $circuitShifts = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.shift');
+        })->where('is_active', true)->orderBy('id')->get();
+        
+        return view('cases.edit', compact('case', 'clients', 'courts', 'circuitNames', 'circuitSerials', 'circuitShifts'));
     }
 
     public function update(CaseRequest $request, CaseModel $case)
@@ -88,13 +115,13 @@ class CasesController extends Controller
      */
     public function getCourtDetails(Court $court)
     {
-        $court->load(['circuits', 'secretaries', 'floors', 'halls']);
+        $court->load(['circuits.circuitName', 'circuits.circuitSerial', 'circuits.circuitShift', 'secretaries', 'floors', 'halls']);
         
         return response()->json([
             'circuits' => $court->circuits->map(function($circuit) {
                 return [
                     'id' => $circuit->id,
-                    'label' => app()->getLocale() === 'ar' ? $circuit->label_ar : $circuit->label_en,
+                    'label' => $circuit->full_name, // Uses the accessor from CourtCircuit model
                 ];
             }),
             'secretaries' => $court->secretaries->map(function($secretary) {

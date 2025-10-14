@@ -39,9 +39,17 @@ class CourtsController extends Controller
     {
         $this->authorize('create', Court::class);
         
-        // Load option values for dropdowns
-        $circuitOptions = OptionValue::whereHas('optionSet', function ($q) {
-            $q->where('key', 'court.circuit');
+        // Load circuit option values for the new structure
+        $circuitNames = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.name');
+        })->where('is_active', true)->orderBy('id')->get();
+        
+        $circuitSerials = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.serial');
+        })->where('is_active', true)->orderBy('id')->get();
+        
+        $circuitShifts = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.shift');
         })->where('is_active', true)->orderBy('id')->get();
         
         $secretaryOptions = OptionValue::whereHas('optionSet', function ($q) {
@@ -56,7 +64,7 @@ class CourtsController extends Controller
             $q->where('key', 'court.hall');
         })->where('is_active', true)->orderBy('id')->get();
         
-        return view('courts.create', compact('circuitOptions', 'secretaryOptions', 'floorOptions', 'hallOptions'));
+        return view('courts.create', compact('circuitNames', 'circuitSerials', 'circuitShifts', 'secretaryOptions', 'floorOptions', 'hallOptions'));
     }
 
     public function store(CourtRequest $request)
@@ -73,7 +81,23 @@ class CourtsController extends Controller
         
         // Sync many-to-many relationships
         if ($request->filled('court_circuits')) {
-            $court->circuits()->sync($request->court_circuits);
+            // Handle new circuit structure: array of [name_id, serial_id, shift_id]
+            $circuitData = [];
+            foreach ($request->court_circuits as $circuit) {
+                if (isset($circuit['name_id']) && isset($circuit['shift_id'])) {
+                    $circuitData[] = [
+                        'circuit_name_id' => $circuit['name_id'],
+                        'circuit_serial_id' => $circuit['serial_id'] ?? null,
+                        'circuit_shift_id' => $circuit['shift_id'],
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+            if (!empty($circuitData)) {
+                $court->circuits()->delete(); // Clear existing
+                $court->circuits()->createMany($circuitData);
+            }
         }
         if ($request->filled('court_secretaries')) {
             $court->secretaries()->sync($request->court_secretaries);
@@ -117,9 +141,17 @@ class CourtsController extends Controller
         // Load current many-to-many relationships
         $court->load(['circuits', 'secretaries', 'floors', 'halls']);
         
-        // Load option values for dropdowns
-        $circuitOptions = OptionValue::whereHas('optionSet', function ($q) {
-            $q->where('key', 'court.circuit');
+        // Load circuit option values for the new structure
+        $circuitNames = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.name');
+        })->where('is_active', true)->orderBy('id')->get();
+        
+        $circuitSerials = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.serial');
+        })->where('is_active', true)->orderBy('id')->get();
+        
+        $circuitShifts = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.shift');
         })->where('is_active', true)->orderBy('id')->get();
         
         $secretaryOptions = OptionValue::whereHas('optionSet', function ($q) {
@@ -134,7 +166,7 @@ class CourtsController extends Controller
             $q->where('key', 'court.hall');
         })->where('is_active', true)->orderBy('id')->get();
         
-        return view('courts.edit', compact('court', 'circuitOptions', 'secretaryOptions', 'floorOptions', 'hallOptions'));
+        return view('courts.edit', compact('court', 'circuitNames', 'circuitSerials', 'circuitShifts', 'secretaryOptions', 'floorOptions', 'hallOptions'));
     }
 
     public function update(CourtRequest $request, Court $court)
@@ -149,7 +181,27 @@ class CourtsController extends Controller
         ]);
         
         // Sync many-to-many relationships
-        $court->circuits()->sync($request->court_circuits ?? []);
+        if ($request->filled('court_circuits')) {
+            // Handle new circuit structure: array of [name_id, serial_id, shift_id]
+            $circuitData = [];
+            foreach ($request->court_circuits as $circuit) {
+                if (isset($circuit['name_id']) && isset($circuit['shift_id'])) {
+                    $circuitData[] = [
+                        'circuit_name_id' => $circuit['name_id'],
+                        'circuit_serial_id' => $circuit['serial_id'] ?? null,
+                        'circuit_shift_id' => $circuit['shift_id'],
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+            $court->circuits()->delete(); // Clear existing
+            if (!empty($circuitData)) {
+                $court->circuits()->createMany($circuitData);
+            }
+        } else {
+            $court->circuits()->delete(); // Clear all if none provided
+        }
         $court->secretaries()->sync($request->court_secretaries ?? []);
         $court->floors()->sync($request->court_floors ?? []);
         $court->halls()->sync($request->court_halls ?? []);

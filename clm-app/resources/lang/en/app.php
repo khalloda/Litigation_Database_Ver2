@@ -586,4 +586,19 @@ return [
     'all_statuses' => 'All Statuses',
     'all_types' => 'All Types',
     'all_lawyers' => 'All Lawyers',
+
+    // Circuit Terms
+    'circuit' => 'Circuit',
+    'circuit_name' => 'Circuit Name',
+    'circuit_serial' => 'Circuit Serial',
+    'circuit_shift' => 'Circuit Shift',
+    'circuit_container' => 'Circuit',
+    'add_circuit' => 'Add Circuit',
+    'remove_circuit' => 'Remove Circuit',
+    'select_circuit_name' => 'Select Circuit Name',
+    'select_circuit_serial' => 'Select Circuit Serial',
+    'select_circuit_shift' => 'Select Circuit Shift',
+    'circuit_serial_placeholder' => '1-100, A-Z, أ-ي',
+    'morning' => 'Morning',
+    'night' => 'Night',
 ];

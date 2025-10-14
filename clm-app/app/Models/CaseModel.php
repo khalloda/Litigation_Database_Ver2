@@ -26,7 +26,10 @@ class CaseModel extends Model
         'matter_degree',
         'court_id',
         'matter_court_text',
-        'matter_circuit',
+        'matter_circuit_legacy',
+        'circuit_name_id',
+        'circuit_serial_id',
+        'circuit_shift_id',
         'matter_destination',
         'matter_importance',
         'matter_evaluation',
@@ -98,9 +101,19 @@ class CaseModel extends Model
         return $this->belongsTo(Court::class, 'court_id');
     }
 
-    public function matterCircuit()
+    public function circuitName()
     {
-        return $this->belongsTo(OptionValue::class, 'matter_circuit');
+        return $this->belongsTo(OptionValue::class, 'circuit_name_id');
+    }
+
+    public function circuitSerial()
+    {
+        return $this->belongsTo(OptionValue::class, 'circuit_serial_id');
+    }
+
+    public function circuitShift()
+    {
+        return $this->belongsTo(OptionValue::class, 'circuit_shift_id');
     }
 
     public function circuitSecretaryRef()
@@ -121,7 +134,7 @@ class CaseModel extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['client_id', 'contract_id', 'matter_name_ar', 'matter_name_en', 'matter_status', 'court_id', 'matter_start_date', 'matter_end_date'])
+            ->logOnly(['client_id', 'contract_id', 'matter_name_ar', 'matter_name_en', 'matter_status', 'court_id', 'circuit_name_id', 'circuit_serial_id', 'circuit_shift_id', 'matter_start_date', 'matter_end_date'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('case')

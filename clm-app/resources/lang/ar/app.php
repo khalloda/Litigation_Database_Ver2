@@ -586,4 +586,19 @@ return [
     'all_statuses' => 'جميع الحالات',
     'all_types' => 'جميع الأنواع',
     'all_lawyers' => 'جميع المحامين',
+
+    // Circuit Terms
+    'circuit' => 'الدائرة',
+    'circuit_name' => 'اسم الدائرة',
+    'circuit_serial' => 'رقم الدائرة التسلسلي',
+    'circuit_shift' => 'دوام الدائرة',
+    'circuit_container' => 'الدائرة',
+    'add_circuit' => 'إضافة دائرة',
+    'remove_circuit' => 'إزالة الدائرة',
+    'select_circuit_name' => 'اختر اسم الدائرة',
+    'select_circuit_serial' => 'اختر الرقم التسلسلي',
+    'select_circuit_shift' => 'اختر الدوام',
+    'circuit_serial_placeholder' => '1-100، A-Z، أ-ي',
+    'morning' => 'صباحي',
+    'night' => 'مسائي',
 ];

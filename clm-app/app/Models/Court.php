@@ -25,8 +25,7 @@ class Court extends Model
     // Many-to-Many Relationships via Pivot Tables
     public function circuits()
     {
-        return $this->belongsToMany(OptionValue::class, 'court_circuit', 'court_id', 'option_value_id')
-                    ->withTimestamps();
+        return $this->hasMany(CourtCircuit::class);
     }
 
     public function secretaries()
