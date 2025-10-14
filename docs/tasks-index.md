@@ -543,5 +543,31 @@ php artisan migrate:rollback  # Rolls back permission tables
 
 ---
 
-**Last Updated**: 2025-01-11 16:45 UTC
+## 14. Circuit Option Sets Implementation
+
+### 14.1 Circuit Option Sets Implementation
+- **ID**: T-14.1
+- **Status**: Done
+- **Branch**: main
+- **Description**: Implement complex circuit structure with 3 components (Name, Serial, Shift)
+- **DoD**:
+  - [x] Create 3 option sets: circuit.name, circuit.serial, circuit.shift
+  - [x] Update cases table with 3 FK columns
+  - [x] Update court-circuit pivot table structure
+  - [x] Create CourtCircuit model
+  - [x] Update CaseModel and Court models
+  - [x] Update controllers and validation
+  - [x] Update UI forms with Circuit containers
+  - [x] Add JavaScript for dynamic circuit rows
+  - [x] Update display logic for concatenated circuit info
+  - [x] Add translations for circuit terms
+  - [x] Test all functionality
+- **Commits**: [To be added after commit]
+- **Docs**: 
+  - `docs/CIRCUIT-OPTION-SETS-IMPLEMENTATION.md`
+  - `docs/worklogs/2025-01-14/step-12-circuit-option-sets-implementation.md`
+
+---
+
+**Last Updated**: 2025-01-14 12:00 UTC
 
