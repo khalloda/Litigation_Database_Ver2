@@ -29,40 +29,57 @@ class CasesController extends Controller
         $clients = Client::select('id', 'client_name_ar', 'client_name_en')
             ->orderBy('client_name_ar')
             ->get();
-        
+
         $courts = Court::where('is_active', true)
             ->orderBy('court_name_ar')
             ->get();
-        
+
         // Partner lawyers (titles limited to partner variants)
-        $partnerTitleCodes = ['title_managing_partner','title_senior_partner','title_partner','title_junior_partner'];
-        $partnerTitleIds = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','lawyer.title'))
+        $partnerTitleCodes = ['title_managing_partner', 'title_senior_partner', 'title_partner', 'title_junior_partner'];
+        $partnerTitleIds = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'lawyer.title'))
             ->whereIn('code', $partnerTitleCodes)->pluck('id')->all();
-        $partnerLawyers = Lawyer::when(!empty($partnerTitleIds), function($q) use ($partnerTitleIds) {
-                $q->whereIn('title_id', $partnerTitleIds);
-            })
+        $partnerLawyers = Lawyer::when(!empty($partnerTitleIds), function ($q) use ($partnerTitleIds) {
+            $q->whereIn('title_id', $partnerTitleIds);
+        })
             ->orderBy('lawyer_name_ar')
-            ->get(['id','lawyer_name_ar','lawyer_name_en','title_id']);
+            ->get(['id', 'lawyer_name_ar', 'lawyer_name_en', 'title_id']);
 
         // Case option lists
-        $caseCategories = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','case.category'))->where('is_active', true)->orderBy('id')->get();
-        $caseDegrees    = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','case.degree'))->where('is_active', true)->orderBy('id')->get();
-        $caseStatuses   = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','case.status'))->where('is_active', true)->orderBy('id')->get();
-        $caseImportance = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','case.importance'))->where('is_active', true)->orderBy('id')->get();
-        $caseBranches   = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','case.branch'))->where('is_active', true)->orderBy('id')->get();
-        $capacityTypes  = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','capacity.type'))->where('is_active', true)->orderBy('id')->get();
+        $caseCategories = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'case.category'))->where('is_active', true)->orderBy('id')->get();
+        $caseDegrees    = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'case.degree'))->where('is_active', true)->orderBy('id')->get();
+        $caseStatuses   = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'case.status'))->where('is_active', true)->orderBy('id')->get();
+        $caseImportance = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'case.importance'))->where('is_active', true)->orderBy('id')->get();
+        $caseBranches   = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'case.branch'))->where('is_active', true)->orderBy('id')->get();
+        $capacityTypes  = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'capacity.type'))->where('is_active', true)->orderBy('id')->get();
 
         // Opponents list
-        $opponents = Opponent::where('is_active', true)->orderBy('opponent_name_ar')->get(['id','opponent_name_ar','opponent_name_en']);
+        $opponents = Opponent::where('is_active', true)->orderBy('opponent_name_ar')->get(['id', 'opponent_name_ar', 'opponent_name_en']);
 
         // Circuit option values
-        $circuitNames = OptionValue::whereHas('optionSet', function ($q) { $q->where('key', 'circuit.name'); })->where('is_active', true)->orderBy('id')->get();
-        $circuitSerials = OptionValue::whereHas('optionSet', function ($q) { $q->where('key', 'circuit.serial'); })->where('is_active', true)->orderBy('id')->get();
-        $circuitShifts = OptionValue::whereHas('optionSet', function ($q) { $q->where('key', 'circuit.shift'); })->where('is_active', true)->orderBy('id')->get();
-        
+        $circuitNames = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.name');
+        })->where('is_active', true)->orderBy('id')->get();
+        $circuitSerials = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.serial');
+        })->where('is_active', true)->orderBy('id')->get();
+        $circuitShifts = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.shift');
+        })->where('is_active', true)->orderBy('id')->get();
+
         return view('cases.create', compact(
-            'clients','courts','partnerLawyers','caseCategories','caseDegrees','caseStatuses','caseImportance','caseBranches','capacityTypes','opponents',
-            'circuitNames','circuitSerials','circuitShifts'
+            'clients',
+            'courts',
+            'partnerLawyers',
+            'caseCategories',
+            'caseDegrees',
+            'caseStatuses',
+            'caseImportance',
+            'caseBranches',
+            'capacityTypes',
+            'opponents',
+            'circuitNames',
+            'circuitSerials',
+            'circuitShifts'
         ));
     }
 
@@ -77,11 +94,13 @@ class CasesController extends Controller
             if ($client) {
                 $candidateId = $client->cash_or_probono_id ?? null;
                 if (!$candidateId && !empty($client->cash_or_probono)) {
-                    $candidateId = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','client.cash_or_probono'))
-                        ->where(fn($q) => $q->where('label_en',$client->cash_or_probono)->orWhere('label_ar',$client->cash_or_probono))
+                    $candidateId = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'client.cash_or_probono'))
+                        ->where(fn($q) => $q->where('label_en', $client->cash_or_probono)->orWhere('label_ar', $client->cash_or_probono))
                         ->value('id');
                 }
-                if ($candidateId) { $data['client_type_id'] = $candidateId; }
+                if ($candidateId) {
+                    $data['client_type_id'] = $candidateId;
+                }
             }
         }
 
@@ -96,10 +115,28 @@ class CasesController extends Controller
     {
         $this->authorize('view', $case);
         $case->load(
-            'client', 'court', 'circuitName', 'circuitSerial', 'circuitShift', 'circuitSecretaryRef', 'courtFloorRef', 'courtHallRef',
-            'matterCategory','matterDegree','matterStatus','matterImportance','matterBranch',
-            'clientCapacity','clientType','opponent','opponentCapacity','matterDestinationRef','matterPartnerRef',
-            'hearings', 'adminTasks', 'documents'
+            'client',
+            'court',
+            'circuitName',
+            'circuitSerial',
+            'circuitShift',
+            'circuitSecretaryRef',
+            'courtFloorRef',
+            'courtHallRef',
+            'matterCategory',
+            'matterDegree',
+            'matterStatus',
+            'matterImportance',
+            'matterBranch',
+            'clientCapacity',
+            'clientType',
+            'opponent',
+            'opponentCapacity',
+            'matterDestinationRef',
+            'matterPartnerRef',
+            'hearings',
+            'adminTasks',
+            'documents'
         );
         return view('cases.show', compact('case'));
     }
@@ -110,28 +147,48 @@ class CasesController extends Controller
         $clients = Client::select('id', 'client_name_ar', 'client_name_en')->orderBy('client_name_ar')->get();
         $courts = Court::where('is_active', true)->orderBy('court_name_ar')->get();
 
-        $partnerTitleCodes = ['title_managing_partner','title_senior_partner','title_partner','title_junior_partner'];
-        $partnerTitleIds = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','lawyer.title'))
+        $partnerTitleCodes = ['title_managing_partner', 'title_senior_partner', 'title_partner', 'title_junior_partner'];
+        $partnerTitleIds = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'lawyer.title'))
             ->whereIn('code', $partnerTitleCodes)->pluck('id')->all();
-        $partnerLawyers = Lawyer::when(!empty($partnerTitleIds), function($q) use ($partnerTitleIds) { $q->whereIn('title_id', $partnerTitleIds); })
-            ->orderBy('lawyer_name_ar')->get(['id','lawyer_name_ar','lawyer_name_en','title_id']);
+        $partnerLawyers = Lawyer::when(!empty($partnerTitleIds), function ($q) use ($partnerTitleIds) {
+            $q->whereIn('title_id', $partnerTitleIds);
+        })
+            ->orderBy('lawyer_name_ar')->get(['id', 'lawyer_name_ar', 'lawyer_name_en', 'title_id']);
 
-        $caseCategories = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','case.category'))->where('is_active', true)->orderBy('id')->get();
-        $caseDegrees    = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','case.degree'))->where('is_active', true)->orderBy('id')->get();
-        $caseStatuses   = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','case.status'))->where('is_active', true)->orderBy('id')->get();
-        $caseImportance = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','case.importance'))->where('is_active', true)->orderBy('id')->get();
-        $caseBranches   = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','case.branch'))->where('is_active', true)->orderBy('id')->get();
-        $capacityTypes  = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','capacity.type'))->where('is_active', true)->orderBy('id')->get();
-        $opponents      = Opponent::where('is_active', true)->orderBy('opponent_name_ar')->get(['id','opponent_name_ar','opponent_name_en']);
+        $caseCategories = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'case.category'))->where('is_active', true)->orderBy('id')->get();
+        $caseDegrees    = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'case.degree'))->where('is_active', true)->orderBy('id')->get();
+        $caseStatuses   = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'case.status'))->where('is_active', true)->orderBy('id')->get();
+        $caseImportance = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'case.importance'))->where('is_active', true)->orderBy('id')->get();
+        $caseBranches   = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'case.branch'))->where('is_active', true)->orderBy('id')->get();
+        $capacityTypes  = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'capacity.type'))->where('is_active', true)->orderBy('id')->get();
+        $opponents      = Opponent::where('is_active', true)->orderBy('opponent_name_ar')->get(['id', 'opponent_name_ar', 'opponent_name_en']);
 
         // Circuit option values
-        $circuitNames = OptionValue::whereHas('optionSet', function ($q) { $q->where('key', 'circuit.name'); })->where('is_active', true)->orderBy('id')->get();
-        $circuitSerials = OptionValue::whereHas('optionSet', function ($q) { $q->where('key', 'circuit.serial'); })->where('is_active', true)->orderBy('id')->get();
-        $circuitShifts = OptionValue::whereHas('optionSet', function ($q) { $q->where('key', 'circuit.shift'); })->where('is_active', true)->orderBy('id')->get();
-        
+        $circuitNames = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.name');
+        })->where('is_active', true)->orderBy('id')->get();
+        $circuitSerials = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.serial');
+        })->where('is_active', true)->orderBy('id')->get();
+        $circuitShifts = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.shift');
+        })->where('is_active', true)->orderBy('id')->get();
+
         return view('cases.edit', compact(
-            'case','clients','courts','partnerLawyers','caseCategories','caseDegrees','caseStatuses','caseImportance','caseBranches','capacityTypes','opponents',
-            'circuitNames','circuitSerials','circuitShifts'
+            'case',
+            'clients',
+            'courts',
+            'partnerLawyers',
+            'caseCategories',
+            'caseDegrees',
+            'caseStatuses',
+            'caseImportance',
+            'caseBranches',
+            'capacityTypes',
+            'opponents',
+            'circuitNames',
+            'circuitSerials',
+            'circuitShifts'
         ));
     }
 
@@ -145,15 +202,17 @@ class CasesController extends Controller
             if ($client) {
                 $candidateId = $client->cash_or_probono_id ?? null;
                 if (!$candidateId && !empty($client->cash_or_probono)) {
-                    $candidateId = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','client.cash_or_probono'))
-                        ->where(fn($q) => $q->where('label_en',$client->cash_or_probono)->orWhere('label_ar',$client->cash_or_probono))
+                    $candidateId = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'client.cash_or_probono'))
+                        ->where(fn($q) => $q->where('label_en', $client->cash_or_probono)->orWhere('label_ar', $client->cash_or_probono))
                         ->value('id');
                 }
-                if ($candidateId) { $data['client_type_id'] = $candidateId; }
+                if ($candidateId) {
+                    $data['client_type_id'] = $candidateId;
+                }
             }
         }
 
-        $case->update($data + [ 'updated_by' => auth()->id() ]);
+        $case->update($data + ['updated_by' => auth()->id()]);
         return redirect()->route('cases.show', $case)->with('success', __('app.case_updated_success'));
     }
 
@@ -170,19 +229,19 @@ class CasesController extends Controller
     public function getCourtDetails(Court $court)
     {
         $court->load(['circuits.circuitName', 'circuits.circuitSerial', 'circuits.circuitShift', 'secretaries', 'floors', 'halls']);
-        
+
         return response()->json([
-            'circuits' => $court->circuits->map(function($circuit) {
-                return [ 'id' => $circuit->id, 'label' => $circuit->full_name ];
+            'circuits' => $court->circuits->map(function ($circuit) {
+                return ['id' => $circuit->id, 'label' => $circuit->full_name];
             }),
-            'secretaries' => $court->secretaries->map(function($secretary) {
-                return [ 'id' => $secretary->id, 'label' => app()->getLocale() === 'ar' ? $secretary->label_ar : $secretary->label_en ];
+            'secretaries' => $court->secretaries->map(function ($secretary) {
+                return ['id' => $secretary->id, 'label' => app()->getLocale() === 'ar' ? $secretary->label_ar : $secretary->label_en];
             }),
-            'floors' => $court->floors->map(function($floor) {
-                return [ 'id' => $floor->id, 'label' => app()->getLocale() === 'ar' ? $floor->label_ar : $floor->label_en ];
+            'floors' => $court->floors->map(function ($floor) {
+                return ['id' => $floor->id, 'label' => app()->getLocale() === 'ar' ? $floor->label_ar : $floor->label_en];
             }),
-            'halls' => $court->halls->map(function($hall) {
-                return [ 'id' => $hall->id, 'label' => app()->getLocale() === 'ar' ? $hall->label_ar : $hall->label_en ];
+            'halls' => $court->halls->map(function ($hall) {
+                return ['id' => $hall->id, 'label' => app()->getLocale() === 'ar' ? $hall->label_ar : $hall->label_en];
             }),
         ]);
     }

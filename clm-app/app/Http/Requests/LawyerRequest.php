@@ -36,6 +36,7 @@ class LawyerRequest extends FormRequest
                 Rule::requiredIf(empty($this->lawyer_name_ar)),
             ],
             'lawyer_name_title' => 'nullable|string|max:255',
+            'title_id' => 'nullable|exists:option_values,id',
             'lawyer_email' => 'nullable|email|max:255',
             'attendance_track' => 'nullable|boolean',
         ];

@@ -22,5 +22,3 @@ class OpponentRequest extends FormRequest
         ];
     }
 }
-
-

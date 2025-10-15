@@ -22,7 +22,7 @@ class LawyersController extends Controller
     public function create()
     {
         $this->authorize('create', Lawyer::class);
-        $titles = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','lawyer.title'))
+        $titles = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'lawyer.title'))
             ->where('is_active', true)->orderBy('id')->get();
         return view('lawyers.create', compact('titles'));
     }
@@ -41,22 +41,22 @@ class LawyersController extends Controller
     public function show(Lawyer $lawyer)
     {
         $this->authorize('view', $lawyer);
-        
+
         // Load relationships
-        $lawyer->load(['title','casesAsLawyerA', 'casesAsLawyerB', 'adminTasks']);
-        
+        $lawyer->load(['title', 'casesAsLawyerA', 'casesAsLawyerB', 'adminTasks']);
+
         // Get all cases (merge both relationships)
         $cases = $lawyer->getAllCases();
-        
+
         return view('lawyers.show', compact('lawyer', 'cases'));
     }
 
     public function edit(Lawyer $lawyer)
     {
         $this->authorize('update', $lawyer);
-        $titles = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','lawyer.title'))
+        $titles = OptionValue::whereHas('optionSet', fn($q) => $q->where('key', 'lawyer.title'))
             ->where('is_active', true)->orderBy('id')->get();
-        return view('lawyers.edit', compact('lawyer','titles'));
+        return view('lawyers.edit', compact('lawyer', 'titles'));
     }
 
     public function update(LawyerRequest $request, Lawyer $lawyer)

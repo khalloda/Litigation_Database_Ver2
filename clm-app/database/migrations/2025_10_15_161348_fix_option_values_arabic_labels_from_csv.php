@@ -27,7 +27,9 @@ return new class extends Migration
             }
 
             $handle = fopen($csvPath, 'r');
-            if ($handle === false) { continue; }
+            if ($handle === false) {
+                continue;
+            }
 
             $headers = [];
             $rowIndex = 0;
@@ -40,7 +42,7 @@ return new class extends Migration
 
                 $data = [];
                 foreach ($row as $i => $value) {
-                    $key = $headers[$i] ?? 'col'.$i;
+                    $key = $headers[$i] ?? 'col' . $i;
                     $data[$key] = trim($value);
                 }
 
@@ -61,11 +63,13 @@ return new class extends Migration
                     ?? $data['client_capacity_arabic']
                     ?? ($data['col0'] ?? null);
 
-                if (empty($labelEn) || empty($labelAr)) { continue; }
+                if (empty($labelEn) || empty($labelAr)) {
+                    continue;
+                }
 
                 // Try to find option_value row: prefer label_en match; fallback to code slug of EN
                 $q = OptionValue::where('set_id', $set->id)
-                    ->where(function($q) use ($labelEn) {
+                    ->where(function ($q) use ($labelEn) {
                         $q->where('label_en', $labelEn);
                     });
 

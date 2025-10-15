@@ -16,11 +16,11 @@ class OpponentsController extends Controller
         $this->authorize('viewAny', Opponent::class);
         $query = Opponent::query();
         if ($search = $request->get('q')) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('opponent_name_ar', 'like', "%$search%")
-                  ->orWhere('opponent_name_en', 'like', "%$search%")
-                  ->orWhere('notes', 'like', "%$search%")
-                  ->orWhere('description', 'like', "%$search%");
+                    ->orWhere('opponent_name_en', 'like', "%$search%")
+                    ->orWhere('notes', 'like', "%$search%")
+                    ->orWhere('description', 'like', "%$search%");
             });
         }
         $opponents = $query->orderBy('opponent_name_ar')->paginate(25);
@@ -73,7 +73,7 @@ class OpponentsController extends Controller
     public function update(OpponentRequest $request, Opponent $opponent)
     {
         $this->authorize('update', $opponent);
-        $opponent->update($request->validated() + [ 'updated_by' => auth()->id() ]);
+        $opponent->update($request->validated() + ['updated_by' => auth()->id()]);
         return redirect()->route('opponents.show', $opponent)->with('success', __('app.opponent_updated_success'));
     }
 

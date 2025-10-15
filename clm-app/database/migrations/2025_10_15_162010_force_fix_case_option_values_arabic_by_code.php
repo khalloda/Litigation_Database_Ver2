@@ -19,14 +19,18 @@ return new class extends Migration
 
         foreach ($map as $setKey => $csvPath) {
             $set = OptionSet::where('key', $setKey)->first();
-            if (!$set || !file_exists($csvPath)) { continue; }
+            if (!$set || !file_exists($csvPath)) {
+                continue;
+            }
 
             $rows = $this->readCsv($csvPath);
             foreach ($rows as $row) {
                 $labelEn = $row['label_en'] ?? $row['english'] ?? null;
                 $labelAr = $row['label_ar'] ?? $row['arabic'] ?? null;
 
-                if (!$labelEn || !$labelAr) { continue; }
+                if (!$labelEn || !$labelAr) {
+                    continue;
+                }
 
                 // Generate code slug from EN like we did during seeding
                 $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '_', $labelEn));
@@ -52,7 +56,9 @@ return new class extends Migration
     private function readCsv(string $path): array
     {
         $handle = fopen($path, 'r');
-        if ($handle === false) { return []; }
+        if ($handle === false) {
+            return [];
+        }
         $rows = [];
         $headers = [];
         $rowIndex = 0;
@@ -64,7 +70,7 @@ return new class extends Migration
             }
             $data = [];
             foreach ($row as $i => $value) {
-                $key = $headers[$i] ?? 'col'.$i;
+                $key = $headers[$i] ?? 'col' . $i;
                 $data[$key] = trim($value);
             }
             // Normalize expected keys to label_en/label_ar for our logic
@@ -78,6 +84,10 @@ return new class extends Migration
             if (isset($data['matter_importance_arabic']))  $data['label_ar'] = $data['matter_importance_arabic'];
             if (isset($data['client_capacity_english'])) $data['label_en'] = $data['client_capacity_english'];
             if (isset($data['client_capacity_arabic']))  $data['label_ar'] = $data['client_capacity_arabic'];
+
+            // Handle different CSV header patterns
+            if (isset($data['matter_category_english']) && !isset($data['label_en'])) $data['label_en'] = $data['matter_category_english'];
+            if (isset($data['matter_category_arabic']) && !isset($data['label_ar'])) $data['label_ar'] = $data['matter_category_arabic'];
 
             $rows[] = $data;
         }
