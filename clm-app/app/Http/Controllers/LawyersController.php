@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LawyerRequest;
 use App\Models\Lawyer;
+use App\Models\OptionValue;
 use Illuminate\Http\Request;
 
 class LawyersController extends Controller
@@ -11,7 +12,8 @@ class LawyersController extends Controller
     public function index(Request $request)
     {
         $this->authorize('viewAny', Lawyer::class);
-        $lawyers = Lawyer::select('id', 'lawyer_name_ar', 'lawyer_name_en', 'lawyer_email', 'created_at', 'updated_at')
+        $lawyers = Lawyer::with('title')
+            ->select('id', 'lawyer_name_ar', 'lawyer_name_en', 'lawyer_email', 'title_id', 'created_at', 'updated_at')
             ->orderBy('lawyer_name_ar')
             ->paginate(25);
         return view('lawyers.index', compact('lawyers'));
@@ -20,7 +22,9 @@ class LawyersController extends Controller
     public function create()
     {
         $this->authorize('create', Lawyer::class);
-        return view('lawyers.create');
+        $titles = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','lawyer.title'))
+            ->where('is_active', true)->orderBy('id')->get();
+        return view('lawyers.create', compact('titles'));
     }
 
     public function store(LawyerRequest $request)
@@ -39,7 +43,7 @@ class LawyersController extends Controller
         $this->authorize('view', $lawyer);
         
         // Load relationships
-        $lawyer->load(['casesAsLawyerA', 'casesAsLawyerB', 'adminTasks']);
+        $lawyer->load(['title','casesAsLawyerA', 'casesAsLawyerB', 'adminTasks']);
         
         // Get all cases (merge both relationships)
         $cases = $lawyer->getAllCases();
@@ -50,7 +54,9 @@ class LawyersController extends Controller
     public function edit(Lawyer $lawyer)
     {
         $this->authorize('update', $lawyer);
-        return view('lawyers.edit', compact('lawyer'));
+        $titles = OptionValue::whereHas('optionSet', fn($q) => $q->where('key','lawyer.title'))
+            ->where('is_active', true)->orderBy('id')->get();
+        return view('lawyers.edit', compact('lawyer','titles'));
     }
 
     public function update(LawyerRequest $request, Lawyer $lawyer)

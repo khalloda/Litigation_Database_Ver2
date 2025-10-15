@@ -21,6 +21,7 @@
                             <th>{{ __('app.lawyer_name_ar') }}</th>
                             <th>{{ __('app.lawyer_name_en') }}</th>
                             <th>{{ __('app.lawyer_email') }}</th>
+                            <th>{{ __('app.lawyer_title') }}</th>
                             @if(app()->getLocale() == 'ar')
                             <th>{{ __('app.actions') }}</th>
                             @else
@@ -35,6 +36,13 @@
                             <td>{{ $lawyer->lawyer_name_ar }}</td>
                             <td>{{ $lawyer->lawyer_name_en }}</td>
                             <td>{{ $lawyer->lawyer_email }}</td>
+                            <td>
+                                @if($lawyer->title)
+                                    {{ app()->getLocale()==='ar' ? $lawyer->title->label_ar : $lawyer->title->label_en }}
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
                             <td class="{{ app()->getLocale() == 'ar' ? 'text-start' : 'text-end' }}">
                                 <div class="btn-group btn-group-sm" role="group">
                                     <a href="{{ route('lawyers.show', $lawyer) }}" class="btn btn-outline-primary btn-sm">{{ __('app.view') }}</a>

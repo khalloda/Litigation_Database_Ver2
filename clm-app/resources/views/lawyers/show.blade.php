@@ -48,7 +48,13 @@
                         </tr>
                         <tr>
                             <td><strong>{{ __('app.lawyer_title') }}</strong></td>
-                            <td>{{ $lawyer->lawyer_name_title }}</td>
+                            <td>
+                                @if($lawyer->title)
+                                    {{ app()->getLocale()==='ar' ? $lawyer->title->label_ar : $lawyer->title->label_en }}
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>{{ __('app.lawyer_email') }}</strong></td>

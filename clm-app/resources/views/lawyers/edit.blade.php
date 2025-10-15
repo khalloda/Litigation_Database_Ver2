@@ -34,9 +34,18 @@
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label for="lawyer_name_title" class="form-label">{{ __('app.lawyer_title') }}</label>
-                        <input type="text" class="form-control @error('lawyer_name_title') is-invalid @enderror" id="lawyer_name_title" name="lawyer_name_title" value="{{ old('lawyer_name_title', $lawyer->lawyer_name_title) }}">
-                        @error('lawyer_name_title')
+                        <label for="title_id" class="form-label">{{ __('app.lawyer_title') }}</label>
+                        <select class="form-select @error('title_id') is-invalid @enderror" id="title_id" name="title_id">
+                            <option value="">{{ __('app.select_option') }}</option>
+                            @isset($titles)
+                            @foreach($titles as $t)
+                            <option value="{{ $t->id }}" {{ (old('title_id', $lawyer->title_id) == $t->id) ? 'selected' : '' }}>
+                                {{ app()->getLocale() === 'ar' ? $t->label_ar : $t->label_en }}
+                            </option>
+                            @endforeach
+                            @endisset
+                        </select>
+                        @error('title_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
