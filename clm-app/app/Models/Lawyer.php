@@ -17,6 +17,7 @@ class Lawyer extends Model
         'lawyer_name_ar',
         'lawyer_name_en',
         'lawyer_name_title',
+        'title_id',
         'lawyer_email',
         'attendance_track',
     ];
@@ -51,10 +52,15 @@ class Lawyer extends Model
         return $this->hasMany(AdminTask::class);
     }
 
+    public function title()
+    {
+        return $this->belongsTo(OptionValue::class, 'title_id');
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['lawyer_name_ar', 'lawyer_name_en', 'lawyer_name_title', 'lawyer_email', 'attendance_track'])
+            ->logOnly(['lawyer_name_ar', 'lawyer_name_en', 'lawyer_name_title', 'title_id', 'lawyer_email', 'attendance_track'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('lawyer')
