@@ -45,7 +45,7 @@ return new class extends Migration
 
                 $data = [];
                 foreach ($row as $i => $value) {
-                    $key = $headers[$i] ?? 'col'.$i;
+                    $key = $headers[$i] ?? 'col' . $i;
                     $data[$key] = trim($value);
                 }
 
@@ -98,7 +98,7 @@ return new class extends Migration
                     'code'     => $code,
                     'label_en' => $labelEn ?? $code,
                     'label_ar' => $labelAr ?? $code,
-                    'is_active'=> true,
+                    'is_active' => true,
                 ]);
                 $existingCodes[] = $code;
             }
@@ -109,7 +109,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        $keys = ['case.category','case.degree','case.status','case.importance','capacity.type'];
+        $keys = ['case.category', 'case.degree', 'case.status', 'case.importance', 'capacity.type'];
         $sets = OptionSet::whereIn('key', $keys)->get();
         foreach ($sets as $set) {
             DB::table('option_values')->where('set_id', $set->id)->delete();
