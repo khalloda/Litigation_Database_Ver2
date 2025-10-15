@@ -15,7 +15,7 @@
                 @csrf
 
                 <div class="row mb-3">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label for="client_id" class="form-label">{{ __('app.client') }} *</label>
                         <select class="form-select @error('client_id') is-invalid @enderror" id="client_id" name="client_id" required>
                             <option value="">{{ __('app.select_client') }}</option>
@@ -29,10 +29,24 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-md-6">
-                        <label for="matter_status" class="form-label">{{ __('app.matter_status') }}</label>
-                        <input type="text" class="form-control @error('matter_status') is-invalid @enderror" id="matter_status" name="matter_status" value="{{ old('matter_status') }}">
-                        @error('matter_status')
+                    <div class="col-md-4">
+                        <label for="client_in_case_name" class="form-label">{{ __('app.client_in_case_name') }}</label>
+                        <input type="text" class="form-control @error('client_in_case_name') is-invalid @enderror" id="client_in_case_name" name="client_in_case_name" value="{{ old('client_in_case_name') }}">
+                        @error('client_in_case_name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-4">
+                        <label for="matter_status_id" class="form-label">{{ __('app.matter_status') }}</label>
+                        <select class="form-select @error('matter_status_id') is-invalid @enderror" id="matter_status_id" name="matter_status_id">
+                            <option value="">{{ __('app.select_option') }}</option>
+                            @foreach($caseStatuses as $ov)
+                            <option value="{{ $ov->id }}" {{ old('matter_status_id') == $ov->id ? 'selected' : '' }}>
+                                {{ app()->getLocale() === 'ar' ? $ov->label_ar : $ov->label_en }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('matter_status_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -64,13 +78,65 @@
                 </div>
 
                 <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="matter_category" class="form-label">{{ __('app.matter_category') }}</label>
-                        <input type="text" class="form-control @error('matter_category') is-invalid @enderror" id="matter_category" name="matter_category" value="{{ old('matter_category') }}">
-                        @error('matter_category')
+                    <div class="col-md-3">
+                        <label for="matter_category_id" class="form-label">{{ __('app.matter_category') }}</label>
+                        <select class="form-select @error('matter_category_id') is-invalid @enderror" id="matter_category_id" name="matter_category_id">
+                            <option value="">{{ __('app.select_option') }}</option>
+                            @foreach($caseCategories as $ov)
+                            <option value="{{ $ov->id }}" {{ old('matter_category_id') == $ov->id ? 'selected' : '' }}>
+                                {{ app()->getLocale() === 'ar' ? $ov->label_ar : $ov->label_en }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('matter_category_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    <div class="col-md-3">
+                        <label for="matter_degree_id" class="form-label">{{ __('app.matter_degree') }}</label>
+                        <select class="form-select @error('matter_degree_id') is-invalid @enderror" id="matter_degree_id" name="matter_degree_id">
+                            <option value="">{{ __('app.select_option') }}</option>
+                            @foreach($caseDegrees as $ov)
+                            <option value="{{ $ov->id }}" {{ old('matter_degree_id') == $ov->id ? 'selected' : '' }}>
+                                {{ app()->getLocale() === 'ar' ? $ov->label_ar : $ov->label_en }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('matter_degree_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-3">
+                        <label for="matter_importance_id" class="form-label">{{ __('app.matter_importance') }}</label>
+                        <select class="form-select @error('matter_importance_id') is-invalid @enderror" id="matter_importance_id" name="matter_importance_id">
+                            <option value="">{{ __('app.select_option') }}</option>
+                            @foreach($caseImportance as $ov)
+                            <option value="{{ $ov->id }}" {{ old('matter_importance_id') == $ov->id ? 'selected' : '' }}>
+                                {{ app()->getLocale() === 'ar' ? $ov->label_ar : $ov->label_en }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('matter_importance_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-3">
+                        <label for="matter_branch_id" class="form-label">{{ __('app.client_branch') }}</label>
+                        <select class="form-select @error('matter_branch_id') is-invalid @enderror" id="matter_branch_id" name="matter_branch_id">
+                            <option value="">{{ __('app.select_option') }}</option>
+                            @foreach($caseBranches as $ov)
+                            <option value="{{ $ov->id }}" {{ old('matter_branch_id') == $ov->id ? 'selected' : '' }}>
+                                {{ app()->getLocale() === 'ar' ? $ov->label_ar : $ov->label_en }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('matter_branch_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="court_id" class="form-label">{{ __('app.matter_court') }}</label>
                         <select class="form-select select2-court @error('court_id') is-invalid @enderror" id="court_id" name="court_id">
@@ -82,6 +148,20 @@
                             @endforeach
                         </select>
                         @error('court_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label for="matter_destination_id" class="form-label">{{ __('app.matter_destination') }}</label>
+                        <select class="form-select @error('matter_destination_id') is-invalid @enderror" id="matter_destination_id" name="matter_destination_id">
+                            <option value="">{{ __('app.select_court') }}</option>
+                            @foreach($courts as $court)
+                            <option value="{{ $court->id }}" {{ old('matter_destination_id') == $court->id ? 'selected' : '' }}>
+                                {{ app()->getLocale() === 'ar' ? $court->court_name_ar : $court->court_name_en }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('matter_destination_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -196,6 +276,93 @@
                         <label for="matter_end_date" class="form-label">{{ __('app.matter_end_date') }}</label>
                         <input type="date" class="form-control @error('matter_end_date') is-invalid @enderror" id="matter_end_date" name="matter_end_date" value="{{ old('matter_end_date') }}">
                         @error('matter_end_date')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Parties -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="client_capacity_id" class="form-label">{{ __('app.client_capacity') }}</label>
+                        <select class="form-select @error('client_capacity_id') is-invalid @enderror" id="client_capacity_id" name="client_capacity_id">
+                            <option value="">{{ __('app.select_option') }}</option>
+                            @foreach($capacityTypes as $ov)
+                            <option value="{{ $ov->id }}" {{ old('client_capacity_id') == $ov->id ? 'selected' : '' }}>
+                                {{ app()->getLocale() === 'ar' ? $ov->label_ar : $ov->label_en }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('client_capacity_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label for="client_capacity_note" class="form-label">{{ __('app.capacity_note') }}</label>
+                        <input type="text" class="form-control @error('client_capacity_note') is-invalid @enderror" id="client_capacity_note" name="client_capacity_note" value="{{ old('client_capacity_note') }}">
+                        @error('client_capacity_note')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="opponent_id" class="form-label">{{ __('app.opponent') }}</label>
+                        <select class="form-select @error('opponent_id') is-invalid @enderror" id="opponent_id" name="opponent_id">
+                            <option value="">{{ __('app.select_option') }}</option>
+                            @foreach($opponents as $opp)
+                            <option value="{{ $opp->id }}" {{ old('opponent_id') == $opp->id ? 'selected' : '' }}>
+                                {{ app()->getLocale() === 'ar' ? $opp->opponent_name_ar : $opp->opponent_name_en }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('opponent_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-4">
+                        <label for="opponent_in_case_name" class="form-label">{{ __('app.opponent_in_case_name') }}</label>
+                        <input type="text" class="form-control @error('opponent_in_case_name') is-invalid @enderror" id="opponent_in_case_name" name="opponent_in_case_name" value="{{ old('opponent_in_case_name') }}">
+                        @error('opponent_in_case_name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-4">
+                        <label for="opponent_capacity_id" class="form-label">{{ __('app.opponent_capacity') }}</label>
+                        <select class="form-select @error('opponent_capacity_id') is-invalid @enderror" id="opponent_capacity_id" name="opponent_capacity_id">
+                            <option value="">{{ __('app.select_option') }}</option>
+                            @foreach($capacityTypes as $ov)
+                            <option value="{{ $ov->id }}" {{ old('opponent_capacity_id') == $ov->id ? 'selected' : '' }}>
+                                {{ app()->getLocale() === 'ar' ? $ov->label_ar : $ov->label_en }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('opponent_capacity_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="opponent_capacity_note" class="form-label">{{ __('app.capacity_note') }}</label>
+                        <input type="text" class="form-control @error('opponent_capacity_note') is-invalid @enderror" id="opponent_capacity_note" name="opponent_capacity_note" value="{{ old('opponent_capacity_note') }}">
+                        @error('opponent_capacity_note')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label for="matter_partner_id" class="form-label">{{ __('app.matter_partner') }}</label>
+                        <select class="form-select @error('matter_partner_id') is-invalid @enderror" id="matter_partner_id" name="matter_partner_id">
+                            <option value="">{{ __('app.select_option') }}</option>
+                            @foreach($partnerLawyers as $lawyer)
+                            <option value="{{ $lawyer->id }}" {{ old('matter_partner_id') == $lawyer->id ? 'selected' : '' }}>
+                                {{ $lawyer->lawyer_name_ar ?? $lawyer->lawyer_name_en }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('matter_partner_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>

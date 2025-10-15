@@ -58,11 +58,53 @@
                         </tr>
                         <tr>
                             <td><strong>{{ __('app.matter_status') }}</strong></td>
-                            <td>{{ $case->matter_status }}</td>
+                            <td>
+                                @if($case->matterStatus)
+                                    {{ app()->getLocale() === 'ar' ? $case->matterStatus->label_ar : $case->matterStatus->label_en }}
+                                @else
+                                    {{ $case->matter_status ?? '-' }}
+                                @endif
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>{{ __('app.matter_category') }}</strong></td>
-                            <td>{{ $case->matter_category }}</td>
+                            <td>
+                                @if($case->matterCategory)
+                                    {{ app()->getLocale() === 'ar' ? $case->matterCategory->label_ar : $case->matterCategory->label_en }}
+                                @else
+                                    {{ $case->matter_category ?? '-' }}
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.matter_degree') }}</strong></td>
+                            <td>
+                                @if($case->matterDegree)
+                                    {{ app()->getLocale() === 'ar' ? $case->matterDegree->label_ar : $case->matterDegree->label_en }}
+                                @else
+                                    {{ $case->matter_degree ?? '-' }}
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.matter_importance') }}</strong></td>
+                            <td>
+                                @if($case->matterImportance)
+                                    {{ app()->getLocale() === 'ar' ? $case->matterImportance->label_ar : $case->matterImportance->label_en }}
+                                @else
+                                    {{ $case->matter_importance ?? '-' }}
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.client_branch') }}</strong></td>
+                            <td>
+                                @if($case->matterBranch)
+                                    {{ app()->getLocale() === 'ar' ? $case->matterBranch->label_ar : $case->matterBranch->label_en }}
+                                @else
+                                    {{ $case->client_branch ?? '-' }}
+                                @endif
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>{{ __('app.matter_court') }}</strong></td>
@@ -70,6 +112,18 @@
                                 @if($case->court)
                                     <a href="{{ route('courts.show', $case->court) }}">
                                         {{ app()->getLocale() === 'ar' ? $case->court->court_name_ar : $case->court->court_name_en }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.matter_destination') }}</strong></td>
+                            <td>
+                                @if($case->matterDestinationRef)
+                                    <a href="{{ route('courts.show', $case->matterDestinationRef) }}">
+                                        {{ app()->getLocale() === 'ar' ? $case->matterDestinationRef->court_name_ar : $case->matterDestinationRef->court_name_en }}
                                     </a>
                                 @else
                                     <span class="text-muted">-</span>
@@ -121,6 +175,28 @@
                             <td>{{ $case->matter_description }}</td>
                         </tr>
                         @endif
+                        <tr>
+                            <td><strong>{{ __('app.client_capacity') }}</strong></td>
+                            <td>
+                                @php
+                                    $clientName = $case->client_in_case_name ?: ($case->client?->client_name_ar ?? $case->client?->client_name_en);
+                                    $clientCap = $case->clientCapacity ? (app()->getLocale()==='ar' ? $case->clientCapacity->label_ar : $case->clientCapacity->label_en) : null;
+                                    $parts = array_filter([$clientName, $clientCap, $case->client_capacity_note]);
+                                @endphp
+                                {{ !empty($parts) ? implode(' - ', $parts) : '-' }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ __('app.opponent_capacity') }}</strong></td>
+                            <td>
+                                @php
+                                    $oppName = $case->opponent_in_case_name ?: ($case->opponent ? (app()->getLocale()==='ar' ? $case->opponent->opponent_name_ar : $case->opponent->opponent_name_en) : null);
+                                    $oppCap = $case->opponentCapacity ? (app()->getLocale()==='ar' ? $case->opponentCapacity->label_ar : $case->opponentCapacity->label_en) : null;
+                                    $oparts = array_filter([$oppName, $oppCap, $case->opponent_capacity_note]);
+                                @endphp
+                                {{ !empty($oparts) ? implode(' - ', $oparts) : '-' }}
+                            </td>
+                        </tr>
                     </table>
                 </div>
             </div>
