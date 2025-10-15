@@ -50,7 +50,7 @@ return new class extends Migration
                     'code'     => $v['code'],
                     'label_en' => $v['en'],
                     'label_ar' => $v['ar'],
-                    'is_active'=> true,
+                    'is_active' => true,
                 ]);
             }
         }
