@@ -78,8 +78,14 @@ return new class extends Migration
         // Add foreign key constraints (separate to avoid errors if columns already exist)
         Schema::table('cases', function (Blueprint $table) {
             $optionFkCols = [
-                'matter_category_id', 'matter_degree_id', 'matter_status_id', 'matter_importance_id',
-                'matter_branch_id', 'client_capacity_id', 'client_type_id', 'opponent_capacity_id'
+                'matter_category_id',
+                'matter_degree_id',
+                'matter_status_id',
+                'matter_importance_id',
+                'matter_branch_id',
+                'client_capacity_id',
+                'client_type_id',
+                'opponent_capacity_id'
             ];
             foreach ($optionFkCols as $col) {
                 if (Schema::hasColumn('cases', $col)) {
@@ -91,13 +97,22 @@ return new class extends Migration
                 }
             }
             if (Schema::hasColumn('cases', 'matter_destination_id')) {
-                try { $table->foreign('matter_destination_id')->references('id')->on('courts')->nullOnDelete(); } catch (\Throwable $e) {}
+                try {
+                    $table->foreign('matter_destination_id')->references('id')->on('courts')->nullOnDelete();
+                } catch (\Throwable $e) {
+                }
             }
             if (Schema::hasColumn('cases', 'matter_partner_id')) {
-                try { $table->foreign('matter_partner_id')->references('id')->on('lawyers')->nullOnDelete(); } catch (\Throwable $e) {}
+                try {
+                    $table->foreign('matter_partner_id')->references('id')->on('lawyers')->nullOnDelete();
+                } catch (\Throwable $e) {
+                }
             }
             if (Schema::hasColumn('cases', 'opponent_id')) {
-                try { $table->foreign('opponent_id')->references('id')->on('opponents')->nullOnDelete(); } catch (\Throwable $e) {}
+                try {
+                    $table->foreign('opponent_id')->references('id')->on('opponents')->nullOnDelete();
+                } catch (\Throwable $e) {
+                }
             }
         });
     }
@@ -109,12 +124,24 @@ return new class extends Migration
     {
         Schema::table('cases', function (Blueprint $table) {
             $fkCols = [
-                'matter_category_id','matter_degree_id','matter_status_id','matter_importance_id','matter_branch_id',
-                'client_capacity_id','client_type_id','opponent_capacity_id','matter_destination_id','matter_partner_id','opponent_id'
+                'matter_category_id',
+                'matter_degree_id',
+                'matter_status_id',
+                'matter_importance_id',
+                'matter_branch_id',
+                'client_capacity_id',
+                'client_type_id',
+                'opponent_capacity_id',
+                'matter_destination_id',
+                'matter_partner_id',
+                'opponent_id'
             ];
             foreach ($fkCols as $col) {
                 if (Schema::hasColumn('cases', $col)) {
-                    try { $table->dropForeign([$col]); } catch (\Throwable $e) {}
+                    try {
+                        $table->dropForeign([$col]);
+                    } catch (\Throwable $e) {
+                    }
                 }
             }
             foreach (array_reverse($fkCols) as $col) {
@@ -123,10 +150,18 @@ return new class extends Migration
                 }
             }
 
-            if (Schema::hasColumn('cases', 'client_in_case_name')) { $table->dropColumn('client_in_case_name'); }
-            if (Schema::hasColumn('cases', 'opponent_in_case_name')) { $table->dropColumn('opponent_in_case_name'); }
-            if (Schema::hasColumn('cases', 'allocated_budget')) { $table->dropColumn('allocated_budget'); }
-            if (Schema::hasColumn('cases', 'engagement_letter_no')) { $table->dropColumn('engagement_letter_no'); }
+            if (Schema::hasColumn('cases', 'client_in_case_name')) {
+                $table->dropColumn('client_in_case_name');
+            }
+            if (Schema::hasColumn('cases', 'opponent_in_case_name')) {
+                $table->dropColumn('opponent_in_case_name');
+            }
+            if (Schema::hasColumn('cases', 'allocated_budget')) {
+                $table->dropColumn('allocated_budget');
+            }
+            if (Schema::hasColumn('cases', 'engagement_letter_no')) {
+                $table->dropColumn('engagement_letter_no');
+            }
         });
     }
 };
