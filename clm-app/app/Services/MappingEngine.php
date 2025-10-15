@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
@@ -104,7 +105,8 @@ class MappingEngine
             'admin_subtasks',
             'client_documents',
             'option_sets',
-            'option_values'
+            'option_values',
+            'opponents'
         ];
         if (!in_array($tableName, $idPreservationTables)) {
             $excludedColumns[] = 'id';

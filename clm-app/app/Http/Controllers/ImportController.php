@@ -11,6 +11,7 @@ use App\Services\PreflightEngine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Exception;
 
@@ -390,6 +391,11 @@ class ImportController extends Controller
                     $data = $this->resolveClientOptionValues($data);
                 }
 
+                // Special handling for cases table - resolve option values and split capacity fields
+                if ($session->table_name === 'cases') {
+                    $data = $this->resolveCaseOptionValues($data);
+                }
+
                 // Insert into database
                 DB::table($session->table_name)->insert($data);
                 $imported++;
@@ -480,6 +486,210 @@ class ImportController extends Controller
 
             if ($lawyerId) {
                 $data['contact_lawyer_id'] = $lawyerId;
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Resolve case option values to their corresponding IDs and handle field splitting
+     */
+    private function resolveCaseOptionValues(array $data): array
+    {
+        // Resolve case category
+        if (!empty($data['matter_category'])) {
+            $categoryId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'case.category');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', $data['matter_category'])
+                    ->orWhere('label_ar', $data['matter_category']);
+            })->value('id');
+
+            if ($categoryId) {
+                $data['matter_category_id'] = $categoryId;
+            }
+        }
+
+        // Resolve case degree
+        if (!empty($data['matter_degree'])) {
+            $degreeId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'case.degree');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', $data['matter_degree'])
+                    ->orWhere('label_ar', $data['matter_degree']);
+            })->value('id');
+
+            if ($degreeId) {
+                $data['matter_degree_id'] = $degreeId;
+            }
+        }
+
+        // Resolve case status
+        if (!empty($data['matter_status'])) {
+            $statusId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'case.status');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', $data['matter_status'])
+                    ->orWhere('label_ar', $data['matter_status']);
+            })->value('id');
+
+            if ($statusId) {
+                $data['matter_status_id'] = $statusId;
+            }
+        }
+
+        // Resolve case importance
+        if (!empty($data['matter_importance'])) {
+            $importanceId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'case.importance');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', $data['matter_importance'])
+                    ->orWhere('label_ar', $data['matter_importance']);
+            })->value('id');
+
+            if ($importanceId) {
+                $data['matter_importance_id'] = $importanceId;
+            }
+        }
+
+        // Resolve case branch
+        if (!empty($data['matter_branch'])) {
+            $branchId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'case.branch');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', $data['matter_branch'])
+                    ->orWhere('label_ar', $data['matter_branch']);
+            })->value('id');
+
+            if ($branchId) {
+                $data['matter_branch_id'] = $branchId;
+            }
+        }
+
+        // Resolve client capacity
+        if (!empty($data['client_capacity'])) {
+            $capacityId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'capacity.type');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', $data['client_capacity'])
+                    ->orWhere('label_ar', $data['client_capacity']);
+            })->value('id');
+
+            if ($capacityId) {
+                $data['client_capacity_id'] = $capacityId;
+            }
+        }
+
+        // Resolve opponent capacity
+        if (!empty($data['opponent_capacity'])) {
+            $capacityId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'capacity.type');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', $data['opponent_capacity'])
+                    ->orWhere('label_ar', $data['opponent_capacity']);
+            })->value('id');
+
+            if ($capacityId) {
+                $data['opponent_capacity_id'] = $capacityId;
+            }
+        }
+
+        // Resolve court (by name)
+        if (!empty($data['matter_court'])) {
+            $courtId = \App\Models\Court::where(function ($q) use ($data) {
+                $q->where('court_name_en', $data['matter_court'])
+                    ->orWhere('court_name_ar', $data['matter_court']);
+            })->value('id');
+
+            if ($courtId) {
+                $data['court_id'] = $courtId;
+            }
+        }
+
+        // Resolve opponent (by name)
+        if (!empty($data['opponent_name'])) {
+            $opponentId = \App\Models\Opponent::where(function ($q) use ($data) {
+                $q->where('opponent_name_en', $data['opponent_name'])
+                    ->orWhere('opponent_name_ar', $data['opponent_name']);
+            })->value('id');
+
+            if ($opponentId) {
+                $data['opponent_id'] = $opponentId;
+            }
+        }
+
+        // Resolve partner lawyer (by name and title filter)
+        if (!empty($data['matter_partner'])) {
+            $partnerId = \App\Models\Lawyer::whereHas('title', function ($q) {
+                $q->whereIn('label_en', ['Managing Partner', 'Senior Partner', 'Partner', 'Junior Partner']);
+            })->where(function ($q) use ($data) {
+                $q->where('lawyer_name_en', $data['matter_partner'])
+                    ->orWhere('lawyer_name_ar', $data['matter_partner']);
+            })->value('id');
+
+            if ($partnerId) {
+                $data['matter_partner_id'] = $partnerId;
+            }
+        }
+
+        // Auto-fill client_type from client's cash_or_probono if not provided
+        if (empty($data['client_type']) && !empty($data['client_id'])) {
+            $client = \App\Models\Client::find($data['client_id']);
+            if ($client && $client->cash_or_probono_id) {
+                $data['client_type_id'] = $client->cash_or_probono_id;
+            }
+        }
+
+        // Handle client_and_capacity splitting
+        if (!empty($data['client_and_capacity'])) {
+            $parts = explode(' - ', $data['client_and_capacity']);
+            if (count($parts) >= 2) {
+                $data['client_in_case_name'] = trim($parts[0]);
+                $capacityText = trim($parts[1]);
+                
+                // Try to resolve capacity to ID
+                $capacityId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                    $q->where('key', 'capacity.type');
+                })->where(function ($q) use ($capacityText) {
+                    $q->where('label_en', $capacityText)
+                        ->orWhere('label_ar', $capacityText);
+                })->value('id');
+
+                if ($capacityId) {
+                    $data['client_capacity_id'] = $capacityId;
+                }
+
+                // Handle capacity note if present
+                if (count($parts) >= 3) {
+                    $data['client_capacity_note'] = trim($parts[2]);
+                }
+            }
+        }
+
+        // Handle opponent_and_capacity splitting
+        if (!empty($data['opponent_and_capacity'])) {
+            $parts = explode(' - ', $data['opponent_and_capacity']);
+            if (count($parts) >= 2) {
+                $data['opponent_in_case_name'] = trim($parts[0]);
+                $capacityText = trim($parts[1]);
+                
+                // Try to resolve capacity to ID
+                $capacityId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                    $q->where('key', 'capacity.type');
+                })->where(function ($q) use ($capacityText) {
+                    $q->where('label_en', $capacityText)
+                        ->orWhere('label_ar', $capacityText);
+                })->value('id');
+
+                if ($capacityId) {
+                    $data['opponent_capacity_id'] = $capacityId;
+                }
+
+                // Handle capacity note if present
+                if (count($parts) >= 3) {
+                    $data['opponent_capacity_note'] = trim($parts[2]);
+                }
             }
         }
 
