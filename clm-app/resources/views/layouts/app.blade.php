@@ -176,6 +176,7 @@
                                 @can('viewAny', App\Models\OptionSet::class)
                                 <li><a class="dropdown-item" href="{{ route('admin.options.index') }}">{{ __('app.option_sets') }}</a></li>
                                 @endcan
+                                <li><a class="dropdown-item" href="{{ route('opponents.index') }}">{{ __('app.opponents') }}</a></li>
                                 @can('admin.audit.view')
                                 <li><a class="dropdown-item" href="{{ route('audit-logs.index') }}">{{ __('app.audit_logs') }}</a></li>
                                 @endcan
