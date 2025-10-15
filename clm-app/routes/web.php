@@ -269,3 +269,8 @@ Route::middleware(['auth'])->group(function () {
     // AJAX endpoint for cascading dropdowns
     Route::get('/api/courts/{court}/details', [App\Http\Controllers\CasesController::class, 'getCourtDetails'])->name('courts.details');
 });
+
+// Opponents Management
+Route::middleware(['auth'])->group(function () {
+    Route::resource('opponents', App\Http\Controllers\OpponentsController::class);
+});
