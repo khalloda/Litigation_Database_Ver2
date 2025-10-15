@@ -15,6 +15,8 @@ class Opponent extends Model
     protected $fillable = [
         'opponent_name_ar',
         'opponent_name_en',
+        'description',
+        'notes',
         'is_active',
         'created_by',
         'updated_by',
@@ -34,7 +36,7 @@ class Opponent extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['opponent_name_ar', 'opponent_name_en', 'is_active'])
+            ->logOnly(['opponent_name_ar', 'opponent_name_en', 'description', 'notes', 'is_active'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('opponent')
