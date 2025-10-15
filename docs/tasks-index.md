@@ -569,5 +569,45 @@ php artisan migrate:rollback  # Rolls back permission tables
 
 ---
 
-**Last Updated**: 2025-01-14 12:00 UTC
+## 15. Case Fields Implementation
+
+### 15.1 Case Fields Enhancement
+- **ID**: T-15.1
+- **Status**: Done
+- **Branch**: `feat/case-fields-option-lists`
+- **Description**: Comprehensive case fields enhancement including lawyer titles, case option lists, opponents entity, and import functionality
+- **DoD**:
+  - [x] Lawyer title standardization (8 titles: Managing Partner, Senior Partner, Partner, Junior Partner, Senior Associate, Associate, Junior Associate, Secretary)
+  - [x] Case option lists system (5 sets, 89 values): categories, degrees, status, importance, capacity types
+  - [x] Opponents entity with full CRUD (description, notes fields)
+  - [x] Cases table enhancement (15 new fields: 11 FKs, 4 text fields, capacity notes)
+  - [x] Import system updates for all new fields with FK resolution
+  - [x] Arabic label corrections for all option values (89 records updated)
+  - [x] Complete UI updates for all affected modules
+  - [x] Bilingual support maintained throughout
+  - [x] Comprehensive documentation created
+- **Commits**: 
+  - `37dbbd4` - Import functionality updates
+  - `fb0eeb8` - Complete case fields implementation with Arabic label fixes
+  - `0883f03` - Force-update Arabic labels by matching code from CSVs
+- **Docs**: 
+  - `docs/worklogs/2025-10-15/step-case-fields-implementation.md`
+  - `docs/CASE-FIELDS-IMPLEMENTATION-SUMMARY.md`
+
+### 15.2 Arabic Label Corrections
+- **ID**: T-15.2
+- **Status**: Done
+- **Description**: Fix Arabic labels for all case-related option sets that were incorrectly seeded
+- **DoD**:
+  - [x] Case Categories: 27 records corrected (felonies → جنايات, governmental → حكومي, etc.)
+  - [x] Case Degrees: 21 records corrected (primary → ابتدائي, appeal → استئناف, etc.)
+  - [x] Case Importance: 6 records corrected (critical → حرجة, urgent → عاجل, etc.)
+  - [x] Case Status: 3 records corrected (closed → منتهية, active → سارية, etc.)
+  - [x] Capacity Types: 32 records corrected (accused_party → مشكو في حقه, etc.)
+  - [x] Total: 89 option values updated with correct Arabic translations
+- **Commits**: `0883f03`, `fb0eeb8`
+
+---
+
+**Last Updated**: 2025-10-15 16:30 UTC
 
