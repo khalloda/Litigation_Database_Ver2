@@ -647,7 +647,7 @@ class ImportController extends Controller
             if (count($parts) >= 2) {
                 $data['client_in_case_name'] = trim($parts[0]);
                 $capacityText = trim($parts[1]);
-                
+
                 // Try to resolve capacity to ID
                 $capacityId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
                     $q->where('key', 'capacity.type');
@@ -673,7 +673,7 @@ class ImportController extends Controller
             if (count($parts) >= 2) {
                 $data['opponent_in_case_name'] = trim($parts[0]);
                 $capacityText = trim($parts[1]);
-                
+
                 // Try to resolve capacity to ID
                 $capacityId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
                     $q->where('key', 'capacity.type');

@@ -13,7 +13,7 @@
                 <?php echo csrf_field(); ?>
 
                 <div class="row mb-3">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label for="client_id" class="form-label"><?php echo e(__('app.client')); ?> *</label>
                         <select class="form-select <?php $__errorArgs = ['client_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -41,17 +41,46 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                     </div>
-                    <div class="col-md-6">
-                        <label for="matter_status" class="form-label"><?php echo e(__('app.matter_status')); ?></label>
-                        <input type="text" class="form-control <?php $__errorArgs = ['matter_status'];
+                    <div class="col-md-4">
+                        <label for="client_in_case_name" class="form-label"><?php echo e(__('app.client_in_case_name')); ?></label>
+                        <input type="text" class="form-control <?php $__errorArgs = ['client_in_case_name'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>" id="matter_status" name="matter_status" value="<?php echo e(old('matter_status')); ?>">
-                        <?php $__errorArgs = ['matter_status'];
+unset($__errorArgs, $__bag); ?>" id="client_in_case_name" name="client_in_case_name" value="<?php echo e(old('client_in_case_name')); ?>">
+                        <?php $__errorArgs = ['client_in_case_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="matter_status_id" class="form-label"><?php echo e(__('app.matter_status')); ?></label>
+                        <select class="form-select <?php $__errorArgs = ['matter_status_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="matter_status_id" name="matter_status_id">
+                            <option value=""><?php echo e(__('app.select_option')); ?></option>
+                            <?php $__currentLoopData = $caseStatuses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ov): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($ov->id); ?>" <?php echo e(old('matter_status_id') == $ov->id ? 'selected' : ''); ?>>
+                                <?php echo e(app()->getLocale() === 'ar' ? $ov->label_ar : $ov->label_en); ?>
+
+                            </option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </select>
+                        <?php $__errorArgs = ['matter_status_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -132,17 +161,25 @@ unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="matter_category" class="form-label"><?php echo e(__('app.matter_category')); ?></label>
-                        <input type="text" class="form-control <?php $__errorArgs = ['matter_category'];
+                    <div class="col-md-3">
+                        <label for="matter_category_id" class="form-label"><?php echo e(__('app.matter_category')); ?></label>
+                        <select class="form-select <?php $__errorArgs = ['matter_category_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>" id="matter_category" name="matter_category" value="<?php echo e(old('matter_category')); ?>">
-                        <?php $__errorArgs = ['matter_category'];
+unset($__errorArgs, $__bag); ?>" id="matter_category_id" name="matter_category_id">
+                            <option value=""><?php echo e(__('app.select_option')); ?></option>
+                            <?php $__currentLoopData = $caseCategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ov): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($ov->id); ?>" <?php echo e(old('matter_category_id') == $ov->id ? 'selected' : ''); ?>>
+                                <?php echo e(app()->getLocale() === 'ar' ? $ov->label_ar : $ov->label_en); ?>
+
+                            </option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </select>
+                        <?php $__errorArgs = ['matter_category_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -153,6 +190,96 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                     </div>
+                    <div class="col-md-3">
+                        <label for="matter_degree_id" class="form-label"><?php echo e(__('app.matter_degree')); ?></label>
+                        <select class="form-select <?php $__errorArgs = ['matter_degree_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="matter_degree_id" name="matter_degree_id">
+                            <option value=""><?php echo e(__('app.select_option')); ?></option>
+                            <?php $__currentLoopData = $caseDegrees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ov): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($ov->id); ?>" <?php echo e(old('matter_degree_id') == $ov->id ? 'selected' : ''); ?>>
+                                <?php echo e(app()->getLocale() === 'ar' ? $ov->label_ar : $ov->label_en); ?>
+
+                            </option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </select>
+                        <?php $__errorArgs = ['matter_degree_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="matter_importance_id" class="form-label"><?php echo e(__('app.matter_importance')); ?></label>
+                        <select class="form-select <?php $__errorArgs = ['matter_importance_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="matter_importance_id" name="matter_importance_id">
+                            <option value=""><?php echo e(__('app.select_option')); ?></option>
+                            <?php $__currentLoopData = $caseImportance; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ov): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($ov->id); ?>" <?php echo e(old('matter_importance_id') == $ov->id ? 'selected' : ''); ?>>
+                                <?php echo e(app()->getLocale() === 'ar' ? $ov->label_ar : $ov->label_en); ?>
+
+                            </option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </select>
+                        <?php $__errorArgs = ['matter_importance_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="matter_branch_id" class="form-label"><?php echo e(__('app.client_branch')); ?></label>
+                        <select class="form-select <?php $__errorArgs = ['matter_branch_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="matter_branch_id" name="matter_branch_id">
+                            <option value=""><?php echo e(__('app.select_option')); ?></option>
+                            <?php $__currentLoopData = $caseBranches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ov): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($ov->id); ?>" <?php echo e(old('matter_branch_id') == $ov->id ? 'selected' : ''); ?>>
+                                <?php echo e(app()->getLocale() === 'ar' ? $ov->label_ar : $ov->label_en); ?>
+
+                            </option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </select>
+                        <?php $__errorArgs = ['matter_branch_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="court_id" class="form-label"><?php echo e(__('app.matter_court')); ?></label>
                         <select class="form-select select2-court <?php $__errorArgs = ['court_id'];
@@ -172,6 +299,35 @@ unset($__errorArgs, $__bag); ?>" id="court_id" name="court_id">
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                         <?php $__errorArgs = ['court_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="matter_destination_id" class="form-label"><?php echo e(__('app.matter_destination')); ?></label>
+                        <select class="form-select <?php $__errorArgs = ['matter_destination_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="matter_destination_id" name="matter_destination_id">
+                            <option value=""><?php echo e(__('app.select_court')); ?></option>
+                            <?php $__currentLoopData = $courts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $court): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($court->id); ?>" <?php echo e(old('matter_destination_id') == $court->id ? 'selected' : ''); ?>>
+                                <?php echo e(app()->getLocale() === 'ar' ? $court->court_name_ar : $court->court_name_en); ?>
+
+                            </option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </select>
+                        <?php $__errorArgs = ['matter_destination_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -401,6 +557,195 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" id="matter_end_date" name="matter_end_date" value="<?php echo e(old('matter_end_date')); ?>">
                         <?php $__errorArgs = ['matter_end_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                </div>
+
+                <!-- Parties -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="client_capacity_id" class="form-label"><?php echo e(__('app.client_capacity')); ?></label>
+                        <select class="form-select <?php $__errorArgs = ['client_capacity_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="client_capacity_id" name="client_capacity_id">
+                            <option value=""><?php echo e(__('app.select_option')); ?></option>
+                            <?php $__currentLoopData = $capacityTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ov): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($ov->id); ?>" <?php echo e(old('client_capacity_id') == $ov->id ? 'selected' : ''); ?>>
+                                <?php echo e(app()->getLocale() === 'ar' ? $ov->label_ar : $ov->label_en); ?>
+
+                            </option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </select>
+                        <?php $__errorArgs = ['client_capacity_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="client_capacity_note" class="form-label"><?php echo e(__('app.capacity_note')); ?></label>
+                        <input type="text" class="form-control <?php $__errorArgs = ['client_capacity_note'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="client_capacity_note" name="client_capacity_note" value="<?php echo e(old('client_capacity_note')); ?>">
+                        <?php $__errorArgs = ['client_capacity_note'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="opponent_id" class="form-label"><?php echo e(__('app.opponent')); ?></label>
+                        <select class="form-select <?php $__errorArgs = ['opponent_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="opponent_id" name="opponent_id">
+                            <option value=""><?php echo e(__('app.select_option')); ?></option>
+                            <?php $__currentLoopData = $opponents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $opp): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($opp->id); ?>" <?php echo e(old('opponent_id') == $opp->id ? 'selected' : ''); ?>>
+                                <?php echo e(app()->getLocale() === 'ar' ? $opp->opponent_name_ar : $opp->opponent_name_en); ?>
+
+                            </option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </select>
+                        <?php $__errorArgs = ['opponent_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="opponent_in_case_name" class="form-label"><?php echo e(__('app.opponent_in_case_name')); ?></label>
+                        <input type="text" class="form-control <?php $__errorArgs = ['opponent_in_case_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="opponent_in_case_name" name="opponent_in_case_name" value="<?php echo e(old('opponent_in_case_name')); ?>">
+                        <?php $__errorArgs = ['opponent_in_case_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="opponent_capacity_id" class="form-label"><?php echo e(__('app.opponent_capacity')); ?></label>
+                        <select class="form-select <?php $__errorArgs = ['opponent_capacity_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="opponent_capacity_id" name="opponent_capacity_id">
+                            <option value=""><?php echo e(__('app.select_option')); ?></option>
+                            <?php $__currentLoopData = $capacityTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ov): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($ov->id); ?>" <?php echo e(old('opponent_capacity_id') == $ov->id ? 'selected' : ''); ?>>
+                                <?php echo e(app()->getLocale() === 'ar' ? $ov->label_ar : $ov->label_en); ?>
+
+                            </option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </select>
+                        <?php $__errorArgs = ['opponent_capacity_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="opponent_capacity_note" class="form-label"><?php echo e(__('app.capacity_note')); ?></label>
+                        <input type="text" class="form-control <?php $__errorArgs = ['opponent_capacity_note'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="opponent_capacity_note" name="opponent_capacity_note" value="<?php echo e(old('opponent_capacity_note')); ?>">
+                        <?php $__errorArgs = ['opponent_capacity_note'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="matter_partner_id" class="form-label"><?php echo e(__('app.matter_partner')); ?></label>
+                        <select class="form-select <?php $__errorArgs = ['matter_partner_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="matter_partner_id" name="matter_partner_id">
+                            <option value=""><?php echo e(__('app.select_option')); ?></option>
+                            <?php $__currentLoopData = $partnerLawyers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $lawyer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($lawyer->id); ?>" <?php echo e(old('matter_partner_id') == $lawyer->id ? 'selected' : ''); ?>>
+                                <?php echo e($lawyer->lawyer_name_ar ?? $lawyer->lawyer_name_en); ?>
+
+                            </option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </select>
+                        <?php $__errorArgs = ['matter_partner_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }

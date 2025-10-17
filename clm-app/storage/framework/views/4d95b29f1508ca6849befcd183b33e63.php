@@ -178,6 +178,7 @@
                                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('viewAny', App\Models\OptionSet::class)): ?>
                                 <li><a class="dropdown-item" href="<?php echo e(route('admin.options.index')); ?>"><?php echo e(__('app.option_sets')); ?></a></li>
                                 <?php endif; ?>
+                                <li><a class="dropdown-item" href="<?php echo e(route('opponents.index')); ?>"><?php echo e(__('app.opponents')); ?></a></li>
                                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('admin.audit.view')): ?>
                                 <li><a class="dropdown-item" href="<?php echo e(route('audit-logs.index')); ?>"><?php echo e(__('app.audit_logs')); ?></a></li>
                                 <?php endif; ?>
