@@ -732,6 +732,20 @@ class ImportController extends Controller
             }
         }
 
+        // Resolve circuit name
+        if (!empty($data['matter_circuit'])) {
+            $circuitId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'circuit.name');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', $data['matter_circuit'])
+                    ->orWhere('label_ar', $data['matter_circuit']);
+            })->value('id');
+
+            if ($circuitId) {
+                $data['circuit_name_id'] = $circuitId;
+            }
+        }
+
         // Resolve opponent (by name)
         if (!empty($data['opponent_name'])) {
             $opponentId = \App\Models\Opponent::where(function ($q) use ($data) {
@@ -741,6 +755,18 @@ class ImportController extends Controller
 
             if ($opponentId) {
                 $data['opponent_id'] = $opponentId;
+            }
+        }
+
+        // Resolve matter destination (court)
+        if (!empty($data['matter_destination'])) {
+            $destinationId = \App\Models\Court::where(function ($q) use ($data) {
+                $q->where('court_name_en', $data['matter_destination'])
+                    ->orWhere('court_name_ar', $data['matter_destination']);
+            })->value('id');
+
+            if ($destinationId) {
+                $data['matter_destination_id'] = $destinationId;
             }
         }
 
@@ -755,6 +781,20 @@ class ImportController extends Controller
 
             if ($partnerId) {
                 $data['matter_partner_id'] = $partnerId;
+            }
+        }
+
+        // Resolve client type
+        if (!empty($data['client_type'])) {
+            $clientTypeId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'client.cash_or_probono');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', $data['client_type'])
+                    ->orWhere('label_ar', $data['client_type']);
+            })->value('id');
+
+            if ($clientTypeId) {
+                $data['client_type_id'] = $clientTypeId;
             }
         }
 
