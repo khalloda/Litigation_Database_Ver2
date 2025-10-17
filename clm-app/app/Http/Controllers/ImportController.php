@@ -8,11 +8,15 @@ use App\Services\FileParserService;
 use App\Services\ImportService;
 use App\Services\MappingEngine;
 use App\Services\PreflightEngine;
+use App\Services\OpponentSuggestionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use App\Support\NameNormalizer;
+use App\Models\Opponent;
 use Exception;
 
 class ImportController extends Controller
@@ -23,6 +27,7 @@ class ImportController extends Controller
         protected MappingEngine $mappingEngine,
         protected PreflightEngine $preflightEngine,
         protected BackupService $backupService,
+        protected OpponentSuggestionService $opponentSuggestionService,
     ) {}
 
     /**
@@ -265,6 +270,27 @@ class ImportController extends Controller
             );
             \Log::info('Preflight validation completed', ['errorCount' => $results['error_count']]);
 
+            // Opponent suggestions (only for cases table and when an incoming opponent name exists)
+            $opponentSuggestions = [];
+            if ($session->table_name === 'cases') {
+                // Try typical columns that might contain opponent name text
+                $candidateCols = ['opponent_name', 'opponent', 'opponent_and_capacity'];
+                foreach ($parsed['rows'] as $i => $row) {
+                    $incoming = null;
+                    foreach ($candidateCols as $col) {
+                        if (array_key_exists($col, $row) && !empty($row[$col])) {
+                            $incoming = $row[$col];
+                            break;
+                        }
+                    }
+                    if (!$incoming) {
+                        $opponentSuggestions[$i] = null;
+                        continue;
+                    }
+                    $opponentSuggestions[$i] = $this->opponentSuggestionService->suggest((string) $incoming);
+                }
+            }
+
             // Save preflight results
             $session->update([
                 'preflight_errors' => $results['errors'],
@@ -279,7 +305,7 @@ class ImportController extends Controller
                 $session->total_rows
             );
 
-            return view('import.preflight', compact('session', 'results', 'exceedsThreshold'));
+            return view('import.preflight', compact('session', 'results', 'exceedsThreshold', 'opponentSuggestions', 'parsed'));
         } catch (Exception $e) {
             \Log::error('Exception in preflight method', [
                 'sessionId' => $session->id,
@@ -323,8 +349,9 @@ class ImportController extends Controller
             $filepath = $this->importService->getSessionFilePath($session);
             $parsed = $this->parserService->parseFile($filepath, $session->file_type);
 
-            // Import data
-            $stats = $this->executeImport($parsed['rows'], $session);
+            // Import data (capture decisions from preflight form)
+            $decisions = $request->input('decisions', []);
+            $stats = $this->executeImport($parsed['rows'], $session, $decisions);
 
             // Complete session
             $this->importService->completeSession($session, $stats);
@@ -345,12 +372,14 @@ class ImportController extends Controller
     /**
      * Execute the actual import process.
      */
-    protected function executeImport(array $rows, ImportSession $session): array
+    protected function executeImport(array $rows, ImportSession $session, array $decisions = []): array
     {
         $imported = 0;
         $failed = 0;
         $skipped = 0;
         $errors = [];
+        $reconRows = [];
+        $normalizer = app(NameNormalizer::class);
 
         // Get table columns once for performance
         $tableColumns = Schema::getColumnListing($session->table_name);
@@ -358,6 +387,8 @@ class ImportController extends Controller
         $hasUpdatedBy = in_array('updated_by', $tableColumns);
         $hasCreatedAt = in_array('created_at', $tableColumns);
         $hasUpdatedAt = in_array('updated_at', $tableColumns);
+
+        $candidateCols = ['opponent_name', 'opponent', 'opponent_and_capacity'];
 
         foreach ($rows as $index => $row) {
             try {
@@ -396,9 +427,85 @@ class ImportController extends Controller
                     $data = $this->resolveCaseOptionValues($data);
                 }
 
+                // Cases: apply preflight opponent decisions
+                $incomingOpponent = null;
+                if ($session->table_name === 'cases') {
+                    foreach ($candidateCols as $col) {
+                        if (array_key_exists($col, $row) && !empty($row[$col])) {
+                            $incomingOpponent = (string) $row[$col];
+                            break;
+                        }
+                    }
+
+                    if (isset($decisions[$index])) {
+                        $decision = $decisions[$index];
+                        $decisionType = $decision['type'] ?? null;
+                        $aliasFlag = !empty($decision['alias']);
+
+                        if ($decisionType === 'match' && !empty($decision['opponent_id'])) {
+                            $opponentId = (int) $decision['opponent_id'];
+                            $data['opponent_id'] = $opponentId;
+                            if ($aliasFlag && $incomingOpponent) {
+                                $norm = $normalizer->normalize($incomingOpponent);
+                                $alias = $norm['normalized'];
+                                if ($alias !== '') {
+                                    $existsOther = DB::table('opponent_aliases')
+                                        ->where('alias_normalized', $alias)
+                                        ->where('opponent_id', '!=', $opponentId)
+                                        ->exists();
+                                    if (!$existsOther) {
+                                        DB::table('opponent_aliases')->updateOrInsert(
+                                            ['opponent_id' => $opponentId, 'alias_normalized' => $alias],
+                                            ['updated_at' => now(), 'created_at' => now()]
+                                        );
+                                    }
+                                }
+                            }
+                        } elseif ($decisionType === 'new' && $incomingOpponent) {
+                            $norm = $normalizer->normalize($incomingOpponent);
+                            $newId = DB::table('opponents')->insertGetId([
+                                'opponent_name_ar' => preg_match('/\p{Arabic}/u', $incomingOpponent) ? $incomingOpponent : null,
+                                'opponent_name_en' => preg_match('/[A-Za-z]/u', $incomingOpponent) ? $incomingOpponent : null,
+                                'normalized_name' => $norm['normalized'],
+                                'first_token' => $norm['first_token'],
+                                'last_token' => $norm['last_token'],
+                                'token_count' => $norm['token_count'],
+                                'latin_key' => $norm['latin_key'],
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                            $data['opponent_id'] = $newId;
+                            if ($aliasFlag) {
+                                $alias = $norm['normalized'];
+                                if ($alias !== '') {
+                                    DB::table('opponent_aliases')->updateOrInsert(
+                                        ['opponent_id' => $newId, 'alias_normalized' => $alias],
+                                        ['updated_at' => now(), 'created_at' => now()]
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // Insert into database
                 DB::table($session->table_name)->insert($data);
                 $imported++;
+
+                // Reconciliation
+                if ($session->table_name === 'cases') {
+                    $reconRows[] = [
+                        'incoming_name'   => (string) ($incomingOpponent ?? ''),
+                        'normalized_in'   => $incomingOpponent ? $normalizer->normalize($incomingOpponent)['normalized'] : '',
+                        'matched_to_id'   => $data['opponent_id'] ?? '',
+                        'matched_name'    => isset($data['opponent_id']) ? (DB::table('opponents')->where('id', $data['opponent_id'])->value('opponent_name_ar') ?? DB::table('opponents')->where('id', $data['opponent_id'])->value('opponent_name_en')) : '',
+                        'score'           => '',
+                        'decision'        => $decisions[$index]['type'] ?? '',
+                        'import_batch_id' => $session->id,
+                        'source_file'     => $session->file_path ?? '',
+                        'row_no'          => $index,
+                    ];
+                }
             } catch (Exception $e) {
                 $failed++;
                 $errors[] = [
@@ -406,6 +513,24 @@ class ImportController extends Controller
                     'message' => $e->getMessage(),
                 ];
             }
+        }
+
+        // Reconciliation CSV
+        if (!empty($reconRows)) {
+            $header = ['incoming_name', 'normalized_in', 'matched_to_id', 'matched_name', 'score', 'decision', 'import_batch_id', 'source_file', 'row_no'];
+            $lines = [];
+            $lines[] = implode(',', $header);
+            foreach ($reconRows as $r) {
+                $lines[] = implode(',', array_map(function ($v) {
+                    $v = (string) $v;
+                    $v = str_replace('"', '""', $v);
+                    if (str_contains($v, ',') || str_contains($v, '"')) return '"' . $v . '"';
+                    return $v;
+                }, $r));
+            }
+            $dir = 'reconciliations';
+            $filename = 'import_' . $session->id . '_' . now()->format('Ymd_His') . '.csv';
+            Storage::disk('local')->put($dir . '/' . $filename, implode("\n", $lines));
         }
 
         return [

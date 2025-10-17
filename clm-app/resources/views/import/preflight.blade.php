@@ -85,14 +85,25 @@
                     <i class="fas fa-arrow-left"></i> {{ __('app.back_to_mapping') }}
                 </a>
                 @if(!$exceedsThreshold)
-                    <form action="{{ route('import.run', $session) }}" method="POST">
+                    <form id="preflight-run-form" action="{{ route('import.run', $session) }}" method="POST" class="w-100">
                         @csrf
-                        <button type="submit" class="btn btn-primary btn-lg" onclick="return confirm('{{ __('app.confirm_start_import') }}')">
-                            <i class="fas fa-play"></i> {{ __('app.start_import') }}
-                        </button>
+                        @if(isset($session) && $session->table_name === 'cases')
+                            <hr>
+                            <h5 class="mb-3">@lang('app.opponent_suggestions')</h5>
+                            @include('import.partials.opponent_fuzzy', [
+                                'rows' => $parsed['rows'] ?? [],
+                                'opponentSuggestions' => $opponentSuggestions ?? []
+                            ])
+                        @endif
+                        <div class="text-end mt-3">
+                            <button type="submit" class="btn btn-primary btn-lg" onclick="return confirm('{{ __('app.confirm_start_import') }}')">
+                                <i class="fas fa-play"></i> {{ __('app.start_import') }}
+                            </button>
+                        </div>
                     </form>
                 @endif
             </div>
+
         </div>
     </div>
 </div>

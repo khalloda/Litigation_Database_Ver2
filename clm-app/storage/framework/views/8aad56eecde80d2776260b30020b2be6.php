@@ -1,3 +1,5 @@
+
+
 <?php $__env->startSection('title', __('app.opponents')); ?>
 
 <?php $__env->startSection('content'); ?>
@@ -50,6 +52,7 @@
     </div>
 </div>
 <?php $__env->stopSection(); ?>
+
 
 
 
