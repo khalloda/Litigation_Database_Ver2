@@ -73,6 +73,19 @@ class FileParserService
             $delimiter = $this->detectDelimiter($filepath);
             $encoding = $this->detectEncoding($filepath);
 
+            // If encoding is Windows-1256, convert to UTF-8 first
+            if ($encoding === 'Windows-1256') {
+                $content = file_get_contents($filepath);
+                $utf8Content = iconv('Windows-1256', 'UTF-8', $content);
+                
+                // Create a temporary UTF-8 file
+                $tempFile = tempnam(sys_get_temp_dir(), 'csv_utf8_');
+                file_put_contents($tempFile, $utf8Content);
+                
+                $filepath = $tempFile;
+                $encoding = 'UTF-8';
+            }
+
             $reader = new CsvReader();
             $reader->setDelimiter($delimiter);
             $reader->setInputEncoding($encoding);
@@ -80,7 +93,14 @@ class FileParserService
 
             $spreadsheet = $reader->load($filepath);
 
-            return $this->extractSheetData($spreadsheet->getActiveSheet(), $headerRow);
+            $result = $this->extractSheetData($spreadsheet->getActiveSheet(), $headerRow);
+
+            // Clean up temporary file if created
+            if (isset($tempFile) && file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+
+            return $result;
         } catch (Exception $e) {
             throw new Exception("Failed to parse CSV file: " . $e->getMessage());
         }
@@ -235,7 +255,17 @@ class FileParserService
         $sample = fread($handle, 8192);
         fclose($handle);
 
-        $encoding = mb_detect_encoding($sample, ['UTF-8', 'ISO-8859-1', 'CP1256', 'ASCII'], true);
+        // Try to detect encoding with supported encodings
+        $encoding = mb_detect_encoding($sample, ['UTF-8', 'ISO-8859-1', 'ISO-8859-6', 'ASCII'], true);
+
+        // If no encoding detected, try to convert from Windows-1256 to UTF-8
+        if (!$encoding) {
+            // Check if it might be Windows-1256 by trying to convert it
+            $converted = @iconv('Windows-1256', 'UTF-8', $sample);
+            if ($converted !== false && $converted !== $sample) {
+                return 'Windows-1256';
+            }
+        }
 
         return $encoding ?: 'UTF-8';
     }
