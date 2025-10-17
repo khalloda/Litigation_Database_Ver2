@@ -282,6 +282,16 @@
                     </div>
                 </div>
 
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="matter_shelf" class="form-label">{{ __('app.matter_shelf') }}</label>
+                        <input type="text" maxlength="10" class="form-control @error('matter_shelf') is-invalid @enderror" id="matter_shelf" name="matter_shelf" value="{{ old('matter_shelf', $case->matter_shelf) }}">
+                        @error('matter_shelf')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
                 <!-- Parties -->
                 <div class="row mb-3">
                     <div class="col-md-6">
@@ -381,6 +391,16 @@
                         <label for="matter_judged_amount" class="form-label">{{ __('app.matter_judged_amount') }}</label>
                         <input type="number" step="0.01" class="form-control @error('matter_judged_amount') is-invalid @enderror" id="matter_judged_amount" name="matter_judged_amount" value="{{ old('matter_judged_amount', $case->matter_judged_amount) }}">
                         @error('matter_judged_amount')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="engagement_letter_no" class="form-label">{{ __('app.engagement_letter_no') }}</label>
+                        <input type="text" class="form-control @error('engagement_letter_no') is-invalid @enderror" id="engagement_letter_no" name="engagement_letter_no" value="{{ old('engagement_letter_no', $case->engagement_letter_no) }}">
+                        @error('engagement_letter_no')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>

@@ -43,6 +43,7 @@ return [
     'enabled_tables' => [
         'clients',
         'cases',
+        'courts',
         'contacts',
         'lawyers',
         'hearings',
@@ -51,6 +52,7 @@ return [
         'admin_tasks',
         'admin_subtasks',
         'clients_matters_documents',
+        'opponents',
     ],
 
     /*
