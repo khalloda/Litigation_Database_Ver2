@@ -235,7 +235,7 @@ class FileParserService
         $sample = fread($handle, 8192);
         fclose($handle);
 
-        $encoding = mb_detect_encoding($sample, ['UTF-8', 'ISO-8859-1', 'Windows-1256', 'ASCII'], true);
+        $encoding = mb_detect_encoding($sample, ['UTF-8', 'ISO-8859-1', 'CP1256', 'ASCII'], true);
 
         return $encoding ?: 'UTF-8';
     }
