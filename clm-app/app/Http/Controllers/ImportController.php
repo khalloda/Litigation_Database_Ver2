@@ -425,6 +425,7 @@ class ImportController extends Controller
                 // Special handling for cases table - resolve option values and split capacity fields
                 if ($session->table_name === 'cases') {
                     $data = $this->resolveCaseOptionValues($data);
+                    $data = $this->resolveDirectMappedFields($data);
                 }
 
                 // Cases: apply preflight opponent decisions
@@ -854,6 +855,73 @@ class ImportController extends Controller
                 // Handle capacity note if present
                 if (count($parts) >= 3) {
                     $data['opponent_capacity_note'] = trim($parts[2]);
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Resolve directly mapped fields that contain text but should be integers
+     */
+    private function resolveDirectMappedFields(array $data): array
+    {
+        // Define field mappings: field_name => [option_set_key, model_class, name_field_ar, name_field_en]
+        $fieldMappings = [
+            'matter_category_id' => ['case.category', \App\Models\OptionValue::class, 'label_ar', 'label_en'],
+            'matter_degree_id' => ['case.degree', \App\Models\OptionValue::class, 'label_ar', 'label_en'],
+            'matter_status_id' => ['case.status', \App\Models\OptionValue::class, 'label_ar', 'label_en'],
+            'matter_importance_id' => ['case.importance', \App\Models\OptionValue::class, 'label_ar', 'label_en'],
+            'matter_branch_id' => ['case.branch', \App\Models\OptionValue::class, 'label_ar', 'label_en'],
+            'client_capacity_id' => ['capacity.type', \App\Models\OptionValue::class, 'label_ar', 'label_en'],
+            'opponent_capacity_id' => ['capacity.type', \App\Models\OptionValue::class, 'label_ar', 'label_en'],
+            'client_type_id' => ['client.cash_or_probono', \App\Models\OptionValue::class, 'label_ar', 'label_en'],
+            'circuit_name_id' => ['circuit.name', \App\Models\OptionValue::class, 'label_ar', 'label_en'],
+            'circuit_shift_id' => ['circuit.shift', \App\Models\OptionValue::class, 'label_ar', 'label_en'],
+            'court_id' => [null, \App\Models\Court::class, 'court_name_ar', 'court_name_en'],
+            'matter_destination_id' => [null, \App\Models\Court::class, 'court_name_ar', 'court_name_en'],
+            'opponent_id' => [null, \App\Models\Opponent::class, 'opponent_name_ar', 'opponent_name_en'],
+            'matter_partner_id' => [null, \App\Models\Lawyer::class, 'lawyer_name_ar', 'lawyer_name_en'],
+        ];
+
+        foreach ($fieldMappings as $fieldName => $mapping) {
+            if (!empty($data[$fieldName]) && !is_numeric($data[$fieldName])) {
+                $optionSetKey = $mapping[0];
+                $modelClass = $mapping[1];
+                $nameFieldAr = $mapping[2];
+                $nameFieldEn = $mapping[3];
+
+                $resolvedId = null;
+
+                if ($optionSetKey) {
+                    // Option value resolution
+                    $resolvedId = $modelClass::whereHas('optionSet', function ($q) use ($optionSetKey) {
+                        $q->where('key', $optionSetKey);
+                    })->where(function ($q) use ($data, $fieldName, $nameFieldAr, $nameFieldEn) {
+                        $q->where($nameFieldAr, trim($data[$fieldName]))
+                            ->orWhere($nameFieldEn, trim($data[$fieldName]));
+                    })->value('id');
+                } else {
+                    // Direct model resolution
+                    if ($modelClass === \App\Models\Lawyer::class) {
+                        // Special case for lawyers - filter by partner titles
+                        $resolvedId = $modelClass::whereHas('title', function ($q) {
+                            $q->whereIn('label_en', ['Managing Partner', 'Senior Partner', 'Partner', 'Junior Partner']);
+                        })->where(function ($q) use ($data, $fieldName, $nameFieldAr, $nameFieldEn) {
+                            $q->where($nameFieldAr, trim($data[$fieldName]))
+                                ->orWhere($nameFieldEn, trim($data[$fieldName]));
+                        })->value('id');
+                    } else {
+                        $resolvedId = $modelClass::where(function ($q) use ($data, $fieldName, $nameFieldAr, $nameFieldEn) {
+                            $q->where($nameFieldAr, trim($data[$fieldName]))
+                                ->orWhere($nameFieldEn, trim($data[$fieldName]));
+                        })->value('id');
+                    }
+                }
+
+                if ($resolvedId) {
+                    $data[$fieldName] = $resolvedId;
                 }
             }
         }
