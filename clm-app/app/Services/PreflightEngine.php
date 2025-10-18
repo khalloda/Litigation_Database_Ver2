@@ -95,6 +95,12 @@ class PreflightEngine
 
             // Check data type compatibility
             if ($value !== null && $value !== '') {
+                // Skip type validation for opponent_id when it contains text (will be handled by fuzzy matching)
+                if ($column === 'opponent_id' && !is_numeric($value) && $tableName === 'cases') {
+                    // This will be processed by fuzzy matching, skip type validation
+                    continue;
+                }
+                
                 $typeError = $this->checkType($value, $metadata['type'], $column, $rowIndex);
                 if ($typeError) {
                     $errors[] = $typeError;
