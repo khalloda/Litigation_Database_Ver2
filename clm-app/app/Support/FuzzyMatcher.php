@@ -50,8 +50,12 @@ class FuzzyMatcher
         if ($la === 0 && $lb === 0) return 1.0;
 
         $dp = array_fill(0, $la + 1, array_fill(0, $lb + 1, 0));
-        for ($i = 0; $i <= $la; $i++) $dp[$i][0] = $i;
-        for ($j = 0; $j <= $lb; $j++) $dp[0][j] = $j;
+        for ($i = 0; $i <= $la; $i++) {
+            $dp[$i][0] = $i;
+        }
+        for ($j = 0; $j <= $lb; $j++) {
+            $dp[0][$j] = $j;
+        }
 
         for ($i = 1; $i <= $la; $i++) {
             for ($j = 1; $j <= $lb; $j++) {
