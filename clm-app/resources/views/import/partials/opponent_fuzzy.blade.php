@@ -17,7 +17,7 @@
   <tbody>
     @foreach($rows as $i => $row)
       @php
-        $incoming = $row['opponent_name'] ?? ($row['opponent'] ?? '');
+        $incoming = $row['opponent_name'] ?? ($row['opponent'] ?? ($row['opponent_id'] ?? ''));
         $suggest = $opponentSuggestions[$i] ?? null;
         $top = $suggest['top'][0] ?? null;
       @endphp

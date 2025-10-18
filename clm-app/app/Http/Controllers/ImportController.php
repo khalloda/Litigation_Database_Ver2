@@ -274,12 +274,17 @@ class ImportController extends Controller
             $opponentSuggestions = [];
             if ($session->table_name === 'cases') {
                 // Try typical columns that might contain opponent name text
-                $candidateCols = ['opponent_name', 'opponent', 'opponent_and_capacity'];
+                $candidateCols = ['opponent_name', 'opponent', 'opponent_and_capacity', 'opponent_id'];
                 foreach ($parsed['rows'] as $i => $row) {
                     $incoming = null;
                     foreach ($candidateCols as $col) {
                         if (array_key_exists($col, $row) && !empty($row[$col])) {
-                            $incoming = $row[$col];
+                            $value = $row[$col];
+                            // If it's opponent_id column, check if it's text (not integer)
+                            if ($col === 'opponent_id' && is_numeric($value)) {
+                                continue; // Skip if it's already a valid integer ID
+                            }
+                            $incoming = $value;
                             break;
                         }
                     }
