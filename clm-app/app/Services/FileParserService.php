@@ -77,11 +77,11 @@ class FileParserService
             if ($encoding === 'Windows-1256') {
                 $content = file_get_contents($filepath);
                 $utf8Content = iconv('Windows-1256', 'UTF-8', $content);
-                
+
                 // Create a temporary UTF-8 file
                 $tempFile = tempnam(sys_get_temp_dir(), 'csv_utf8_');
                 file_put_contents($tempFile, $utf8Content);
-                
+
                 $filepath = $tempFile;
                 $encoding = 'UTF-8';
             }

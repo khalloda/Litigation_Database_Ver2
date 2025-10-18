@@ -212,7 +212,7 @@ class PreflightEngine
             }
 
             $referencedTable = $fkColumns[$column];
-            
+
             // Check if referenced record exists
             $exists = DB::table($referencedTable)->where('id', $value)->exists();
 
@@ -645,4 +645,3 @@ class PreflightEngine
         return $data;
     }
 }
-

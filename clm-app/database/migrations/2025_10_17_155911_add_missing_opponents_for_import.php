@@ -14,7 +14,7 @@ return new class extends Migration
     {
         // Get the next available ID
         $nextId = DB::table('opponents')->max('id') + 1;
-        
+
         $newOpponents = [
             [
                 'id' => $nextId++,
@@ -37,7 +37,7 @@ return new class extends Migration
                 'updated_at' => now()
             ]
         ];
-        
+
         DB::table('opponents')->insert($newOpponents);
     }
 
@@ -51,7 +51,7 @@ return new class extends Migration
             'شركة جاز',
             'شركة القاهرة للاستثمار والتنمية'
         ];
-        
+
         DB::table('opponents')->whereIn('opponent_name_ar', $names)->delete();
     }
 };

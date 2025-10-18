@@ -14,11 +14,11 @@ return new class extends Migration
     {
         // Get the capacity.type option set
         $capacitySet = DB::table('option_sets')->where('key', 'capacity.type')->first();
-        
+
         if ($capacitySet) {
             // Get the next available ID
             $nextId = DB::table('option_values')->max('id') + 1;
-            
+
             $newCapacity = [
                 'id' => $nextId,
                 'set_id' => $capacitySet->id,
@@ -28,7 +28,7 @@ return new class extends Migration
                 'created_at' => now(),
                 'updated_at' => now()
             ];
-            
+
             DB::table('option_values')->insert($newCapacity);
         }
     }

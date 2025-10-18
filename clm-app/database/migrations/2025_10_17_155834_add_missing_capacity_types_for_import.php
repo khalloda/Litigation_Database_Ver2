@@ -14,11 +14,11 @@ return new class extends Migration
     {
         // Get the capacity.type option set
         $capacitySet = DB::table('option_sets')->where('key', 'capacity.type')->first();
-        
+
         if ($capacitySet) {
             // Get the next available ID
             $nextId = DB::table('option_values')->max('id') + 1;
-            
+
             $newCapacities = [
                 [
                     'id' => $nextId++,
@@ -75,16 +75,16 @@ return new class extends Migration
                     'updated_at' => now()
                 ]
             ];
-            
+
             DB::table('option_values')->insert($newCapacities);
         }
-        
+
         // Also add missing circuit name
         $circuitSet = DB::table('option_sets')->where('key', 'circuit.name')->first();
-        
+
         if ($circuitSet) {
             $nextId = DB::table('option_values')->max('id') + 1;
-            
+
             $newCircuit = [
                 'id' => $nextId,
                 'set_id' => $circuitSet->id,
@@ -94,7 +94,7 @@ return new class extends Migration
                 'created_at' => now(),
                 'updated_at' => now()
             ];
-            
+
             DB::table('option_values')->insert($newCircuit);
         }
     }
@@ -107,14 +107,14 @@ return new class extends Migration
         // Remove the added option values
         $codes = [
             'defendant_female',
-            'challengers_plural', 
+            'challengers_plural',
             'appealed_against_them',
             'plaintiff_female',
             'grievant_female',
             'arbitrants_plural',
             'criminal'
         ];
-        
+
         DB::table('option_values')->whereIn('code', $codes)->delete();
     }
 };
