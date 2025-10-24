@@ -17,7 +17,7 @@
   <tbody>
     <?php $__currentLoopData = $rows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
       <?php
-        $incoming = $row['opponent_name'] ?? ($row['opponent'] ?? '');
+        $incoming = $row['opponent_name'] ?? ($row['opponent'] ?? ($row['opponent_id'] ?? ''));
         $suggest = $opponentSuggestions[$i] ?? null;
         $top = $suggest['top'][0] ?? null;
       ?>

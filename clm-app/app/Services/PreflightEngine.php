@@ -100,7 +100,7 @@ class PreflightEngine
                     // This will be processed by fuzzy matching, skip type validation
                     continue;
                 }
-                
+
                 $typeError = $this->checkType($value, $metadata['type'], $column, $rowIndex);
                 if ($typeError) {
                     $errors[] = $typeError;
