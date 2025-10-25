@@ -242,6 +242,29 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/import/{importSession}', [App\Http\Controllers\ImportController::class, 'destroy'])->name('import.destroy');
 });
 
+// Cases Import Templates (Standard & Extended)
+Route::middleware(['auth', 'permission:import.view_template'])->group(function () {
+    // Standard Templates
+    Route::get('/cases/import/template/standard/csv', [App\Http\Controllers\ImportController::class, 'downloadCaseTemplateStandardCsv'])
+        ->name('cases.template.standard.csv');
+
+    Route::get('/cases/import/template/standard/xlsx', [App\Http\Controllers\ImportController::class, 'downloadCaseTemplateStandardXlsx'])
+        ->name('cases.template.standard.xlsx');
+
+    // Extended Templates
+    Route::get('/cases/import/template/extended/csv', [App\Http\Controllers\ImportController::class, 'downloadCaseTemplateExtendedCsv'])
+        ->name('cases.template.extended.csv');
+
+    Route::get('/cases/import/template/extended/xlsx', [App\Http\Controllers\ImportController::class, 'downloadCaseTemplateExtendedXlsx'])
+        ->name('cases.template.extended.xlsx');
+});
+
+// Admin: Regenerate Templates
+Route::middleware(['auth', 'permission:admin.tools.manage'])->group(function () {
+    Route::post('/admin/templates/regenerate-cases', [App\Http\Controllers\ImportController::class, 'regenerateCaseTemplates'])
+        ->name('admin.templates.regenerate-cases');
+});
+
 // Option Management (Admin only)
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     // AJAX endpoint for getting options by set key

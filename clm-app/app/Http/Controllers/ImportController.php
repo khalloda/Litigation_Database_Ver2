@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Artisan;
 use App\Support\NameNormalizer;
 use App\Models\Opponent;
 use Exception;
@@ -977,5 +979,103 @@ class ImportController extends Controller
         return redirect()
             ->route('import.index')
             ->with('success', __('app.import_deleted_successfully'));
+    }
+
+    /**
+     * Download Cases Standard CSV template
+     */
+    public function downloadCaseTemplateStandardCsv()
+    {
+        if (!Gate::allows('import.view_template')) {
+            abort(403, 'Unauthorized to view import templates.');
+        }
+
+        $path = storage_path('app/templates/Cases_Import_Template_Standard.csv');
+
+        if (!file_exists($path)) {
+            abort(404, 'Template not found. Run: php artisan templates:generate-cases --mode=standard');
+        }
+
+        return response()->download(
+            $path,
+            'Cases_Import_Template_Standard.csv',
+            ['Content-Type' => 'text/csv; charset=UTF-8']
+        );
+    }
+
+    /**
+     * Download Cases Standard XLSX template
+     */
+    public function downloadCaseTemplateStandardXlsx()
+    {
+        if (!Gate::allows('import.view_template')) {
+            abort(403, 'Unauthorized to view import templates.');
+        }
+
+        $path = storage_path('app/templates/Cases_Import_Template_Standard.xlsx');
+
+        if (!file_exists($path)) {
+            abort(404, 'Template not found. Run: php artisan templates:generate-cases --mode=standard');
+        }
+
+        return response()->download($path, 'Cases_Import_Template_Standard.xlsx');
+    }
+
+    /**
+     * Download Cases Extended CSV template
+     */
+    public function downloadCaseTemplateExtendedCsv()
+    {
+        if (!Gate::allows('import.view_template')) {
+            abort(403, 'Unauthorized to view import templates.');
+        }
+
+        $path = storage_path('app/templates/Cases_Import_Template_Extended.csv');
+
+        if (!file_exists($path)) {
+            abort(404, 'Template not found. Run: php artisan templates:generate-cases --mode=extended');
+        }
+
+        return response()->download(
+            $path,
+            'Cases_Import_Template_Extended.csv',
+            ['Content-Type' => 'text/csv; charset=UTF-8']
+        );
+    }
+
+    /**
+     * Download Cases Extended XLSX template
+     */
+    public function downloadCaseTemplateExtendedXlsx()
+    {
+        if (!Gate::allows('import.view_template')) {
+            abort(403, 'Unauthorized to view import templates.');
+        }
+
+        $path = storage_path('app/templates/Cases_Import_Template_Extended.xlsx');
+
+        if (!file_exists($path)) {
+            abort(404, 'Template not found. Run: php artisan templates:generate-cases --mode=extended');
+        }
+
+        return response()->download($path, 'Cases_Import_Template_Extended.xlsx');
+    }
+
+    /**
+     * Regenerate all Cases import templates (Admin only)
+     */
+    public function regenerateCaseTemplates(Request $request)
+    {
+        if (!Gate::allows('admin.tools.manage')) {
+            abort(403, 'Unauthorized to regenerate templates.');
+        }
+
+        try {
+            Artisan::call('templates:generate-cases', ['--mode' => 'all']);
+
+            return back()->with('success', __('app.template_regenerated_successfully'));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Template regeneration failed: ' . $e->getMessage());
+        }
     }
 }

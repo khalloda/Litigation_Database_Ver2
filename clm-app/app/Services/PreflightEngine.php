@@ -70,6 +70,7 @@ class PreflightEngine
         // Apply automatic resolution for cases table before validation
         if ($tableName === 'cases') {
             $mappedData = $this->resolveCaseOptionValues($mappedData);
+            $mappedData = $this->applyIdNamePrecedence($mappedData);
             $mappedData = $this->resolveDirectMappedFields($mappedData);
         }
 
@@ -646,6 +647,46 @@ class PreflightEngine
                     $data[$fieldName] = $resolvedId;
                 }
             }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Apply ID vs Name precedence logic.
+     * Rule: If both ID and Name provided, ID wins and Name is ignored.
+     * Logs warnings for conflicts.
+     */
+    private function applyIdNamePrecedence(array $data): array
+    {
+        $conflicts = [];
+
+        // Define ID/Name pairs to check
+        $idNamePairs = [
+            'client_id' => 'client_name',
+            'court_id' => 'court_name',
+            'opponent_id' => 'opponent_name',
+            'matter_partner_id' => 'matter_partner_name',
+            'matter_destination_id' => 'matter_destination'
+        ];
+
+        foreach ($idNamePairs as $idField => $nameField) {
+            $hasId = !empty($data[$idField]) && is_numeric($data[$idField]);
+            $hasName = !empty($data[$nameField]);
+
+            if ($hasId && $hasName) {
+                // ID wins - clear the name field
+                $data[$nameField] = null;
+                $conflicts[] = "ID precedence: {$idField} provided, {$nameField} ignored";
+            }
+        }
+
+        // Log conflicts as warnings (this would need to be passed to the calling method)
+        if (!empty($conflicts)) {
+            \Log::warning('ID vs Name precedence conflicts detected', [
+                'conflicts' => $conflicts,
+                'data_keys' => array_keys($data)
+            ]);
         }
 
         return $data;

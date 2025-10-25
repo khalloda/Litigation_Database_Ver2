@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('content'); ?>
 <div class="container-fluid">
     <div class="row justify-content-center">
@@ -67,9 +65,73 @@ unset($__errorArgs, $__bag); ?>
                             </div>
                         </div>
 
+                        
+                        <div id="cases-templates" class="card border-primary mb-4" style="display: none;">
+                            <div class="card-header bg-light">
+                                <i class="bi bi-file-earmark-spreadsheet text-primary"></i>
+                                <strong><?php echo e(__('app.cases_import_templates')); ?></strong>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted small mb-3">
+                                    <?php echo e(__('app.download_template_generated_from_schema')); ?>
+
+                                </p>
+
+                                <!-- Standard Templates -->
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <strong class="me-2"><?php echo e(__('app.standard_template')); ?></strong>
+                                        <span class="badge bg-success"><?php echo e(__('app.recommended')); ?></span>
+                                    </div>
+                                    <p class="small text-muted mb-2">
+                                        <?php echo e(__('app.standard_template_description')); ?>
+
+                                    </p>
+                                    <div class="btn-group">
+                                        <a href="<?php echo e(route('cases.template.standard.csv')); ?>"
+                                           class="btn btn-outline-primary btn-sm"
+                                           title="<?php echo e(__('app.download_csv_template')); ?>">
+                                            <i class="bi bi-file-earmark-text"></i> CSV
+                                        </a>
+                                        <a href="<?php echo e(route('cases.template.standard.xlsx')); ?>"
+                                           class="btn btn-outline-success btn-sm"
+                                           title="<?php echo e(__('app.download_xlsx_template')); ?>">
+                                            <i class="bi bi-file-earmark-excel"></i> Excel
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <hr>
+
+                                <!-- Extended Templates -->
+                                <div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <strong class="me-2"><?php echo e(__('app.extended_template')); ?></strong>
+                                        <span class="badge bg-secondary"><?php echo e(__('app.advanced')); ?></span>
+                                    </div>
+                                    <p class="small text-muted mb-2">
+                                        <?php echo e(__('app.extended_template_description')); ?>
+
+                                    </p>
+                                    <div class="btn-group">
+                                        <a href="<?php echo e(route('cases.template.extended.csv')); ?>"
+                                           class="btn btn-outline-secondary btn-sm"
+                                           title="<?php echo e(__('app.download_csv_template')); ?>">
+                                            <i class="bi bi-file-earmark-text"></i> CSV
+                                        </a>
+                                        <a href="<?php echo e(route('cases.template.extended.xlsx')); ?>"
+                                           class="btn btn-outline-secondary btn-sm"
+                                           title="<?php echo e(__('app.download_xlsx_template')); ?>">
+                                            <i class="bi bi-file-earmark-excel"></i> Excel
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mb-4">
                             <label for="file" class="form-label"><?php echo e(__('app.select_file')); ?> <span class="text-danger">*</span></label>
-                            
+
                             <div class="upload-area border rounded p-5 text-center" id="uploadArea">
                                 <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
                                 <p class="mb-2"><?php echo e(__('app.drag_drop_file_here')); ?></p>
@@ -161,6 +223,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileInfo = document.getElementById('fileInfo');
     const fileName = document.getElementById('fileName');
     const fileSize = document.getElementById('fileSize');
+    const tableSelect = document.getElementById('table_name');
+    const casesTemplates = document.getElementById('cases-templates');
+
+    // Show/hide template section based on table selection
+    function toggleTemplates() {
+        if (tableSelect.value === 'cases') {
+            casesTemplates.style.display = 'block';
+        } else {
+            casesTemplates.style.display = 'none';
+        }
+    }
+
+    // Listen for table selection changes
+    tableSelect.addEventListener('change', toggleTemplates);
+
+    // Check initial state
+    toggleTemplates();
 
     // File input change
     fileInput.addEventListener('change', function(e) {
@@ -194,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
     uploadArea.addEventListener('drop', function(e) {
         const dt = e.dataTransfer;
         const files = dt.files;
-        
+
         if (files.length > 0) {
             fileInput.files = files;
             showFileInfo(files[0]);

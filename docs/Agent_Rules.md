@@ -17,6 +17,7 @@
 - **Scope safety**: Do not refactor outside the agreed scope without explicit approval.
 - **DB safety**: Do not modify **existing** migrations or seeders unless I explicitly request it and an ADR + task exists.
 - **Secrets**: Never commit secrets or plaintext passwords. All secrets must live in `.env` and be read by config.
+- **🚨 CRITICAL: NO RefreshDatabase TESTS ON PRODUCTION DATA**: **NEVER** run tests with `RefreshDatabase` trait on databases containing real/production data. This will **PERMANENTLY DELETE** all existing data. Always use separate test databases, database transactions, or mocked operations. If unsure, **ASK FIRST** before running any database tests.
 
 ---
 
@@ -108,6 +109,11 @@ Maintain clear, living documentation in the repo:
 - Critical flows to cover: auth, cases CRUD, hearing scheduling, document upload, ETL validations, RBAC policies.
 - If UI/E2E tests are present (e.g., Playwright), keep them in sync with significant UX changes.
 - Where feature flags are used, test both on/off paths.
+- **🚨 CRITICAL TESTING RULE**: **NEVER** use `RefreshDatabase` trait on databases with real data. Always use:
+  - Separate test database (`.env.testing`)
+  - Database transactions (`DatabaseTransactions` trait)
+  - Mocked database operations
+  - **ASK PERMISSION** before running any database tests
 
 ---
 

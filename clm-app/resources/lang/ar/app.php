@@ -601,4 +601,20 @@ return [
     'circuit_serial_placeholder' => '1-100، A-Z، أ-ي',
     'morning' => 'صباحي',
     'night' => 'مسائي',
+
+    // Template Downloads
+    'cases_import_templates' => 'قوالب استيراد القضايا',
+    'download_template_generated_from_schema' => 'تحميل قوالب CSV أو Excel مُولدة من هيكل قاعدة البيانات الحالي.',
+    'standard_template' => 'القالب القياسي',
+    'extended_template' => 'القالب الموسع',
+    'recommended' => 'مُوصى به',
+    'advanced' => 'متقدم',
+    'standard_template_description' => 'الحقول الأساسية فقط (~25 عمود). استخدم للاستيراد العادي.',
+    'extended_template_description' => 'جميع الحقول بما في ذلك القديمة/الاختيارية (~60 عمود). استخدم للهجرة الكاملة للبيانات.',
+    'download_csv_template' => 'تحميل قالب CSV',
+    'download_xlsx_template' => 'تحميل قالب Excel',
+    'template_regenerated_successfully' => 'تم إعادة توليد ملفات القوالب بنجاح.',
+    'regenerate_templates_description' => 'إعادة توليد قوالب الاستيراد من هيكل قاعدة البيانات الحالي. قم بتشغيل هذا بعد تغييرات الهيكل.',
+    'regenerate_cases_templates' => 'إعادة توليد قوالب القضايا',
+    'import_templates' => 'قوالب الاستيراد',
 ];

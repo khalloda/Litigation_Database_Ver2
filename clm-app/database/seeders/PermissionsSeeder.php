@@ -59,9 +59,13 @@ class PermissionsSeeder extends Seeder
             'import.execute',
             'import.cancel',
             'import.delete',
+            'import.view_template',
             'export.view',
             'export.create',
             'export.download',
+
+            // Admin tools permissions
+            'admin.tools.manage',
         ];
 
         // Create each permission if it doesn't exist

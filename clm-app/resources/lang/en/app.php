@@ -601,4 +601,20 @@ return [
     'circuit_serial_placeholder' => '1-100, A-Z, أ-ي',
     'morning' => 'Morning',
     'night' => 'Night',
+
+    // Template Downloads
+    'cases_import_templates' => 'Cases Import Templates',
+    'download_template_generated_from_schema' => 'Download CSV or Excel templates generated from the current database schema.',
+    'standard_template' => 'Standard Template',
+    'extended_template' => 'Extended Template',
+    'recommended' => 'Recommended',
+    'advanced' => 'Advanced',
+    'standard_template_description' => 'Core fields only (~25 columns). Use for most imports.',
+    'extended_template_description' => 'All fields including legacy/optional (~60 columns). Use for complete data migration.',
+    'download_csv_template' => 'Download CSV template',
+    'download_xlsx_template' => 'Download Excel template',
+    'template_regenerated_successfully' => 'Template files regenerated successfully.',
+    'regenerate_templates_description' => 'Regenerate import templates from the current database schema. Run this after schema changes.',
+    'regenerate_cases_templates' => 'Regenerate Cases Templates',
+    'import_templates' => 'Import Templates',
 ];
