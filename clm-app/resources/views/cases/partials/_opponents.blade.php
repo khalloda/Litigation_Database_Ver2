@@ -29,14 +29,6 @@
         @endif
     </div>
     <div class="card-body">
-        {{-- Debug info --}}
-        <div class="alert alert-info">
-            <strong>Debug:</strong> Opponents count: {{ $opponents->count() }}
-            @if($opponents->count() > 0)
-                <br>First opponent: {{ $opponents->first()->opponent_name_en ?: $opponents->first()->opponent_name_ar }}
-            @endif
-        </div>
-        
         @if($opponents->count() > 0)
             <div class="table-responsive">
                 <table class="table table-hover" id="opponentsTable">
