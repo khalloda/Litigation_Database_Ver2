@@ -3,12 +3,14 @@
 
 @php
     try {
-        $opponents = $case->opponents()->orderBy('display_order')->get();
+        // Try to load opponents with a simpler approach
+        $opponents = $case->opponents()->get();
         $canManage = auth()->user()->can('cases.opponents.edit', $case);
     } catch (\Exception $e) {
         $opponents = collect();
         $canManage = false;
         \Log::error('Error loading opponents: ' . $e->getMessage());
+        \Log::error('Stack trace: ' . $e->getTraceAsString());
     }
 @endphp
 
@@ -27,6 +29,14 @@
         @endif
     </div>
     <div class="card-body">
+        {{-- Debug info --}}
+        <div class="alert alert-info">
+            <strong>Debug:</strong> Opponents count: {{ $opponents->count() }}
+            @if($opponents->count() > 0)
+                <br>First opponent: {{ $opponents->first()->opponent_name_en ?: $opponents->first()->opponent_name_ar }}
+            @endif
+        </div>
+        
         @if($opponents->count() > 0)
             <div class="table-responsive">
                 <table class="table table-hover" id="opponentsTable">
