@@ -2,8 +2,14 @@
 {{-- Displays opponents table with reorder, remove, and set primary functionality --}}
 
 @php
-    $opponents = $case->opponents()->orderBy('display_order')->get();
-    $canManage = auth()->user()->can('cases.opponents.edit', $case);
+    try {
+        $opponents = $case->opponents()->orderBy('display_order')->get();
+        $canManage = auth()->user()->can('cases.opponents.edit', $case);
+    } catch (\Exception $e) {
+        $opponents = collect();
+        $canManage = false;
+        \Log::error('Error loading opponents: ' . $e->getMessage());
+    }
 @endphp
 
 <div class="card shadow-sm mb-4">

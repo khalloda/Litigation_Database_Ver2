@@ -446,11 +446,11 @@ $(document).ready(function() {
     console.log('jQuery version:', $.fn.jquery);
     console.log('Select2 available:', typeof $.fn.select2);
     console.log('Opponent dropdown element:', $('#opponent_id').length);
-    
+
     // Check if element exists and has options
     const opponentSelect = $('#opponent_id');
     console.log('Opponent select options count:', opponentSelect.find('option').length);
-    
+
     if (opponentSelect.length > 0) {
         opponentSelect.select2({
             theme: 'bootstrap-5',
@@ -468,9 +468,15 @@ $(document).ready(function() {
             }
         });
         console.log('Select2 initialized for opponent dropdown');
-        
+
         // Force refresh to ensure styling is applied
         opponentSelect.trigger('change');
+        
+        // Force styling after initialization
+        setTimeout(function() {
+            $('.select2-container .select2-selection__rendered').css('color', '#212529');
+            $('.select2-dropdown .select2-results__option').css('color', '#212529');
+        }, 100);
     } else {
         console.error('Opponent dropdown element not found!');
     }

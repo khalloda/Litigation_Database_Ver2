@@ -124,6 +124,38 @@
         .select2-container {
             z-index: 9999 !important;
         }
+
+        /* AGGRESSIVE FIX FOR WHITE DROPDOWN - FORCE ALL TEXT TO BE VISIBLE */
+        .select2-container .select2-selection__rendered {
+            color: #212529 !important;
+            background-color: white !important;
+        }
+
+        .select2-container .select2-selection__placeholder {
+            color: #6c757d !important;
+        }
+
+        .select2-dropdown .select2-results__option {
+            color: #212529 !important;
+            background-color: white !important;
+        }
+
+        .select2-dropdown .select2-results__option--highlighted {
+            color: white !important;
+            background-color: #0d6efd !important;
+        }
+
+        /* Force all Select2 text to be visible */
+        .select2-container * {
+            color: inherit !important;
+        }
+
+        /* Override any white text */
+        .select2-container .select2-selection__rendered,
+        .select2-container .select2-selection__placeholder,
+        .select2-dropdown .select2-results__option {
+            color: #212529 !important;
+        }
     </style>
 
     <!-- Emergency fix for giant arrow overlays -->
