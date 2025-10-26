@@ -79,6 +79,22 @@
             border-radius: 0.375rem !important;
             padding: 0.375rem 0.75rem !important;
         }
+
+        /* Fix for white dropdown issue */
+        .select2-container--bootstrap-5 .select2-dropdown {
+            z-index: 9999 !important;
+            background-color: white !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-results__option {
+            background-color: white !important;
+            color: #212529 !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-results__option--highlighted {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
     </style>
 
     <!-- Emergency fix for giant arrow overlays -->

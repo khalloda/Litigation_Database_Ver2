@@ -171,7 +171,7 @@ class CaseModel extends Model
     // Multi-opponents relationships
     public function opponents()
     {
-        return $this->belongsToMany(Opponent::class, 'case_opponents')
+        return $this->belongsToMany(Opponent::class, 'case_opponents', 'case_id', 'opponent_id')
             ->withPivot(['capacity_id', 'is_primary', 'display_order', 'alias_text', 'id', 'deleted_at'])
             ->using(\App\Models\Pivots\CaseOpponent::class)
             ->withTimestamps()
@@ -180,7 +180,7 @@ class CaseModel extends Model
 
     public function primaryOpponent()
     {
-        return $this->belongsToMany(Opponent::class, 'case_opponents')
+        return $this->belongsToMany(Opponent::class, 'case_opponents', 'case_id', 'opponent_id')
             ->wherePivot('is_primary', 1)
             ->withPivot(['capacity_id', 'alias_text'])
             ->using(\App\Models\Pivots\CaseOpponent::class);
