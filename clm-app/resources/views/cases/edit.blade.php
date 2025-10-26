@@ -323,7 +323,7 @@
                         <select class="form-select @error('opponent_id') is-invalid @enderror" id="opponent_id" name="opponent_id">
                             <option value="">{{ __('app.select_option') }}</option>
                             @foreach($opponents as $opp)
-                            <option value="{{ $opp->id }}" 
+                            <option value="{{ $opp->id }}"
                                     {{ (old('opponent_id', $case->opponent_id) == $opp->id) ? 'selected' : '' }}
                                     data-arabic-name="{{ $opp->opponent_name_ar }}"
                                     data-english-name="{{ $opp->opponent_name_en }}">

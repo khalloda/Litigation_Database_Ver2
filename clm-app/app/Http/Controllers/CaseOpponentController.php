@@ -211,7 +211,7 @@ class CaseOpponentController extends Controller
                     if ($opponent->pivot->capacity_id) {
                         $capacity = \App\Models\OptionValue::find($opponent->pivot->capacity_id);
                     }
-                    
+
                     return [
                         'id' => $opponent->id,
                         'name_en' => $opponent->opponent_name_en,
@@ -230,7 +230,7 @@ class CaseOpponentController extends Controller
         } catch (\Exception $e) {
             \Log::error('Error loading opponents: ' . $e->getMessage());
             \Log::error('Stack trace: ' . $e->getTraceAsString());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => __('app.error_loading_opponents')
