@@ -190,12 +190,21 @@ class PreflightEngine
         // Integer types
         if (preg_match('/^(int|integer|tinyint|smallint|mediumint|bigint)/', $dbType)) {
             if (!is_numeric($value) || floor($value) != $value) {
+                // Check if this is a field that should have fuzzy matching
+                $suggestions = $this->getFuzzySuggestions($column, $value);
+                $message = "Expected integer, got '{$value}'";
+                
+                if (!empty($suggestions)) {
+                    $message .= " - Suggestions: " . implode(', ', $suggestions);
+                }
+                
                 return [
                     'row' => $rowIndex,
                     'column' => $column,
                     'value' => $value,
                     'type' => 'type_mismatch',
-                    'message' => "Expected integer, got '{$value}'",
+                    'message' => $message,
+                    'suggestions' => $suggestions,
                 ];
             }
         }
@@ -514,6 +523,9 @@ class PreflightEngine
                 $data['opponent_id'] = $opponentId;
             }
         }
+
+        // Handle direct ID field resolution for fields that might contain text instead of IDs
+        $this->resolveDirectIdFields($data);
 
         // Also resolve if opponent_id field contains text (direct mapping case)
         if (!empty($data['opponent_id']) && !is_numeric($data['opponent_id'])) {
@@ -848,5 +860,99 @@ class PreflightEngine
             'errors' => $errors,
             'warnings' => $warnings
         ];
+    }
+
+    /**
+     * Resolve direct ID fields that might contain text instead of IDs.
+     */
+    private function resolveDirectIdFields(array &$data): void
+    {
+        // Resolve court_id if it contains text
+        if (!empty($data['court_id']) && !is_numeric($data['court_id'])) {
+            $courtId = \App\Models\Court::where(function ($q) use ($data) {
+                $q->where('court_name_en', 'like', '%' . $data['court_id'] . '%')
+                    ->orWhere('court_name_ar', 'like', '%' . $data['court_id'] . '%');
+            })->value('id');
+
+            if ($courtId) {
+                $data['court_id'] = $courtId;
+            }
+        }
+
+        // Resolve client_capacity_id if it contains text
+        if (!empty($data['client_capacity_id']) && !is_numeric($data['client_capacity_id'])) {
+            $capacityId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'capacity.type');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', 'like', '%' . $data['client_capacity_id'] . '%')
+                    ->orWhere('label_ar', 'like', '%' . $data['client_capacity_id'] . '%');
+            })->value('id');
+
+            if ($capacityId) {
+                $data['client_capacity_id'] = $capacityId;
+            }
+        }
+
+        // Resolve opponent_capacity_id if it contains text
+        if (!empty($data['opponent_capacity_id']) && !is_numeric($data['opponent_capacity_id'])) {
+            $capacityId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'capacity.type');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', 'like', '%' . $data['opponent_capacity_id'] . '%')
+                    ->orWhere('label_ar', 'like', '%' . $data['opponent_capacity_id'] . '%');
+            })->value('id');
+
+            if ($capacityId) {
+                $data['opponent_capacity_id'] = $capacityId;
+            }
+        }
+
+        // Resolve matter_partner_id if it contains text (lawyer name)
+        if (!empty($data['matter_partner_id']) && !is_numeric($data['matter_partner_id'])) {
+            $lawyerId = \App\Models\Lawyer::where(function ($q) use ($data) {
+                $q->where('lawyer_name_en', 'like', '%' . $data['matter_partner_id'] . '%')
+                    ->orWhere('lawyer_name_ar', 'like', '%' . $data['matter_partner_id'] . '%');
+            })->value('id');
+
+            if ($lawyerId) {
+                $data['matter_partner_id'] = $lawyerId;
+            }
+        }
+    }
+
+    /**
+     * Get fuzzy matching suggestions for a given column and value.
+     */
+    private function getFuzzySuggestions(string $column, string $value): array
+    {
+        $suggestions = [];
+
+        switch ($column) {
+            case 'court_id':
+                $suggestions = \App\Models\Court::where(function ($q) use ($value) {
+                    $q->where('court_name_en', 'like', '%' . $value . '%')
+                        ->orWhere('court_name_ar', 'like', '%' . $value . '%');
+                })->limit(5)->pluck('court_name_en', 'id')->toArray();
+                break;
+
+            case 'client_capacity_id':
+            case 'opponent_capacity_id':
+                $suggestions = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                    $q->where('key', 'capacity.type');
+                })->where(function ($q) use ($value) {
+                    $q->where('label_en', 'like', '%' . $value . '%')
+                        ->orWhere('label_ar', 'like', '%' . $value . '%');
+                })->limit(5)->pluck('label_en', 'id')->toArray();
+                break;
+
+            case 'matter_partner_id':
+                $suggestions = \App\Models\Lawyer::where(function ($q) use ($value) {
+                    $q->where('lawyer_name_en', 'like', '%' . $value . '%')
+                        ->orWhere('lawyer_name_ar', 'like', '%' . $value . '%');
+                })->limit(5)->pluck('lawyer_name_en', 'id')->toArray();
+                break;
+        }
+
+        return $suggestions;
     }
 }
