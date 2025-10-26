@@ -661,9 +661,18 @@ endif;
 unset($__errorArgs, $__bag); ?>" id="opponent_id" name="opponent_id">
                             <option value=""><?php echo e(__('app.select_option')); ?></option>
                             <?php $__currentLoopData = $opponents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $opp): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($opp->id); ?>" <?php echo e((old('opponent_id', $case->opponent_id) == $opp->id) ? 'selected' : ''); ?>>
-                                <?php echo e(app()->getLocale() === 'ar' ? $opp->opponent_name_ar : $opp->opponent_name_en); ?>
+                            <option value="<?php echo e($opp->id); ?>"
+                                    <?php echo e((old('opponent_id', $case->opponent_id) == $opp->id) ? 'selected' : ''); ?>
 
+                                    data-arabic-name="<?php echo e($opp->opponent_name_ar); ?>"
+                                    data-english-name="<?php echo e($opp->opponent_name_en); ?>">
+                                <?php if(app()->getLocale() === 'ar'): ?>
+                                    <?php echo e($opp->opponent_name_ar); ?>
+
+                                <?php else: ?>
+                                    <?php echo e($opp->opponent_name_en ?: $opp->opponent_name_ar); ?>
+
+                                <?php endif; ?>
                             </option>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
@@ -901,6 +910,50 @@ $(document).ready(function() {
         allowClear: true,
         width: '100%'
     });
+
+    // Initialize Select2 for opponent dropdown
+    console.log('Initializing Select2 for opponent dropdown...');
+    console.log('jQuery version:', $.fn.jquery);
+    console.log('Select2 available:', typeof $.fn.select2);
+    console.log('Opponent dropdown element:', $('#opponent_id').length);
+
+    // Check if element exists and has options
+    const opponentSelect = $('#opponent_id');
+    console.log('Opponent select options count:', opponentSelect.find('option').length);
+
+    if (opponentSelect.length > 0) {
+        opponentSelect.select2({
+            theme: 'bootstrap-5',
+            placeholder: '<?php echo e(__("app.select_option")); ?>',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $('body'), // Ensure dropdown appears above other elements
+            templateResult: function(data) {
+                if (!data.id) return data.text;
+                // Use Arabic name if English is empty
+                var displayText = data.text || data.element.getAttribute('data-arabic-name') || 'Unknown';
+                return $('<span style="color: #212529;">' + displayText + '</span>');
+            },
+            templateSelection: function(data) {
+                if (!data.id) return data.text;
+                // Use Arabic name if English is empty
+                var displayText = data.text || data.element.getAttribute('data-arabic-name') || 'Unknown';
+                return $('<span style="color: #212529;">' + displayText + '</span>');
+            }
+        });
+        console.log('Select2 initialized for opponent dropdown');
+
+        // Force refresh to ensure styling is applied
+        opponentSelect.trigger('change');
+
+        // Force styling after initialization
+        setTimeout(function() {
+            $('.select2-container .select2-selection__rendered').css('color', '#212529');
+            $('.select2-dropdown .select2-results__option').css('color', '#212529');
+        }, 100);
+    } else {
+        console.error('Opponent dropdown element not found!');
+    }
 
     // Load existing court details on page load if court is selected
     const initialCourtId = $('#court_id').val();

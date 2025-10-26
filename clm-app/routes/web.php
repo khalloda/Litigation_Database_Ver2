@@ -78,6 +78,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/opponents/search', [App\Http\Controllers\OpponentsController::class, 'search'])->name('opponents.search');
 });
 
+// Fuzzy Matching Choice System
+Route::middleware(['auth', 'permission:import.view'])->group(function () {
+    Route::get('/fuzzy-matching/choices', [App\Http\Controllers\FuzzyMatchingController::class, 'getChoices'])->name('fuzzy-matching.choices');
+    Route::post('/fuzzy-matching/apply-choice', [App\Http\Controllers\FuzzyMatchingController::class, 'applyChoice'])->name('fuzzy-matching.apply-choice');
+});
+
 // Hearing Management
 Route::middleware(['auth', 'permission:hearings.view'])->group(function () {
     Route::get('/hearings', [App\Http\Controllers\HearingsController::class, 'index'])->name('hearings.index');

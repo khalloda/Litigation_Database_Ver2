@@ -61,11 +61,22 @@
                         </thead>
                         <tbody>
                             @foreach(array_slice($results['errors'], 0, 50) as $error)
-                            <tr>
+                            <tr class="fuzzy-error-row" 
+                                data-field="{{ $error['column'] }}" 
+                                data-value="{{ $error['value'] ?? '' }}"
+                                data-row="{{ $error['row'] }}"
+                                style="cursor: pointer;">
                                 <td>{{ $error['row'] }}</td>
                                 <td><code>{{ $error['column'] }}</code></td>
                                 <td>{{ Str::limit($error['value'] ?? 'NULL', 30) }}</td>
-                                <td>{{ $error['message'] }}</td>
+                                <td>
+                                    {{ $error['message'] }}
+                                    @if(isset($error['suggestions']) && !empty($error['suggestions']))
+                                        <br><small class="text-info">
+                                            <i class="fas fa-lightbulb"></i> {{ __('app.suggestions') }}: {{ implode(', ', $error['suggestions']) }}
+                                        </small>
+                                    @endif
+                                </td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -107,5 +118,49 @@
         </div>
     </div>
 </div>
+
+{{-- Include Fuzzy Matching Modal --}}
+@include('import.partials._fuzzy-matching-modal')
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click handlers to fuzzy error rows
+    document.querySelectorAll('.fuzzy-error-row').forEach(row => {
+        row.addEventListener('click', function() {
+            const field = this.dataset.field;
+            const value = this.dataset.value;
+            const rowNum = this.dataset.row;
+            
+            // Check if this is a field that supports fuzzy matching
+            const fuzzyFields = [
+                'matter_partner_id', 'circuit_secretary', 'court_id', 
+                'client_capacity_id', 'opponent_capacity_id', 'circuit_name_id'
+            ];
+            
+            if (fuzzyFields.includes(field) && value && !value.match(/^\d+$/)) {
+                // Open fuzzy matching modal
+                window.initFuzzyMatchingModal(field, value, {{ $session->id }});
+            } else {
+                // Show info message for non-fuzzy fields
+                alert('{{ __("app.field_does_not_support_fuzzy_matching") }}: ' + field);
+            }
+        });
+        
+        // Add hover effect
+        row.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#f8f9fa';
+        });
+        
+        row.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = '';
+        });
+    });
+    
+    // Add refresh function for validation results
+    window.refreshValidationResults = function() {
+        location.reload();
+    };
+});
+</script>
 @endsection
 

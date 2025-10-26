@@ -1025,7 +1025,7 @@ class PreflightEngine
     {
         // Remove common Arabic prefixes
         $cleanValue = $this->removeArabicPrefixes($searchValue);
-        
+
         // Try exact match first
         $lawyer = \App\Models\Lawyer::where(function ($q) use ($cleanValue) {
             $q->where('lawyer_name_en', 'like', '%' . $cleanValue . '%')
@@ -1055,8 +1055,18 @@ class PreflightEngine
     private function removeArabicPrefixes(string $name): string
     {
         $prefixes = [
-            'أ.', 'د.', 'أستاذ.', 'أستاذة.', 'دكتور.', 'دكتورة.',
-            'محامي.', 'محامية.', 'السيد.', 'السيدة.', 'الأستاذ.', 'الأستاذة.'
+            'أ.',
+            'د.',
+            'أستاذ.',
+            'أستاذة.',
+            'دكتور.',
+            'دكتورة.',
+            'محامي.',
+            'محامية.',
+            'السيد.',
+            'السيدة.',
+            'الأستاذ.',
+            'الأستاذة.'
         ];
 
         $cleanName = trim($name);

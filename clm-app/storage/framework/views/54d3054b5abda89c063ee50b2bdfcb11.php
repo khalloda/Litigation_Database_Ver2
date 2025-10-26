@@ -901,6 +901,40 @@ $(document).ready(function() {
         width: '100%'
     });
 
+    // Initialize Select2 for opponent dropdown
+    console.log('Initializing Select2 for opponent dropdown...');
+    console.log('jQuery version:', $.fn.jquery);
+    console.log('Select2 available:', typeof $.fn.select2);
+    console.log('Opponent dropdown element:', $('#opponent_id').length);
+
+    // Check if element exists and has options
+    const opponentSelect = $('#opponent_id');
+    console.log('Opponent select options count:', opponentSelect.find('option').length);
+
+    if (opponentSelect.length > 0) {
+        opponentSelect.select2({
+            theme: 'bootstrap-5',
+            placeholder: '<?php echo e(__("app.select_option")); ?>',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $('body'), // Ensure dropdown appears above other elements
+            templateResult: function(data) {
+                if (!data.id) return data.text;
+                return $('<span style="color: #212529;">' + data.text + '</span>');
+            },
+            templateSelection: function(data) {
+                if (!data.id) return data.text;
+                return $('<span style="color: #212529;">' + data.text + '</span>');
+            }
+        });
+        console.log('Select2 initialized for opponent dropdown');
+
+        // Force refresh to ensure styling is applied
+        opponentSelect.trigger('change');
+    } else {
+        console.error('Opponent dropdown element not found!');
+    }
+
     // Handle court selection change - cascading dropdowns
     $('#court_id').on('change', function() {
         const courtId = $(this).val();

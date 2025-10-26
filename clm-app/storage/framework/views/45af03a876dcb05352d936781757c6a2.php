@@ -2,8 +2,16 @@
 
 
 <?php
-    $opponents = $case->opponents()->with('pivot.capacity')->orderBy('display_order')->get();
-    $canManage = auth()->user()->can('cases.opponents.edit', $case);
+    try {
+        // Try to load opponents with a simpler approach
+        $opponents = $case->opponents()->get();
+        $canManage = auth()->user()->can('cases.opponents.edit', $case);
+    } catch (\Exception $e) {
+        $opponents = collect();
+        $canManage = false;
+        \Log::error('Error loading opponents: ' . $e->getMessage());
+        \Log::error('Stack trace: ' . $e->getTraceAsString());
+    }
 ?>
 
 <div class="card shadow-sm mb-4">
@@ -40,7 +48,7 @@
                         <?php $__currentLoopData = $opponents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $opponent): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <?php
                                 $pivot = $opponent->pivot;
-                                $capacity = $pivot->capacity;
+                                $capacity = $pivot->capacity_id ? \App\Models\OptionValue::find($pivot->capacity_id) : null;
                             ?>
                             <tr data-opponent-id="<?php echo e($opponent->id); ?>" data-order="<?php echo e($pivot->display_order); ?>">
                                 <td>

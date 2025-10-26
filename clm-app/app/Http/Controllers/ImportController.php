@@ -238,15 +238,15 @@ class ImportController extends Controller
         // Increase execution time and memory for large imports
         $executionTime = config('importer.validation.execution_time', 600);
         $memoryLimit = config('importer.validation.memory_limit', '512M');
-        
+
         set_time_limit($executionTime);
         ini_set('memory_limit', $memoryLimit);
-        
+
         \Log::info('Preflight execution settings', [
             'execution_time' => $executionTime,
             'memory_limit' => $memoryLimit
         ]);
-        
+
         $session = ImportSession::findOrFail($importSessionId);
 
         $this->authorize('view', $session);

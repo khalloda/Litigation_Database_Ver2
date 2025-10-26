@@ -1,0 +1,196 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Services\FuzzyMatchingChoiceService;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use App\Models\Lawyer;
+use App\Models\Court;
+use App\Models\OptionValue;
+use Illuminate\Support\Facades\DB;
+
+class FuzzyMatchingController extends Controller
+{
+    protected $choiceService;
+
+    public function __construct(FuzzyMatchingChoiceService $choiceService)
+    {
+        $this->choiceService = $choiceService;
+    }
+
+    /**
+     * Get choices for a failed fuzzy match.
+     */
+    public function getChoices(Request $request): JsonResponse
+    {
+        $request->validate([
+            'field' => 'required|string',
+            'search_value' => 'required|string',
+            'import_session_id' => 'required|integer'
+        ]);
+
+        $choices = $this->choiceService->getChoicesForField(
+            $request->field,
+            $request->search_value
+        );
+
+        return response()->json([
+            'success' => true,
+            'choices' => $choices
+        ]);
+    }
+
+    /**
+     * Apply user's choice to resolve a fuzzy match.
+     */
+    public function applyChoice(Request $request): JsonResponse
+    {
+        $request->validate([
+            'field' => 'required|string',
+            'search_value' => 'required|string',
+            'choice_type' => 'required|in:existing,create',
+            'choice_data' => 'required|array',
+            'import_session_id' => 'required|integer'
+        ]);
+
+        try {
+            $result = null;
+
+            if ($request->choice_type === 'existing') {
+                $result = $this->applyExistingChoice($request->field, $request->choice_data);
+            } else {
+                $result = $this->applyCreateChoice($request->field, $request->choice_data);
+            }
+
+            return response()->json([
+                'success' => true,
+                'resolved_id' => $result,
+                'message' => __('app.fuzzy_match_resolved_successfully')
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Apply existing choice (user selected from existing values).
+     */
+    private function applyExistingChoice(string $field, array $choiceData): int
+    {
+        return (int) $choiceData['id'];
+    }
+
+    /**
+     * Apply create choice (user chose to create new value).
+     */
+    private function applyCreateChoice(string $field, array $choiceData): int
+    {
+        return DB::transaction(function () use ($field, $choiceData) {
+            switch ($field) {
+                case 'matter_partner_id':
+                case 'circuit_secretary':
+                    return $this->createLawyer($choiceData);
+
+                case 'court_id':
+                    return $this->createCourt($choiceData);
+
+                case 'client_capacity_id':
+                case 'opponent_capacity_id':
+                    return $this->createCapacity($choiceData);
+
+                case 'circuit_name_id':
+                    return $this->createCircuit($choiceData);
+
+                default:
+                    throw new \InvalidArgumentException("Cannot create new value for field: {$field}");
+            }
+        });
+    }
+
+    /**
+     * Create new lawyer.
+     */
+    private function createLawyer(array $data): int
+    {
+        $lawyer = Lawyer::create([
+            'lawyer_name_ar' => $data['lawyer_name_ar'],
+            'lawyer_name_en' => $data['lawyer_name_en'],
+            'email' => $data['email'],
+            'title' => $data['title'] ?? 'Associate',
+            'is_active' => true,
+            'created_by' => auth()->id(),
+            'updated_by' => auth()->id()
+        ]);
+
+        return $lawyer->id;
+    }
+
+    /**
+     * Create new court.
+     */
+    private function createCourt(array $data): int
+    {
+        $court = Court::create([
+            'court_name_ar' => $data['court_name_ar'],
+            'court_name_en' => $data['court_name_en'],
+            'is_active' => true,
+            'created_by' => auth()->id(),
+            'updated_by' => auth()->id()
+        ]);
+
+        return $court->id;
+    }
+
+    /**
+     * Create new capacity option value.
+     */
+    private function createCapacity(array $data): int
+    {
+        $optionSet = \App\Models\OptionSet::where('key', 'capacity.type')->first();
+        
+        if (!$optionSet) {
+            throw new \Exception('Capacity option set not found');
+        }
+
+        $optionValue = OptionValue::create([
+            'set_id' => $optionSet->id,
+            'label_ar' => $data['label_ar'],
+            'label_en' => $data['label_en'],
+            'value' => strtolower(str_replace(' ', '_', $data['label_en'])),
+            'is_active' => true,
+            'created_by' => auth()->id(),
+            'updated_by' => auth()->id()
+        ]);
+
+        return $optionValue->id;
+    }
+
+    /**
+     * Create new circuit option value.
+     */
+    private function createCircuit(array $data): int
+    {
+        $optionSet = \App\Models\OptionSet::where('key', 'circuit.name')->first();
+        
+        if (!$optionSet) {
+            throw new \Exception('Circuit option set not found');
+        }
+
+        $optionValue = OptionValue::create([
+            'set_id' => $optionSet->id,
+            'label_ar' => $data['label_ar'],
+            'label_en' => $data['label_en'],
+            'value' => strtolower(str_replace(' ', '_', $data['label_en'])),
+            'is_active' => true,
+            'created_by' => auth()->id(),
+            'updated_by' => auth()->id()
+        ]);
+
+        return $optionValue->id;
+    }
+}
