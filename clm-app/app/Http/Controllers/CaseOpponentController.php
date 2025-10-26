@@ -206,14 +206,20 @@ class CaseOpponentController extends Controller
             return response()->json([
                 'success' => true,
                 'opponents' => $opponents->map(function ($opponent) {
+                    // Load capacity separately to avoid relationship issues
+                    $capacity = null;
+                    if ($opponent->pivot->capacity_id) {
+                        $capacity = \App\Models\OptionValue::find($opponent->pivot->capacity_id);
+                    }
+                    
                     return [
                         'id' => $opponent->id,
                         'name_en' => $opponent->opponent_name_en,
                         'name_ar' => $opponent->opponent_name_ar,
-                        'capacity' => $opponent->pivot->capacity ? [
-                            'id' => $opponent->pivot->capacity->id,
-                            'label_en' => $opponent->pivot->capacity->label_en,
-                            'label_ar' => $opponent->pivot->capacity->label_ar,
+                        'capacity' => $capacity ? [
+                            'id' => $capacity->id,
+                            'label_en' => $capacity->label_en,
+                            'label_ar' => $capacity->label_ar,
                         ] : null,
                         'alias_text' => $opponent->pivot->alias_text,
                         'is_primary' => $opponent->pivot->is_primary,
@@ -222,6 +228,9 @@ class CaseOpponentController extends Controller
                 })
             ]);
         } catch (\Exception $e) {
+            \Log::error('Error loading opponents: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
             return response()->json([
                 'success' => false,
                 'message' => __('app.error_loading_opponents')

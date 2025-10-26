@@ -214,7 +214,6 @@ class CaseOpponentService
     public function getOpponentsWithCapacities(CaseModel $case)
     {
         return $case->opponents()
-            ->with('pivot.capacity')
             ->orderBy('display_order')
             ->get();
     }
