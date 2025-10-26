@@ -23,6 +23,7 @@ erDiagram
     
     CASES ||--o{ HEARINGS : "has many"
     CASES ||--o{ ADMIN_TASKS : "has many"
+    CASES ||--o{ CASE_OPPONENTS : "has many"
     CASES }o--|| CLIENTS : "belongs to"
     CASES }o--o| ENGAGEMENT_LETTERS : "may belong to"
     
@@ -50,8 +51,27 @@ erDiagram
     LAWYERS ||--o{ ADMIN_TASKS : "handles"
     LAWYERS ||--o{ ADMIN_SUBTASKS : "performs"
     
+    CASE_OPPONENTS }o--|| CASES : "belongs to"
+    CASE_OPPONENTS }o--|| OPPONENTS : "references"
+    CASE_OPPONENTS }o--o| OPTION_VALUES : "has capacity"
+    
     DELETION_BUNDLES ||--o{ DELETION_BUNDLE_ITEMS : "contains"
     DELETION_BUNDLES }o--|| USERS : "deleted by"
+
+    CASE_OPPONENTS {
+        bigint id PK
+        bigint case_id FK
+        bigint opponent_id FK
+        bigint capacity_id FK
+        boolean is_primary
+        int display_order
+        string alias_text
+        bigint created_by FK
+        bigint updated_by FK
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
 
     CLIENTS {
         bigint id PK
@@ -308,6 +328,9 @@ Court hearing sessions. Each hearing belongs to a case and may have multiple att
 #### LAWYERS
 Lawyers and staff members who handle cases and attend hearings.
 
+#### CASE_OPPONENTS
+Pivot table for multiple opponents per case with capacity tracking. Each case can have multiple opponents, each with a specific capacity (role) in the case.
+
 ### Supporting Entities
 
 #### CONTACTS
@@ -337,8 +360,9 @@ Legal documents uploaded for clients/cases with metadata tracking.
 3. **Client → Engagement Letters**: One-to-Many
 4. **Case → Hearings**: One-to-Many (a case has multiple hearings over time)
 5. **Case → Admin Tasks**: One-to-Many
-6. **Admin Task → Admin Subtasks**: One-to-Many
-7. **Engagement Letter → Cases**: One-to-Many (one contract may cover multiple cases)
+6. **Case → Case Opponents**: One-to-Many (a case can have multiple opponents)
+7. **Admin Task → Admin Subtasks**: One-to-Many
+8. **Engagement Letter → Cases**: One-to-Many (one contract may cover multiple cases)
 
 ---
 
@@ -428,6 +452,6 @@ All tables include:
 
 ---
 
-**Last Updated**: 2025-10-08 16:00 UTC  
-**Version**: 1.1 (Added trash system tables and relationships)
+**Last Updated**: 2025-10-25 17:00 UTC  
+**Version**: 1.2 (Added case_opponents pivot table for multi-opponents per case feature)
 

@@ -239,9 +239,40 @@ class GenerateCasesTemplate extends Command
         // All importable columns (exclude system fields)
         $excludeFields = ['id', 'created_at', 'updated_at', 'deleted_at', 'created_by', 'updated_by'];
 
-        return array_filter($columns, function ($col) use ($excludeFields) {
+        $filteredColumns = array_filter($columns, function ($col) use ($excludeFields) {
             return !in_array($col->COLUMN_NAME, $excludeFields);
         });
+
+        // Add multiple opponent columns for Extended template
+        $multiOpponentColumns = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $multiOpponentColumns[] = (object)[
+                'COLUMN_NAME' => "opponent{$i}_name",
+                'DATA_TYPE' => 'varchar',
+                'IS_NULLABLE' => 'YES',
+                'COLUMN_DEFAULT' => null
+            ];
+            $multiOpponentColumns[] = (object)[
+                'COLUMN_NAME' => "opponent{$i}_id",
+                'DATA_TYPE' => 'bigint',
+                'IS_NULLABLE' => 'YES',
+                'COLUMN_DEFAULT' => null
+            ];
+            $multiOpponentColumns[] = (object)[
+                'COLUMN_NAME' => "opponent{$i}_capacity",
+                'DATA_TYPE' => 'varchar',
+                'IS_NULLABLE' => 'YES',
+                'COLUMN_DEFAULT' => null
+            ];
+            $multiOpponentColumns[] = (object)[
+                'COLUMN_NAME' => "opponent{$i}_capacity_id",
+                'DATA_TYPE' => 'bigint',
+                'IS_NULLABLE' => 'YES',
+                'COLUMN_DEFAULT' => null
+            ];
+        }
+
+        return array_merge($filteredColumns, $multiOpponentColumns);
     }
 
     private function generateCsv($type, $columns, $lookupData)
@@ -410,6 +441,16 @@ class GenerateCasesTemplate extends Command
             'Standard: Core fields needed to create a basic case (~25 columns)',
             'Extended: All optional/legacy/advanced fields (~35 additional columns)',
             'Use Standard for most imports; use Extended when migrating legacy data',
+            '',
+            'Multiple Opponents (Extended Template Only)',
+            '==========================================',
+            'Extended template includes opponent1-5 columns for multiple opponents:',
+            '- opponent1_name, opponent1_id, opponent1_capacity, opponent1_capacity_id',
+            '- opponent2_name, opponent2_id, opponent2_capacity, opponent2_capacity_id',
+            '- ... up to opponent5',
+            'opponent1 becomes the primary opponent (is_primary=1)',
+            'Additional opponents can be added via companion import (Case_Opponents_Import)',
+            'Maximum opponents per case: 10 (configurable)',
             '',
             'Regeneration',
             '============',
@@ -629,6 +670,67 @@ class GenerateCasesTemplate extends Command
                     break;
                 case 'notes_1':
                     $value = $language === 'arabic' ? 'قضية مستعجلة؛ متابعة دورية' : 'Ongoing case; quarterly review';
+                    break;
+                // Multiple opponents for Extended template
+                case 'opponent1_name':
+                    $value = $language === 'arabic' ? 'سبيد ميديكا' : 'Speed Medical';
+                    break;
+                case 'opponent1_id':
+                    $value = '8';
+                    break;
+                case 'opponent1_capacity':
+                    $value = $language === 'arabic' ? 'مدعى عليه' : 'Defendant';
+                    break;
+                case 'opponent1_capacity_id':
+                    $value = '18';
+                    break;
+                case 'opponent2_name':
+                    $value = $language === 'arabic' ? 'شركة التأمين' : 'Insurance Company';
+                    break;
+                case 'opponent2_id':
+                    $value = '9';
+                    break;
+                case 'opponent2_capacity':
+                    $value = $language === 'arabic' ? 'مدعى عليه ثاني' : 'Second Defendant';
+                    break;
+                case 'opponent2_capacity_id':
+                    $value = '19';
+                    break;
+                case 'opponent3_name':
+                    $value = $language === 'arabic' ? 'المحكمة' : 'Court';
+                    break;
+                case 'opponent3_id':
+                    $value = '10';
+                    break;
+                case 'opponent3_capacity':
+                    $value = $language === 'arabic' ? 'جهة حكومية' : 'Government Entity';
+                    break;
+                case 'opponent3_capacity_id':
+                    $value = '20';
+                    break;
+                case 'opponent4_name':
+                    $value = $language === 'arabic' ? 'البنك' : 'Bank';
+                    break;
+                case 'opponent4_id':
+                    $value = '11';
+                    break;
+                case 'opponent4_capacity':
+                    $value = $language === 'arabic' ? 'مدعى عليه ثالث' : 'Third Defendant';
+                    break;
+                case 'opponent4_capacity_id':
+                    $value = '21';
+                    break;
+                case 'opponent5_name':
+                    $value = $language === 'arabic' ? 'الشركة المصرية' : 'Egyptian Company';
+                    break;
+                case 'opponent5_id':
+                    $value = '12';
+                    break;
+                case 'opponent5_capacity':
+                    $value = $language === 'arabic' ? 'مدعى عليه رابع' : 'Fourth Defendant';
+                    break;
+                case 'opponent5_capacity_id':
+                    $value = '22';
                     break;
                 default:
                     // For other columns, provide appropriate sample data

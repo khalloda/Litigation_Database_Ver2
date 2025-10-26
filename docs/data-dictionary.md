@@ -136,6 +136,39 @@ Core domain tables support soft deletes:
 **Records**: 1,695 (99.65% imported)  
 **Key Columns**: `client_id`, `matter_name_ar`, `matter_name_en`, `matter_status`, `matter_description`, `start_date`, `end_date`
 
+### case_opponents
+**Description**: Pivot table for multiple opponents per case with capacity tracking  
+**Source**: New table (multi-opponents feature)  
+**Records**: TBD (populated via backfill migration)  
+**Key Columns**: `case_id`, `opponent_id`, `capacity_id`, `is_primary`, `display_order`, `alias_text`
+
+| Column | Type | NULL | Default | Constraints | Description |
+|---|---|:---:|---|---|---|
+| id | unsignedBigInteger | NO | AUTO | PK | Pivot record ID |
+| case_id | unsignedBigInteger | NO | - | FK→cases.id | Case reference |
+| opponent_id | unsignedBigInteger | NO | - | FK→opponents.id | Opponent reference |
+| capacity_id | unsignedBigInteger | YES | NULL | FK→option_values.id | Opponent capacity |
+| is_primary | boolean | NO | FALSE | - | Primary opponent flag |
+| display_order | integer | YES | NULL | - | Sort order for UI |
+| alias_text | string(191) | YES | NULL | - | Custom alias for opponent |
+| created_by | unsignedBigInteger | YES | NULL | FK→users.id | Creator user |
+| updated_by | unsignedBigInteger | YES | NULL | FK→users.id | Last updater user |
+| created_at | timestamp | YES | NULL | - | Creation timestamp |
+| updated_at | timestamp | YES | NULL | - | Last update timestamp |
+| deleted_at | timestamp | YES | NULL | - | Soft delete timestamp |
+
+**Indexes**:
+- `idx_case_opponents_case_display` (case_id, display_order)
+- `idx_case_opponents_opponent` (opponent_id)
+- `idx_case_opponents_case_primary` (case_id, is_primary)
+- `idx_case_opponents_case_capacity` (case_id, capacity_id)
+
+**Business Rules**:
+- Same opponent can appear with different capacities in same case
+- Exactly one opponent per case must be marked as primary
+- Uniqueness enforced at service layer: (case_id, opponent_id, capacity_id)
+- Supports soft deletes for re-attachment scenarios
+
 ### hearings
 **Description**: Court hearings and sessions  
 **Source**: `hearings.xlsx`  
@@ -214,8 +247,9 @@ Core domain tables support soft deletes:
 | 2025-10-08 | 1.1 | Added domain tables after ETL import completion | System |
 | 2025-01-09 | 1.2 | Updated with import statistics and system tables | System |
 | 2025-01-09 | 1.3 | Database schema alignment - fixed column mismatches, comprehensive view updates | System |
+| 2025-10-25 | 1.4 | Added case_opponents pivot table for multi-opponents per case feature | System |
 
 ---
 
-**Last Updated**: 2025-01-09 15:45 UTC
+**Last Updated**: 2025-10-25 16:30 UTC
 

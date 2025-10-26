@@ -1,7 +1,7 @@
 <?php $__env->startSection('title', __('app.case_details')); ?>
 
 <?php $__env->startSection('content'); ?>
-<div class="container-fluid">
+<div class="container-fluid" data-case-id="<?php echo e($case->id); ?>">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h4"><?php echo e(__('app.case_details')); ?></h1>
         <div>
@@ -270,8 +270,19 @@
             </div>
         </div>
     </div>
+
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <?php echo $__env->make('cases.partials._opponents', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+        </div>
+    </div>
 </div>
 <?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('scripts'); ?>
+<script src="<?php echo e(asset('js/case-opponents.js')); ?>"></script>
+<?php $__env->stopPush(); ?>
 
 
 <?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\Claude\Litigation_Database_Ver2\Litigation_Database_Ver2\clm-app\resources\views/cases/show.blade.php ENDPATH**/ ?>

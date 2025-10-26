@@ -10,7 +10,7 @@ class CaseCollector extends BaseCollector
     public function collect(Model $model): array
     {
         $snapshot = [];
-        
+
         // Root case
         $snapshot['case'] = [
             'attributes' => $this->getAttributes($model),
@@ -19,23 +19,23 @@ class CaseCollector extends BaseCollector
                 'contract_id' => $model->contract_id,
             ],
         ];
-        
+
         // Hearings
         $snapshot['hearings'] = DB::table('hearings')
             ->where('matter_id', $model->id)
             ->get()
             ->map(fn($h) => ['attributes' => (array) $h])
             ->toArray();
-        
+
         // Admin tasks
         $snapshot['admin_tasks'] = DB::table('admin_tasks')
             ->where('matter_id', $model->id)
             ->get()
             ->map(fn($t) => ['attributes' => (array) $t])
             ->toArray();
-        
+
         $taskIds = collect($snapshot['admin_tasks'])->pluck('attributes.id')->filter()->toArray();
-        
+
         if (!empty($taskIds)) {
             $snapshot['admin_subtasks'] = DB::table('admin_subtasks')
                 ->whereIn('task_id', $taskIds)
@@ -43,18 +43,34 @@ class CaseCollector extends BaseCollector
                 ->map(fn($s) => ['attributes' => (array) $s])
                 ->toArray();
         }
-        
+
         // Documents (case-specific)
         $snapshot['documents'] = DB::table('client_documents')
             ->where('matter_id', $model->id)
             ->get()
-            ->map(function($d) {
+            ->map(function ($d) {
                 return [
                     'attributes' => (array) $d,
                     'file' => [], // File info would go here
                 ];
             })->toArray();
-        
+
+        // Case Opponents (pivot table)
+        $snapshot['case_opponents'] = DB::table('case_opponents')
+            ->where('case_id', $model->id)
+            ->whereNull('deleted_at') // Only capture non-deleted opponents
+            ->get()
+            ->map(function ($co) {
+                return [
+                    'attributes' => (array) $co,
+                    'references' => [
+                        'case_id' => $co->case_id,
+                        'opponent_id' => $co->opponent_id,
+                        'capacity_id' => $co->capacity_id,
+                    ],
+                ];
+            })->toArray();
+
         return $snapshot;
     }
 
@@ -66,14 +82,13 @@ class CaseCollector extends BaseCollector
     public function getFileDescriptors(array $snapshot): array
     {
         $files = [];
-        
+
         foreach ($snapshot['documents'] ?? [] as $doc) {
             if (!empty($doc['file'])) {
                 $files[] = $doc['file'];
             }
         }
-        
+
         return $files;
     }
 }
-

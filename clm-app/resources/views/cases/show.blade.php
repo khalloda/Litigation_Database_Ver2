@@ -3,7 +3,7 @@
 @section('title', __('app.case_details'))
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid" data-case-id="{{ $case->id }}">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h4">{{ __('app.case_details') }}</h1>
         <div>
@@ -252,6 +252,17 @@
             </div>
         </div>
     </div>
+
+    {{-- Opponents Section --}}
+    <div class="row mt-4">
+        <div class="col-12">
+            @include('cases.partials._opponents')
+        </div>
+    </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="{{ asset('js/case-opponents.js') }}"></script>
+@endpush
 

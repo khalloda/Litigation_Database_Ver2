@@ -33,6 +33,14 @@ class Opponent extends Model
         return $name ?? '';
     }
 
+    // Relationships
+    public function cases()
+    {
+        return $this->belongsToMany(\App\Models\CaseModel::class, 'case_opponents')
+            ->withPivot(['capacity_id', 'is_primary', 'display_order', 'alias_text', 'id'])
+            ->withTimestamps();
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

@@ -51,6 +51,7 @@ All importable fields including:
 - Advanced options: `matter_branch_id`, `circuit_name_id`, `circuit_shift_id`
 - Additional notes: `notes_2`, `notes_3`, `notes_4`
 - Fee fields: `fee_amount`, `fee_currency`, `fee_payment_status`
+- **Multi-Opponent Support**: `opponent1_name`, `opponent1_capacity`, `opponent2_name`, `opponent2_capacity`, etc. (up to 5 opponents)
 - And ~30 more optional fields
 
 ## Foreign Key Resolution
@@ -69,6 +70,54 @@ All importable fields including:
 - `opponent_id` / `opponent_name` → `opponents` table
 - `matter_partner_id` / `matter_partner_name` → `lawyers` table
 - `matter_destination_id` / `matter_destination` → `courts` table
+
+## Multi-Opponent Import
+
+### Overview
+The system supports multiple opponents per case through two approaches:
+1. **Extended Template**: Up to 5 opponents per case (opponent1-5_name, opponent1-5_capacity)
+2. **Companion Import**: Dedicated `case_opponents` table import for unlimited opponents
+
+### Extended Template Multi-Opponent Columns
+For cases with multiple opponents, use these columns in the Extended template:
+
+| Column | Type | Description | Example |
+|---|---|---|---|
+| `opponent1_name` | string | First opponent name | "شركة النيل للاستثمار" |
+| `opponent1_capacity` | string | First opponent capacity | "مدعى عليه" |
+| `opponent2_name` | string | Second opponent name | "أحمد محمد علي" |
+| `opponent2_capacity` | string | Second opponent capacity | "مدعى عليه ثانوي" |
+| `opponent3_name` | string | Third opponent name | "مؤسسة الخليج التجارية" |
+| `opponent3_capacity` | string | Third opponent capacity | "طرف ثالث" |
+| `opponent4_name` | string | Fourth opponent name | "محمد عبد الرحمن" |
+| `opponent4_capacity` | string | Fourth opponent capacity | "شاهد" |
+| `opponent5_name` | string | Fifth opponent name | "شركة الشرق الأوسط" |
+| `opponent5_capacity` | string | Fifth opponent capacity | "مدعى عليه" |
+
+### Multi-Opponent Business Rules
+- **Primary Opponent**: First opponent (opponent1) becomes primary by default
+- **Capacity Tracking**: Each opponent must have a capacity (role in the case)
+- **Name Resolution**: Opponent names are resolved using fuzzy matching
+- **Capacity Resolution**: Capacity names are resolved against `option_values` table
+- **Maximum Limit**: Configurable limit (default: 10 opponents per case)
+
+### Companion Import Template
+For cases with more than 5 opponents, use the dedicated companion import:
+
+**File**: `Case_Opponents_Import_Template.csv` / `Case_Opponents_Import_Template.xlsx`
+
+**Columns**:
+- `case_id` / `case_number` → Case reference
+- `opponent_id` / `opponent_name` → Opponent reference  
+- `capacity_id` / `capacity_name` → Capacity reference
+- `is_primary` → Primary opponent flag (boolean)
+- `display_order` → Sort order (integer)
+- `alias_text` → Custom alias (string)
+
+**Usage**:
+1. Import cases first using Standard/Extended template
+2. Import opponents using companion template
+3. System automatically links opponents to cases
 
 ## Data Validation
 
@@ -99,11 +148,24 @@ XLSX templates include dropdown validation for:
 - **Date Format**: YYYY-MM-DD (ISO 8601)
 - **Amounts**: Decimal format (e.g., 125000.50)
 
+#### Multi-Opponent Data (Extended Template)
+- **Single Opponent**: Use `opponent_id` / `opponent_name` (legacy fields)
+- **Multiple Opponents**: Use `opponent1_name`, `opponent1_capacity`, `opponent2_name`, `opponent2_capacity`, etc.
+- **Capacity Names**: Use Arabic or English capacity names (e.g., "مدعى عليه", "Defendant")
+- **Primary Opponent**: First opponent (opponent1) becomes primary automatically
+
 ### 3. Upload & Import
 - Upload filled template
 - Map columns (auto-mapped for exact matches)
 - Run preflight validation
 - Execute import
+
+### 4. Multi-Opponent Import (Companion)
+For cases with more than 5 opponents:
+1. **Download Companion Template**: `Case_Opponents_Import_Template.csv`
+2. **Fill Opponent Data**: One row per opponent-case relationship
+3. **Upload Companion File**: Use "Case Opponents" import option
+4. **System Processing**: Automatically links opponents to cases
 
 ## Regeneration
 

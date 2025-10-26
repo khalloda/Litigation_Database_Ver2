@@ -72,6 +72,17 @@ class PreflightEngine
             $mappedData = $this->resolveCaseOptionValues($mappedData);
             $mappedData = $this->applyIdNamePrecedence($mappedData);
             $mappedData = $this->resolveDirectMappedFields($mappedData);
+
+            // Extract multiple opponents for Extended template
+            $opponents = $this->extractMultipleOpponents($mappedData);
+            if (!empty($opponents)) {
+                $mappedData['_opponents'] = $opponents;
+
+                // Validate opponents
+                $opponentErrors = $this->validateMultipleOpponents($opponents, $rowIndex);
+                $errors = array_merge($errors, $opponentErrors['errors']);
+                $warnings = array_merge($warnings, $opponentErrors['warnings']);
+            }
         }
 
         // Get column metadata for validation
@@ -690,5 +701,118 @@ class PreflightEngine
         }
 
         return $data;
+    }
+
+    /**
+     * Extract multiple opponents from Extended template data.
+     */
+    private function extractMultipleOpponents(array $data): array
+    {
+        $opponents = [];
+
+        // Standard template: single opponent
+        if (!empty($data['opponent_name']) || !empty($data['opponent_id'])) {
+            $opponents[] = [
+                'name' => $data['opponent_name'] ?? null,
+                'id' => $data['opponent_id'] ?? null,
+                'capacity' => $data['opponent_capacity'] ?? null,
+                'capacity_id' => $data['opponent_capacity_id'] ?? null,
+                'is_primary' => true,
+                'order' => 1
+            ];
+        }
+
+        // Extended template: opponent1-5
+        for ($i = 1; $i <= 5; $i++) {
+            if (!empty($data["opponent{$i}_name"]) || !empty($data["opponent{$i}_id"])) {
+                $opponents[] = [
+                    'name' => $data["opponent{$i}_name"] ?? null,
+                    'id' => $data["opponent{$i}_id"] ?? null,
+                    'capacity' => $data["opponent{$i}_capacity"] ?? null,
+                    'capacity_id' => $data["opponent{$i}_capacity_id"] ?? null,
+                    'is_primary' => ($i === 1),
+                    'order' => $i
+                ];
+            }
+        }
+
+        return $opponents;
+    }
+
+    /**
+     * Validate multiple opponents data.
+     */
+    private function validateMultipleOpponents(array $opponents, int $rowIndex): array
+    {
+        $errors = [];
+        $warnings = [];
+
+        $maxOpponents = config('importer.opponents.max_per_case', 10);
+
+        // Check max opponents limit
+        if (count($opponents) > $maxOpponents) {
+            $errors[] = [
+                'row' => $rowIndex,
+                'column' => '_opponents',
+                'value' => count($opponents),
+                'type' => 'max_opponents',
+                'message' => "Maximum {$maxOpponents} opponents allowed per case. Found: " . count($opponents),
+            ];
+        }
+
+        // Check for multiple primary opponents
+        $primaryCount = array_sum(array_column($opponents, 'is_primary'));
+        if ($primaryCount > 1) {
+            $errors[] = [
+                'row' => $rowIndex,
+                'column' => '_opponents',
+                'value' => $primaryCount,
+                'type' => 'multiple_primary',
+                'message' => "Only one opponent can be primary. Found: {$primaryCount}",
+            ];
+        }
+
+        // Validate each opponent
+        foreach ($opponents as $index => $opponent) {
+            $opponentPrefix = "opponent" . ($index + 1);
+
+            // Check if both name and ID are provided (conflict)
+            if (!empty($opponent['name']) && !empty($opponent['id'])) {
+                $warnings[] = [
+                    'row' => $rowIndex,
+                    'column' => $opponentPrefix,
+                    'value' => $opponent['name'],
+                    'type' => 'id_name_conflict',
+                    'message' => "Both name and ID provided for {$opponentPrefix}. ID will be used.",
+                ];
+            }
+
+            // Check if neither name nor ID is provided
+            if (empty($opponent['name']) && empty($opponent['id'])) {
+                $errors[] = [
+                    'row' => $rowIndex,
+                    'column' => $opponentPrefix,
+                    'value' => '',
+                    'type' => 'missing_opponent',
+                    'message' => "Either name or ID must be provided for {$opponentPrefix}",
+                ];
+            }
+
+            // Check capacity validation
+            if (!empty($opponent['capacity']) && !empty($opponent['capacity_id'])) {
+                $warnings[] = [
+                    'row' => $rowIndex,
+                    'column' => $opponentPrefix . '_capacity',
+                    'value' => $opponent['capacity'],
+                    'type' => 'id_name_conflict',
+                    'message' => "Both capacity name and ID provided for {$opponentPrefix}. ID will be used.",
+                ];
+            }
+        }
+
+        return [
+            'errors' => $errors,
+            'warnings' => $warnings
+        ];
     }
 }

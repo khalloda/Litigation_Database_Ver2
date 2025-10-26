@@ -86,4 +86,27 @@ class OpponentsController extends Controller
         $opponent->delete();
         return redirect()->route('opponents.index')->with('success', __('app.opponent_deleted_success'));
     }
+
+    /**
+     * Search opponents for AJAX requests (used in add opponent modal).
+     */
+    public function search(Request $request)
+    {
+        $query = $request->get('q', '');
+
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $opponents = Opponent::where('is_active', true)
+            ->where(function ($q) use ($query) {
+                $q->where('opponent_name_en', 'like', "%{$query}%")
+                    ->orWhere('opponent_name_ar', 'like', "%{$query}%");
+            })
+            ->orderBy('opponent_name_en')
+            ->limit(10)
+            ->get(['id', 'opponent_name_en', 'opponent_name_ar']);
+
+        return response()->json($opponents);
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\CaseModel;
+use App\Models\CaseOpponent;
 use App\Models\Client;
 use App\Models\DeletionBundle;
 use App\Models\DeletionBundleItem;
@@ -23,7 +24,7 @@ class DeletionBundleService
     public function createBundle(Model $root, ?string $reason = null): string
     {
         $rootType = class_basename($root);
-        
+
         // Check if bundle creation is enabled for this model type
         if (!$this->isEnabledFor($rootType)) {
             Log::info("Deletion bundle creation skipped (disabled)", [
@@ -32,17 +33,17 @@ class DeletionBundleService
             ]);
             return '';
         }
-        
+
         return DB::transaction(function () use ($root, $rootType, $reason) {
             // Use configured collector
             $collector = $this->getCollector($root);
-            
+
             // Collect the snapshot using the collector
             $snapshot = $collector->collect($root);
             $rootLabel = $collector->getRootLabel($root);
             $filesData = $collector->getFileDescriptors($snapshot);
             $cascadeCount = $this->countCascadeItems($snapshot);
-            
+
             // Create the bundle
             $bundle = DeletionBundle::create([
                 'root_type' => $rootType,
@@ -55,17 +56,17 @@ class DeletionBundleService
                 'reason' => $reason,
                 'status' => 'trashed',
             ]);
-            
+
             // Create individual items for detailed tracking
             $this->createBundleItems($bundle, $snapshot);
-            
+
             Log::info("Deletion bundle created", [
                 'bundle_id' => $bundle->id,
                 'root_type' => $rootType,
                 'root_id' => $root->id,
                 'cascade_count' => $cascadeCount,
             ]);
-            
+
             return $bundle->id;
         });
     }
@@ -200,11 +201,11 @@ class DeletionBundleService
     {
         $modelClass = get_class($model);
         $collectorClass = config("trash.collectors.{$modelClass}");
-        
+
         if (!$collectorClass || !class_exists($collectorClass)) {
             throw new \RuntimeException("No collector configured for {$modelClass}");
         }
-        
+
         return new $collectorClass();
     }
 
@@ -389,6 +390,7 @@ class DeletionBundleService
     {
         $map = [
             'cases' => 'CaseModel',
+            'case_opponents' => 'CaseOpponent',
             'hearings' => 'Hearing',
             'contacts' => 'Contact',
             'engagement_letters' => 'EngagementLetter',
@@ -413,6 +415,7 @@ class DeletionBundleService
                 'contacts' => ['model' => 'Contact'],
                 'power_of_attorneys' => ['model' => 'PowerOfAttorney'],
                 'cases' => ['model' => 'CaseModel'],
+                'case_opponents' => ['model' => 'CaseOpponent'],
                 'hearings' => ['model' => 'Hearing'],
                 'admin_tasks' => ['model' => 'AdminTask'],
                 'admin_subtasks' => ['model' => 'AdminSubtask'],
@@ -421,6 +424,7 @@ class DeletionBundleService
         } else {
             return [
                 'case' => ['model' => 'CaseModel'],
+                'case_opponents' => ['model' => 'CaseOpponent'],
                 'hearings' => ['model' => 'Hearing'],
                 'admin_tasks' => ['model' => 'AdminTask'],
                 'admin_subtasks' => ['model' => 'AdminSubtask'],

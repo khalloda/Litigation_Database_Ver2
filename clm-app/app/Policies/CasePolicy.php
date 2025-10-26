@@ -61,4 +61,12 @@ class CasePolicy
     {
         return $user->can('cases.delete');
     }
+
+    /**
+     * Determine whether the user can manage opponents for the case.
+     */
+    public function manageOpponents(User $user, $case): bool
+    {
+        return $user->can('cases.opponents.edit');
+    }
 }

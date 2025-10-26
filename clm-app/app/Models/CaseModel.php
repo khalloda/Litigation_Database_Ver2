@@ -69,11 +69,14 @@ class CaseModel extends Model
         'client_type_id',
         'client_capacity_id',
         'client_capacity_note',
-        'opponent_id',
         'opponent_capacity_id',
         'opponent_capacity_note',
         'matter_select',
     ];
+
+    // @deprecated opponent_id is now read-only mirror of primary opponent
+    // Use $case->opponents() and $case->primaryOpponent() instead
+    protected $guarded = ['opponent_id'];
 
     protected $casts = [
         'matter_start_date' => 'date',
@@ -154,6 +157,7 @@ class CaseModel extends Model
         return $this->belongsTo(OptionValue::class, 'client_type_id');
     }
 
+    // Legacy single opponent relationship (read-only mirror)
     public function opponent()
     {
         return $this->belongsTo(Opponent::class, 'opponent_id');
@@ -162,6 +166,24 @@ class CaseModel extends Model
     public function opponentCapacity()
     {
         return $this->belongsTo(OptionValue::class, 'opponent_capacity_id');
+    }
+
+    // Multi-opponents relationships
+    public function opponents()
+    {
+        return $this->belongsToMany(Opponent::class, 'case_opponents')
+            ->withPivot(['capacity_id', 'is_primary', 'display_order', 'alias_text', 'id', 'deleted_at'])
+            ->using(\App\Models\Pivots\CaseOpponent::class)
+            ->withTimestamps()
+            ->orderBy('display_order');
+    }
+
+    public function primaryOpponent()
+    {
+        return $this->belongsToMany(Opponent::class, 'case_opponents')
+            ->wherePivot('is_primary', 1)
+            ->withPivot(['capacity_id', 'alias_text'])
+            ->using(\App\Models\Pivots\CaseOpponent::class);
     }
 
     public function matterDestinationRef()

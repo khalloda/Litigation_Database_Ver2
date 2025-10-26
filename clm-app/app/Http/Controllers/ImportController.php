@@ -500,6 +500,11 @@ class ImportController extends Controller
                 DB::table($session->table_name)->insert($data);
                 $imported++;
 
+                // Process multiple opponents for cases table
+                if ($session->table_name === 'cases' && !empty($data['_opponents'])) {
+                    $this->processCaseOpponents($data['_opponents'], $data['id'] ?? null);
+                }
+
                 // Reconciliation
                 if ($session->table_name === 'cases') {
                     $reconRows[] = [
@@ -1077,5 +1082,166 @@ class ImportController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', 'Template regeneration failed: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Process multiple opponents for a case.
+     */
+    private function processCaseOpponents(array $opponents, ?int $caseId): void
+    {
+        if (!$caseId) {
+            return;
+        }
+
+        $caseOpponentService = app(\App\Services\CaseOpponentService::class);
+
+        foreach ($opponents as $opponentData) {
+            try {
+                // Resolve opponent ID
+                $opponentId = $this->resolveOpponentId($opponentData);
+                if (!$opponentId) {
+                    continue;
+                }
+
+                // Resolve capacity ID
+                $capacityId = $this->resolveCapacityId($opponentData);
+
+                // Attach opponent to case
+                $caseOpponentService->attachOpponent(
+                    \App\Models\CaseModel::find($caseId),
+                    $opponentId,
+                    $capacityId,
+                    $opponentData['is_primary'] ?? false,
+                    $opponentData['order'] ?? null,
+                    $opponentData['alias'] ?? null
+                );
+            } catch (\Exception $e) {
+                Log::error('Failed to attach opponent to case', [
+                    'case_id' => $caseId,
+                    'opponent_data' => $opponentData,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Resolve opponent ID from name or ID.
+     */
+    private function resolveOpponentId(array $opponentData): ?int
+    {
+        // If ID is provided, use it
+        if (!empty($opponentData['id'])) {
+            return (int) $opponentData['id'];
+        }
+
+        // If name is provided, find by name
+        if (!empty($opponentData['name'])) {
+            $opponent = \App\Models\Opponent::where('opponent_name_ar', $opponentData['name'])
+                ->orWhere('opponent_name_en', $opponentData['name'])
+                ->first();
+
+            if ($opponent) {
+                return $opponent->id;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve capacity ID from name or ID.
+     */
+    private function resolveCapacityId(array $opponentData): ?int
+    {
+        // If ID is provided, use it
+        if (!empty($opponentData['capacity_id'])) {
+            return (int) $opponentData['capacity_id'];
+        }
+
+        // If name is provided, find by name
+        if (!empty($opponentData['capacity'])) {
+            $capacity = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('set_name', 'capacity');
+            })->where(function ($q) use ($opponentData) {
+                $q->where('label_en', $opponentData['capacity'])
+                    ->orWhere('label_ar', $opponentData['capacity']);
+            })->first();
+
+            if ($capacity) {
+                return $capacity->id;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Show case opponents import upload form.
+     */
+    public function uploadCaseOpponents()
+    {
+        $this->authorize('upload', ImportSession::class);
+
+        return view('import.case-opponents-upload');
+    }
+
+    /**
+     * Process case opponents import upload.
+     */
+    public function processCaseOpponentsUpload(Request $request)
+    {
+        $this->authorize('upload', ImportSession::class);
+
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240', // 10MB max
+        ]);
+
+        try {
+            // Create import session for case_opponents table
+            $session = $this->importService->uploadFile(
+                $request->file('file'),
+                'case_opponents',
+                Auth::id()
+            );
+
+            return redirect()->route('import.map', $session);
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Download case opponents template CSV.
+     */
+    public function downloadCaseOpponentsTemplateCsv()
+    {
+        $this->authorize('viewTemplate', ImportSession::class);
+
+        $path = storage_path('app/templates/Case_Opponents_Import_Template.csv');
+
+        if (!file_exists($path)) {
+            // Generate template if it doesn't exist
+            \Artisan::call('templates:generate-case-opponents', ['--format' => 'csv']);
+        }
+
+        return response()->download($path, 'Case_Opponents_Import_Template.csv');
+    }
+
+    /**
+     * Download case opponents template XLSX.
+     */
+    public function downloadCaseOpponentsTemplateXlsx()
+    {
+        $this->authorize('viewTemplate', ImportSession::class);
+
+        $path = storage_path('app/templates/Case_Opponents_Import_Template.xlsx');
+
+        if (!file_exists($path)) {
+            // Generate template if it doesn't exist
+            \Artisan::call('templates:generate-case-opponents', ['--format' => 'xlsx']);
+        }
+
+        return response()->download($path, 'Case_Opponents_Import_Template.xlsx');
     }
 }

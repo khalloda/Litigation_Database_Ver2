@@ -172,4 +172,18 @@ return [
         'queue' => env('IMPORT_QUEUE_NAME', 'imports'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Multi-Opponents Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure multiple opponents per case functionality.
+    |
+    */
+
+    'opponents' => [
+        'max_per_case' => env('MAX_OPPONENTS_PER_CASE', 10),
+        'enforce_unique_primary' => true,
+    ],
+
 ];

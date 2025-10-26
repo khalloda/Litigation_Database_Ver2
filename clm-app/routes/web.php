@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,6 +59,23 @@ Route::middleware(['auth', 'permission:cases.edit'])->group(function () {
 });
 Route::middleware(['auth', 'permission:cases.delete'])->group(function () {
     Route::delete('/cases/{case}', [App\Http\Controllers\CasesController::class, 'destroy'])->name('cases.destroy');
+});
+
+// Case Opponents Management
+Route::middleware(['auth', 'permission:cases.opponents.view'])->group(function () {
+    Route::get('/cases/{case}/opponents', [App\Http\Controllers\CaseOpponentController::class, 'index'])->name('case-opponents.index');
+});
+
+Route::middleware(['auth', 'permission:cases.opponents.edit'])->group(function () {
+    Route::post('/cases/{case}/opponents', [App\Http\Controllers\CaseOpponentController::class, 'store'])->name('case-opponents.store');
+    Route::delete('/cases/{case}/opponents', [App\Http\Controllers\CaseOpponentController::class, 'destroy'])->name('case-opponents.destroy');
+    Route::post('/cases/{case}/opponents/set-primary', [App\Http\Controllers\CaseOpponentController::class, 'setPrimary'])->name('case-opponents.set-primary');
+    Route::post('/cases/{case}/opponents/reorder', [App\Http\Controllers\CaseOpponentController::class, 'reorder'])->name('case-opponents.reorder');
+});
+
+// Opponent Search (for modal)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/opponents/search', [App\Http\Controllers\OpponentsController::class, 'search'])->name('opponents.search');
 });
 
 // Hearing Management
@@ -257,6 +275,19 @@ Route::middleware(['auth', 'permission:import.view_template'])->group(function (
 
     Route::get('/cases/import/template/extended/xlsx', [App\Http\Controllers\ImportController::class, 'downloadCaseTemplateExtendedXlsx'])
         ->name('cases.template.extended.xlsx');
+
+    // Case Opponents Companion Import Templates
+    Route::get('/case-opponents/import/template/csv', [App\Http\Controllers\ImportController::class, 'downloadCaseOpponentsTemplateCsv'])
+        ->name('case-opponents.template.csv');
+
+    Route::get('/case-opponents/import/template/xlsx', [App\Http\Controllers\ImportController::class, 'downloadCaseOpponentsTemplateXlsx'])
+        ->name('case-opponents.template.xlsx');
+});
+
+// Case Opponents Companion Import
+Route::middleware(['auth', 'permission:import.upload'])->group(function () {
+    Route::get('/case-opponents/import', [App\Http\Controllers\ImportController::class, 'uploadCaseOpponents'])->name('case-opponents.import.upload');
+    Route::post('/case-opponents/import', [App\Http\Controllers\ImportController::class, 'processCaseOpponentsUpload'])->name('case-opponents.import.process-upload');
 });
 
 // Admin: Regenerate Templates

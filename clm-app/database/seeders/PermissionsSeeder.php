@@ -66,6 +66,12 @@ class PermissionsSeeder extends Seeder
 
             // Admin tools permissions
             'admin.tools.manage',
+
+            // Case opponents permissions
+            'cases.opponents.view',
+            'cases.opponents.edit',
+            'cases.opponents.attach',
+            'cases.opponents.detach',
         ];
 
         // Create each permission if it doesn't exist
