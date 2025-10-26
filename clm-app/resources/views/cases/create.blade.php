@@ -322,8 +322,15 @@
                         <select class="form-select @error('opponent_id') is-invalid @enderror" id="opponent_id" name="opponent_id">
                             <option value="">{{ __('app.select_option') }}</option>
                             @foreach($opponents as $opp)
-                            <option value="{{ $opp->id }}" {{ old('opponent_id') == $opp->id ? 'selected' : '' }}>
-                                {{ app()->getLocale() === 'ar' ? $opp->opponent_name_ar : $opp->opponent_name_en }}
+                            <option value="{{ $opp->id }}" 
+                                    {{ old('opponent_id') == $opp->id ? 'selected' : '' }}
+                                    data-arabic-name="{{ $opp->opponent_name_ar }}"
+                                    data-english-name="{{ $opp->opponent_name_en }}">
+                                @if(app()->getLocale() === 'ar')
+                                    {{ $opp->opponent_name_ar }}
+                                @else
+                                    {{ $opp->opponent_name_en ?: $opp->opponent_name_ar }}
+                                @endif
                             </option>
                             @endforeach
                         </select>
@@ -460,18 +467,22 @@ $(document).ready(function() {
             dropdownParent: $('body'), // Ensure dropdown appears above other elements
             templateResult: function(data) {
                 if (!data.id) return data.text;
-                return $('<span style="color: #212529;">' + data.text + '</span>');
+                // Use Arabic name if English is empty
+                var displayText = data.text || data.element.getAttribute('data-arabic-name') || 'Unknown';
+                return $('<span style="color: #212529;">' + displayText + '</span>');
             },
             templateSelection: function(data) {
                 if (!data.id) return data.text;
-                return $('<span style="color: #212529;">' + data.text + '</span>');
+                // Use Arabic name if English is empty
+                var displayText = data.text || data.element.getAttribute('data-arabic-name') || 'Unknown';
+                return $('<span style="color: #212529;">' + displayText + '</span>');
             }
         });
         console.log('Select2 initialized for opponent dropdown');
 
         // Force refresh to ensure styling is applied
         opponentSelect.trigger('change');
-        
+
         // Force styling after initialization
         setTimeout(function() {
             $('.select2-container .select2-selection__rendered').css('color', '#212529');

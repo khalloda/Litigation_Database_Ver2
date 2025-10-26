@@ -256,14 +256,7 @@
     {{-- Opponents Section --}}
     <div class="row mt-4">
         <div class="col-12">
-            @try
-                @include('cases.partials._opponents')
-            @catch(\Exception $e)
-                <div class="alert alert-danger">
-                    <strong>Error loading opponents:</strong> {{ $e->getMessage() }}
-                    <br><small>Please check the console for more details.</small>
-                </div>
-            @endtry
+            @include('cases.partials._opponents')
         </div>
     </div>
 </div>
