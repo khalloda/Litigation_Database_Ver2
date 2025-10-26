@@ -68,7 +68,6 @@ class FuzzyMatchingController extends Controller
                 'resolved_id' => $result,
                 'message' => __('app.fuzzy_match_resolved_successfully')
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -152,7 +151,7 @@ class FuzzyMatchingController extends Controller
     private function createCapacity(array $data): int
     {
         $optionSet = \App\Models\OptionSet::where('key', 'capacity.type')->first();
-        
+
         if (!$optionSet) {
             throw new \Exception('Capacity option set not found');
         }
@@ -176,7 +175,7 @@ class FuzzyMatchingController extends Controller
     private function createCircuit(array $data): int
     {
         $optionSet = \App\Models\OptionSet::where('key', 'circuit.name')->first();
-        
+
         if (!$optionSet) {
             throw new \Exception('Circuit option set not found');
         }

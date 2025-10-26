@@ -1,61 +1,64 @@
-{{-- Fuzzy Matching Choice Modal --}}
+
 <div class="modal fade" id="fuzzyMatchingModal" tabindex="-1" aria-labelledby="fuzzyMatchingModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="fuzzyMatchingModalLabel">
                     <i class="fas fa-search me-2"></i>
-                    {{ __('app.fuzzy_matching_choice') }}
+                    <?php echo e(__('app.fuzzy_matching_choice')); ?>
+
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                {{-- Field Info --}}
+                
                 <div class="alert alert-info">
-                    <strong>{{ __('app.field') }}:</strong> <span id="fuzzy-field-name"></span><br>
-                    <strong>{{ __('app.search_value') }}:</strong> <span id="fuzzy-search-value" dir="auto"></span>
+                    <strong><?php echo e(__('app.field')); ?>:</strong> <span id="fuzzy-field-name"></span><br>
+                    <strong><?php echo e(__('app.search_value')); ?>:</strong> <span id="fuzzy-search-value" dir="auto"></span>
                 </div>
 
-                {{-- Choice Options --}}
+                
                 <div class="row">
-                    {{-- Existing Values Option --}}
+                    
                     <div class="col-md-6">
                         <div class="card h-100">
                             <div class="card-header">
                                 <h6 class="mb-0">
                                     <i class="fas fa-list me-2"></i>
-                                    {{ __('app.select_from_existing') }}
+                                    <?php echo e(__('app.select_from_existing')); ?>
+
                                 </h6>
                             </div>
                             <div class="card-body">
                                 <div id="existing-choices-container">
                                     <div class="text-center py-3">
                                         <div class="spinner-border text-primary" role="status">
-                                            <span class="visually-hidden">{{ __('app.loading') }}...</span>
+                                            <span class="visually-hidden"><?php echo e(__('app.loading')); ?>...</span>
                                         </div>
-                                        <p class="mt-2">{{ __('app.loading_choices') }}...</p>
+                                        <p class="mt-2"><?php echo e(__('app.loading_choices')); ?>...</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Create New Option --}}
+                    
                     <div class="col-md-6">
                         <div class="card h-100">
                             <div class="card-header">
                                 <h6 class="mb-0">
                                     <i class="fas fa-plus me-2"></i>
-                                    {{ __('app.create_new_value') }}
+                                    <?php echo e(__('app.create_new_value')); ?>
+
                                 </h6>
                             </div>
                             <div class="card-body">
                                 <div id="create-new-container">
                                     <div class="text-center py-3">
                                         <div class="spinner-border text-success" role="status">
-                                            <span class="visually-hidden">{{ __('app.loading') }}...</span>
+                                            <span class="visually-hidden"><?php echo e(__('app.loading')); ?>...</span>
                                         </div>
-                                        <p class="mt-2">{{ __('app.preparing_create_form') }}...</p>
+                                        <p class="mt-2"><?php echo e(__('app.preparing_create_form')); ?>...</p>
                                     </div>
                                 </div>
                             </div>
@@ -63,15 +66,17 @@
                     </div>
                 </div>
 
-                {{-- Action Buttons --}}
+                
                 <div class="mt-4 text-center">
                     <button type="button" class="btn btn-primary" id="apply-choice-btn" disabled>
                         <i class="fas fa-check me-2"></i>
-                        {{ __('app.apply_choice') }}
+                        <?php echo e(__('app.apply_choice')); ?>
+
                     </button>
                     <button type="button" class="btn btn-secondary ms-2" data-bs-dismiss="modal">
                         <i class="fas fa-times me-2"></i>
-                        {{ __('app.cancel') }}
+                        <?php echo e(__('app.cancel')); ?>
+
                     </button>
                 </div>
             </div>
@@ -79,7 +84,7 @@
     </div>
 </div>
 
-{{-- Hidden form for choice data --}}
+
 <form id="fuzzy-choice-form" style="display: none;">
     <input type="hidden" id="fuzzy-field" name="field">
     <input type="hidden" id="fuzzy-search-value-input" name="search_value">
@@ -111,28 +116,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Load choices
         loadFuzzyChoices(field, searchValue, importSessionId);
 
-        // Show modal (with Bootstrap fallback)
-        const modalElement = document.getElementById('fuzzyMatchingModal');
-        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-            const modal = new bootstrap.Modal(modalElement);
-            modal.show();
-        } else {
-            // Fallback: show modal manually
-            modalElement.style.display = 'block';
-            modalElement.classList.add('show');
-            document.body.classList.add('modal-open');
-            
-            // Add backdrop
-            const backdrop = document.createElement('div');
-            backdrop.className = 'modal-backdrop fade show';
-            backdrop.id = 'fuzzy-modal-backdrop';
-            document.body.appendChild(backdrop);
-        }
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('fuzzyMatchingModal'));
+        modal.show();
     };
 
     // Load fuzzy matching choices
     function loadFuzzyChoices(field, searchValue, importSessionId) {
-        fetch(`{{ route('fuzzy-matching.choices') }}?field=${encodeURIComponent(field)}&search_value=${encodeURIComponent(searchValue)}&import_session_id=${importSessionId}`)
+        fetch(`<?php echo e(route('fuzzy-matching.choices')); ?>?field=${encodeURIComponent(field)}&search_value=${encodeURIComponent(searchValue)}&import_session_id=${importSessionId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -156,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
             container.innerHTML = `
                 <div class="text-center py-3">
                     <i class="fas fa-search fa-2x text-muted mb-2"></i>
-                    <p class="text-muted">{{ __('app.no_existing_values_found') }}</p>
+                    <p class="text-muted"><?php echo e(__('app.no_existing_values_found')); ?></p>
                 </div>
             `;
             return;
@@ -201,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
             container.innerHTML = `
                 <div class="text-center py-3">
                     <i class="fas fa-ban fa-2x text-muted mb-2"></i>
-                    <p class="text-muted">{{ __('app.cannot_create_new_value') }}</p>
+                    <p class="text-muted"><?php echo e(__('app.cannot_create_new_value')); ?></p>
                 </div>
             `;
             return;
@@ -214,19 +205,19 @@ document.addEventListener('DOMContentLoaded', function() {
             html = `
                 <form id="create-lawyer-form">
                     <div class="mb-3">
-                        <label class="form-label">{{ __('app.lawyer_name_arabic') }}</label>
+                        <label class="form-label"><?php echo e(__('app.lawyer_name_arabic')); ?></label>
                         <input type="text" class="form-control" name="lawyer_name_ar" value="${suggestion.suggestion.lawyer_name_ar}" dir="auto" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">{{ __('app.lawyer_name_english') }}</label>
+                        <label class="form-label"><?php echo e(__('app.lawyer_name_english')); ?></label>
                         <input type="text" class="form-control" name="lawyer_name_en" value="${suggestion.suggestion.lawyer_name_en}" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">{{ __('app.email') }}</label>
+                        <label class="form-label"><?php echo e(__('app.email')); ?></label>
                         <input type="email" class="form-control" name="email" value="${suggestion.suggestion.email}" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">{{ __('app.title') }}</label>
+                        <label class="form-label"><?php echo e(__('app.title')); ?></label>
                         <input type="text" class="form-control" name="title" value="${suggestion.suggestion.title}">
                     </div>
                 </form>
@@ -235,11 +226,11 @@ document.addEventListener('DOMContentLoaded', function() {
             html = `
                 <form id="create-court-form">
                     <div class="mb-3">
-                        <label class="form-label">{{ __('app.court_name_arabic') }}</label>
+                        <label class="form-label"><?php echo e(__('app.court_name_arabic')); ?></label>
                         <input type="text" class="form-control" name="court_name_ar" value="${suggestion.suggestion.court_name_ar}" dir="auto" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">{{ __('app.court_name_english') }}</label>
+                        <label class="form-label"><?php echo e(__('app.court_name_english')); ?></label>
                         <input type="text" class="form-control" name="court_name_en" value="${suggestion.suggestion.court_name_en}" required>
                     </div>
                 </form>
@@ -248,11 +239,11 @@ document.addEventListener('DOMContentLoaded', function() {
             html = `
                 <form id="create-option-form">
                     <div class="mb-3">
-                        <label class="form-label">{{ __('app.label_arabic') }}</label>
+                        <label class="form-label"><?php echo e(__('app.label_arabic')); ?></label>
                         <input type="text" class="form-control" name="label_ar" value="${suggestion.suggestion.label_ar}" dir="auto" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">{{ __('app.label_english') }}</label>
+                        <label class="form-label"><?php echo e(__('app.label_english')); ?></label>
                         <input type="text" class="form-control" name="label_en" value="${suggestion.suggestion.label_en}" required>
                     </div>
                 </form>
@@ -265,7 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const createButton = document.createElement('button');
         createButton.type = 'button';
         createButton.className = 'btn btn-success btn-sm w-100';
-        createButton.innerHTML = '<i class="fas fa-plus me-2"></i>{{ __("app.create_new") }}';
+        createButton.innerHTML = '<i class="fas fa-plus me-2"></i><?php echo e(__("app.create_new")); ?>';
         createButton.addEventListener('click', function() {
             const form = container.querySelector('form');
             const formData = new FormData(form);
@@ -297,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const formData = new FormData(form);
 
-        fetch('{{ route("fuzzy-matching.apply-choice") }}', {
+        fetch('<?php echo e(route("fuzzy-matching.apply-choice")); ?>', {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
@@ -309,8 +300,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 showFuzzySuccess(data.message);
                 // Close modal
-                closeFuzzyModal();
-                
+                const modal = bootstrap.Modal.getInstance(document.getElementById('fuzzyMatchingModal'));
+                modal.hide();
+
                 // Trigger refresh of validation results
                 if (window.refreshValidationResults) {
                     window.refreshValidationResults();
@@ -346,41 +338,6 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         document.querySelector('.container-fluid').insertBefore(alert, document.querySelector('.container-fluid').firstChild);
     }
-
-    // Close modal function with Bootstrap fallback
-    function closeFuzzyModal() {
-        const modalElement = document.getElementById('fuzzyMatchingModal');
-        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            if (modal) {
-                modal.hide();
-            }
-        } else {
-            // Fallback: hide modal manually
-            modalElement.style.display = 'none';
-            modalElement.classList.remove('show');
-            document.body.classList.remove('modal-open');
-            
-            // Remove backdrop
-            const backdrop = document.getElementById('fuzzy-modal-backdrop');
-            if (backdrop) {
-                backdrop.remove();
-            }
-        }
-    }
-
-    // Add close button event listeners
-    document.addEventListener('DOMContentLoaded', function() {
-        // Close button in modal header
-        document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
-            btn.addEventListener('click', closeFuzzyModal);
-        });
-        
-        // Cancel button
-        const cancelBtn = document.querySelector('#fuzzyMatchingModal .btn-secondary');
-        if (cancelBtn) {
-            cancelBtn.addEventListener('click', closeFuzzyModal);
-        }
-    });
 });
 </script>
+<?php /**PATH D:\Claude\Litigation_Database_Ver2\Litigation_Database_Ver2\clm-app\resources\views/import/partials/_fuzzy-matching-modal.blade.php ENDPATH**/ ?>

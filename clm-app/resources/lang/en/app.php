@@ -628,7 +628,7 @@ return [
     'opponent_alias' => 'Alias',
     'max_opponents_exceeded' => 'Maximum {max} opponents allowed per case',
     'case_opponents_import' => 'Case Opponents Import',
-    
+
     // Fuzzy Matching
     'fuzzy_matching_choice' => 'Fuzzy Matching Choice',
     'select_from_existing' => 'Select from Existing Values',

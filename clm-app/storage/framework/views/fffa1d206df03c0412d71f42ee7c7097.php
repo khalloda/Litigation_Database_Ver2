@@ -60,11 +60,24 @@
                         </thead>
                         <tbody>
                             <?php $__currentLoopData = array_slice($results['errors'], 0, 50); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <tr>
+                            <tr class="fuzzy-error-row"
+                                data-field="<?php echo e($error['column']); ?>"
+                                data-value="<?php echo e($error['value'] ?? ''); ?>"
+                                data-row="<?php echo e($error['row']); ?>"
+                                style="cursor: pointer;">
                                 <td><?php echo e($error['row']); ?></td>
                                 <td><code><?php echo e($error['column']); ?></code></td>
                                 <td><?php echo e(Str::limit($error['value'] ?? 'NULL', 30)); ?></td>
-                                <td><?php echo e($error['message']); ?></td>
+                                <td>
+                                    <?php echo e($error['message']); ?>
+
+                                    <?php if(isset($error['suggestions']) && !empty($error['suggestions'])): ?>
+                                        <br><small class="text-info">
+                                            <i class="fas fa-lightbulb"></i> <?php echo e(__('app.suggestions')); ?>: <?php echo e(implode(', ', $error['suggestions'])); ?>
+
+                                        </small>
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>
@@ -108,6 +121,50 @@
         </div>
     </div>
 </div>
+
+
+<?php echo $__env->make('import.partials._fuzzy-matching-modal', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click handlers to fuzzy error rows
+    document.querySelectorAll('.fuzzy-error-row').forEach(row => {
+        row.addEventListener('click', function() {
+            const field = this.dataset.field;
+            const value = this.dataset.value;
+            const rowNum = this.dataset.row;
+
+            // Check if this is a field that supports fuzzy matching
+            const fuzzyFields = [
+                'matter_partner_id', 'circuit_secretary', 'court_id',
+                'client_capacity_id', 'opponent_capacity_id', 'circuit_name_id'
+            ];
+
+            if (fuzzyFields.includes(field) && value && !value.match(/^\d+$/)) {
+                // Open fuzzy matching modal
+                window.initFuzzyMatchingModal(field, value, <?php echo e($session->id); ?>);
+            } else {
+                // Show info message for non-fuzzy fields
+                alert('<?php echo e(__("app.field_does_not_support_fuzzy_matching")); ?>: ' + field);
+            }
+        });
+
+        // Add hover effect
+        row.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#f8f9fa';
+        });
+
+        row.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = '';
+        });
+    });
+
+    // Add refresh function for validation results
+    window.refreshValidationResults = function() {
+        location.reload();
+    };
+});
+</script>
 <?php $__env->stopSection(); ?>
 
 

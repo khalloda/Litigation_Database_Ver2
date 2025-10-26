@@ -61,8 +61,8 @@
                         </thead>
                         <tbody>
                             @foreach(array_slice($results['errors'], 0, 50) as $error)
-                            <tr class="fuzzy-error-row" 
-                                data-field="{{ $error['column'] }}" 
+                            <tr class="fuzzy-error-row"
+                                data-field="{{ $error['column'] }}"
                                 data-value="{{ $error['value'] ?? '' }}"
                                 data-row="{{ $error['row'] }}"
                                 style="cursor: pointer;">
@@ -124,12 +124,18 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Debug: Check if Bootstrap is loaded
+    console.log('Bootstrap available:', typeof bootstrap !== 'undefined');
+    console.log('jQuery available:', typeof $ !== 'undefined');
+    
     // Add click handlers to fuzzy error rows
     document.querySelectorAll('.fuzzy-error-row').forEach(row => {
         row.addEventListener('click', function() {
             const field = this.dataset.field;
             const value = this.dataset.value;
             const rowNum = this.dataset.row;
+            
+            console.log('Clicked fuzzy error row:', { field, value, rowNum });
             
             // Check if this is a field that supports fuzzy matching
             const fuzzyFields = [
@@ -138,8 +144,14 @@ document.addEventListener('DOMContentLoaded', function() {
             ];
             
             if (fuzzyFields.includes(field) && value && !value.match(/^\d+$/)) {
+                console.log('Opening fuzzy matching modal for:', field, value);
                 // Open fuzzy matching modal
-                window.initFuzzyMatchingModal(field, value, {{ $session->id }});
+                if (typeof window.initFuzzyMatchingModal === 'function') {
+                    window.initFuzzyMatchingModal(field, value, {{ $session->id }});
+                } else {
+                    console.error('initFuzzyMatchingModal function not found');
+                    alert('Fuzzy matching modal not available. Please refresh the page.');
+                }
             } else {
                 // Show info message for non-fuzzy fields
                 alert('{{ __("app.field_does_not_support_fuzzy_matching") }}: ' + field);

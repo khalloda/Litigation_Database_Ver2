@@ -628,7 +628,7 @@ return [
     'opponent_alias' => 'الاسم البديل',
     'max_opponents_exceeded' => 'الحد الأقصى {max} خصوم لكل قضية',
     'case_opponents_import' => 'استيراد خصوم القضايا',
-    
+
     // Fuzzy Matching
     'fuzzy_matching_choice' => 'اختيار المطابقة الضبابية',
     'select_from_existing' => 'اختر من القيم الموجودة',
