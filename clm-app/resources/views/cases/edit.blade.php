@@ -442,6 +442,14 @@ $(document).ready(function() {
         width: '100%'
     });
 
+    // Initialize Select2 for opponent dropdown
+    $('#opponent_id').select2({
+        theme: 'bootstrap-5',
+        placeholder: '{{ __("app.select_option") }}',
+        allowClear: true,
+        width: '100%'
+    });
+
     // Load existing court details on page load if court is selected
     const initialCourtId = $('#court_id').val();
     if (initialCourtId) {
