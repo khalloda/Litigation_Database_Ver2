@@ -26,11 +26,26 @@ class PreflightEngine
     {
         $errors = [];
         $warnings = [];
-        $batchSize = config('importer.validation.preflight_batch_size', 500);
+        $batchSize = config('importer.validation.preflight_batch_size', 200);
+        $maxErrors = config('importer.validation.max_errors', 2000);
+        $maxWarnings = config('importer.validation.max_warnings', 1000);
 
         $batches = array_chunk($rows, $batchSize, true);
+        $totalBatches = count($batches);
 
-        foreach ($batches as $batch) {
+        \Log::info('Starting preflight validation', [
+            'total_rows' => count($rows),
+            'batch_size' => $batchSize,
+            'total_batches' => $totalBatches
+        ]);
+
+        foreach ($batches as $batchIndex => $batch) {
+            \Log::info('Processing batch', [
+                'batch' => $batchIndex + 1,
+                'total_batches' => $totalBatches,
+                'batch_size' => count($batch)
+            ]);
+
             foreach ($batch as $rowIndex => $row) {
                 $rowErrors = $this->validateRow($row, $mapping, $tableName, $rowIndex);
 
@@ -41,12 +56,31 @@ class PreflightEngine
                 if (!empty($rowErrors['warnings'])) {
                     $warnings = array_merge($warnings, $rowErrors['warnings']);
                 }
+
+                // Stop processing if we hit the limit to prevent memory issues
+                if (count($errors) >= $maxErrors) {
+                    \Log::warning('Error limit reached, stopping validation', [
+                        'error_count' => count($errors),
+                        'max_errors' => $maxErrors
+                    ]);
+                    break 2; // Break out of both loops
+                }
+            }
+
+            // Force garbage collection after each batch
+            if (function_exists('gc_collect_cycles')) {
+                gc_collect_cycles();
             }
         }
 
+        \Log::info('Preflight validation completed', [
+            'error_count' => count($errors),
+            'warning_count' => count($warnings)
+        ]);
+
         return [
-            'errors' => array_slice($errors, 0, 1000), // Limit to prevent memory issues
-            'warnings' => array_slice($warnings, 0, 1000),
+            'errors' => array_slice($errors, 0, $maxErrors),
+            'warnings' => array_slice($warnings, 0, $maxWarnings),
             'error_count' => count($errors),
             'warning_count' => count($warnings),
         ];

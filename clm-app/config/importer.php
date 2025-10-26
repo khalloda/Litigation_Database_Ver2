@@ -28,7 +28,21 @@ return [
     'limits' => [
         'max_upload_mb' => env('IMPORT_MAX_UPLOAD_MB', 10),
         'chunk_rows' => env('IMPORT_CHUNK_ROWS', 2000),
-        'timeout_seconds' => env('IMPORT_TIMEOUT_SECONDS', 300),
+        'timeout_seconds' => env('IMPORT_TIMEOUT_SECONDS', 600), // Increased to 10 minutes
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validation Settings
+    |--------------------------------------------------------------------------
+    */
+
+    'validation' => [
+        'preflight_batch_size' => env('IMPORT_PREFLIGHT_BATCH_SIZE', 200),
+        'max_errors' => env('IMPORT_MAX_ERRORS', 2000),
+        'max_warnings' => env('IMPORT_MAX_WARNINGS', 1000),
+        'memory_limit' => env('IMPORT_MEMORY_LIMIT', '512M'),
+        'execution_time' => env('IMPORT_EXECUTION_TIME', 600), // 10 minutes
     ],
 
     /*
