@@ -1,0 +1,212 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Lawyer;
+use App\Models\Court;
+use App\Models\OptionValue;
+use Illuminate\Support\Facades\Log;
+
+class FuzzyMatchingChoiceService
+{
+    /**
+     * Get available choices for a failed fuzzy match.
+     */
+    public function getChoicesForField(string $field, string $searchValue): array
+    {
+        $choices = [];
+
+        switch ($field) {
+            case 'matter_partner_id':
+            case 'circuit_secretary':
+                $choices = $this->getLawyerChoices($searchValue);
+                break;
+
+            case 'court_id':
+                $choices = $this->getCourtChoices($searchValue);
+                break;
+
+            case 'client_capacity_id':
+            case 'opponent_capacity_id':
+                $choices = $this->getCapacityChoices($searchValue);
+                break;
+
+            case 'circuit_name_id':
+                $choices = $this->getCircuitChoices($searchValue);
+                break;
+        }
+
+        return [
+            'field' => $field,
+            'search_value' => $searchValue,
+            'choices' => $choices,
+            'can_create' => $this->canCreateNew($field),
+            'create_suggestion' => $this->getCreateSuggestion($field, $searchValue)
+        ];
+    }
+
+    /**
+     * Get lawyer choices for fuzzy matching.
+     */
+    private function getLawyerChoices(string $searchValue): array
+    {
+        $lawyers = Lawyer::where(function ($q) use ($searchValue) {
+            $q->where('lawyer_name_en', 'like', '%' . $searchValue . '%')
+                ->orWhere('lawyer_name_ar', 'like', '%' . $searchValue . '%');
+        })->limit(10)->get();
+
+        return $lawyers->map(function ($lawyer) {
+            return [
+                'id' => $lawyer->id,
+                'name_ar' => $lawyer->lawyer_name_ar,
+                'name_en' => $lawyer->lawyer_name_en,
+                'email' => $lawyer->email,
+                'title' => $lawyer->title,
+                'display' => $lawyer->lawyer_name_ar . ' (' . $lawyer->lawyer_name_en . ')'
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Get court choices for fuzzy matching.
+     */
+    private function getCourtChoices(string $searchValue): array
+    {
+        $courts = Court::where(function ($q) use ($searchValue) {
+            $q->where('court_name_en', 'like', '%' . $searchValue . '%')
+                ->orWhere('court_name_ar', 'like', '%' . $searchValue . '%');
+        })->limit(10)->get();
+
+        return $courts->map(function ($court) {
+            return [
+                'id' => $court->id,
+                'name_ar' => $court->court_name_ar,
+                'name_en' => $court->court_name_en,
+                'display' => $court->court_name_ar . ' (' . $court->court_name_en . ')'
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Get capacity choices for fuzzy matching.
+     */
+    private function getCapacityChoices(string $searchValue): array
+    {
+        $capacities = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'capacity.type');
+        })->where(function ($q) use ($searchValue) {
+            $q->where('label_en', 'like', '%' . $searchValue . '%')
+                ->orWhere('label_ar', 'like', '%' . $searchValue . '%');
+        })->limit(10)->get();
+
+        return $capacities->map(function ($capacity) {
+            return [
+                'id' => $capacity->id,
+                'label_ar' => $capacity->label_ar,
+                'label_en' => $capacity->label_en,
+                'display' => $capacity->label_ar . ' (' . $capacity->label_en . ')'
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Get circuit choices for fuzzy matching.
+     */
+    private function getCircuitChoices(string $searchValue): array
+    {
+        $circuits = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'circuit.name');
+        })->where(function ($q) use ($searchValue) {
+            $q->where('label_en', 'like', '%' . $searchValue . '%')
+                ->orWhere('label_ar', 'like', '%' . $searchValue . '%');
+        })->limit(10)->get();
+
+        return $circuits->map(function ($circuit) {
+            return [
+                'id' => $circuit->id,
+                'label_ar' => $circuit->label_ar,
+                'label_en' => $circuit->label_en,
+                'display' => $circuit->label_ar . ' (' . $circuit->label_en . ')'
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Check if new values can be created for this field.
+     */
+    private function canCreateNew(string $field): bool
+    {
+        return in_array($field, ['matter_partner_id', 'circuit_secretary', 'court_id']);
+    }
+
+    /**
+     * Get suggestion for creating new value.
+     */
+    private function getCreateSuggestion(string $field, string $searchValue): array
+    {
+        switch ($field) {
+            case 'matter_partner_id':
+            case 'circuit_secretary':
+                return [
+                    'type' => 'lawyer',
+                    'suggestion' => [
+                        'lawyer_name_ar' => $searchValue,
+                        'lawyer_name_en' => $this->generateEnglishName($searchValue),
+                        'email' => $this->generateEmail($searchValue),
+                        'title' => 'Associate'
+                    ]
+                ];
+
+            case 'court_id':
+                return [
+                    'type' => 'court',
+                    'suggestion' => [
+                        'court_name_ar' => $searchValue,
+                        'court_name_en' => $this->generateEnglishName($searchValue),
+                        'is_active' => true
+                    ]
+                ];
+
+            default:
+                return [
+                    'type' => 'option_value',
+                    'suggestion' => [
+                        'label_ar' => $searchValue,
+                        'label_en' => $this->generateEnglishName($searchValue)
+                    ]
+                ];
+        }
+    }
+
+    /**
+     * Generate English name from Arabic.
+     */
+    private function generateEnglishName(string $arabicName): string
+    {
+        // Simple transliteration - in a real app, you'd use a proper transliteration service
+        $transliterations = [
+            'أميرة' => 'Amira',
+            'شريف' => 'Sherif',
+            'خالد' => 'Khaled',
+            'عطية' => 'Attia',
+            'هناء' => 'Hana',
+            'سالم' => 'Salem'
+        ];
+
+        $englishName = $arabicName;
+        foreach ($transliterations as $arabic => $english) {
+            $englishName = str_replace($arabic, $english, $englishName);
+        }
+
+        return $englishName;
+    }
+
+    /**
+     * Generate email from name.
+     */
+    private function generateEmail(string $name): string
+    {
+        $cleanName = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $name));
+        return $cleanName . '@sarieldin.com';
+    }
+}

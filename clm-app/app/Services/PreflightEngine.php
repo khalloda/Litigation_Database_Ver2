@@ -106,7 +106,7 @@ class PreflightEngine
             $mappedData = $this->resolveCaseOptionValues($mappedData);
             $mappedData = $this->applyIdNamePrecedence($mappedData);
             $mappedData = $this->resolveDirectMappedFields($mappedData);
-            
+
             // Apply direct ID field resolution for text values
             $this->resolveDirectIdFields($mappedData);
 
@@ -871,9 +871,9 @@ class PreflightEngine
     private function resolveDirectIdFields(array &$data): void
     {
         \Log::info('Starting direct ID field resolution', [
-            'fields_with_text' => array_filter($data, function($value, $key) {
-                return !is_numeric($value) && !empty($value) && 
-                       in_array($key, ['court_id', 'client_capacity_id', 'opponent_capacity_id', 'matter_partner_id', 'circuit_secretary', 'circuit_name_id']);
+            'fields_with_text' => array_filter($data, function ($value, $key) {
+                return !is_numeric($value) && !empty($value) &&
+                    in_array($key, ['court_id', 'client_capacity_id', 'opponent_capacity_id', 'matter_partner_id', 'circuit_secretary', 'circuit_name_id']);
             }, ARRAY_FILTER_USE_BOTH)
         ]);
 
@@ -927,25 +927,33 @@ class PreflightEngine
 
         // Resolve matter_partner_id if it contains text (lawyer name)
         if (!empty($data['matter_partner_id']) && !is_numeric($data['matter_partner_id'])) {
-            $lawyerId = \App\Models\Lawyer::where(function ($q) use ($data) {
-                $q->where('lawyer_name_en', 'like', '%' . $data['matter_partner_id'] . '%')
-                    ->orWhere('lawyer_name_ar', 'like', '%' . $data['matter_partner_id'] . '%');
-            })->value('id');
-
+            $lawyerId = $this->findLawyerMatch($data['matter_partner_id']);
             if ($lawyerId) {
+                \Log::info('Lawyer ID resolved', [
+                    'original' => $data['matter_partner_id'],
+                    'resolved_id' => $lawyerId
+                ]);
                 $data['matter_partner_id'] = $lawyerId;
+            } else {
+                \Log::warning('Lawyer ID not found', [
+                    'search_value' => $data['matter_partner_id']
+                ]);
             }
         }
 
         // Resolve circuit_secretary if it contains text (lawyer name)
         if (!empty($data['circuit_secretary']) && !is_numeric($data['circuit_secretary'])) {
-            $lawyerId = \App\Models\Lawyer::where(function ($q) use ($data) {
-                $q->where('lawyer_name_en', 'like', '%' . $data['circuit_secretary'] . '%')
-                    ->orWhere('lawyer_name_ar', 'like', '%' . $data['circuit_secretary'] . '%');
-            })->value('id');
-
+            $lawyerId = $this->findLawyerMatch($data['circuit_secretary']);
             if ($lawyerId) {
+                \Log::info('Circuit Secretary ID resolved', [
+                    'original' => $data['circuit_secretary'],
+                    'resolved_id' => $lawyerId
+                ]);
                 $data['circuit_secretary'] = $lawyerId;
+            } else {
+                \Log::warning('Circuit Secretary ID not found', [
+                    'search_value' => $data['circuit_secretary']
+                ]);
             }
         }
 
@@ -1008,5 +1016,57 @@ class PreflightEngine
         }
 
         return $suggestions;
+    }
+
+    /**
+     * Find lawyer match with improved prefix handling.
+     */
+    private function findLawyerMatch(string $searchValue): ?int
+    {
+        // Remove common Arabic prefixes
+        $cleanValue = $this->removeArabicPrefixes($searchValue);
+        
+        // Try exact match first
+        $lawyer = \App\Models\Lawyer::where(function ($q) use ($cleanValue) {
+            $q->where('lawyer_name_en', 'like', '%' . $cleanValue . '%')
+                ->orWhere('lawyer_name_ar', 'like', '%' . $cleanValue . '%');
+        })->first();
+
+        if ($lawyer) {
+            return $lawyer->id;
+        }
+
+        // Try with original value (in case prefix is important)
+        $lawyer = \App\Models\Lawyer::where(function ($q) use ($searchValue) {
+            $q->where('lawyer_name_en', 'like', '%' . $searchValue . '%')
+                ->orWhere('lawyer_name_ar', 'like', '%' . $searchValue . '%');
+        })->first();
+
+        if ($lawyer) {
+            return $lawyer->id;
+        }
+
+        return null;
+    }
+
+    /**
+     * Remove common Arabic prefixes from names.
+     */
+    private function removeArabicPrefixes(string $name): string
+    {
+        $prefixes = [
+            'أ.', 'د.', 'أستاذ.', 'أستاذة.', 'دكتور.', 'دكتورة.',
+            'محامي.', 'محامية.', 'السيد.', 'السيدة.', 'الأستاذ.', 'الأستاذة.'
+        ];
+
+        $cleanName = trim($name);
+        foreach ($prefixes as $prefix) {
+            if (str_starts_with($cleanName, $prefix)) {
+                $cleanName = trim(substr($cleanName, strlen($prefix)));
+                break;
+            }
+        }
+
+        return $cleanName;
     }
 }
