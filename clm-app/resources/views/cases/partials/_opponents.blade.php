@@ -2,7 +2,7 @@
 {{-- Displays opponents table with reorder, remove, and set primary functionality --}}
 
 @php
-    $opponents = $case->opponents()->with('pivot.capacity')->orderBy('display_order')->get();
+    $opponents = $case->opponents()->orderBy('display_order')->get();
     $canManage = auth()->user()->can('cases.opponents.edit', $case);
 @endphp
 
@@ -38,7 +38,7 @@
                         @foreach($opponents as $opponent)
                             @php
                                 $pivot = $opponent->pivot;
-                                $capacity = $pivot->capacity;
+                                $capacity = $pivot->capacity_id ? \App\Models\OptionValue::find($pivot->capacity_id) : null;
                             @endphp
                             <tr data-opponent-id="{{ $opponent->id }}" data-order="{{ $pivot->display_order }}">
                                 <td>

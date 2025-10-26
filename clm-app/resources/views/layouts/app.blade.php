@@ -84,16 +84,45 @@
         .select2-container--bootstrap-5 .select2-dropdown {
             z-index: 9999 !important;
             background-color: white !important;
+            border: 1px solid #ced4da !important;
+            border-radius: 0.375rem !important;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
         }
 
         .select2-container--bootstrap-5 .select2-results__option {
             background-color: white !important;
             color: #212529 !important;
+            padding: 0.5rem 0.75rem !important;
         }
 
         .select2-container--bootstrap-5 .select2-results__option--highlighted {
             background-color: #0d6efd !important;
             color: white !important;
+        }
+
+        /* Force styling for all Select2 dropdowns */
+        .select2-dropdown {
+            background-color: white !important;
+            border: 1px solid #ced4da !important;
+            border-radius: 0.375rem !important;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+            z-index: 9999 !important;
+        }
+
+        .select2-results__option {
+            background-color: white !important;
+            color: #212529 !important;
+            padding: 0.5rem 0.75rem !important;
+        }
+
+        .select2-results__option--highlighted {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+
+        /* Ensure Select2 container is visible */
+        .select2-container {
+            z-index: 9999 !important;
         }
     </style>
 
