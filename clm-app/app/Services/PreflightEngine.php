@@ -106,6 +106,9 @@ class PreflightEngine
             $mappedData = $this->resolveCaseOptionValues($mappedData);
             $mappedData = $this->applyIdNamePrecedence($mappedData);
             $mappedData = $this->resolveDirectMappedFields($mappedData);
+            
+            // Apply direct ID field resolution for text values
+            $this->resolveDirectIdFields($mappedData);
 
             // Extract multiple opponents for Extended template
             $opponents = $this->extractMultipleOpponents($mappedData);
@@ -193,11 +196,11 @@ class PreflightEngine
                 // Check if this is a field that should have fuzzy matching
                 $suggestions = $this->getFuzzySuggestions($column, $value);
                 $message = "Expected integer, got '{$value}'";
-                
+
                 if (!empty($suggestions)) {
                     $message .= " - Suggestions: " . implode(', ', $suggestions);
                 }
-                
+
                 return [
                     'row' => $rowIndex,
                     'column' => $column,
@@ -867,6 +870,13 @@ class PreflightEngine
      */
     private function resolveDirectIdFields(array &$data): void
     {
+        \Log::info('Starting direct ID field resolution', [
+            'fields_with_text' => array_filter($data, function($value, $key) {
+                return !is_numeric($value) && !empty($value) && 
+                       in_array($key, ['court_id', 'client_capacity_id', 'opponent_capacity_id', 'matter_partner_id', 'circuit_secretary', 'circuit_name_id']);
+            }, ARRAY_FILTER_USE_BOTH)
+        ]);
+
         // Resolve court_id if it contains text
         if (!empty($data['court_id']) && !is_numeric($data['court_id'])) {
             $courtId = \App\Models\Court::where(function ($q) use ($data) {
@@ -875,7 +885,15 @@ class PreflightEngine
             })->value('id');
 
             if ($courtId) {
+                \Log::info('Court ID resolved', [
+                    'original' => $data['court_id'],
+                    'resolved_id' => $courtId
+                ]);
                 $data['court_id'] = $courtId;
+            } else {
+                \Log::warning('Court ID not found', [
+                    'search_value' => $data['court_id']
+                ]);
             }
         }
 
@@ -918,6 +936,32 @@ class PreflightEngine
                 $data['matter_partner_id'] = $lawyerId;
             }
         }
+
+        // Resolve circuit_secretary if it contains text (lawyer name)
+        if (!empty($data['circuit_secretary']) && !is_numeric($data['circuit_secretary'])) {
+            $lawyerId = \App\Models\Lawyer::where(function ($q) use ($data) {
+                $q->where('lawyer_name_en', 'like', '%' . $data['circuit_secretary'] . '%')
+                    ->orWhere('lawyer_name_ar', 'like', '%' . $data['circuit_secretary'] . '%');
+            })->value('id');
+
+            if ($lawyerId) {
+                $data['circuit_secretary'] = $lawyerId;
+            }
+        }
+
+        // Resolve circuit_name_id if it contains text
+        if (!empty($data['circuit_name_id']) && !is_numeric($data['circuit_name_id'])) {
+            $circuitId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'circuit.name');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', 'like', '%' . $data['circuit_name_id'] . '%')
+                    ->orWhere('label_ar', 'like', '%' . $data['circuit_name_id'] . '%');
+            })->value('id');
+
+            if ($circuitId) {
+                $data['circuit_name_id'] = $circuitId;
+            }
+        }
     }
 
     /**
@@ -946,10 +990,20 @@ class PreflightEngine
                 break;
 
             case 'matter_partner_id':
+            case 'circuit_secretary':
                 $suggestions = \App\Models\Lawyer::where(function ($q) use ($value) {
                     $q->where('lawyer_name_en', 'like', '%' . $value . '%')
                         ->orWhere('lawyer_name_ar', 'like', '%' . $value . '%');
                 })->limit(5)->pluck('lawyer_name_en', 'id')->toArray();
+                break;
+
+            case 'circuit_name_id':
+                $suggestions = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                    $q->where('key', 'circuit.name');
+                })->where(function ($q) use ($value) {
+                    $q->where('label_en', 'like', '%' . $value . '%')
+                        ->orWhere('label_ar', 'like', '%' . $value . '%');
+                })->limit(5)->pluck('label_en', 'id')->toArray();
                 break;
         }
 
