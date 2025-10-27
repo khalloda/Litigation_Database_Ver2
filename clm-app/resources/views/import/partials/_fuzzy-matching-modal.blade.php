@@ -140,7 +140,10 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`{{ route('fuzzy-matching.choices') }}?field=${encodeURIComponent(field)}&search_value=${encodeURIComponent(searchValue)}&import_session_id=${importSessionId}`)
             .then(response => response.json())
             .then(data => {
+                console.log('Fuzzy choices response:', data);
                 if (data.success) {
+                    console.log('Choices data:', data.choices);
+                    console.log('Choices array:', data.choices.choices);
                     renderExistingChoices(data.choices.choices);
                     renderCreateForm(data.choices);
                 } else {
@@ -156,6 +159,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Render existing choices
     function renderExistingChoices(choices) {
         const container = document.getElementById('existing-choices-container');
+
+        // Safety check: ensure choices is an array
+        if (!Array.isArray(choices)) {
+            console.error('Choices is not an array:', choices);
+            container.innerHTML = `
+                <div class="text-center py-3">
+                    <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                    <p class="text-warning">Invalid choices data received</p>
+                </div>
+            `;
+            return;
+        }
 
         if (choices.length === 0) {
             container.innerHTML = `

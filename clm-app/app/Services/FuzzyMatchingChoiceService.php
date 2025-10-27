@@ -94,7 +94,7 @@ class FuzzyMatchingChoiceService
     {
         // Clean the search value (remove extra whitespace, newlines)
         $searchValue = trim($searchValue);
-        
+
         // Get all capacity values
         $capacities = OptionValue::whereHas('optionSet', function ($q) {
             $q->where('key', 'capacity.type');
@@ -106,24 +106,28 @@ class FuzzyMatchingChoiceService
             if ($capacity->label_ar === $searchValue || $capacity->label_en === $searchValue) {
                 return true;
             }
-            
+
             // Contains match
-            if (strpos($capacity->label_ar, $searchValue) !== false || 
-                strpos($capacity->label_en, $searchValue) !== false) {
+            if (
+                strpos($capacity->label_ar, $searchValue) !== false ||
+                strpos($capacity->label_en, $searchValue) !== false
+            ) {
                 return true;
             }
-            
+
             // Handle Arabic gender variations (e.g., مستأنفة vs مستأنف)
             // Remove feminine endings (ة) and check if the base matches
             $searchBase = rtrim($searchValue, 'ة');
             $capacityBase = rtrim($capacity->label_ar, 'ة');
-            
-            if ($searchBase === $capacityBase || 
+
+            if (
+                $searchBase === $capacityBase ||
                 strpos($capacityBase, $searchBase) !== false ||
-                strpos($searchBase, $capacityBase) !== false) {
+                strpos($searchBase, $capacityBase) !== false
+            ) {
                 return true;
             }
-            
+
             return false;
         })->take(10);
 
