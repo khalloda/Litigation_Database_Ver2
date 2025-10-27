@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let [key, value] of formData.entries()) {
             console.log(`${key}: ${value}`);
         }
-        
+
         // Debug: Check CSRF token
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
         console.log('CSRF token from meta:', csrfToken);
@@ -355,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const url = '{{ route("fuzzy-matching.apply-choice") }}';
         console.log('Request URL:', url);
-        
+
         fetch(url, {
             method: 'POST',
             body: formData

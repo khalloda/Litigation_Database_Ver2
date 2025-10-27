@@ -129,7 +129,7 @@ class FuzzyMatchingChoiceService
             }
 
             return false;
-        })->take(10);
+        })->take(10)->values(); // Add ->values() to convert to array
 
         return $matches->map(function ($capacity) {
             return [

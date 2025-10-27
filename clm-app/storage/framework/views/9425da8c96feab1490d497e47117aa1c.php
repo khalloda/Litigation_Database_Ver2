@@ -145,7 +145,10 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`<?php echo e(route('fuzzy-matching.choices')); ?>?field=${encodeURIComponent(field)}&search_value=${encodeURIComponent(searchValue)}&import_session_id=${importSessionId}`)
             .then(response => response.json())
             .then(data => {
+                console.log('Fuzzy choices response:', data);
                 if (data.success) {
+                    console.log('Choices data:', data.choices);
+                    console.log('Choices array:', data.choices.choices);
                     renderExistingChoices(data.choices.choices);
                     renderCreateForm(data.choices);
                 } else {
@@ -161,6 +164,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Render existing choices
     function renderExistingChoices(choices) {
         const container = document.getElementById('existing-choices-container');
+
+        // Safety check: ensure choices is an array
+        if (!Array.isArray(choices)) {
+            console.error('Choices is not an array:', choices);
+            container.innerHTML = `
+                <div class="text-center py-3">
+                    <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                    <p class="text-warning">Invalid choices data received</p>
+                </div>
+            `;
+            return;
+        }
 
         if (choices.length === 0) {
             container.innerHTML = `
@@ -332,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let [key, value] of formData.entries()) {
             console.log(`${key}: ${value}`);
         }
-        
+
         // Debug: Check CSRF token
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
         console.log('CSRF token from meta:', csrfToken);
@@ -345,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const url = '<?php echo e(route("fuzzy-matching.apply-choice")); ?>';
         console.log('Request URL:', url);
-        
+
         fetch(url, {
             method: 'POST',
             body: formData
