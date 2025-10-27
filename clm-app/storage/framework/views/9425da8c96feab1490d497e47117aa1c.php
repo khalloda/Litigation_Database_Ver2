@@ -332,13 +332,21 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let [key, value] of formData.entries()) {
             console.log(`${key}: ${value}`);
         }
+        
+        // Debug: Check CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        console.log('CSRF token from meta:', csrfToken);
+        console.log('CSRF token from form:', formData.get('_token'));
 
         console.log('Sending choice data:', {
             type: selectedChoice.type,
             data: selectedChoice.data
         });
 
-        fetch('<?php echo e(route("fuzzy-matching.apply-choice")); ?>', {
+        const url = '<?php echo e(route("fuzzy-matching.apply-choice")); ?>';
+        console.log('Request URL:', url);
+        
+        fetch(url, {
             method: 'POST',
             body: formData
         })
