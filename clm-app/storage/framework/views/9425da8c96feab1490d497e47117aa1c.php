@@ -327,6 +327,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const formData = new FormData(form);
 
+        // Debug: Log all form data
+        console.log('Form data contents:');
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}: ${value}`);
+        }
+
         console.log('Sending choice data:', {
             type: selectedChoice.type,
             data: selectedChoice.data
