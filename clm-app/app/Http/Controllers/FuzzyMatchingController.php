@@ -93,7 +93,7 @@ class FuzzyMatchingController extends Controller
                 ], 422);
             }
         }
-        
+
         if (!is_array($choiceData)) {
             return response()->json([
                 'success' => false,
