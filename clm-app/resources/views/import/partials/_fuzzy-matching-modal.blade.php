@@ -339,6 +339,21 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            console.log('Response URL:', response.url);
+            
+            // Check if response is HTML instead of JSON
+            const contentType = response.headers.get('content-type');
+            console.log('Content-Type:', contentType);
+            
+            if (contentType && contentType.includes('text/html')) {
+                console.error('❌ Server returned HTML instead of JSON!');
+                return response.text().then(html => {
+                    console.error('HTML Response:', html.substring(0, 200) + '...');
+                    throw new Error('Server returned HTML instead of JSON');
+                });
+            }
+            
             return response.json();
         })
         .then(data => {
