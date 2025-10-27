@@ -142,7 +142,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load fuzzy matching choices
     function loadFuzzyChoices(field, searchValue, importSessionId) {
-        fetch(`<?php echo e(route('fuzzy-matching.choices')); ?>?field=${encodeURIComponent(field)}&search_value=${encodeURIComponent(searchValue)}&import_session_id=${importSessionId}`)
+        fetch(`<?php echo e(route('fuzzy-matching.choices')); ?>?field=${encodeURIComponent(field)}&search_value=${encodeURIComponent(searchValue)}&import_session_id=${importSessionId}`, {
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
             .then(response => response.json())
             .then(data => {
                 console.log('Fuzzy choices response:', data);
@@ -366,7 +372,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Always refresh CSRF token before making the request
         console.log('Refreshing CSRF token before request...');
-        const refreshResponse = await fetch('<?php echo e(route("fuzzy-matching.choices")); ?>?refresh_csrf=1');
+        const refreshResponse = await fetch('<?php echo e(route("fuzzy-matching.choices")); ?>?refresh_csrf=1', {
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
         const refreshData = await refreshResponse.json();
 
         if (refreshData.success && refreshData.csrf_token) {
@@ -386,7 +398,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         fetch(url, {
             method: 'POST',
-            body: formData
+            body: formData,
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
         })
         .then(response => {
             console.log('Response status:', response.status);

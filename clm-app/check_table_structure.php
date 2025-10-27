@@ -10,13 +10,13 @@ echo "Checking table structures...\n\n";
 // Check option_sets table
 echo "=== option_sets table ===\n";
 $columns = \DB::select('DESCRIBE option_sets');
-foreach($columns as $col) {
+foreach ($columns as $col) {
     echo "{$col->Field} - {$col->Type} - {$col->Extra}\n";
 }
 
 echo "\n=== option_values table ===\n";
 $columns = \DB::select('DESCRIBE option_values');
-foreach($columns as $col) {
+foreach ($columns as $col) {
     echo "{$col->Field} - {$col->Type} - {$col->Extra}\n";
 }
 
@@ -39,7 +39,7 @@ try {
         'updated_at' => now()
     ]);
     echo "Successfully created option_value with ID: {$newId}\n";
-    
+
     // Clean up
     \DB::table('option_values')->where('id', $newId)->delete();
     echo "Test record deleted\n";

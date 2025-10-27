@@ -78,17 +78,36 @@ class FuzzyMatchingController extends Controller
             'field' => 'required|string',
             'search_value' => 'required|string',
             'choice_type' => 'required|in:existing,create',
-            'choice_data' => 'required|array',
+            'choice_data' => 'required',
             'import_session_id' => 'required|integer'
         ]);
+
+        // Handle choice_data as either array or JSON string
+        $choiceData = $request->input('choice_data');
+        if (is_string($choiceData)) {
+            $choiceData = json_decode($choiceData, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid choice_data JSON format'
+                ], 422);
+            }
+        }
+        
+        if (!is_array($choiceData)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'choice_data must be an array'
+            ], 422);
+        }
 
         try {
             $result = null;
 
             if ($request->choice_type === 'existing') {
-                $result = $this->applyExistingChoice($request->field, $request->choice_data);
+                $result = $this->applyExistingChoice($request->field, $choiceData);
             } else {
-                $result = $this->applyCreateChoice($request->field, $request->choice_data);
+                $result = $this->applyCreateChoice($request->field, $choiceData);
             }
 
             return response()->json([
