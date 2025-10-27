@@ -128,6 +128,9 @@ document.addEventListener('DOMContentLoaded', function() {
             backdrop.id = 'fuzzy-modal-backdrop';
             document.body.appendChild(backdrop);
         }
+        
+        // Add close button event listeners
+        addCloseButtonListeners();
     };
 
     // Load fuzzy matching choices
@@ -310,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showFuzzySuccess(data.message);
                 // Close modal
                 closeFuzzyModal();
-                
+
                 // Trigger refresh of validation results
                 if (window.refreshValidationResults) {
                     window.refreshValidationResults();
@@ -360,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function() {
             modalElement.style.display = 'none';
             modalElement.classList.remove('show');
             document.body.classList.remove('modal-open');
-            
+
             // Remove backdrop
             const backdrop = document.getElementById('fuzzy-modal-backdrop');
             if (backdrop) {
@@ -369,10 +372,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Add close button event listeners
-    document.addEventListener('DOMContentLoaded', function() {
+    // Add close button event listeners when modal is shown
+    function addCloseButtonListeners() {
         // Close button in modal header
-        document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+        document.querySelectorAll('#fuzzyMatchingModal [data-bs-dismiss="modal"]').forEach(btn => {
             btn.addEventListener('click', closeFuzzyModal);
         });
         
@@ -381,6 +384,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (cancelBtn) {
             cancelBtn.addEventListener('click', closeFuzzyModal);
         }
-    });
+    }
 });
 </script>

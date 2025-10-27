@@ -116,9 +116,23 @@ document.addEventListener('DOMContentLoaded', function() {
         // Load choices
         loadFuzzyChoices(field, searchValue, importSessionId);
 
-        // Show modal
-        const modal = new bootstrap.Modal(document.getElementById('fuzzyMatchingModal'));
-        modal.show();
+        // Show modal (with Bootstrap fallback)
+        const modalElement = document.getElementById('fuzzyMatchingModal');
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        } else {
+            // Fallback: show modal manually
+            modalElement.style.display = 'block';
+            modalElement.classList.add('show');
+            document.body.classList.add('modal-open');
+
+            // Add backdrop
+            const backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop fade show';
+            backdrop.id = 'fuzzy-modal-backdrop';
+            document.body.appendChild(backdrop);
+        }
     };
 
     // Load fuzzy matching choices
@@ -300,8 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 showFuzzySuccess(data.message);
                 // Close modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('fuzzyMatchingModal'));
-                modal.hide();
+                closeFuzzyModal();
 
                 // Trigger refresh of validation results
                 if (window.refreshValidationResults) {
@@ -338,6 +351,42 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         document.querySelector('.container-fluid').insertBefore(alert, document.querySelector('.container-fluid').firstChild);
     }
+
+    // Close modal function with Bootstrap fallback
+    function closeFuzzyModal() {
+        const modalElement = document.getElementById('fuzzyMatchingModal');
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+            }
+        } else {
+            // Fallback: hide modal manually
+            modalElement.style.display = 'none';
+            modalElement.classList.remove('show');
+            document.body.classList.remove('modal-open');
+
+            // Remove backdrop
+            const backdrop = document.getElementById('fuzzy-modal-backdrop');
+            if (backdrop) {
+                backdrop.remove();
+            }
+        }
+    }
+
+    // Add close button event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // Close button in modal header
+        document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+            btn.addEventListener('click', closeFuzzyModal);
+        });
+
+        // Cancel button
+        const cancelBtn = document.querySelector('#fuzzyMatchingModal .btn-secondary');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', closeFuzzyModal);
+        }
+    });
 });
 </script>
 <?php /**PATH D:\Claude\Litigation_Database_Ver2\Litigation_Database_Ver2\clm-app\resources\views/import/partials/_fuzzy-matching-modal.blade.php ENDPATH**/ ?>

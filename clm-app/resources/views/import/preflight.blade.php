@@ -127,22 +127,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Debug: Check if Bootstrap is loaded
     console.log('Bootstrap available:', typeof bootstrap !== 'undefined');
     console.log('jQuery available:', typeof $ !== 'undefined');
-    
+
     // Add click handlers to fuzzy error rows
     document.querySelectorAll('.fuzzy-error-row').forEach(row => {
         row.addEventListener('click', function() {
             const field = this.dataset.field;
             const value = this.dataset.value;
             const rowNum = this.dataset.row;
-            
+
             console.log('Clicked fuzzy error row:', { field, value, rowNum });
-            
+
             // Check if this is a field that supports fuzzy matching
             const fuzzyFields = [
-                'matter_partner_id', 'circuit_secretary', 'court_id', 
+                'matter_partner_id', 'circuit_secretary', 'court_id',
                 'client_capacity_id', 'opponent_capacity_id', 'circuit_name_id'
             ];
-            
+
             if (fuzzyFields.includes(field) && value && !value.match(/^\d+$/)) {
                 console.log('Opening fuzzy matching modal for:', field, value);
                 // Open fuzzy matching modal
@@ -157,17 +157,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('{{ __("app.field_does_not_support_fuzzy_matching") }}: ' + field);
             }
         });
-        
+
         // Add hover effect
         row.addEventListener('mouseenter', function() {
             this.style.backgroundColor = '#f8f9fa';
         });
-        
+
         row.addEventListener('mouseleave', function() {
             this.style.backgroundColor = '';
         });
     });
-    
+
     // Add refresh function for validation results
     window.refreshValidationResults = function() {
         location.reload();
