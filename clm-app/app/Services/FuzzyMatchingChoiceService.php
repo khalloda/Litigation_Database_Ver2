@@ -54,7 +54,7 @@ class FuzzyMatchingChoiceService
     private function getLawyerChoices(string $searchValue): array
     {
         $normalizedSearch = $this->normalizeArabicText($searchValue);
-        
+
         $lawyers = Lawyer::where(function ($q) use ($searchValue, $normalizedSearch) {
             $q->where('lawyer_name_en', 'like', '%' . $searchValue . '%')
                 ->orWhere('lawyer_name_ar', 'like', '%' . $searchValue . '%')
@@ -79,7 +79,7 @@ class FuzzyMatchingChoiceService
     private function getCourtChoices(string $searchValue): array
     {
         $normalizedSearch = $this->normalizeArabicText($searchValue);
-        
+
         $courts = Court::where(function ($q) use ($searchValue, $normalizedSearch) {
             $q->where('court_name_en', 'like', '%' . $searchValue . '%')
                 ->orWhere('court_name_ar', 'like', '%' . $searchValue . '%')
@@ -127,9 +127,11 @@ class FuzzyMatchingChoiceService
 
             // Normalized match (handles ي/ى, ة/ت variations)
             $normalizedCapacity = $this->normalizeArabicText($capacity->label_ar);
-            if ($normalizedCapacity === $normalizedSearch ||
+            if (
+                $normalizedCapacity === $normalizedSearch ||
                 strpos($normalizedCapacity, $normalizedSearch) !== false ||
-                strpos($normalizedSearch, $normalizedCapacity) !== false) {
+                strpos($normalizedSearch, $normalizedCapacity) !== false
+            ) {
                 return true;
             }
 
@@ -165,7 +167,7 @@ class FuzzyMatchingChoiceService
     private function getCircuitChoices(string $searchValue): array
     {
         $normalizedSearch = $this->normalizeArabicText($searchValue);
-        
+
         $circuits = OptionValue::whereHas('optionSet', function ($q) {
             $q->where('key', 'circuit.name');
         })->where(function ($q) use ($searchValue, $normalizedSearch) {
@@ -190,7 +192,7 @@ class FuzzyMatchingChoiceService
     private function getCircuitSecretaryChoices(string $searchValue): array
     {
         $normalizedSearch = $this->normalizeArabicText($searchValue);
-        
+
         $secretaries = OptionValue::whereHas('optionSet', function ($q) {
             $q->where('key', 'court.circuit_secretary');
         })->where(function ($q) use ($searchValue, $normalizedSearch) {
@@ -322,16 +324,16 @@ class FuzzyMatchingChoiceService
     {
         // Replace ي with ى for consistent matching
         $text = str_replace('ي', 'ى', $text);
-        
+
         // Replace ة with ت for consistent matching
         $text = str_replace('ة', 'ت', $text);
-        
+
         // Remove diacritics (tashkeel) for better matching
         $text = preg_replace('/[\x{064B}-\x{0652}\x{0670}\x{0640}]/u', '', $text);
-        
+
         // Normalize whitespace
         $text = preg_replace('/\s+/', ' ', trim($text));
-        
+
         return $text;
     }
 }

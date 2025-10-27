@@ -642,6 +642,7 @@ return [
     'field_does_not_support_fuzzy_matching' => 'Field does not support fuzzy matching',
     'fuzzy_match_resolved_successfully' => 'Fuzzy match resolved successfully',
     'suggestions' => 'Suggestions',
+    'resolved' => 'Resolved',
     'case_opponents_import_info' => 'Import multiple opponents for cases using the companion import template.',
     'case_opponents_template_info' => 'Download the companion import template to add multiple opponents to existing cases.',
     'case_opponents_instruction_1' => 'Import cases first using the Cases Import Template',

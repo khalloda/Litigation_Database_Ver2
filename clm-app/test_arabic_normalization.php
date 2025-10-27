@@ -13,7 +13,7 @@ $service = new \App\Services\FuzzyMatchingChoiceService();
 // Test cases
 $testCases = [
     'مدعي' => 'مدعى',
-    'مدعى' => 'مدعى', 
+    'مدعى' => 'مدعى',
     'مستأنفة' => 'مستأنفت',
     'مستأنفت' => 'مستأنفت',
     'محامي' => 'محامى',
@@ -27,7 +27,7 @@ foreach ($testCases as $input => $expected) {
     $reflection = new ReflectionClass($service);
     $method = $reflection->getMethod('normalizeArabicText');
     $method->setAccessible(true);
-    
+
     $result = $method->invoke($service, $input);
     echo "Input: '{$input}' -> Output: '{$result}' (Expected: '{$expected}')\n";
 }
@@ -39,9 +39,9 @@ $testValues = ['مدعي', 'مدعى', 'مستأنفة', 'مستأنفت'];
 
 foreach ($testValues as $testValue) {
     echo "\nTesting: '{$testValue}'\n";
-    
+
     $choices = $service->getChoicesForField('client_capacity_id', $testValue);
-    
+
     echo "Found " . count($choices['choices']) . " choices:\n";
     foreach ($choices['choices'] as $choice) {
         echo "  - {$choice['label_ar']} ({$choice['label_en']})\n";
@@ -55,9 +55,9 @@ $testValues = ['محامي', 'محامى', 'قاضي', 'قاضى'];
 
 foreach ($testValues as $testValue) {
     echo "\nTesting: '{$testValue}'\n";
-    
+
     $choices = $service->getChoicesForField('matter_partner_id', $testValue);
-    
+
     echo "Found " . count($choices['choices']) . " choices:\n";
     foreach ($choices['choices'] as $choice) {
         echo "  - {$choice['name_ar']} ({$choice['name_en']})\n";

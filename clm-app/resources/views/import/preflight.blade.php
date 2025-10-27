@@ -61,23 +61,37 @@
                         </thead>
                         <tbody>
                             @foreach(array_slice($results['errors'], 0, 50) as $error)
-                            <tr class="fuzzy-error-row"
-                                data-field="{{ $error['column'] }}"
-                                data-value="{{ $error['value'] ?? '' }}"
-                                data-row="{{ $error['row'] }}"
-                                style="cursor: pointer;">
-                                <td>{{ $error['row'] }}</td>
-                                <td><code>{{ $error['column'] }}</code></td>
-                                <td>{{ Str::limit($error['value'] ?? 'NULL', 30) }}</td>
-                                <td>
-                                    {{ $error['message'] }}
-                                    @if(isset($error['suggestions']) && !empty($error['suggestions']))
-                                        <br><small class="text-info">
-                                            <i class="fas fa-lightbulb"></i> {{ __('app.suggestions') }}: {{ implode(', ', $error['suggestions']) }}
-                                        </small>
-                                    @endif
-                                </td>
-                            </tr>
+                                @if(!isset($error['resolved']) || !$error['resolved'])
+                                <tr class="fuzzy-error-row"
+                                    data-field="{{ $error['column'] }}"
+                                    data-value="{{ $error['value'] ?? '' }}"
+                                    data-row="{{ $error['row'] }}"
+                                    style="cursor: pointer;">
+                                    <td>{{ $error['row'] }}</td>
+                                    <td><code>{{ $error['column'] }}</code></td>
+                                    <td>{{ Str::limit($error['value'] ?? 'NULL', 30) }}</td>
+                                    <td>
+                                        {{ $error['message'] }}
+                                        @if(isset($error['suggestions']) && !empty($error['suggestions']))
+                                            <br><small class="text-info">
+                                                <i class="fas fa-lightbulb"></i> {{ __('app.suggestions') }}: {{ implode(', ', $error['suggestions']) }}
+                                            </small>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @else
+                                <tr class="fuzzy-resolved-row" style="background-color: #d4edda; opacity: 0.7;">
+                                    <td>{{ $error['row'] }}</td>
+                                    <td><code>{{ $error['column'] }}</code></td>
+                                    <td>{{ Str::limit($error['value'] ?? 'NULL', 30) }}</td>
+                                    <td>
+                                        <span class="text-success">
+                                            <i class="fas fa-check-circle"></i> 
+                                            {{ __('app.resolved') }} (ID: {{ $error['resolved_id'] ?? 'N/A' }})
+                                        </span>
+                                    </td>
+                                </tr>
+                                @endif
                             @endforeach
                         </tbody>
                     </table>

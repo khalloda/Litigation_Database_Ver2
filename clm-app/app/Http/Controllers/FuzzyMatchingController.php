@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\FuzzyMatchingChoiceService;
+use App\Models\ImportSession;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Lawyer;
@@ -109,6 +110,9 @@ class FuzzyMatchingController extends Controller
             } else {
                 $result = $this->applyCreateChoice($request->field, $choiceData);
             }
+
+            // Update the import session data with the resolved ID
+            $this->updateImportSessionData($request->import_session_id, $request->field, $request->search_value, $result);
 
             return response()->json([
                 'success' => true,
@@ -267,5 +271,52 @@ class FuzzyMatchingController extends Controller
         ]);
 
         return $optionValue->id;
+    }
+
+    /**
+     * Update import session data with resolved ID.
+     */
+    private function updateImportSessionData(int $importSessionId, string $field, string $searchValue, int $resolvedId): void
+    {
+        $session = ImportSession::findOrFail($importSessionId);
+        
+        if (!$session->preflight_errors) {
+            return;
+        }
+
+        $errors = $session->preflight_errors;
+        $updated = false;
+
+        // Find and update the specific error
+        foreach ($errors as $index => $error) {
+            if ($error['column'] === $field && $error['value'] === $searchValue) {
+                // Update the error to show it's been resolved
+                $errors[$index]['resolved'] = true;
+                $errors[$index]['resolved_id'] = $resolvedId;
+                $errors[$index]['resolved_at'] = now()->toISOString();
+                $updated = true;
+                break;
+            }
+        }
+
+        if ($updated) {
+            // Recalculate error counts
+            $errorCount = collect($errors)->where('resolved', false)->count();
+            $warningCount = collect($errors)->where('type', 'warning')->where('resolved', false)->count();
+
+            $session->update([
+                'preflight_errors' => $errors,
+                'preflight_error_count' => $errorCount,
+                'preflight_warning_count' => $warningCount,
+            ]);
+
+            \Log::info('Import session data updated with resolved ID', [
+                'session_id' => $importSessionId,
+                'field' => $field,
+                'search_value' => $searchValue,
+                'resolved_id' => $resolvedId,
+                'remaining_errors' => $errorCount
+            ]);
+        }
     }
 }

@@ -642,6 +642,7 @@ return [
     'field_does_not_support_fuzzy_matching' => 'الحقل لا يدعم المطابقة الضبابية',
     'fuzzy_match_resolved_successfully' => 'تم حل المطابقة الضبابية بنجاح',
     'suggestions' => 'اقتراحات',
+    'resolved' => 'تم الحل',
     'case_opponents_import_info' => 'استيراد خصوم متعددين للقضايا باستخدام قالب الاستيراد المرافق.',
     'case_opponents_template_info' => 'تحميل قالب الاستيراد المرافق لإضافة خصوم متعددين للقضايا الموجودة.',
     'case_opponents_instruction_1' => 'استيراد القضايا أولاً باستخدام قالب استيراد القضايا',
