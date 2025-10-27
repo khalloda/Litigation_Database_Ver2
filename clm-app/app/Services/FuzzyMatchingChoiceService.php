@@ -137,8 +137,12 @@ class FuzzyMatchingChoiceService
     private function canCreateNew(string $field): bool
     {
         return in_array($field, [
-            'matter_partner_id', 'circuit_secretary', 'court_id',
-            'client_capacity_id', 'opponent_capacity_id', 'circuit_name_id'
+            'matter_partner_id',
+            'circuit_secretary',
+            'court_id',
+            'client_capacity_id',
+            'opponent_capacity_id',
+            'circuit_name_id'
         ]);
     }
 

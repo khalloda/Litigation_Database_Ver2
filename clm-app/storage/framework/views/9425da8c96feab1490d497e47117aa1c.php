@@ -126,13 +126,16 @@ document.addEventListener('DOMContentLoaded', function() {
             modalElement.style.display = 'block';
             modalElement.classList.add('show');
             document.body.classList.add('modal-open');
-
+            
             // Add backdrop
             const backdrop = document.createElement('div');
             backdrop.className = 'modal-backdrop fade show';
             backdrop.id = 'fuzzy-modal-backdrop';
             document.body.appendChild(backdrop);
         }
+        
+        // Add close button event listeners
+        addCloseButtonListeners();
     };
 
     // Load fuzzy matching choices
@@ -374,19 +377,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Add close button event listeners
-    document.addEventListener('DOMContentLoaded', function() {
+    // Add close button event listeners when modal is shown
+    function addCloseButtonListeners() {
         // Close button in modal header
-        document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+        document.querySelectorAll('#fuzzyMatchingModal [data-bs-dismiss="modal"]').forEach(btn => {
             btn.addEventListener('click', closeFuzzyModal);
         });
-
+        
         // Cancel button
         const cancelBtn = document.querySelector('#fuzzyMatchingModal .btn-secondary');
         if (cancelBtn) {
             cancelBtn.addEventListener('click', closeFuzzyModal);
         }
-    });
+    }
 });
 </script>
 <?php /**PATH D:\Claude\Litigation_Database_Ver2\Litigation_Database_Ver2\clm-app\resources\views/import/partials/_fuzzy-matching-modal.blade.php ENDPATH**/ ?>

@@ -120,6 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Fallback: show modal manually
             modalElement.style.display = 'block';
             modalElement.classList.add('show');
+            modalElement.setAttribute('aria-hidden', 'false'); // Fix accessibility issue
             document.body.classList.add('modal-open');
             
             // Add backdrop
@@ -186,11 +187,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('input[name="existing-choice"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 if (this.checked) {
+                    console.log('Existing choice selected:', this.dataset.choice);
                     selectedChoice = {
                         type: 'existing',
                         data: JSON.parse(this.dataset.choice)
                     };
                     updateApplyButton();
+                    showFuzzySuccess('Existing value selected. Click "Apply Choice" to use it.');
                 }
             });
         });
@@ -270,15 +273,26 @@ document.addEventListener('DOMContentLoaded', function() {
         createButton.className = 'btn btn-success btn-sm w-100';
         createButton.innerHTML = '<i class="fas fa-plus me-2"></i>{{ __("app.create_new") }}';
         createButton.addEventListener('click', function() {
+            console.log('Create New button clicked');
             const form = container.querySelector('form');
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
-
-            selectedChoice = {
-                type: 'create',
-                data: data
-            };
-            updateApplyButton();
+            if (form) {
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                
+                console.log('Form data:', data);
+                
+                selectedChoice = {
+                    type: 'create',
+                    data: data
+                };
+                updateApplyButton();
+                
+                // Show success message
+                showFuzzySuccess('New value prepared. Click "Apply Choice" to create it.');
+            } else {
+                console.error('Form not found');
+                showFuzzyError('Form not found. Please refresh and try again.');
+            }
         });
 
         container.appendChild(createButton);
@@ -292,13 +306,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Apply choice
     document.getElementById('apply-choice-btn').addEventListener('click', function() {
-        if (!selectedChoice) return;
+        console.log('Apply Choice button clicked');
+        console.log('Selected choice:', selectedChoice);
+        
+        if (!selectedChoice) {
+            console.error('No choice selected');
+            showFuzzyError('Please select a choice first');
+            return;
+        }
 
         const form = document.getElementById('fuzzy-choice-form');
         form.querySelector('#fuzzy-choice-type').value = selectedChoice.type;
         form.querySelector('#fuzzy-choice-data').value = JSON.stringify(selectedChoice.data);
 
         const formData = new FormData(form);
+        
+        console.log('Sending choice data:', {
+            type: selectedChoice.type,
+            data: selectedChoice.data
+        });
 
         fetch('{{ route("fuzzy-matching.apply-choice") }}', {
             method: 'POST',
@@ -307,13 +333,17 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log('Response data:', data);
             if (data.success) {
                 showFuzzySuccess(data.message);
                 // Close modal
                 closeFuzzyModal();
-
+                
                 // Trigger refresh of validation results
                 if (window.refreshValidationResults) {
                     window.refreshValidationResults();
@@ -362,8 +392,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Fallback: hide modal manually
             modalElement.style.display = 'none';
             modalElement.classList.remove('show');
+            modalElement.setAttribute('aria-hidden', 'true'); // Fix accessibility issue
             document.body.classList.remove('modal-open');
-
+            
             // Remove backdrop
             const backdrop = document.getElementById('fuzzy-modal-backdrop');
             if (backdrop) {
