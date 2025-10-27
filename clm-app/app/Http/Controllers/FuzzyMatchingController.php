@@ -145,8 +145,10 @@ class FuzzyMatchingController extends Controller
         return DB::transaction(function () use ($field, $choiceData) {
             switch ($field) {
                 case 'matter_partner_id':
-                case 'circuit_secretary':
                     return $this->createLawyer($choiceData);
+
+                case 'circuit_secretary':
+                    return $this->createCircuitSecretary($choiceData);
 
                 case 'court_id':
                     return $this->createCourt($choiceData);
@@ -238,6 +240,29 @@ class FuzzyMatchingController extends Controller
             'label_ar' => $data['label_ar'],
             'label_en' => $data['label_en'],
             'position' => 0,
+            'is_active' => true,
+        ]);
+
+        return $optionValue->id;
+    }
+
+    /**
+     * Create new circuit secretary option value.
+     */
+    private function createCircuitSecretary(array $data): int
+    {
+        $optionSet = \App\Models\OptionSet::where('key', 'court.circuit_secretary')->first();
+
+        if (!$optionSet) {
+            throw new \Exception('Circuit secretary option set not found');
+        }
+
+        $optionValue = OptionValue::create([
+            'set_id' => $optionSet->id,
+            'code' => $data['code'] ?? strtolower(str_replace(' ', '_', $data['label_en'])),
+            'label_ar' => $data['label_ar'],
+            'label_en' => $data['label_en'],
+            'position' => $data['position'] ?? 0,
             'is_active' => true,
         ]);
 

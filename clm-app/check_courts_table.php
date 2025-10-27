@@ -10,7 +10,7 @@ echo "Checking courts table structure...\n\n";
 // Check courts table
 echo "=== courts table ===\n";
 $columns = \DB::select('DESCRIBE courts');
-foreach($columns as $col) {
+foreach ($columns as $col) {
     echo "{$col->Field} - {$col->Type} - {$col->Extra}\n";
 }
 
@@ -25,7 +25,7 @@ try {
         'updated_at' => now()
     ]);
     echo "Successfully created court with ID: {$newId}\n";
-    
+
     // Clean up
     \DB::table('courts')->where('id', $newId)->delete();
     echo "Test record deleted\n";

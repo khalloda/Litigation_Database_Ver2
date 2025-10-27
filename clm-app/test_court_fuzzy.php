@@ -51,7 +51,7 @@ echo "Response content: " . $response->getContent() . "\n";
 $court = \DB::table('courts')->where('court_name_ar', 'العجوزة الجزئية')->first();
 if ($court) {
     echo "Court created successfully with ID: {$court->id}\n";
-    
+
     // Clean up
     \DB::table('courts')->where('id', $court->id)->delete();
     echo "Test court deleted\n";

@@ -18,8 +18,11 @@ class FuzzyMatchingChoiceService
 
         switch ($field) {
             case 'matter_partner_id':
-            case 'circuit_secretary':
                 $choices = $this->getLawyerChoices($searchValue);
+                break;
+
+            case 'circuit_secretary':
+                $choices = $this->getCircuitSecretaryChoices($searchValue);
                 break;
 
             case 'court_id':
@@ -164,6 +167,28 @@ class FuzzyMatchingChoiceService
     }
 
     /**
+     * Get circuit secretary choices for fuzzy matching.
+     */
+    private function getCircuitSecretaryChoices(string $searchValue): array
+    {
+        $secretaries = OptionValue::whereHas('optionSet', function ($q) {
+            $q->where('key', 'court.circuit_secretary');
+        })->where(function ($q) use ($searchValue) {
+            $q->where('label_en', 'like', '%' . $searchValue . '%')
+                ->orWhere('label_ar', 'like', '%' . $searchValue . '%');
+        })->limit(10)->get();
+
+        return $secretaries->map(function ($secretary) {
+            return [
+                'id' => $secretary->id,
+                'label_ar' => $secretary->label_ar,
+                'label_en' => $secretary->label_en,
+                'display' => $secretary->label_ar . ' (' . $secretary->label_en . ')'
+            ];
+        })->toArray();
+    }
+
+    /**
      * Check if new values can be created for this field.
      */
     private function canCreateNew(string $field): bool
@@ -185,7 +210,6 @@ class FuzzyMatchingChoiceService
     {
         switch ($field) {
             case 'matter_partner_id':
-            case 'circuit_secretary':
                 return [
                     'type' => 'lawyer',
                     'suggestion' => [
@@ -193,6 +217,17 @@ class FuzzyMatchingChoiceService
                         'lawyer_name_en' => $this->generateEnglishName($searchValue),
                         'email' => $this->generateEmail($searchValue),
                         'title' => 'Associate'
+                    ]
+                ];
+
+            case 'circuit_secretary':
+                return [
+                    'type' => 'option_value',
+                    'suggestion' => [
+                        'label_ar' => $searchValue,
+                        'label_en' => $this->generateEnglishName($searchValue),
+                        'code' => $this->generateCode($searchValue),
+                        'position' => 999
                     ]
                 ];
 
@@ -247,5 +282,14 @@ class FuzzyMatchingChoiceService
     {
         $cleanName = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $name));
         return $cleanName . '@sarieldin.com';
+    }
+
+    /**
+     * Generate code from name.
+     */
+    private function generateCode(string $name): string
+    {
+        $cleanName = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $name));
+        return 'secretary_' . $cleanName . '_' . time();
     }
 }
