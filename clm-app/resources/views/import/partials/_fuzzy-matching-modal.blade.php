@@ -122,14 +122,14 @@ document.addEventListener('DOMContentLoaded', function() {
             modalElement.classList.add('show');
             modalElement.setAttribute('aria-hidden', 'false'); // Fix accessibility issue
             document.body.classList.add('modal-open');
-            
+
             // Add backdrop
             const backdrop = document.createElement('div');
             backdrop.className = 'modal-backdrop fade show';
             backdrop.id = 'fuzzy-modal-backdrop';
             document.body.appendChild(backdrop);
         }
-        
+
         // Add close button event listeners
         addCloseButtonListeners();
     };
@@ -278,15 +278,15 @@ document.addEventListener('DOMContentLoaded', function() {
             if (form) {
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
-                
+
                 console.log('Form data:', data);
-                
+
                 selectedChoice = {
                     type: 'create',
                     data: data
                 };
                 updateApplyButton();
-                
+
                 // Show success message
                 showFuzzySuccess('New value prepared. Click "Apply Choice" to create it.');
             } else {
@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('apply-choice-btn').addEventListener('click', function() {
         console.log('Apply Choice button clicked');
         console.log('Selected choice:', selectedChoice);
-        
+
         if (!selectedChoice) {
             console.error('No choice selected');
             showFuzzyError('Please select a choice first');
@@ -320,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
         form.querySelector('#fuzzy-choice-data').value = JSON.stringify(selectedChoice.data);
 
         const formData = new FormData(form);
-        
+
         console.log('Sending choice data:', {
             type: selectedChoice.type,
             data: selectedChoice.data
@@ -343,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showFuzzySuccess(data.message);
                 // Close modal
                 closeFuzzyModal();
-                
+
                 // Trigger refresh of validation results
                 if (window.refreshValidationResults) {
                     window.refreshValidationResults();
@@ -394,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
             modalElement.classList.remove('show');
             modalElement.setAttribute('aria-hidden', 'true'); // Fix accessibility issue
             document.body.classList.remove('modal-open');
-            
+
             // Remove backdrop
             const backdrop = document.getElementById('fuzzy-modal-backdrop');
             if (backdrop) {
@@ -409,7 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('#fuzzyMatchingModal [data-bs-dismiss="modal"]').forEach(btn => {
             btn.addEventListener('click', closeFuzzyModal);
         });
-        
+
         // Cancel button
         const cancelBtn = document.querySelector('#fuzzyMatchingModal .btn-secondary');
         if (cancelBtn) {

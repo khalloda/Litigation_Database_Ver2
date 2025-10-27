@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use App\Models\Lawyer;
 use App\Models\Court;
 use App\Models\OptionValue;
+use App\Models\OptionSet;
 use Illuminate\Support\Facades\DB;
 
 class FuzzyMatchingController extends Controller
@@ -151,19 +152,18 @@ class FuzzyMatchingController extends Controller
     private function createCapacity(array $data): int
     {
         $optionSet = \App\Models\OptionSet::where('key', 'capacity.type')->first();
-
+        
         if (!$optionSet) {
             throw new \Exception('Capacity option set not found');
         }
 
         $optionValue = OptionValue::create([
             'set_id' => $optionSet->id,
+            'code' => strtolower(str_replace(' ', '_', $data['label_en'])),
             'label_ar' => $data['label_ar'],
             'label_en' => $data['label_en'],
-            'value' => strtolower(str_replace(' ', '_', $data['label_en'])),
+            'position' => 0,
             'is_active' => true,
-            'created_by' => auth()->id(),
-            'updated_by' => auth()->id()
         ]);
 
         return $optionValue->id;
@@ -175,19 +175,18 @@ class FuzzyMatchingController extends Controller
     private function createCircuit(array $data): int
     {
         $optionSet = \App\Models\OptionSet::where('key', 'circuit.name')->first();
-
+        
         if (!$optionSet) {
             throw new \Exception('Circuit option set not found');
         }
 
         $optionValue = OptionValue::create([
             'set_id' => $optionSet->id,
+            'code' => strtolower(str_replace(' ', '_', $data['label_en'])),
             'label_ar' => $data['label_ar'],
             'label_en' => $data['label_en'],
-            'value' => strtolower(str_replace(' ', '_', $data['label_en'])),
+            'position' => 0,
             'is_active' => true,
-            'created_by' => auth()->id(),
-            'updated_by' => auth()->id()
         ]);
 
         return $optionValue->id;
