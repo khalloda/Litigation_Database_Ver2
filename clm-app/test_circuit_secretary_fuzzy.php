@@ -77,7 +77,7 @@ $secretary = \DB::table('option_values')
 
 if ($secretary) {
     echo "Circuit secretary created successfully with ID: {$secretary->id}\n";
-    
+
     // Clean up
     \DB::table('option_values')->where('id', $secretary->id)->delete();
     echo "Test circuit secretary deleted\n";
