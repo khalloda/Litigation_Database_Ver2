@@ -27,6 +27,8 @@ class FuzzyMatchingController extends Controller
     {
         // Check if this is a CSRF token refresh request
         if ($request->has('refresh_csrf')) {
+            // Force session regeneration to get a fresh token
+            session()->regenerate();
             return response()->json([
                 'success' => true,
                 'csrf_token' => csrf_token()
@@ -62,6 +64,15 @@ class FuzzyMatchingController extends Controller
             'session_token' => session()->token(),
             'csrf_match' => hash_equals(session()->token(), $request->input('_token'))
         ]);
+
+        // Check for CSRF token mismatch and regenerate session if needed
+        if (!hash_equals(session()->token(), $request->input('_token'))) {
+            \Log::warning('CSRF token mismatch detected, regenerating session', [
+                'session_token' => session()->token(),
+                'request_token' => $request->input('_token')
+            ]);
+            session()->regenerate();
+        }
 
         $request->validate([
             'field' => 'required|string',
