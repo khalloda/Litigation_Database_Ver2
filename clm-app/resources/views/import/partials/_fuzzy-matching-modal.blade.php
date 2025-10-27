@@ -327,13 +327,21 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let [key, value] of formData.entries()) {
             console.log(`${key}: ${value}`);
         }
+        
+        // Debug: Check CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        console.log('CSRF token from meta:', csrfToken);
+        console.log('CSRF token from form:', formData.get('_token'));
 
         console.log('Sending choice data:', {
             type: selectedChoice.type,
             data: selectedChoice.data
         });
 
-        fetch('{{ route("fuzzy-matching.apply-choice") }}', {
+        const url = '{{ route("fuzzy-matching.apply-choice") }}';
+        console.log('Request URL:', url);
+        
+        fetch(url, {
             method: 'POST',
             body: formData
         })
@@ -341,11 +349,11 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Response status:', response.status);
             console.log('Response headers:', response.headers);
             console.log('Response URL:', response.url);
-            
+
             // Check if response is HTML instead of JSON
             const contentType = response.headers.get('content-type');
             console.log('Content-Type:', contentType);
-            
+
             if (contentType && contentType.includes('text/html')) {
                 console.error('❌ Server returned HTML instead of JSON!');
                 return response.text().then(html => {
@@ -353,7 +361,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('Server returned HTML instead of JSON');
                 });
             }
-            
+
             return response.json();
         })
         .then(data => {
