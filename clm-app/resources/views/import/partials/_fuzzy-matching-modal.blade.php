@@ -321,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Apply choice
-    document.getElementById('apply-choice-btn').addEventListener('click', function() {
+    document.getElementById('apply-choice-btn').addEventListener('click', async function() {
         console.log('Apply Choice button clicked');
         console.log('Selected choice:', selectedChoice);
 
@@ -357,6 +357,18 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update the form data with the current meta token
             formData.set('_token', csrfToken);
             console.log('Updated form token to match meta token');
+        }
+
+        // Always refresh CSRF token before making the request
+        console.log('Refreshing CSRF token before request...');
+        const refreshResponse = await fetch('{{ route("fuzzy-matching.choices") }}?refresh_csrf=1');
+        const refreshData = await refreshResponse.json();
+        
+        if (refreshData.success && refreshData.csrf_token) {
+            // Update the meta tag and form data with the fresh token
+            document.querySelector('meta[name="csrf-token"]').setAttribute('content', refreshData.csrf_token);
+            formData.set('_token', refreshData.csrf_token);
+            console.log('CSRF token refreshed before request:', refreshData.csrf_token);
         }
 
         console.log('Sending choice data:', {
