@@ -47,6 +47,11 @@ class FuzzyMatchingController extends Controller
      */
     public function applyChoice(Request $request): JsonResponse
     {
+        \Log::info('FuzzyMatchingController::applyChoice called', [
+            'request_data' => $request->all(),
+            'headers' => $request->headers->all()
+        ]);
+
         $request->validate([
             'field' => 'required|string',
             'search_value' => 'required|string',
@@ -70,6 +75,12 @@ class FuzzyMatchingController extends Controller
                 'message' => __('app.fuzzy_match_resolved_successfully')
             ]);
         } catch (\Exception $e) {
+            \Log::error('FuzzyMatchingController::applyChoice error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
+            
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()
