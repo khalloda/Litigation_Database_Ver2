@@ -137,7 +137,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load fuzzy matching choices
     function loadFuzzyChoices(field, searchValue, importSessionId) {
-        fetch(`{{ route('fuzzy-matching.choices') }}?field=${encodeURIComponent(field)}&search_value=${encodeURIComponent(searchValue)}&import_session_id=${importSessionId}`)
+        fetch(`{{ route('fuzzy-matching.choices') }}?field=${encodeURIComponent(field)}&search_value=${encodeURIComponent(searchValue)}&import_session_id=${importSessionId}`, {
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
             .then(response => response.json())
             .then(data => {
                 console.log('Fuzzy choices response:', data);
@@ -353,7 +359,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.warn('CSRF token mismatch detected!');
             console.log('Meta token:', csrfToken);
             console.log('Form token:', formData.get('_token'));
-            
+
             // Update the form data with the current meta token
             formData.set('_token', csrfToken);
             console.log('Updated form token to match meta token');
@@ -361,9 +367,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Always refresh CSRF token before making the request
         console.log('Refreshing CSRF token before request...');
-        const refreshResponse = await fetch('{{ route("fuzzy-matching.choices") }}?refresh_csrf=1');
+        const refreshResponse = await fetch('{{ route("fuzzy-matching.choices") }}?refresh_csrf=1', {
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
         const refreshData = await refreshResponse.json();
-        
+
         if (refreshData.success && refreshData.csrf_token) {
             // Update the meta tag and form data with the fresh token
             document.querySelector('meta[name="csrf-token"]').setAttribute('content', refreshData.csrf_token);
@@ -381,7 +393,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         fetch(url, {
             method: 'POST',
-            body: formData
+            body: formData,
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
         })
         .then(response => {
             console.log('Response status:', response.status);
@@ -423,7 +440,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Check if it's a CSRF token mismatch
             if (error.message.includes('Server returned HTML instead of JSON')) {
                 console.warn('Possible CSRF token mismatch - trying to refresh token');
-                
+
                 // Try to refresh the CSRF token first
                 fetch('{{ route("fuzzy-matching.choices") }}?refresh_csrf=1')
                     .then(response => response.json())

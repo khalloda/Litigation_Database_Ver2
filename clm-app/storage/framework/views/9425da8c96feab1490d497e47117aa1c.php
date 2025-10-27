@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Apply choice
-    document.getElementById('apply-choice-btn').addEventListener('click', function() {
+    document.getElementById('apply-choice-btn').addEventListener('click', async function() {
         console.log('Apply Choice button clicked');
         console.log('Selected choice:', selectedChoice);
 
@@ -358,10 +358,22 @@ document.addEventListener('DOMContentLoaded', function() {
             console.warn('CSRF token mismatch detected!');
             console.log('Meta token:', csrfToken);
             console.log('Form token:', formData.get('_token'));
-            
+
             // Update the form data with the current meta token
             formData.set('_token', csrfToken);
             console.log('Updated form token to match meta token');
+        }
+
+        // Always refresh CSRF token before making the request
+        console.log('Refreshing CSRF token before request...');
+        const refreshResponse = await fetch('<?php echo e(route("fuzzy-matching.choices")); ?>?refresh_csrf=1');
+        const refreshData = await refreshResponse.json();
+
+        if (refreshData.success && refreshData.csrf_token) {
+            // Update the meta tag and form data with the fresh token
+            document.querySelector('meta[name="csrf-token"]').setAttribute('content', refreshData.csrf_token);
+            formData.set('_token', refreshData.csrf_token);
+            console.log('CSRF token refreshed before request:', refreshData.csrf_token);
         }
 
         console.log('Sending choice data:', {
@@ -416,7 +428,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Check if it's a CSRF token mismatch
             if (error.message.includes('Server returned HTML instead of JSON')) {
                 console.warn('Possible CSRF token mismatch - trying to refresh token');
-                
+
                 // Try to refresh the CSRF token first
                 fetch('<?php echo e(route("fuzzy-matching.choices")); ?>?refresh_csrf=1')
                     .then(response => response.json())
