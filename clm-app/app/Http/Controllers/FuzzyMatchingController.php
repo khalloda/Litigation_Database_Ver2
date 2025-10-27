@@ -25,6 +25,14 @@ class FuzzyMatchingController extends Controller
      */
     public function getChoices(Request $request): JsonResponse
     {
+        // Check if this is a CSRF token refresh request
+        if ($request->has('refresh_csrf')) {
+            return response()->json([
+                'success' => true,
+                'csrf_token' => csrf_token()
+            ]);
+        }
+
         $request->validate([
             'field' => 'required|string',
             'search_value' => 'required|string',
