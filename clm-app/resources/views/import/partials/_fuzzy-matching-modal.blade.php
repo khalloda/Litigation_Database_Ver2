@@ -347,6 +347,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
         console.log('CSRF token from meta:', csrfToken);
         console.log('CSRF token from form:', formData.get('_token'));
+        
+        // Check if CSRF tokens match
+        if (csrfToken !== formData.get('_token')) {
+            console.warn('CSRF token mismatch detected!');
+            console.log('Meta token:', csrfToken);
+            console.log('Form token:', formData.get('_token'));
+        }
 
         console.log('Sending choice data:', {
             type: selectedChoice.type,
@@ -396,7 +403,21 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('Error applying choice:', error);
-            showFuzzyError('Error applying choice: ' + error.message);
+            
+            // Check if it's a CSRF token mismatch
+            if (error.message.includes('Server returned HTML instead of JSON')) {
+                console.warn('Possible CSRF token mismatch - redirecting to refresh page');
+                showFuzzyError('CSRF token expired. Please refresh the page and try again.');
+                // Close modal and suggest refresh
+                setTimeout(() => {
+                    closeFuzzyModal();
+                    if (confirm('Your session has expired. Would you like to refresh the page?')) {
+                        window.location.reload();
+                    }
+                }, 2000);
+            } else {
+                showFuzzyError('Error applying choice: ' + error.message);
+            }
         });
     });
 
