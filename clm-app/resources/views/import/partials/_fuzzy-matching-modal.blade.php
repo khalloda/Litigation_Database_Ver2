@@ -81,6 +81,7 @@
 
 {{-- Hidden form for choice data --}}
 <form id="fuzzy-choice-form" style="display: none;">
+    @csrf
     <input type="hidden" id="fuzzy-field" name="field">
     <input type="hidden" id="fuzzy-search-value-input" name="search_value">
     <input type="hidden" id="fuzzy-choice-type" name="choice_type">
@@ -328,9 +329,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         fetch('{{ route("fuzzy-matching.apply-choice") }}', {
             method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
             body: formData
         })
         .then(response => {
