@@ -92,14 +92,42 @@ class FuzzyMatchingChoiceService
      */
     private function getCapacityChoices(string $searchValue): array
     {
+        // Clean the search value (remove extra whitespace, newlines)
+        $searchValue = trim($searchValue);
+        
+        // Get all capacity values
         $capacities = OptionValue::whereHas('optionSet', function ($q) {
             $q->where('key', 'capacity.type');
-        })->where(function ($q) use ($searchValue) {
-            $q->where('label_en', 'like', '%' . $searchValue . '%')
-                ->orWhere('label_ar', 'like', '%' . $searchValue . '%');
-        })->limit(10)->get();
+        })->get();
 
-        return $capacities->map(function ($capacity) {
+        // Filter by similarity (more flexible matching)
+        $matches = $capacities->filter(function ($capacity) use ($searchValue) {
+            // Exact match
+            if ($capacity->label_ar === $searchValue || $capacity->label_en === $searchValue) {
+                return true;
+            }
+            
+            // Contains match
+            if (strpos($capacity->label_ar, $searchValue) !== false || 
+                strpos($capacity->label_en, $searchValue) !== false) {
+                return true;
+            }
+            
+            // Handle Arabic gender variations (e.g., مستأنفة vs مستأنف)
+            // Remove feminine endings (ة) and check if the base matches
+            $searchBase = rtrim($searchValue, 'ة');
+            $capacityBase = rtrim($capacity->label_ar, 'ة');
+            
+            if ($searchBase === $capacityBase || 
+                strpos($capacityBase, $searchBase) !== false ||
+                strpos($searchBase, $capacityBase) !== false) {
+                return true;
+            }
+            
+            return false;
+        })->take(10);
+
+        return $matches->map(function ($capacity) {
             return [
                 'id' => $capacity->id,
                 'label_ar' => $capacity->label_ar,

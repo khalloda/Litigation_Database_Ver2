@@ -37,7 +37,7 @@ class VerifyCsrfToken extends Middleware
                     'exception' => 'Symfony\\Component\\HttpKernel\\Exception\\HttpException'
                 ], 419);
             }
-            
+
             // For regular requests, let the parent handle the redirect
             throw $e;
         }

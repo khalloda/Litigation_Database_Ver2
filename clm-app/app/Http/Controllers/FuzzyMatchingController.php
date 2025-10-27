@@ -49,7 +49,10 @@ class FuzzyMatchingController extends Controller
     {
         \Log::info('FuzzyMatchingController::applyChoice called', [
             'request_data' => $request->all(),
-            'headers' => $request->headers->all()
+            'headers' => $request->headers->all(),
+            'csrf_token' => $request->input('_token'),
+            'session_token' => session()->token(),
+            'csrf_match' => hash_equals(session()->token(), $request->input('_token'))
         ]);
 
         $request->validate([
