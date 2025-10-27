@@ -55,11 +55,11 @@ if ($session) {
     echo "\nImport session preflight_errors count: " . count($session->preflight_errors) . "\n";
     echo "Error count: " . $session->preflight_error_count . "\n";
     echo "Warning count: " . $session->preflight_warning_count . "\n";
-    
+
     // Check if any errors were marked as resolved
     $resolvedErrors = collect($session->preflight_errors)->where('resolved', true);
     echo "Resolved errors: " . $resolvedErrors->count() . "\n";
-    
+
     if ($resolvedErrors->count() > 0) {
         echo "First resolved error:\n";
         $firstResolved = $resolvedErrors->first();

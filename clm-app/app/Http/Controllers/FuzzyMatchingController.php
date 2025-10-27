@@ -287,7 +287,7 @@ class FuzzyMatchingController extends Controller
         $errors = $session->preflight_errors;
         $updated = false;
 
-        // Find and update the specific error
+        // Find and update ALL matching errors (there might be multiple rows with same field/value)
         foreach ($errors as $index => $error) {
             if ($error['column'] === $field && $error['value'] === $searchValue) {
                 // Update the error to show it's been resolved
@@ -295,7 +295,7 @@ class FuzzyMatchingController extends Controller
                 $errors[$index]['resolved_id'] = $resolvedId;
                 $errors[$index]['resolved_at'] = now()->toISOString();
                 $updated = true;
-                break;
+                // Don't break - continue to update all matching errors
             }
         }
 
