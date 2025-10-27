@@ -427,8 +427,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 closeFuzzyModal();
 
                 // Trigger refresh of validation results
+                console.log('Success! About to refresh validation results...');
                 if (window.refreshValidationResults) {
+                    console.log('Calling refreshValidationResults...');
                     window.refreshValidationResults();
+                } else {
+                    console.log('refreshValidationResults function not found!');
                 }
             } else {
                 showFuzzyError(data.message);

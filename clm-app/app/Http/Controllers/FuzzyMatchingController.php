@@ -279,7 +279,7 @@ class FuzzyMatchingController extends Controller
     private function updateImportSessionData(int $importSessionId, string $field, string $searchValue, int $resolvedId): void
     {
         $session = ImportSession::findOrFail($importSessionId);
-        
+
         if (!$session->preflight_errors) {
             return;
         }

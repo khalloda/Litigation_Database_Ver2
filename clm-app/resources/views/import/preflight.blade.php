@@ -184,7 +184,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add refresh function for validation results
     window.refreshValidationResults = function() {
-        location.reload();
+        console.log('refreshValidationResults called - reloading page...');
+        // Add a small delay to ensure the modal closes first
+        setTimeout(function() {
+            location.reload();
+        }, 100);
     };
 });
 </script>

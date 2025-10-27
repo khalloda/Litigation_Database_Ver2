@@ -34,9 +34,9 @@ foreach ($opponentErrors->take(5) as $index => $error) {
 }
 
 // Look for specific value "مدعي عليه"
-$specificErrors = collect($session->preflight_errors)->filter(function($error) {
-    return isset($error['column']) && $error['column'] === 'opponent_capacity_id' && 
-           isset($error['value']) && $error['value'] === 'مدعي عليه';
+$specificErrors = collect($session->preflight_errors)->filter(function ($error) {
+    return isset($error['column']) && $error['column'] === 'opponent_capacity_id' &&
+        isset($error['value']) && $error['value'] === 'مدعي عليه';
 });
 
 echo "\n\nSpecific errors for 'مدعي عليه': " . $specificErrors->count() . "\n";
