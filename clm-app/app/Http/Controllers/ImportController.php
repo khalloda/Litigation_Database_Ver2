@@ -405,6 +405,10 @@ class ImportController extends Controller
                 'status' => ImportSession::STATUS_VALIDATED,
             ]);
 
+            // Replace results.errors with merged version for UI rendering
+            $results['errors'] = $mergedErrors;
+            $results['error_count'] = $effectiveErrorCount;
+
             // Check if error rate exceeds threshold
             $exceedsThreshold = $this->preflightEngine->exceedsErrorThreshold(
                 $results['error_count'],
