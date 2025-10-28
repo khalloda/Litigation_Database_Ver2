@@ -40,6 +40,16 @@
                     <i class="fas fa-check-circle"></i> {{ __('app.validation_passed') }}
                 </div>
             @endif
+
+            @if(isset($appliedProfile) && $appliedProfile)
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-magic"></i>
+                    {{ __('app.profile_applied') }}: <strong>{{ $appliedProfile->name }}</strong>
+                    @if(isset($profileSummary))
+                        — {{ __('app.hits') }}: {{ $profileSummary['hits'] ?? 0 }}, {{ __('app.misses') }}: {{ $profileSummary['misses'] ?? 0 }}
+                    @endif
+                </div>
+            @endif
         </div>
     </div>
 
@@ -103,6 +113,18 @@
                 @if(!$exceedsThreshold)
                     <form id="preflight-run-form" action="{{ route('import.run', $session) }}" method="POST" class="w-100">
                         @csrf
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" value="1" id="rememberDecisions" name="remember_decisions">
+                            <label class="form-check-label" for="rememberDecisions">
+                                {{ __('app.remember_resolutions_next_time') }}
+                            </label>
+                        </div>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" value="1" id="saveAsProfile" name="save_as_profile">
+                            <label class="form-check-label" for="saveAsProfile">
+                                {{ __('app.save_as_named_profile') }}
+                            </label>
+                        </div>
                         @if(isset($session) && $session->table_name === 'cases')
                             <hr>
                             <h5 class="mb-3">@lang('app.opponent_suggestions')</h5>
