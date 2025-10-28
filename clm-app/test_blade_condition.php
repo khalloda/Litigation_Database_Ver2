@@ -31,7 +31,7 @@ echo "Testing Blade condition: !isset(\$error['resolved']) || !\$error['resolved
 foreach ($testErrors as $index => $error) {
     $condition = !isset($error['resolved']) || !$error['resolved'];
     $resolved = isset($error['resolved']) ? ($error['resolved'] ? 'true' : 'false') : 'not set';
-    
+
     echo "Error " . ($index + 1) . ":\n";
     echo "  Row: " . $error['row'] . "\n";
     echo "  Column: " . $error['column'] . "\n";

@@ -310,10 +310,59 @@ class ImportController extends Controller
                 }
             }
 
-            // Save preflight results
+            // Merge previously resolved errors so a refresh doesn't wipe resolutions
+            $mergedErrors = $results['errors'];
+            try {
+                $previousErrors = is_array($session->preflight_errors) ? $session->preflight_errors : [];
+                // Build a quick lookup of resolved decisions keyed by (column,value)
+                $resolvedLookup = [];
+                foreach ($previousErrors as $prev) {
+                    if (is_array($prev)
+                        && isset($prev['column'], $prev['value'])
+                        && isset($prev['resolved'])
+                        && $prev['resolved'] === true) {
+                        $key = ($prev['column'] ?? '') . '||' . (string) ($prev['value'] ?? '');
+                        // keep the latest resolved info
+                        $resolvedLookup[$key] = [
+                            'resolved' => true,
+                            'resolved_id' => $prev['resolved_id'] ?? null,
+                            'resolved_at' => $prev['resolved_at'] ?? now()->toISOString(),
+                        ];
+                    }
+                }
+
+                // Apply resolved marks to new results
+                foreach ($mergedErrors as $idx => $err) {
+                    if (!is_array($err)) {
+                        continue;
+                    }
+                    $key = ($err['column'] ?? '') . '||' . (string) ($err['value'] ?? '');
+                    if (isset($resolvedLookup[$key])) {
+                        $mergedErrors[$idx]['resolved'] = true;
+                        if (isset($resolvedLookup[$key]['resolved_id'])) {
+                            $mergedErrors[$idx]['resolved_id'] = $resolvedLookup[$key]['resolved_id'];
+                        }
+                        if (isset($resolvedLookup[$key]['resolved_at'])) {
+                            $mergedErrors[$idx]['resolved_at'] = $resolvedLookup[$key]['resolved_at'];
+                        }
+                    }
+                }
+            } catch (\Throwable $mergeEx) {
+                \Log::warning('Preflight merge of resolved errors failed', [
+                    'sessionId' => $session->id,
+                    'error' => $mergeEx->getMessage(),
+                ]);
+            }
+
+            // Recalculate counts excluding resolved errors
+            $effectiveErrorCount = collect($mergedErrors)->filter(function ($e) {
+                return !(isset($e['resolved']) && $e['resolved'] === true);
+            })->count();
+
+            // Save preflight results (merged)
             $session->update([
-                'preflight_errors' => $results['errors'],
-                'preflight_error_count' => $results['error_count'],
+                'preflight_errors' => $mergedErrors,
+                'preflight_error_count' => $effectiveErrorCount,
                 'preflight_warning_count' => $results['warning_count'],
                 'status' => ImportSession::STATUS_VALIDATED,
             ]);

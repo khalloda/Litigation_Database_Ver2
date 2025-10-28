@@ -32,9 +32,9 @@ echo "2. CHECKING SPECIFIC ERROR BEFORE RESOLUTION\n";
 echo "============================================\n";
 
 // Find all opponent_capacity_id errors with "مدعي عليه"
-$opponentErrors = collect($session->preflight_errors)->filter(function($error) {
-    return isset($error['column']) && $error['column'] === 'opponent_capacity_id' && 
-           isset($error['value']) && $error['value'] === 'مدعي عليه';
+$opponentErrors = collect($session->preflight_errors)->filter(function ($error) {
+    return isset($error['column']) && $error['column'] === 'opponent_capacity_id' &&
+        isset($error['value']) && $error['value'] === 'مدعي عليه';
 });
 
 echo "Found " . $opponentErrors->count() . " errors with 'مدعي عليه'\n";
@@ -118,9 +118,9 @@ echo "5. CHECKING SPECIFIC ERRORS AFTER RESOLUTION\n";
 echo "============================================\n";
 
 // Check if the specific errors are still there
-$opponentErrorsAfter = collect($session->preflight_errors)->filter(function($error) {
-    return isset($error['column']) && $error['column'] === 'opponent_capacity_id' && 
-           isset($error['value']) && $error['value'] === 'مدعي عليه';
+$opponentErrorsAfter = collect($session->preflight_errors)->filter(function ($error) {
+    return isset($error['column']) && $error['column'] === 'opponent_capacity_id' &&
+        isset($error['value']) && $error['value'] === 'مدعي عليه';
 });
 
 echo "Found " . $opponentErrorsAfter->count() . " errors with 'مدعي عليه' after resolution\n";
@@ -162,9 +162,11 @@ $testErrors = $testSession->preflight_errors;
 // Find first opponent_capacity_id error
 $firstErrorIndex = null;
 foreach ($testErrors as $index => $error) {
-    if (isset($error['column']) && $error['column'] === 'opponent_capacity_id' && 
-        isset($error['value']) && $error['value'] === 'مدعي عليه' && 
-        (!isset($error['resolved']) || !$error['resolved'])) {
+    if (
+        isset($error['column']) && $error['column'] === 'opponent_capacity_id' &&
+        isset($error['value']) && $error['value'] === 'مدعي عليه' &&
+        (!isset($error['resolved']) || !$error['resolved'])
+    ) {
         $firstErrorIndex = $index;
         break;
     }
@@ -172,17 +174,17 @@ foreach ($testErrors as $index => $error) {
 
 if ($firstErrorIndex !== null) {
     echo "Found unresolved error at index: {$firstErrorIndex}\n";
-    
+
     // Update it directly
     $testErrors[$firstErrorIndex]['resolved'] = true;
     $testErrors[$firstErrorIndex]['resolved_id'] = 999;
     $testErrors[$firstErrorIndex]['resolved_at'] = now()->toISOString();
-    
+
     // Save to database
     $testSession->preflight_errors = $testErrors;
     $testSession->preflight_error_count = collect($testErrors)->where('resolved', false)->count();
     $testSession->save();
-    
+
     echo "✅ Direct database update successful\n";
     echo "New error count: " . $testSession->preflight_error_count . "\n\n";
 } else {
