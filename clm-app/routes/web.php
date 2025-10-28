@@ -42,6 +42,19 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'update'])->name('clients.update');
     Route::delete('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'destroy'])->name('clients.destroy');
 });
+
+// Admin Import Profiles & Choices
+Route::middleware(['auth', 'permission:import.manage'])->prefix('admin/import')->name('admin.import.')->group(function () {
+    Route::get('/profiles', [App\Http\Controllers\Admin\ImportProfilesController::class, 'index'])->name('profiles.index');
+    Route::post('/profiles', [App\Http\Controllers\Admin\ImportProfilesController::class, 'store'])->name('profiles.store');
+    Route::get('/profiles/{profile}/export', [App\Http\Controllers\Admin\ImportProfilesController::class, 'export'])->name('profiles.export');
+    Route::post('/profiles/{profile}/import', [App\Http\Controllers\Admin\ImportProfilesController::class, 'import'])->name('profiles.import');
+
+    Route::get('/profiles/{profile}/choices', [App\Http\Controllers\Admin\ImportChoicesController::class, 'index'])->name('choices.index');
+    Route::post('/profiles/{profile}/choices', [App\Http\Controllers\Admin\ImportChoicesController::class, 'store'])->name('choices.store');
+    Route::patch('/profiles/{profile}/choices/{choice}', [App\Http\Controllers\Admin\ImportChoicesController::class, 'update'])->name('choices.update');
+    Route::delete('/profiles/{profile}/choices/{choice}', [App\Http\Controllers\Admin\ImportChoicesController::class, 'destroy'])->name('choices.destroy');
+});
 // Case Management
 Route::middleware(['auth', 'permission:cases.view'])->group(function () {
     Route::get('/cases', [App\Http\Controllers\CasesController::class, 'index'])->name('cases.index');
