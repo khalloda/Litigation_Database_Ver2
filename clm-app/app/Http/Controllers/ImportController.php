@@ -467,6 +467,29 @@ class ImportController extends Controller
                 ]);
             }
 
+            // Persist profile choices if requested (from preflight form)
+            $remember = (bool) $request->input('remember_decisions', false);
+            $saveAsProfile = (bool) $request->input('save_as_profile', false);
+            if ($remember || $saveAsProfile) {
+                $filepath = $this->importService->getSessionFilePath($session);
+                $parsed = $this->parserService->parseFile($filepath, $session->file_type);
+                $headers = $parsed['headers'] ?? (isset($parsed['rows'][0]) ? array_keys($parsed['rows'][0]) : []);
+                $profileName = $saveAsProfile ? ($request->input('profile_name') ?: 'Profile ' . now()->format('Ymd_His')) : null;
+                $profile = $this->importProfileService->persistChoicesFromSession(
+                    $session,
+                    $headers,
+                    $saveAsProfile,
+                    $remember,
+                    $profileName
+                );
+                if ($profile) {
+                    $session->update(['settings_snapshot' => [
+                        'profile_id' => $profile->id,
+                        'profile_name' => $profile->name,
+                    ]]);
+                }
+            }
+
             // Start import
             $this->importService->startSession($session);
 
