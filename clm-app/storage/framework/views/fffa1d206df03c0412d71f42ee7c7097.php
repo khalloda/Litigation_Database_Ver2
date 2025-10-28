@@ -42,10 +42,15 @@
         </div>
     </div>
 
-    <?php if(!empty($results['errors'])): ?>
+    <?php
+        $visibleErrors = array_values(array_filter($results['errors'] ?? [], function ($e) {
+            return !(isset($e['resolved']) && $e['resolved'] === true);
+        }));
+    ?>
+    <?php if(!empty($visibleErrors)): ?>
         <div class="card mb-4">
             <div class="card-header bg-danger text-white">
-                <h5 class="mb-0"><?php echo e(__('app.validation_errors')); ?> (<?php echo e(count($results['errors'])); ?>)</h5>
+                <h5 class="mb-0"><?php echo e(__('app.validation_errors')); ?> (<?php echo e(count($visibleErrors)); ?>)</h5>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -59,8 +64,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php $__currentLoopData = array_slice($results['errors'], 0, 50); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <?php if(!isset($error['resolved']) || !$error['resolved']): ?>
+                            <?php $__currentLoopData = array_slice($visibleErrors, 0, 50); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr class="fuzzy-error-row"
                                     data-field="<?php echo e($error['column']); ?>"
                                     data-value="<?php echo e($error['value'] ?? ''); ?>"
@@ -80,23 +84,10 @@
                                         <?php endif; ?>
                                     </td>
                                 </tr>
-                                <?php else: ?>
-                                <tr class="fuzzy-resolved-row" style="background-color: #d4edda; opacity: 0.7;">
-                                    <td><?php echo e($error['row']); ?></td>
-                                    <td><code><?php echo e($error['column']); ?></code></td>
-                                    <td><?php echo e(Str::limit($error['value'] ?? 'NULL', 30)); ?></td>
-                                    <td>
-                                        <span class="text-success">
-                                            <i class="fas fa-check-circle"></i> 
-                                            <?php echo e(__('app.resolved')); ?> (ID: <?php echo e($error['resolved_id'] ?? 'N/A'); ?>)
-                                        </span>
-                                    </td>
-                                </tr>
-                                <?php endif; ?>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>
                     </table>
-                    <?php if(count($results['errors']) > 50): ?>
+                    <?php if(count($visibleErrors) > 50): ?>
                         <p class="text-muted"><?php echo e(__('app.showing_first_errors', ['count' => 50])); ?></p>
                     <?php endif; ?>
                 </div>
