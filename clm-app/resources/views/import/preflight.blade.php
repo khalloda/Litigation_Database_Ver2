@@ -43,10 +43,15 @@
         </div>
     </div>
 
-    @if(!empty($results['errors']))
+    @php
+        $visibleErrors = array_values(array_filter($results['errors'] ?? [], function ($e) {
+            return !(isset($e['resolved']) && $e['resolved'] === true);
+        }));
+    @endphp
+    @if(!empty($visibleErrors))
         <div class="card mb-4">
             <div class="card-header bg-danger text-white">
-                <h5 class="mb-0">{{ __('app.validation_errors') }} ({{ count($results['errors']) }})</h5>
+                <h5 class="mb-0">{{ __('app.validation_errors') }} ({{ count($visibleErrors) }})</h5>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -60,8 +65,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach(array_slice($results['errors'], 0, 50) as $error)
-                                @if(!isset($error['resolved']) || !$error['resolved'])
+                            @foreach(array_slice($visibleErrors, 0, 50) as $error)
                                 <tr class="fuzzy-error-row"
                                     data-field="{{ $error['column'] }}"
                                     data-value="{{ $error['value'] ?? '' }}"
@@ -79,23 +83,10 @@
                                         @endif
                                     </td>
                                 </tr>
-                                @else
-                                <tr class="fuzzy-resolved-row" style="background-color: #d4edda; opacity: 0.7;">
-                                    <td>{{ $error['row'] }}</td>
-                                    <td><code>{{ $error['column'] }}</code></td>
-                                    <td>{{ Str::limit($error['value'] ?? 'NULL', 30) }}</td>
-                                    <td>
-                                        <span class="text-success">
-                                            <i class="fas fa-check-circle"></i> 
-                                            {{ __('app.resolved') }} (ID: {{ $error['resolved_id'] ?? 'N/A' }})
-                                        </span>
-                                    </td>
-                                </tr>
-                                @endif
                             @endforeach
                         </tbody>
                     </table>
-                    @if(count($results['errors']) > 50)
+                    @if(count($visibleErrors) > 50)
                         <p class="text-muted">{{ __('app.showing_first_errors', ['count' => 50]) }}</p>
                     @endif
                 </div>
