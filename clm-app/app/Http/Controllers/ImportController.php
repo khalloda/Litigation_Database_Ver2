@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Artisan;
 use App\Support\NameNormalizer;
 use App\Support\TextNormalizer;
+use App\Services\Import\ImportProfileService;
+use App\Support\Import\HeaderHasher;
 use App\Models\Opponent;
 use Exception;
 
@@ -31,6 +33,7 @@ class ImportController extends Controller
         protected PreflightEngine $preflightEngine,
         protected BackupService $backupService,
         protected OpponentSuggestionService $opponentSuggestionService,
+        protected ImportProfileService $importProfileService,
     ) {}
 
     /**
@@ -277,6 +280,18 @@ class ImportController extends Controller
             $parsed = $this->parserService->parseFile($filepath, $session->file_type);
             Log::info('File parsed successfully', ['rowCount' => count($parsed['rows'])]);
 
+            // Try applying an import profile before validation
+            $headers = $parsed['headers'] ?? (isset($parsed['rows'][0]) ? array_keys($parsed['rows'][0]) : []);
+            $appliedProfile = null;
+            $profileSummary = null;
+            if (!empty($headers)) {
+                $profile = $this->importProfileService->selectProfile($session->table_name, $headers);
+                if ($profile) {
+                    $appliedProfile = $profile;
+                    $profileSummary = $this->importProfileService->applyProfile($profile, $parsed['rows'], $session->column_mapping);
+                }
+            }
+
             // Run preflight validation
             $results = $this->preflightEngine->runPreflight(
                 $parsed['rows'],
@@ -415,7 +430,7 @@ class ImportController extends Controller
                 $session->total_rows
             );
 
-            return view('import.preflight', compact('session', 'results', 'exceedsThreshold', 'opponentSuggestions', 'parsed'));
+            return view('import.preflight', compact('session', 'results', 'exceedsThreshold', 'opponentSuggestions', 'parsed', 'appliedProfile', 'profileSummary'));
         } catch (Exception $e) {
             Log::error('Exception in preflight method', [
                 'sessionId' => $session->id,
