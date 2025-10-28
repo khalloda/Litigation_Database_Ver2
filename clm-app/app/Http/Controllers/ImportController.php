@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Artisan;
 use App\Support\NameNormalizer;
+use App\Support\TextNormalizer;
 use App\Models\Opponent;
 use Exception;
 
@@ -174,7 +175,7 @@ class ImportController extends Controller
         $this->authorize('update', $session);
 
         // Debug: Log the incoming request data
-        \Log::info('ImportController::saveMapping - Request data', [
+        Log::info('ImportController::saveMapping - Request data', [
             'sessionId' => $importSessionId,
             'mapping' => $request->mapping,
             'transforms' => $request->transforms,
@@ -193,10 +194,10 @@ class ImportController extends Controller
                 $session->table_name
             );
 
-            \Log::info('Mapping validation errors', ['errors' => $errors]);
+            Log::info('Mapping validation errors', ['errors' => $errors]);
 
             if (!empty($errors)) {
-                \Log::warning('Mapping validation failed', ['errors' => $errors]);
+                Log::warning('Mapping validation failed', ['errors' => $errors]);
                 return back()
                     ->withInput()
                     ->with('error', 'Mapping validation failed: ' . implode(', ', $errors));
@@ -209,7 +210,7 @@ class ImportController extends Controller
                 'status' => ImportSession::STATUS_MAPPED,
             ]);
 
-            \Log::info('Mapping saved successfully, redirecting to preflight', [
+            Log::info('Mapping saved successfully, redirecting to preflight', [
                 'sessionId' => $session->id,
                 'newStatus' => $session->status
             ]);
@@ -218,7 +219,7 @@ class ImportController extends Controller
                 ->route('import.preflight', $session)
                 ->with('success', __('app.mapping_saved_successfully'));
         } catch (Exception $e) {
-            \Log::error('Exception in saveMapping', [
+            Log::error('Exception in saveMapping', [
                 'sessionId' => $importSessionId,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -242,7 +243,7 @@ class ImportController extends Controller
         set_time_limit($executionTime);
         ini_set('memory_limit', $memoryLimit);
 
-        \Log::info('Preflight execution settings', [
+        Log::info('Preflight execution settings', [
             'execution_time' => $executionTime,
             'memory_limit' => $memoryLimit
         ]);
@@ -251,14 +252,14 @@ class ImportController extends Controller
 
         $this->authorize('view', $session);
 
-        \Log::info('Preflight method called', [
+        Log::info('Preflight method called', [
             'sessionId' => $session->id,
             'column_mapping' => $session->column_mapping,
             'isEmpty' => empty($session->column_mapping)
         ]);
 
         if (empty($session->column_mapping)) {
-            \Log::warning('Column mapping is empty, redirecting to map', [
+            Log::warning('Column mapping is empty, redirecting to map', [
                 'sessionId' => $session->id
             ]);
             return redirect()
@@ -267,14 +268,14 @@ class ImportController extends Controller
         }
 
         try {
-            \Log::info('Starting preflight processing', ['sessionId' => $session->id]);
+            Log::info('Starting preflight processing', ['sessionId' => $session->id]);
 
             // Parse file
             $filepath = $this->importService->getSessionFilePath($session);
-            \Log::info('Got file path', ['filepath' => $filepath]);
+            Log::info('Got file path', ['filepath' => $filepath]);
 
             $parsed = $this->parserService->parseFile($filepath, $session->file_type);
-            \Log::info('File parsed successfully', ['rowCount' => count($parsed['rows'])]);
+            Log::info('File parsed successfully', ['rowCount' => count($parsed['rows'])]);
 
             // Run preflight validation
             $results = $this->preflightEngine->runPreflight(
@@ -282,7 +283,7 @@ class ImportController extends Controller
                 $session->column_mapping,
                 $session->table_name
             );
-            \Log::info('Preflight validation completed', ['errorCount' => $results['error_count']]);
+            Log::info('Preflight validation completed', ['errorCount' => $results['error_count']]);
 
             // Opponent suggestions (only for cases table and when an incoming opponent name exists)
             $opponentSuggestions = [];
@@ -313,42 +314,79 @@ class ImportController extends Controller
             // Merge previously resolved errors so a refresh doesn't wipe resolutions
             $mergedErrors = $results['errors'];
             try {
+                $normalizer = app(TextNormalizer::class);
                 $previousErrors = is_array($session->preflight_errors) ? $session->preflight_errors : [];
-                // Build a quick lookup of resolved decisions keyed by (column,value)
-                $resolvedLookup = [];
+
+                // Build two lookups for resolved: primary by (column + row), fallback by (column + normalized(value))
+                $resolvedByRow = [];
+                $resolvedByValue = [];
+
+                $resolvedTotal = 0;
                 foreach ($previousErrors as $prev) {
-                    if (is_array($prev)
-                        && isset($prev['column'], $prev['value'])
-                        && isset($prev['resolved'])
-                        && $prev['resolved'] === true) {
-                        $key = ($prev['column'] ?? '') . '||' . (string) ($prev['value'] ?? '');
-                        // keep the latest resolved info
-                        $resolvedLookup[$key] = [
-                            'resolved' => true,
-                            'resolved_id' => $prev['resolved_id'] ?? null,
-                            'resolved_at' => $prev['resolved_at'] ?? now()->toISOString(),
-                        ];
+                    if (!is_array($prev) || empty($prev['resolved']) || empty($prev['column'])) {
+                        continue;
+                    }
+                    $info = [
+                        'resolved' => true,
+                        'resolved_id' => $prev['resolved_id'] ?? null,
+                        'resolved_at' => $prev['resolved_at'] ?? now()->toISOString(),
+                    ];
+                    $resolvedTotal++;
+                    // Primary: row-based key when row is available
+                    if (isset($prev['row'])) {
+                        $rowKey = ($prev['column'] ?? '') . '::row::' . (string) $prev['row'];
+                        $resolvedByRow[$rowKey] = $info;
+                    }
+                    // Fallback: normalized value-based key
+                    if (isset($prev['value'])) {
+                        $norm = $normalizer->normalize((string) $prev['value']);
+                        $valKey = ($prev['column'] ?? '') . '::val::' . $norm;
+                        $resolvedByValue[$valKey] = $info;
                     }
                 }
 
-                // Apply resolved marks to new results
+                $appliedCount = 0;
                 foreach ($mergedErrors as $idx => $err) {
-                    if (!is_array($err)) {
+                    if (!is_array($err) || empty($err['column'])) {
                         continue;
                     }
-                    $key = ($err['column'] ?? '') . '||' . (string) ($err['value'] ?? '');
-                    if (isset($resolvedLookup[$key])) {
-                        $mergedErrors[$idx]['resolved'] = true;
-                        if (isset($resolvedLookup[$key]['resolved_id'])) {
-                            $mergedErrors[$idx]['resolved_id'] = $resolvedLookup[$key]['resolved_id'];
-                        }
-                        if (isset($resolvedLookup[$key]['resolved_at'])) {
-                            $mergedErrors[$idx]['resolved_at'] = $resolvedLookup[$key]['resolved_at'];
+                    $applied = false;
+                    // Try row-based first
+                    if (isset($err['row'])) {
+                        $rowKey = ($err['column'] ?? '') . '::row::' . (string) $err['row'];
+                        if (isset($resolvedByRow[$rowKey])) {
+                            $info = $resolvedByRow[$rowKey];
+                            $mergedErrors[$idx]['resolved'] = true;
+                            if (isset($info['resolved_id'])) $mergedErrors[$idx]['resolved_id'] = $info['resolved_id'];
+                            if (isset($info['resolved_at'])) $mergedErrors[$idx]['resolved_at'] = $info['resolved_at'];
+                            $applied = true;
                         }
                     }
+                    // Fallback to normalized value-based
+                    if (!$applied && isset($err['value'])) {
+                        $norm = $normalizer->normalize((string) $err['value']);
+                        $valKey = ($err['column'] ?? '') . '::val::' . $norm;
+                        if (isset($resolvedByValue[$valKey])) {
+                            $info = $resolvedByValue[$valKey];
+                            $mergedErrors[$idx]['resolved'] = true;
+                            if (isset($info['resolved_id'])) $mergedErrors[$idx]['resolved_id'] = $info['resolved_id'];
+                            if (isset($info['resolved_at'])) $mergedErrors[$idx]['resolved_at'] = $info['resolved_at'];
+                            $applied = true;
+                        }
+                    }
+                    if ($applied) {
+                        $appliedCount++;
+                    }
                 }
+
+                Log::info('Preflight merge results', [
+                    'sessionId' => $session->id,
+                    'resolved_total_prev' => $resolvedTotal,
+                    'resolved_applied_now' => $appliedCount,
+                    'new_errors_count' => count($mergedErrors)
+                ]);
             } catch (\Throwable $mergeEx) {
-                \Log::warning('Preflight merge of resolved errors failed', [
+                Log::warning('Preflight merge of resolved errors failed', [
                     'sessionId' => $session->id,
                     'error' => $mergeEx->getMessage(),
                 ]);
@@ -375,7 +413,7 @@ class ImportController extends Controller
 
             return view('import.preflight', compact('session', 'results', 'exceedsThreshold', 'opponentSuggestions', 'parsed'));
         } catch (Exception $e) {
-            \Log::error('Exception in preflight method', [
+            Log::error('Exception in preflight method', [
                 'sessionId' => $session->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -1283,7 +1321,7 @@ class ImportController extends Controller
 
         if (!file_exists($path)) {
             // Generate template if it doesn't exist
-            \Artisan::call('templates:generate-case-opponents', ['--format' => 'csv']);
+            Artisan::call('templates:generate-case-opponents', ['--format' => 'csv']);
         }
 
         return response()->download($path, 'Case_Opponents_Import_Template.csv');
@@ -1300,7 +1338,7 @@ class ImportController extends Controller
 
         if (!file_exists($path)) {
             // Generate template if it doesn't exist
-            \Artisan::call('templates:generate-case-opponents', ['--format' => 'xlsx']);
+            Artisan::call('templates:generate-case-opponents', ['--format' => 'xlsx']);
         }
 
         return response()->download($path, 'Case_Opponents_Import_Template.xlsx');
