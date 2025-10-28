@@ -54,5 +54,3 @@ class TextNormalizer
         return $s;
     }
 }
-
-
