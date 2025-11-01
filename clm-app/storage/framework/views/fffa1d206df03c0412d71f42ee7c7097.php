@@ -39,6 +39,17 @@
 
                 </div>
             <?php endif; ?>
+
+            <?php if(isset($appliedProfile) && $appliedProfile): ?>
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-magic"></i>
+                    <?php echo e(__('app.profile_applied')); ?>: <strong><?php echo e($appliedProfile->name); ?></strong>
+                    <?php if(isset($profileSummary)): ?>
+                        — <?php echo e(__('app.hits')); ?>: <?php echo e($profileSummary['hits'] ?? 0); ?>, <?php echo e(__('app.misses')); ?>: <?php echo e($profileSummary['misses'] ?? 0); ?>
+
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -105,6 +116,25 @@
                 <?php if(!$exceedsThreshold): ?>
                     <form id="preflight-run-form" action="<?php echo e(route('import.run', $session)); ?>" method="POST" class="w-100">
                         <?php echo csrf_field(); ?>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" value="1" id="rememberDecisions" name="remember_decisions">
+                            <label class="form-check-label" for="rememberDecisions">
+                                <?php echo e(__('app.remember_resolutions_next_time')); ?>
+
+                            </label>
+                        </div>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" value="1" id="saveAsProfile" name="save_as_profile">
+                            <label class="form-check-label" for="saveAsProfile">
+                                <?php echo e(__('app.save_as_named_profile')); ?>
+
+                            </label>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" name="profile_name" placeholder="<?php echo e(__('app.profile_name_optional')); ?>">
+                            </div>
+                        </div>
                         <?php if(isset($session) && $session->table_name === 'cases'): ?>
                             <hr>
                             <h5 class="mb-3"><?php echo app('translator')->get('app.opponent_suggestions'); ?></h5>
@@ -121,6 +151,32 @@
                         </div>
                     </form>
                 <?php endif; ?>
+                <form action="<?php echo e(route('import.save-choices', $session)); ?>" method="POST" class="ms-3">
+                    <?php echo csrf_field(); ?>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="1" id="rememberDecisionsNow" name="remember_decisions" checked>
+                        <label class="form-check-label" for="rememberDecisionsNow">
+                            <?php echo e(__('app.remember_resolutions_next_time')); ?>
+
+                        </label>
+                    </div>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" value="1" id="saveAsProfileNow" name="save_as_profile">
+                        <label class="form-check-label" for="saveAsProfileNow">
+                            <?php echo e(__('app.save_as_named_profile')); ?>
+
+                        </label>
+                    </div>
+                    <div class="mt-2">
+                        <input type="text" class="form-control" name="profile_name" placeholder="<?php echo e(__('app.profile_name_optional')); ?>">
+                    </div>
+                    <div class="text-end mt-2">
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="fas fa-save"></i> <?php echo e(__('app.save_choices_now')); ?>
+
+                        </button>
+                    </div>
+                </form>
             </div>
 
         </div>
