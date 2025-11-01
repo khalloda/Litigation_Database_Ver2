@@ -114,7 +114,7 @@ class CasesController extends Controller
     public function show(CaseModel $case)
     {
         $this->authorize('view', $case);
-        $case->load(
+        $case->load([
             'client',
             'court',
             'circuitName',
@@ -134,10 +134,12 @@ class CasesController extends Controller
             'opponentCapacity',
             'matterDestinationRef',
             'matterPartnerRef',
+            'contract',
             'hearings',
             'adminTasks',
-            'documents'
-        );
+            'documents',
+            'opponents'
+        ]);
         return view('cases.show', compact('case'));
     }
 
