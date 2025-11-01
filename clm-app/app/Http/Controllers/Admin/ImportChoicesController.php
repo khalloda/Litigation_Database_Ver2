@@ -6,19 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Models\ImportProfile;
 use App\Models\ImportChoice;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ImportChoicesController extends Controller
 {
     public function index(Request $request, ImportProfile $profile)
     {
-        $this->authorize('manage', ImportProfile::class);
+        Gate::authorize('import.manage');
         $query = $profile->choices()->orderBy('updated_at', 'desc');
         if ($c = $request->get('column')) $query->where('column', $c);
         if ($a = $request->get('action')) $query->where('action', $a);
         if ($s = $request->get('search')) {
             $query->where(function ($q) use ($s) {
                 $q->where('raw_value', 'like', "%$s%")
-                  ->orWhere('normalized_value', 'like', "%$s%");
+                    ->orWhere('normalized_value', 'like', "%$s%");
             });
         }
         $choices = $query->paginate(20);
@@ -27,7 +28,7 @@ class ImportChoicesController extends Controller
 
     public function store(Request $request, ImportProfile $profile)
     {
-        $this->authorize('manage', ImportProfile::class);
+        Gate::authorize('import.manage');
         $data = $request->validate([
             'column' => 'required|string|max:128',
             'raw_value' => 'nullable|string|max:255',
@@ -44,7 +45,7 @@ class ImportChoicesController extends Controller
 
     public function update(Request $request, ImportProfile $profile, ImportChoice $choice)
     {
-        $this->authorize('manage', ImportProfile::class);
+        Gate::authorize('import.manage');
         $data = $request->validate([
             'raw_value' => 'nullable|string|max:255',
             'action' => 'nullable|in:match,alias,capacity,ignore',
@@ -59,10 +60,8 @@ class ImportChoicesController extends Controller
 
     public function destroy(ImportProfile $profile, ImportChoice $choice)
     {
-        $this->authorize('manage', ImportProfile::class);
+        Gate::authorize('import.manage');
         $choice->delete();
         return back()->with('success', __('app.deleted_successfully'));
     }
 }
-
-

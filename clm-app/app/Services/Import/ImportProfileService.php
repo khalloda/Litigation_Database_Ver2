@@ -147,7 +147,7 @@ class ImportProfileService
             'opponent_id' => \App\Models\Opponent::class,
             'matter_partner_id' => \App\Models\Lawyer::class,
             'circuit_name_id' => \App\Models\OptionValue::class,
-            'circuit_secretary' => \App\Models\Lawyer::class,
+            'circuit_secretary' => \App\Models\OptionValue::class,
         ];
 
         $normalizer = app(TextNormalizer::class);
@@ -171,7 +171,7 @@ class ImportProfileService
 
             // Capacity-specific hint
             $metadata = [];
-            if (str_contains($column, 'capacity')) {
+            if (str_contains($column, 'capacity') || $column === 'circuit_secretary') {
                 $action = 'capacity';
                 $metadata['capacity_id'] = (int) $entityId;
             }

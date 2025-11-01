@@ -45,10 +45,9 @@ class ImportProfile extends Model
         return $hash
             ? $query->where(function ($q) use ($hash) {
                 $q->where('header_hash', $hash)
-                  ->orWhereNull('header_hash');
+                    ->orWhereNull('header_hash');
             })
             : $query->whereNull('header_hash');
     }
 }
-
 

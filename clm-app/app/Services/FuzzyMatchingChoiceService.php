@@ -322,18 +322,8 @@ class FuzzyMatchingChoiceService
      */
     private function normalizeArabicText(string $text): string
     {
-        // Replace ي with ى for consistent matching
-        $text = str_replace('ي', 'ى', $text);
-
-        // Replace ة with ت for consistent matching
-        $text = str_replace('ة', 'ت', $text);
-
-        // Remove diacritics (tashkeel) for better matching
-        $text = preg_replace('/[\x{064B}-\x{0652}\x{0670}\x{0640}]/u', '', $text);
-
-        // Normalize whitespace
-        $text = preg_replace('/\s+/', ' ', trim($text));
-
-        return $text;
+        // Delegate to central TextNormalizer to ensure consistent rules
+        $normalizer = app(\App\Support\TextNormalizer::class);
+        return $normalizer->normalize($text);
     }
 }

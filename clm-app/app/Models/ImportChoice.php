@@ -56,4 +56,3 @@ class ImportChoice extends Model
     }
 }
 
-

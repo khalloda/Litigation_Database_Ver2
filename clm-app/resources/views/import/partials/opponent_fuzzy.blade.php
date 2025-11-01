@@ -8,7 +8,8 @@
       <th>@lang('app.decision')</th>
       <th>
         <div class="btn-group btn-group-sm">
-          <button type="button" class="btn btn-success" id="accept-all-strong">@lang('app.accept_all_strong')</button>
+          <button type="button" class="btn btn-success" id="accept-all">@lang('app.accept_all')</button>
+          <button type="button" class="btn btn-info" id="accept-all-strong">@lang('app.accept_all_strong')</button>
           <button type="button" class="btn btn-outline-secondary" id="reject-all-low">@lang('app.reject_all_low')</button>
         </div>
       </th>
@@ -120,6 +121,16 @@
       document.querySelector(`input[name="decisions[${row}][opponent_id]"]`).value = '';
       document.querySelector(`input[name="decisions[${row}][alias]"]`).value = 1;
       markRow(row, 'new');
+    });
+  });
+
+  document.getElementById('accept-all')?.addEventListener('click', () => {
+    document.querySelectorAll('tr[data-row]').forEach(tr => {
+      const row = tr.dataset.row;
+      const useBtn = tr.querySelector('[data-action="use-suggestion"]');
+      if (useBtn) {
+        useBtn.click();
+      }
     });
   });
 

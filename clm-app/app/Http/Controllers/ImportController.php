@@ -127,6 +127,42 @@ class ImportController extends Controller
     }
 
     /**
+     * Persist current resolved preflight choices immediately (without running import).
+     */
+    public function saveChoicesNow(Request $request, $importSessionId)
+    {
+        $session = ImportSession::findOrFail($importSessionId);
+        $this->authorize('update', $session);
+
+        try {
+            // Parse headers of the uploaded file to compute header hash
+            $filepath = $this->importService->getSessionFilePath($session);
+            $parsed = $this->parserService->parseFile($filepath, $session->file_type);
+            $headers = $parsed['headers'] ?? (isset($parsed['rows'][0]) ? array_keys($parsed['rows'][0]) : []);
+
+            $remember = (bool) $request->input('remember_decisions', false);
+            $saveAsProfile = (bool) $request->input('save_as_profile', false);
+            $profileName = $saveAsProfile ? ($request->input('profile_name') ?: 'Profile ' . now()->format('Ymd_His')) : null;
+
+            $profile = $this->importProfileService->persistChoicesFromSession(
+                $session,
+                $headers,
+                $saveAsProfile,
+                $remember,
+                $profileName
+            );
+
+            if ($profile) {
+                return back()->with('success', __('app.profile_choices_saved_successfully'));
+            }
+
+            return back()->with('warning', __('app.nothing_to_save'));
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
      * Show mapping configuration page.
      */
     public function map($importSessionId)
@@ -574,11 +610,14 @@ class ImportController extends Controller
                 if ($session->table_name === 'cases') {
                     $data = $this->resolveCaseOptionValues($data);
                     $data = $this->resolveDirectMappedFields($data);
-                }
 
-                // Cases: apply preflight opponent decisions
-                $incomingOpponent = null;
-                if ($session->table_name === 'cases') {
+                    // Apply preflight resolutions FIRST (before text resolution)
+                    $this->applyPreflightResolutions($data, $session, $index);
+
+                    // Cases: apply preflight opponent decisions BEFORE resolveDirectIdFields
+                    // This ensures user decisions from the opponent suggestions UI are applied first
+                    $incomingOpponent = null;
+                    $hasOpponentDecision = false;
                     foreach ($candidateCols as $col) {
                         if (array_key_exists($col, $row) && !empty($row[$col])) {
                             $incomingOpponent = (string) $row[$col];
@@ -594,6 +633,12 @@ class ImportController extends Controller
                         if ($decisionType === 'match' && !empty($decision['opponent_id'])) {
                             $opponentId = (int) $decision['opponent_id'];
                             $data['opponent_id'] = $opponentId;
+                            $hasOpponentDecision = true;
+                            Log::info('Applied opponent decision from preflight form', [
+                                'row' => $index,
+                                'opponent_id' => $opponentId,
+                                'incoming' => $incomingOpponent
+                            ]);
                             if ($aliasFlag && $incomingOpponent) {
                                 $norm = $normalizer->normalize($incomingOpponent);
                                 $alias = $norm['normalized'];
@@ -624,6 +669,12 @@ class ImportController extends Controller
                                 'updated_at' => now(),
                             ]);
                             $data['opponent_id'] = $newId;
+                            $hasOpponentDecision = true;
+                            Log::info('Created new opponent from preflight decision', [
+                                'row' => $index,
+                                'opponent_id' => $newId,
+                                'incoming' => $incomingOpponent
+                            ]);
                             if ($aliasFlag) {
                                 $alias = $norm['normalized'];
                                 if ($alias !== '') {
@@ -635,6 +686,26 @@ class ImportController extends Controller
                             }
                         }
                     }
+
+                    // Ensure textual values mapped into ID fields are resolved before insert
+                    // (only for fields not already resolved in preflight or decisions)
+                    // Skip opponent_id if we already have a decision for it
+                    $originalOpponentId = $data['opponent_id'] ?? null;
+                    $this->resolveDirectIdFields($data, $hasOpponentDecision);
+                    // If opponent_id was set by decision but resolveDirectIdFields changed it, restore it
+                    if ($hasOpponentDecision && $originalOpponentId && isset($data['opponent_id']) && $data['opponent_id'] !== $originalOpponentId) {
+                        Log::warning('Opponent ID was changed by resolveDirectIdFields despite having a decision', [
+                            'row' => $index,
+                            'decision_id' => $originalOpponentId,
+                            'resolved_id' => $data['opponent_id']
+                        ]);
+                        $data['opponent_id'] = $originalOpponentId;
+                    }
+
+                    // Clean string fields to remove newlines/carriage returns and enforce max lengths
+                    $this->cleanCaseStringFields($data);
+                    // Convert empty strings to NULL for nullable foreign key fields
+                    $this->normalizeEmptyForeignKeys($data);
                 }
 
                 // Insert into database
@@ -691,7 +762,7 @@ class ImportController extends Controller
             'imported' => $imported,
             'failed' => $failed,
             'skipped' => $skipped,
-            'errors' => array_slice($errors, 0, 100), // Limit errors
+            'errors' => $errors, // Show all errors
         ];
     }
 
@@ -1080,6 +1151,675 @@ class ImportController extends Controller
         }
 
         return $data;
+    }
+
+    /**
+     * Resolve direct ID fields that might contain text instead of IDs (import-time path).
+     * Mirrors preflight resolution to keep behavior consistent.
+     */
+    private function resolveDirectIdFields(array &$data, bool $skipOpponentId = false): void
+    {
+        Log::info('ImportController: resolving direct ID fields', [
+            'fields_with_text' => array_filter($data, function ($value, $key) {
+                return !is_numeric($value) && !empty($value) &&
+                    in_array($key, ['court_id', 'client_capacity_id', 'opponent_capacity_id', 'matter_partner_id', 'circuit_secretary', 'circuit_name_id', 'matter_destination_id', 'opponent_id']);
+            }, ARRAY_FILTER_USE_BOTH)
+        ]);
+
+        // court_id from court name (LIKE)
+        if (!empty($data['court_id']) && !is_numeric($data['court_id'])) {
+            $courtId = \App\Models\Court::where(function ($q) use ($data) {
+                $q->where('court_name_en', 'like', '%' . $data['court_id'] . '%')
+                    ->orWhere('court_name_ar', 'like', '%' . $data['court_id'] . '%');
+            })->value('id');
+            if ($courtId) {
+                $data['court_id'] = $courtId;
+            } else {
+                throw new \Exception("court_id: No match found for '{$data['court_id']}'. Please create this court or map it to an existing one.");
+            }
+        }
+
+        // matter_destination_id from court name (LIKE)
+        if (!empty($data['matter_destination_id']) && !is_numeric($data['matter_destination_id'])) {
+            $destinationId = \App\Models\Court::where(function ($q) use ($data) {
+                $q->where('court_name_en', 'like', '%' . $data['matter_destination_id'] . '%')
+                    ->orWhere('court_name_ar', 'like', '%' . $data['matter_destination_id'] . '%');
+            })->value('id');
+            if ($destinationId) {
+                $data['matter_destination_id'] = $destinationId;
+            } else {
+                throw new \Exception("matter_destination_id: No match found for '{$data['matter_destination_id']}'. Please create this court or map it to an existing one.");
+            }
+        }
+
+        // client_capacity_id (LIKE in option_values capacity.type)
+        if (!empty($data['client_capacity_id']) && !is_numeric($data['client_capacity_id'])) {
+            $capacityId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'capacity.type');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', 'like', '%' . $data['client_capacity_id'] . '%')
+                    ->orWhere('label_ar', 'like', '%' . $data['client_capacity_id'] . '%');
+            })->value('id');
+            if ($capacityId) {
+                $data['client_capacity_id'] = $capacityId;
+            } else {
+                throw new \Exception("client_capacity_id: No match found for '{$data['client_capacity_id']}'. Please create this capacity type or map it to an existing one.");
+            }
+        }
+
+        // opponent_capacity_id (LIKE in option_values capacity.type)
+        if (!empty($data['opponent_capacity_id']) && !is_numeric($data['opponent_capacity_id'])) {
+            $capacityId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'capacity.type');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', 'like', '%' . $data['opponent_capacity_id'] . '%')
+                    ->orWhere('label_ar', 'like', '%' . $data['opponent_capacity_id'] . '%');
+            })->value('id');
+            if ($capacityId) {
+                $data['opponent_capacity_id'] = $capacityId;
+            } else {
+                throw new \Exception("opponent_capacity_id: No match found for '{$data['opponent_capacity_id']}'. Please create this capacity type or map it to an existing one.");
+            }
+        }
+
+        // matter_partner_id from lawyer name (strip prefixes, try with title filter, then without)
+        if (!empty($data['matter_partner_id']) && !is_numeric($data['matter_partner_id'])) {
+            $search = trim((string) $data['matter_partner_id']);
+            // Remove common Arabic prefixes like "أ.", "د." etc.
+            $prefixes = ['أ.', 'د.', 'أستاذ.', 'أستاذة.', 'دكتور.', 'دكتورة.', 'محامي.', 'محامية.', 'السيد.', 'السيدة.', 'الأستاذ.', 'الأستاذة.'];
+            foreach ($prefixes as $p) {
+                if (str_starts_with($search, $p)) {
+                    $search = trim(substr($search, strlen($p)));
+                    break;
+                }
+            }
+            // Normalize whitespace/invisibles
+            try {
+                $search = app(\App\Support\TextNormalizer::class)->normalize($search);
+            } catch (\Throwable $e) {
+            }
+
+            // First, try with partner titles
+            $lawyerId = \App\Models\Lawyer::whereHas('title', function ($q) {
+                $q->whereIn('label_en', ['Managing Partner', 'Senior Partner', 'Partner', 'Junior Partner']);
+            })->where(function ($q) use ($search) {
+                $q->where('lawyer_name_en', 'like', '%' . $search . '%')
+                    ->orWhere('lawyer_name_ar', 'like', '%' . $search . '%');
+            })->value('id');
+
+            // Fallback: any lawyer
+            if (!$lawyerId) {
+                $lawyerId = \App\Models\Lawyer::where(function ($q) use ($search) {
+                    $q->where('lawyer_name_en', 'like', '%' . $search . '%')
+                        ->orWhere('lawyer_name_ar', 'like', '%' . $search . '%');
+                })->value('id');
+            }
+
+            if ($lawyerId) {
+                $data['matter_partner_id'] = $lawyerId;
+            } else {
+                $original = $data['matter_partner_id'];
+                throw new \Exception("matter_partner_id: No match found for '{$original}'. Please create this lawyer or map it to an existing one.");
+            }
+        }
+
+        // circuit_secretary is an OptionValue under court.circuit_secretary (NOT a Lawyer)
+        if (!empty($data['circuit_secretary']) && !is_numeric($data['circuit_secretary'])) {
+            $secId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'court.circuit_secretary');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', 'like', '%' . $data['circuit_secretary'] . '%')
+                    ->orWhere('label_ar', 'like', '%' . $data['circuit_secretary'] . '%');
+            })->value('id');
+            if ($secId) {
+                $data['circuit_secretary'] = $secId;
+            } else {
+                throw new \Exception("circuit_secretary: No match found for '{$data['circuit_secretary']}'. Please create this circuit secretary or map it to an existing one.");
+            }
+        }
+
+        // circuit_name_id from option_values circuit.name (LIKE)
+        if (!empty($data['circuit_name_id']) && !is_numeric($data['circuit_name_id'])) {
+            $circuitId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'circuit.name');
+            })->where(function ($q) use ($data) {
+                $q->where('label_en', 'like', '%' . $data['circuit_name_id'] . '%')
+                    ->orWhere('label_ar', 'like', '%' . $data['circuit_name_id'] . '%');
+            })->value('id');
+            if ($circuitId) {
+                $data['circuit_name_id'] = $circuitId;
+            } else {
+                throw new \Exception("circuit_name_id: No match found for '{$data['circuit_name_id']}'. Please create this circuit name or map it to an existing one.");
+            }
+        }
+
+        // opponent_id from opponent name (LIKE with normalization and Arabic plural handling)
+        // Skip if we already have a decision from preflight form
+        if ($skipOpponentId && !empty($data['opponent_id']) && is_numeric($data['opponent_id'])) {
+            Log::info('Skipping opponent_id resolution - already set by preflight decision', [
+                'opponent_id' => $data['opponent_id']
+            ]);
+        } elseif (!$skipOpponentId && !empty($data['opponent_id']) && !is_numeric($data['opponent_id'])) {
+            $search = trim((string) $data['opponent_id']);
+            $originalSearch = $search;
+
+            // Normalize the search text for better matching
+            try {
+                $normalizer = app(\App\Support\TextNormalizer::class);
+                $normalizedSearch = $normalizer->normalize($search);
+
+                // Strip brackets and parentheses content for base matching (e.g., "[رئيسة مجلس إدارة الدولية 21]" or "(مياتكو)")
+                $baseSearch = preg_replace('/\s*\[[^\]]*\]/u', '', $normalizedSearch); // Remove [content]
+                $baseSearch = preg_replace('/\s*\([^\)]*\)/u', '', $baseSearch); // Remove (content)
+                $baseSearch = trim($baseSearch);
+
+                // Normalize spacing around punctuation (dashes, parentheses, etc.)
+                $normalizedSearch = preg_replace('/\s*-\s*/u', ' - ', $normalizedSearch); // Normalize dash spacing
+                $normalizedSearch = preg_replace('/\s*\(\s*/u', ' (', $normalizedSearch); // Normalize opening paren
+                $normalizedSearch = preg_replace('/\s*\)\s*/u', ') ', $normalizedSearch); // Normalize closing paren
+                $normalizedSearch = preg_replace('/\s*\[\s*/u', ' [', $normalizedSearch); // Normalize opening bracket
+                $normalizedSearch = preg_replace('/\s*\]\s*/u', '] ', $normalizedSearch); // Normalize closing bracket
+                $normalizedSearch = preg_replace('/\s+/u', ' ', trim($normalizedSearch)); // Collapse whitespace
+
+                // Create variants for matching
+                $baseVariants = [];
+                $baseVariants[] = $normalizedSearch; // Original normalized
+                if ($baseSearch !== $normalizedSearch && mb_strlen($baseSearch) > 3) {
+                    $baseVariants[] = $baseSearch; // Base without brackets/parens
+                }
+
+                // Create variant without spaces around dash (for more flexible matching)
+                $noDashSpace = preg_replace('/\s*-\s*/u', '-', $normalizedSearch);
+                if ($noDashSpace !== $normalizedSearch) {
+                    $baseVariants[] = $noDashSpace;
+                }
+                $noDashSpaceBase = preg_replace('/\s*-\s*/u', '-', $baseSearch);
+                if ($noDashSpaceBase !== $baseSearch && $noDashSpaceBase !== $noDashSpace) {
+                    $baseVariants[] = $noDashSpaceBase;
+                }
+
+                // Handle Arabic plural endings: extract base before "وآخرون" / "وآخرين" / "وآخر" / "وأخرين" / "وأخرون"
+                // This handles cases like "وزير المالية وآخرين" matching "وزير المالية وآخرون"
+                // Also handle variations like "وأخرين" vs "وآخرين" (different hamza)
+                if (preg_match('/^(.+?)\s+و[آأ]خر(ون|ين|ها|هم|هن)?$/u', $normalizedSearch, $matches)) {
+                    $base = $matches[1];
+                    $ending = $matches[2] ?? '';
+
+                    // Base variants
+                    $baseVariants[] = $base . ' وآخر'; // "وزير المالية وآخر"
+                    $baseVariants[] = $base . ' وأخر'; // "وزير المالية وأخر" (alternative hamza)
+                    $baseVariants[] = $base; // "وزير المالية" (base only)
+
+                    // Try with all plural endings (swap endings)
+                    $baseVariants[] = $base . ' وآخرون';
+                    $baseVariants[] = $base . ' وآخرين';
+                    $baseVariants[] = $base . ' وأخرون';
+                    $baseVariants[] = $base . ' وأخرين';
+
+                    // If we have a specific ending, try swapping it
+                    if ($ending === 'ين') {
+                        $baseVariants[] = $base . ' وآخرون'; // Swap ين to ون
+                        $baseVariants[] = $base . ' وأخرون';
+                    } elseif ($ending === 'ون') {
+                        $baseVariants[] = $base . ' وآخرين'; // Swap ون to ين
+                        $baseVariants[] = $base . ' وأخرين';
+                    }
+                }
+
+                // Try to extract main name from longer phrases (e.g., "وزير المالية بصفته الرئيس الأعلى لمصلحة الضرائب وآخر")
+                // Extract first meaningful segment (usually the main entity name)
+                if (preg_match('/^(.+?)\s+(?:بصفته|في|ل|من|على|إلى|مع)/u', $normalizedSearch, $matches)) {
+                    $mainName = trim($matches[1]);
+                    if (mb_strlen($mainName) > 5) {
+                        $baseVariants[] = $mainName;
+                        // Also add with "وآخر" if it doesn't already have it
+                        if (strpos($mainName, 'وآخر') === false) {
+                            $baseVariants[] = $mainName . ' وآخر';
+                        }
+                    }
+                }
+
+                // For names with multiple parts, try first and last tokens (e.g., "سامي القريني" matching "سامي محمد أحمد القريني")
+                $words = preg_split('/\s+/u', $baseSearch);
+                if (count($words) >= 2) {
+                    $firstLast = $words[0] . ' ' . $words[count($words) - 1];
+                    if (mb_strlen($firstLast) > 5 && !in_array($firstLast, $baseVariants)) {
+                        $baseVariants[] = $firstLast;
+                    }
+                }
+
+                // Remove duplicates and short variants
+                $baseVariants = array_unique(array_filter($baseVariants, function ($v) {
+                    return mb_strlen($v) >= 3;
+                }));
+            } catch (\Throwable $e) {
+                $normalizedSearch = $search;
+                $baseVariants = [$search];
+            }
+
+            // Try exact match first
+            $opponentId = null;
+            $opponentId = \App\Models\Opponent::where(function ($q) use ($search) {
+                $q->where('opponent_name_en', $search)
+                    ->orWhere('opponent_name_ar', $search);
+            })->value('id');
+
+            // Second try: LIKE with all variants (search in DB, and DB contains search)
+            if (!$opponentId) {
+                $query = \App\Models\Opponent::where(function ($q) use ($search, $normalizedSearch, $baseVariants, $baseSearch) {
+                    // Search text contained in DB fields
+                    $q->where('opponent_name_en', 'like', '%' . $search . '%')
+                        ->orWhere('opponent_name_ar', 'like', '%' . $search . '%');
+
+                    if (isset($normalizedSearch)) {
+                        $q->orWhere('normalized_name', 'like', '%' . $normalizedSearch . '%')
+                            ->orWhere('opponent_name_ar', 'like', '%' . $normalizedSearch . '%')
+                            ->orWhere('opponent_name_en', 'like', '%' . $normalizedSearch . '%');
+                    }
+
+                    // Try base search without brackets/parens
+                    if (isset($baseSearch) && $baseSearch !== $normalizedSearch && mb_strlen($baseSearch) > 3) {
+                        $q->orWhere('normalized_name', 'like', '%' . $baseSearch . '%')
+                            ->orWhere('opponent_name_ar', 'like', '%' . $baseSearch . '%')
+                            ->orWhere('opponent_name_en', 'like', '%' . $baseSearch . '%');
+                    }
+
+                    // Try all variants (both directions: search contains DB value, or DB contains search)
+                    foreach ($baseVariants as $variant) {
+                        if (mb_strlen($variant) > 3) {
+                            // DB field contains variant
+                            $q->orWhere('normalized_name', 'like', '%' . $variant . '%')
+                                ->orWhere('opponent_name_ar', 'like', '%' . $variant . '%')
+                                ->orWhere('opponent_name_en', 'like', '%' . $variant . '%');
+                        }
+                    }
+
+                    // For partial name matches (e.g., "سامي القريني" matching "سامي محمد أحمد القريني وآخرون")
+                    // Break search into tokens and ensure all key tokens appear in DB value
+                    if (isset($baseSearch)) {
+                        $tokens = preg_split('/\s+/u', $baseSearch);
+                        // Only use token-based matching if we have 2-4 tokens (not too short, not too long)
+                        if (count($tokens) >= 2 && count($tokens) <= 4) {
+                            // For each token that's at least 3 characters, add it to the query
+                            foreach ($tokens as $token) {
+                                if (mb_strlen($token) >= 3) {
+                                    // Each token should appear in the DB field
+                                    $q->orWhere(function ($subQ) use ($token) {
+                                        $subQ->where('normalized_name', 'like', '%' . $token . '%')
+                                            ->orWhere('opponent_name_ar', 'like', '%' . $token . '%')
+                                            ->orWhere('opponent_name_en', 'like', '%' . $token . '%');
+                                    });
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Get all matches and score them to find the best one
+                $matches = $query->get();
+
+                if ($matches->count() > 0) {
+                    // Score matches: exact > normalized > variant > token-based
+                    // Prefer matches with more of the search text
+                    $bestMatch = null;
+                    $bestScore = 0;
+
+                    foreach ($matches as $match) {
+                        $score = 0;
+                        $dbNameAr = $match->opponent_name_ar ?? '';
+                        $dbNameEn = $match->opponent_name_en ?? '';
+                        $dbNormalized = $match->normalized_name ?? '';
+
+                        // Exact match gets highest score
+                        if ($dbNameAr === $search || $dbNameEn === $search) {
+                            $score = 1000;
+                        } elseif (isset($normalizedSearch) && $dbNormalized === $normalizedSearch) {
+                            $score = 900;
+                        } elseif (isset($baseSearch) && ($dbNameAr === $baseSearch || $dbNormalized === $baseSearch)) {
+                            $score = 800;
+                        } else {
+                            // Calculate similarity based on how much of the search appears in DB
+                            $searchLength = mb_strlen($search);
+                            if (mb_strpos($dbNameAr, $search) !== false || mb_strpos($dbNormalized, $search) !== false) {
+                                $score = 700;
+                            } elseif (isset($normalizedSearch) && (mb_strpos($dbNameAr, $normalizedSearch) !== false || mb_strpos($dbNormalized, $normalizedSearch) !== false)) {
+                                $score = 600;
+                            } elseif (isset($baseSearch) && (mb_strpos($dbNameAr, $baseSearch) !== false || mb_strpos($dbNormalized, $baseSearch) !== false)) {
+                                $score = 500;
+                            } else {
+                                // Token-based match - count how many tokens match
+                                // For valid token-based match, we need at least 2 tokens AND all tokens should match
+                                if (isset($baseSearch)) {
+                                    $tokens = preg_split('/\s+/u', $baseSearch);
+                                    $filteredTokens = array_filter($tokens, function ($t) {
+                                        return mb_strlen($t) >= 3;
+                                    });
+
+                                    if (count($filteredTokens) >= 2) {
+                                        $matchedTokens = 0;
+                                        foreach ($filteredTokens as $token) {
+                                            if (mb_strpos($dbNameAr, $token) !== false || mb_strpos($dbNormalized, $token) !== false) {
+                                                $matchedTokens++;
+                                            }
+                                        }
+                                        // Only score if ALL tokens match (high confidence partial match)
+                                        if ($matchedTokens === count($filteredTokens)) {
+                                            $score = 450 + ($matchedTokens * 20); // Higher score for complete token match
+                                        } elseif ($matchedTokens >= 2) {
+                                            // Partial token match (at least 2 tokens match)
+                                            $score = 400 + ($matchedTokens * 10);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if ($score > $bestScore) {
+                            $bestScore = $score;
+                            $bestMatch = $match;
+                        }
+                    }
+
+                    if ($bestMatch && $bestScore >= 400) { // Only accept if score is reasonable
+                        $opponentId = $bestMatch->id;
+                    }
+                }
+            }
+
+            if ($opponentId) {
+                $data['opponent_id'] = $opponentId;
+                Log::info('Opponent ID resolved', [
+                    'original' => $originalSearch,
+                    'resolved_id' => $opponentId
+                ]);
+            } else {
+                // Log for debugging
+                Log::warning('Opponent ID not found', [
+                    'search_value' => $originalSearch,
+                    'normalized' => $normalizedSearch ?? 'N/A',
+                    'variants_tried' => $baseVariants ?? []
+                ]);
+                throw new \Exception("opponent_id: No match found for '{$originalSearch}'. Please create this opponent or map it to an existing one.");
+            }
+        }
+    }
+
+    /**
+     * Apply preflight resolutions to data fields before text resolution.
+     * If a field was resolved in preflight, use the resolved_id instead of trying to resolve text again.
+     */
+    private function applyPreflightResolutions(array &$data, ImportSession $session, int $rowIndex): void
+    {
+        $preflightErrors = is_array($session->preflight_errors) ? $session->preflight_errors : [];
+        if (empty($preflightErrors)) {
+            return;
+        }
+
+        $normalizer = app(\App\Support\TextNormalizer::class);
+        $appliedCount = 0;
+
+        // Note: preflight row numbers are 1-indexed (row 0 is header), while $rowIndex is 0-indexed from foreach
+        // So we need to match rowIndex + 1 with error['row']
+        $preflightRowNumber = $rowIndex + 1;
+
+        foreach ($preflightErrors as $error) {
+            if (!is_array($error) || empty($error['resolved']) || !isset($error['column']) || !isset($error['resolved_id'])) {
+                continue;
+            }
+
+            $errorColumn = $error['column']; // This might be source column or target column
+            $resolvedId = (int) $error['resolved_id'];
+
+            // Map error column to target column (in case error has source column name)
+            $targetColumn = $errorColumn;
+            if (isset($session->column_mapping)) {
+                // Check if error column is a source column that maps to a target
+                foreach ($session->column_mapping as $sourceCol => $targetCol) {
+                    if ($sourceCol === $errorColumn && !empty($targetCol)) {
+                        $targetColumn = $targetCol;
+                        break;
+                    }
+                }
+            }
+            // Also check if error column is already a target column
+            $column = $targetColumn;
+
+            // Check if this resolved error applies to the current row
+            $matches = false;
+
+            // Match by row number (preflight uses 1-indexed, our loop is 0-indexed)
+            if (isset($error['row']) && ((int) $error['row'] === $preflightRowNumber || (int) $error['row'] === $rowIndex)) {
+                $matches = true;
+            }
+
+            // Match by normalized value (if column matches and values are similar)
+            if (!$matches && isset($error['value']) && isset($data[$column])) {
+                $errorValue = (string) $error['value'];
+                $dataValue = (string) $data[$column];
+
+                // Normalize both for comparison (with punctuation spacing normalization)
+                $normalizedError = $normalizer->normalize($errorValue);
+                $normalizedData = $normalizer->normalize($dataValue);
+
+                // Normalize spacing around punctuation
+                $normalizedError = preg_replace('/\s*-\s*/u', ' - ', $normalizedError);
+                $normalizedError = preg_replace('/\s+/u', ' ', trim($normalizedError));
+                $normalizedData = preg_replace('/\s*-\s*/u', ' - ', $normalizedData);
+                $normalizedData = preg_replace('/\s+/u', ' ', trim($normalizedData));
+
+                // Exact match or LIKE-style match (contains or is contained)
+                if (
+                    $normalizedError === $normalizedData ||
+                    strpos($normalizedError, $normalizedData) !== false ||
+                    strpos($normalizedData, $normalizedError) !== false
+                ) {
+                    $matches = true;
+                }
+            }
+
+            // Special case for opponent_id: also check if it might come from opponent_name column mapping
+            if (!$matches && $column === 'opponent_id' && isset($error['value'])) {
+                // Check all possible source columns that might map to opponent_id
+                foreach ($session->column_mapping ?? [] as $sourceCol => $targetCol) {
+                    if ($targetCol === 'opponent_id' && isset($data['opponent_id'])) {
+                        $errorValue = (string) $error['value'];
+                        $dataValue = (string) $data['opponent_id'];
+
+                        $normalizedError = $normalizer->normalize($errorValue);
+                        $normalizedData = $normalizer->normalize($dataValue);
+                        $normalizedError = preg_replace('/\s*-\s*/u', ' - ', $normalizedError);
+                        $normalizedError = preg_replace('/\s+/u', ' ', trim($normalizedError));
+                        $normalizedData = preg_replace('/\s*-\s*/u', ' - ', $normalizedData);
+                        $normalizedData = preg_replace('/\s+/u', ' ', trim($normalizedData));
+
+                        if (
+                            $normalizedError === $normalizedData ||
+                            strpos($normalizedError, $normalizedData) !== false ||
+                            strpos($normalizedData, $normalizedError) !== false
+                        ) {
+                            $matches = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Apply the resolved ID if match found
+            if ($matches && isset($data[$column]) && !is_numeric($data[$column])) {
+                // Only apply if the field still contains text (not already resolved)
+                $originalValue = $data[$column];
+                $data[$column] = $resolvedId;
+                $appliedCount++;
+                Log::info('Applied preflight resolution', [
+                    'row' => $rowIndex,
+                    'preflight_row' => $preflightRowNumber,
+                    'column' => $column,
+                    'resolved_id' => $resolvedId,
+                    'original_value' => $originalValue,
+                    'error_row' => $error['row'] ?? 'N/A',
+                    'error_value' => $error['value'] ?? 'N/A'
+                ]);
+            }
+        }
+
+        if ($appliedCount > 0) {
+            Log::info('Preflight resolutions applied', [
+                'row' => $rowIndex,
+                'applied_count' => $appliedCount
+            ]);
+        } else {
+            Log::debug('No preflight resolutions applied', [
+                'row' => $rowIndex,
+                'preflight_row' => $preflightRowNumber,
+                'data_opponent_id' => $data['opponent_id'] ?? 'not set',
+                'resolved_errors_count' => count(array_filter($preflightErrors, fn($e) => !empty($e['resolved'])))
+            ]);
+        }
+    }
+
+    /**
+     * Normalize empty values for nullable foreign key fields: convert empty strings to NULL.
+     */
+    private function normalizeEmptyForeignKeys(array &$data): void
+    {
+        // List of nullable foreign key fields that should be NULL instead of empty string
+        $nullableFkFields = [
+            'client_capacity_id',
+            'opponent_capacity_id',
+            'opponent_id',
+            'matter_partner_id',
+            'court_id',
+            'matter_destination_id',
+            'circuit_name_id',
+            'circuit_secretary',
+            'circuit_serial_id',
+            'circuit_shift_id',
+            'matter_category_id',
+            'matter_degree_id',
+            'matter_status_id',
+            'matter_importance_id',
+            'client_type_id',
+            'contract_id',
+        ];
+
+        foreach ($nullableFkFields as $field) {
+            if (isset($data[$field])) {
+                // Convert empty string, whitespace-only string, or '0' (if not a valid ID) to NULL
+                $value = $data[$field];
+                if ($value === '' || $value === null || (is_string($value) && trim($value) === '')) {
+                    $data[$field] = null;
+                } elseif (is_string($value) && !is_numeric($value)) {
+                    // If it's a string but not numeric, it should have been resolved by resolveDirectIdFields
+                    // If it wasn't resolved, it means no match was found and an exception was thrown
+                    // So we leave it as is (will cause an exception which is the desired behavior)
+                } elseif (is_numeric($value) && (int)$value === 0) {
+                    // Convert '0' to NULL for nullable FKs (0 is not a valid ID)
+                    $data[$field] = null;
+                }
+            }
+        }
+    }
+
+    /**
+     * Clean string fields for cases table: remove newlines, carriage returns, and enforce max lengths.
+     */
+    private function cleanCaseStringFields(array &$data): void
+    {
+        // Field max lengths (matching database schema)
+        // Note: matter_evaluation is now TEXT, so no length limit needed
+        $maxLengths = [
+            'matter_shelf' => 10,
+            'client_branch' => 255, // default string length
+            'engagement_letter_no' => 255,
+            'client_in_case_name' => 255,
+            'opponent_in_case_name' => 255,
+            // matter_evaluation is TEXT, no truncation needed
+        ];
+
+        foreach ($maxLengths as $field => $maxLen) {
+            if (isset($data[$field]) && is_string($data[$field])) {
+                $original = $data[$field];
+
+                // First, handle escaped forms like "_x000D_" (Excel/CSV escape sequences)
+                // Match _x followed by 4 hex digits followed by _
+                $cleaned = preg_replace('/_x[0-9A-Fa-f]{4}_/iu', ' ', $data[$field]);
+
+                // Also handle other Excel escape patterns
+                $cleaned = preg_replace('/_x([0-9A-Fa-f]{4})/iu', ' ', $cleaned); // _x000D without trailing underscore
+
+                // Remove newlines, carriage returns (\r\n, \n, \r, and Unicode carriage return)
+                $cleaned = preg_replace('/[\r\n\x{000D}\x{000A}]/u', ' ', $cleaned);
+
+                // Remove any remaining control characters (except spaces)
+                $cleaned = preg_replace('/[\x{0000}-\x{001F}\x{007F}-\x{009F}]/u', '', $cleaned);
+
+                // Normalize whitespace (collapse multiple spaces, trim)
+                $cleaned = preg_replace('/\s+/u', ' ', trim($cleaned));
+
+                // Truncate to max length (ensure we don't exceed database limit)
+                if (mb_strlen($cleaned) > $maxLen) {
+                    $truncatedValue = mb_substr($cleaned, 0, $maxLen);
+                    Log::warning("ImportController: truncated field '{$field}' to {$maxLen} characters", [
+                        'original_length' => mb_strlen($original),
+                        'cleaned_length' => mb_strlen($cleaned),
+                        'original_value' => mb_substr($original, 0, 100) . '...', // Log first 100 chars
+                        'truncated_value' => $truncatedValue
+                    ]);
+                    $cleaned = $truncatedValue;
+                }
+
+                // Final safety check - ensure length is within limit (handles edge cases with multi-byte characters)
+                $finalLength = mb_strlen($cleaned);
+                if ($finalLength > $maxLen) {
+                    $cleaned = mb_substr($cleaned, 0, $maxLen);
+                    Log::warning("ImportController: second truncation applied for field '{$field}'", [
+                        'previous_length' => $finalLength,
+                        'final_length' => mb_strlen($cleaned)
+                    ]);
+                }
+
+                $data[$field] = $cleaned;
+
+                // Log if escape sequences were removed
+                if ($original !== $cleaned && (strpos($original, '_x') !== false || strpos($original, "\r") !== false || strpos($original, "\n") !== false)) {
+                    Log::info("ImportController: cleaned field '{$field}'", [
+                        'original_preview' => mb_substr($original, 0, 50),
+                        'cleaned_preview' => mb_substr($cleaned, 0, 50)
+                    ]);
+                }
+            }
+        }
+
+        // Special handling for matter_evaluation (TEXT field - clean but don't truncate)
+        if (isset($data['matter_evaluation']) && is_string($data['matter_evaluation'])) {
+            $original = $data['matter_evaluation'];
+
+            // Handle Excel/CSV escape sequences
+            $cleaned = preg_replace('/_x[0-9A-Fa-f]{4}_/iu', ' ', $original);
+            $cleaned = preg_replace('/_x([0-9A-Fa-f]{4})/iu', ' ', $cleaned);
+
+            // Normalize newlines to spaces (or keep them - you may want to preserve line breaks)
+            // For now, we'll convert newlines to spaces to keep it clean
+            $cleaned = preg_replace('/[\r\n]+/u', ' ', $cleaned);
+
+            // Remove control characters (except spaces)
+            $cleaned = preg_replace('/[\x{0000}-\x{001F}\x{007F}-\x{009F}]/u', '', $cleaned);
+
+            // Normalize whitespace (collapse multiple spaces, but preserve meaningful spacing)
+            $cleaned = preg_replace('/[ \t]+/u', ' ', trim($cleaned));
+
+            // No truncation - TEXT field can handle much longer content
+            $data['matter_evaluation'] = $cleaned;
+
+            if ($original !== $cleaned) {
+                Log::info("ImportController: cleaned matter_evaluation (TEXT field, no truncation)", [
+                    'original_length' => mb_strlen($original),
+                    'cleaned_length' => mb_strlen($cleaned),
+                    'original_preview' => mb_substr($original, 0, 100),
+                    'cleaned_preview' => mb_substr($cleaned, 0, 100)
+                ]);
+            }
+        }
     }
 
     /**

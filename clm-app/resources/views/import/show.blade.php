@@ -132,7 +132,7 @@
 
                         <div class="mt-3">
                             <div class="progress" style="height: 30px;">
-                                <div class="progress-bar bg-success" role="progressbar" 
+                                <div class="progress-bar bg-success" role="progressbar"
                                      style="width: {{ $session->success_rate }}%"
                                      aria-valuenow="{{ $session->success_rate }}" aria-valuemin="0" aria-valuemax="100">
                                     {{ $session->success_rate }}% {{ __('app.success') }}
@@ -143,14 +143,13 @@
                         @if(!empty($session->import_errors))
                             <div class="alert alert-danger mt-3">
                                 <h6>{{ __('app.errors') }} ({{ count($session->import_errors) }})</h6>
-                                <ul class="mb-0">
-                                    @foreach(array_slice($session->import_errors, 0, 10) as $error)
-                                        <li>{{ __('app.row') }} {{ $error['row'] ?? 'N/A' }}: {{ $error['message'] ?? 'Unknown error' }}</li>
-                                    @endforeach
-                                    @if(count($session->import_errors) > 10)
-                                        <li class="text-muted">{{ __('app.and_more_errors', ['count' => count($session->import_errors) - 10]) }}</li>
-                                    @endif
-                                </ul>
+                                <div style="max-height: 600px; overflow-y: auto;">
+                                    <ul class="mb-0">
+                                        @foreach($session->import_errors as $error)
+                                            <li><strong>Row {{ $error['row'] ?? 'N/A' }}:</strong> {{ $error['message'] ?? 'Unknown error' }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
                             </div>
                         @endif
                     </div>

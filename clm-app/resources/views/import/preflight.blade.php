@@ -125,6 +125,11 @@
                                 {{ __('app.save_as_named_profile') }}
                             </label>
                         </div>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" name="profile_name" placeholder="{{ __('app.profile_name_optional') }}">
+                            </div>
+                        </div>
                         @if(isset($session) && $session->table_name === 'cases')
                             <hr>
                             <h5 class="mb-3">@lang('app.opponent_suggestions')</h5>
@@ -140,6 +145,29 @@
                         </div>
                     </form>
                 @endif
+                <form action="{{ route('import.save-choices', $session) }}" method="POST" class="ms-3">
+                    @csrf
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="1" id="rememberDecisionsNow" name="remember_decisions" checked>
+                        <label class="form-check-label" for="rememberDecisionsNow">
+                            {{ __('app.remember_resolutions_next_time') }}
+                        </label>
+                    </div>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" value="1" id="saveAsProfileNow" name="save_as_profile">
+                        <label class="form-check-label" for="saveAsProfileNow">
+                            {{ __('app.save_as_named_profile') }}
+                        </label>
+                    </div>
+                    <div class="mt-2">
+                        <input type="text" class="form-control" name="profile_name" placeholder="{{ __('app.profile_name_optional') }}">
+                    </div>
+                    <div class="text-end mt-2">
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="fas fa-save"></i> {{ __('app.save_choices_now') }}
+                        </button>
+                    </div>
+                </form>
             </div>
 
         </div>

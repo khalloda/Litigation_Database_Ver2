@@ -271,6 +271,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/import/{importSession}/map', [App\Http\Controllers\ImportController::class, 'map'])->name('import.map');
     Route::post('/import/{importSession}/map', [App\Http\Controllers\ImportController::class, 'saveMapping'])->name('import.save-mapping');
     Route::get('/import/{importSession}/preflight', [App\Http\Controllers\ImportController::class, 'preflight'])->name('import.preflight');
+    Route::post('/import/{importSession}/save-choices', [App\Http\Controllers\ImportController::class, 'saveChoicesNow'])->name('import.save-choices');
     Route::post('/import/{importSession}/run', [App\Http\Controllers\ImportController::class, 'runImport'])->name('import.run');
     Route::get('/import/{importSession}', [App\Http\Controllers\ImportController::class, 'show'])->name('import.show');
     Route::put('/import/{importSession}/cancel', [App\Http\Controllers\ImportController::class, 'cancel'])->name('import.cancel');

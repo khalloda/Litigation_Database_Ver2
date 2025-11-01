@@ -941,15 +941,36 @@ class PreflightEngine
             }
         }
 
-        // Resolve circuit_secretary if it contains text (lawyer name)
+        // Resolve circuit_secretary if it contains text (it's an OptionValue under court.circuit_secretary, NOT a Lawyer)
         if (!empty($data['circuit_secretary']) && !is_numeric($data['circuit_secretary'])) {
-            $lawyerId = $this->findLawyerMatch($data['circuit_secretary']);
-            if ($lawyerId) {
+            $search = trim((string) $data['circuit_secretary']);
+
+            // Normalize the search text for better matching (same as ImportController)
+            try {
+                $normalizer = app(\App\Support\TextNormalizer::class);
+                $normalizedSearch = $normalizer->normalize($search);
+                // Normalize spacing around punctuation
+                $normalizedSearch = preg_replace('/\s*-\s*/u', ' - ', $normalizedSearch);
+                $normalizedSearch = preg_replace('/\s+/u', ' ', trim($normalizedSearch));
+            } catch (\Throwable $e) {
+                $normalizedSearch = $search;
+            }
+
+            $secretaryId = \App\Models\OptionValue::whereHas('optionSet', function ($q) {
+                $q->where('key', 'court.circuit_secretary');
+            })->where(function ($q) use ($search, $normalizedSearch) {
+                $q->where('label_en', 'like', '%' . $search . '%')
+                    ->orWhere('label_ar', 'like', '%' . $search . '%')
+                    ->orWhere('label_en', 'like', '%' . $normalizedSearch . '%')
+                    ->orWhere('label_ar', 'like', '%' . $normalizedSearch . '%');
+            })->value('id');
+
+            if ($secretaryId) {
                 \Log::info('Circuit Secretary ID resolved', [
                     'original' => $data['circuit_secretary'],
-                    'resolved_id' => $lawyerId
+                    'resolved_id' => $secretaryId
                 ]);
-                $data['circuit_secretary'] = $lawyerId;
+                $data['circuit_secretary'] = $secretaryId;
             } else {
                 \Log::warning('Circuit Secretary ID not found', [
                     'search_value' => $data['circuit_secretary']

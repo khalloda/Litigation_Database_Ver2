@@ -13,7 +13,7 @@ class ImportProfileServiceTest extends TestCase
         $service = app(ImportProfileService::class);
         // Create two profiles: one null hash, one exact
         $p1 = ImportProfile::factory()->create(['table_name' => 'cases', 'header_hash' => null, 'is_active' => true, 'name' => 'fallback']);
-        $headers = ['A','B'];
+        $headers = ['A', 'B'];
         $hash = \App\Support\Import\HeaderHasher::hash($headers);
         $p2 = ImportProfile::factory()->create(['table_name' => 'cases', 'header_hash' => $hash, 'is_active' => true, 'name' => 'exact']);
 
@@ -22,5 +22,4 @@ class ImportProfileServiceTest extends TestCase
         $this->assertEquals('exact', $picked->name);
     }
 }
-
 

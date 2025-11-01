@@ -24,32 +24,23 @@ class TextNormalizer
             $s = \Normalizer::normalize($s, \Normalizer::FORM_C);
         }
 
+        // Convert various non-breaking spaces to normal spaces
+        $s = str_replace(["\u{00A0}", "\u{202F}", "\u{2060}"], ' ', $s);
+
+        // Strip zero-width/formatting marks (ZWNJ, ZWJ, LRM, RLM, ALM, FEFF)
+        $s = preg_replace('/[\x{200C}\x{200D}\x{200E}\x{200F}\x{061C}\x{FEFF}]/u', '', $s);
+
         // Trim and collapse whitespace/newlines/tabs to single spaces
         $s = preg_replace('/\s+/u', ' ', trim($s));
 
-        // Remove Arabic diacritics and tatweel
-        $diacritics = [
-            "\x{064B}", // FATHATAN
-            "\x{064C}", // DAMMATAN
-            "\x{064D}", // KASRATAN
-            "\x{064E}", // FATHA
-            "\x{064F}", // DAMMA
-            "\x{0650}", // KASRA
-            "\x{0651}", // SHADDA
-            "\x{0652}", // SUKUN
-            "\x{0640}", // TATWEEL
-        ];
-        $s = str_replace($diacritics, '', $s);
+        // Remove all combining marks (\p{M}) and tatweel
+        $s = preg_replace('/[\p{M}\x{0640}]+/u', '', $s);
 
         // Unify common Arabic letter variants
-        $map = [
-            "\x{0649}" => "\x{064A}", // ى -> ي
-            "\x{0629}" => "\x{0647}", // ة -> ه
-            "\x{0623}" => "\x{0627}", // أ -> ا
-            "\x{0625}" => "\x{0627}", // إ -> ا
-            "\x{0622}" => "\x{0627}", // آ -> ا
-        ];
-        $s = strtr($s, $map);
+        // ى -> ي
+        $s = strtr($s, ['ى' => 'ي']);
+        // Hamza variants -> bare alif (أ إ آ ؤ ئ ء -> ا)
+        $s = preg_replace('/[أإآؤئء]/u', 'ا', $s);
 
         return $s;
     }

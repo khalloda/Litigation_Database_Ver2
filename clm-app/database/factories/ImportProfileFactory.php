@@ -12,7 +12,7 @@ class ImportProfileFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'Profile '.fake()->unique()->word(),
+            'name' => 'Profile ' . fake()->unique()->word(),
             'table_name' => 'cases',
             'header_hash' => null,
             'is_active' => true,
@@ -20,5 +20,4 @@ class ImportProfileFactory extends Factory
         ];
     }
 }
-
 

@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ImportProfile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ImportProfilesController extends Controller
 {
     public function index(Request $request)
     {
-        $this->authorize('manage', ImportProfile::class);
+        Gate::authorize('import.manage');
 
         $query = ImportProfile::query()->orderBy('updated_at', 'desc');
         if ($t = $request->get('table')) {
@@ -26,7 +27,7 @@ class ImportProfilesController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorize('manage', ImportProfile::class);
+        Gate::authorize('import.manage');
 
         $data = $request->validate([
             'name' => 'required|string|max:128|unique:import_profiles,name',
@@ -41,9 +42,9 @@ class ImportProfilesController extends Controller
 
     public function export(ImportProfile $profile)
     {
-        $this->authorize('manage', ImportProfile::class);
+        Gate::authorize('import.manage');
         $payload = [
-            'profile' => $profile->only(['name','table_name','header_hash','settings_json','is_active']),
+            'profile' => $profile->only(['name', 'table_name', 'header_hash', 'settings_json', 'is_active']),
             'choices' => $profile->choices()->get()->toArray(),
         ];
         return response()->json($payload);
@@ -51,7 +52,7 @@ class ImportProfilesController extends Controller
 
     public function import(Request $request, ImportProfile $profile)
     {
-        $this->authorize('manage', ImportProfile::class);
+        Gate::authorize('import.manage');
         $data = $request->validate([
             'json' => 'required',
         ]);
@@ -74,5 +75,3 @@ class ImportProfilesController extends Controller
         return back()->with('success', __('app.import_completed_successfully'));
     }
 }
-
-
