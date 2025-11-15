@@ -111,6 +111,41 @@
                             </div>
                         </div>
 
+                        {{-- Hearings Import Templates --}}
+                        <div id="hearings-templates" class="card border-info mb-4" style="display: none;">
+                            <div class="card-header bg-light">
+                                <i class="bi bi-file-earmark-spreadsheet text-info"></i>
+                                <strong>{{ __('app.hearings_import_templates') }}</strong>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted small mb-3">
+                                    {{ __('app.download_template_generated_from_schema') }}
+                                </p>
+
+                                <div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <strong class="me-2">{{ __('app.hearings_template') }}</strong>
+                                        <span class="badge bg-info">{{ __('app.template') }}</span>
+                                    </div>
+                                    <p class="small text-muted mb-2">
+                                        {{ __('app.hearings_template_description') }}
+                                    </p>
+                                    <div class="btn-group">
+                                        <a href="{{ route('hearings.template.csv') }}"
+                                           class="btn btn-outline-info btn-sm"
+                                           title="{{ __('app.download_csv_template') }}">
+                                            <i class="bi bi-file-earmark-text"></i> CSV
+                                        </a>
+                                        <a href="{{ route('hearings.template.xlsx') }}"
+                                           class="btn btn-outline-info btn-sm"
+                                           title="{{ __('app.download_xlsx_template') }}">
+                                            <i class="bi bi-file-earmark-excel"></i> Excel
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mb-4">
                             <label for="file" class="form-label">{{ __('app.select_file') }} <span class="text-danger">*</span></label>
 
@@ -198,13 +233,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileSize = document.getElementById('fileSize');
     const tableSelect = document.getElementById('table_name');
     const casesTemplates = document.getElementById('cases-templates');
+    const hearingsTemplates = document.getElementById('hearings-templates');
 
     // Show/hide template section based on table selection
     function toggleTemplates() {
         if (tableSelect.value === 'cases') {
             casesTemplates.style.display = 'block';
+            hearingsTemplates.style.display = 'none';
+        } else if (tableSelect.value === 'hearings') {
+            casesTemplates.style.display = 'none';
+            hearingsTemplates.style.display = 'block';
         } else {
             casesTemplates.style.display = 'none';
+            hearingsTemplates.style.display = 'none';
         }
     }
 

@@ -1,0 +1,19 @@
+Found 18 option sets
+capacity.type | Capacity Types | الصفات القانونية
+case.branch | Case Branches | فروع القضايا
+case.category | Case Categories | تصنيفات القضايا
+case.degree | Case Degrees | درجات التقاضي
+case.importance | Case Importance | أهمية القضية
+case.status | Case Status | حالة القضية
+circuit.name | Circuit Names | أسماء الدوائر
+circuit.serial | Circuit Serials | أرقام الدوائر التسلسلية
+circuit.shift | Circuit Shifts | دوام الدوائر
+client.cash_or_probono | Cash or Pro Bono | نقدي أو مجاني
+client.documents_location | Documents Location | مكان المستندات
+client.power_of_attorney_location | Power of Attorney Location | مكان التوكيل
+client.status | Client Status | حالة العميل
+court.circuit | Court Circuits | دوائر المحاكم
+court.circuit_secretary | Circuit Secretaries | أمناء الدوائر
+court.floor | Court Floors | طوابق المحاكم
+court.hall | Court Halls | قاعات المحاكم
+lawyer.title | Lawyer Titles | مسميات المحامين

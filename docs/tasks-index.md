@@ -609,5 +609,24 @@ php artisan migrate:rollback  # Rolls back permission tables
 
 ---
 
-**Last Updated**: 2025-10-15 16:30 UTC
+## 16. Documentation & Discovery
+
+### 16.1 CLMS Technical Dossier & Opal Prompt
+- **ID**: T-16.1
+- **Status**: Done
+- **Branch**: `docs/clms-master-prompt`
+- **Description**: Compile the CLMS Technical Dossier (D1) and generate the Opal-ready master prompt (D2) per `Cursor_to_Opal_Litigation_System_Prompt.md`.
+- **DoD**:
+  - [x] `docs/CLMS_Technical_Dossier.md` populated with domain model, database inventory, enums, validations, RBAC, workflows, UI inventory, APIs, NFRs, data import/export, gaps, and full DDL block.
+  - [x] `docs/Opal_Master_Prompt_CLMS.md` delivered with structured sections (product vision, canonical data model, authoritative DDL, ERD, roles table, screen inventory, acceptance checklist).
+  - [x] Helper scripts (`scripts/extract_ddl.py`, `scripts/extract_option_sets.py`, `scripts/extract_option_values_summary.py`, `scripts/update_appendix.py`, `scripts/generate_opal_prompt.py`) created/updated to automate data extraction.
+  - [x] Worklog recorded at `docs/worklogs/2025-11-11/step-1.md`.
+- **Docs**:
+  - `docs/CLMS_Technical_Dossier.md`
+  - `docs/Opal_Master_Prompt_CLMS.md`
+  - `docs/worklogs/2025-11-11/step-1.md`
+
+---
+
+**Last Updated**: 2025-11-11 00:00 UTC
 

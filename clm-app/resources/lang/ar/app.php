@@ -607,13 +607,17 @@ return [
 
     // Template Downloads
     'cases_import_templates' => 'قوالب استيراد القضايا',
+    'hearings_import_templates' => 'قوالب استيراد الجلسات',
     'download_template_generated_from_schema' => 'تحميل قوالب CSV أو Excel مُولدة من هيكل قاعدة البيانات الحالي.',
     'standard_template' => 'القالب القياسي',
     'extended_template' => 'القالب الموسع',
+    'hearings_template' => 'قالب الجلسات',
+    'template' => 'القالب',
     'recommended' => 'مُوصى به',
     'advanced' => 'متقدم',
     'standard_template_description' => 'الحقول الأساسية فقط (~25 عمود). استخدم للاستيراد العادي.',
     'extended_template_description' => 'جميع الحقول بما في ذلك القديمة/الاختيارية (~60 عمود). استخدم للهجرة الكاملة للبيانات.',
+    'hearings_template_description' => 'جميع حقول الجلسات بما في ذلك التاريخ، القرار، الحضور، والملاحظات. استخدم لاستيراد سجلات الجلسات.',
     'download_csv_template' => 'تحميل قالب CSV',
     'download_xlsx_template' => 'تحميل قالب Excel',
     'template_regenerated_successfully' => 'تم إعادة توليد ملفات القوالب بنجاح.',

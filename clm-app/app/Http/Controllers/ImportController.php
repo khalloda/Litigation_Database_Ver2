@@ -2125,4 +2125,46 @@ class ImportController extends Controller
 
         return response()->download($path, 'Case_Opponents_Import_Template.xlsx');
     }
+
+    /**
+     * Download Hearings CSV template
+     */
+    public function downloadHearingsTemplateCsv()
+    {
+        if (!Gate::allows('import.view_template')) {
+            abort(403, 'Unauthorized to view import templates.');
+        }
+
+        $path = storage_path('app/templates/Hearings_Import_Template.csv');
+
+        if (!file_exists($path)) {
+            // Generate template if it doesn't exist
+            Artisan::call('templates:generate-hearings');
+        }
+
+        return response()->download(
+            $path,
+            'Hearings_Import_Template.csv',
+            ['Content-Type' => 'text/csv; charset=UTF-8']
+        );
+    }
+
+    /**
+     * Download Hearings XLSX template
+     */
+    public function downloadHearingsTemplateXlsx()
+    {
+        if (!Gate::allows('import.view_template')) {
+            abort(403, 'Unauthorized to view import templates.');
+        }
+
+        $path = storage_path('app/templates/Hearings_Import_Template.xlsx');
+
+        if (!file_exists($path)) {
+            // Generate template if it doesn't exist
+            Artisan::call('templates:generate-hearings');
+        }
+
+        return response()->download($path, 'Hearings_Import_Template.xlsx');
+    }
 }

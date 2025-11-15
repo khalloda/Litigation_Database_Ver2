@@ -607,13 +607,17 @@ return [
 
     // Template Downloads
     'cases_import_templates' => 'Cases Import Templates',
+    'hearings_import_templates' => 'Hearings Import Templates',
     'download_template_generated_from_schema' => 'Download CSV or Excel templates generated from the current database schema.',
     'standard_template' => 'Standard Template',
     'extended_template' => 'Extended Template',
+    'hearings_template' => 'Hearings Template',
+    'template' => 'Template',
     'recommended' => 'Recommended',
     'advanced' => 'Advanced',
     'standard_template_description' => 'Core fields only (~25 columns). Use for most imports.',
     'extended_template_description' => 'All fields including legacy/optional (~60 columns). Use for complete data migration.',
+    'hearings_template_description' => 'All hearing fields including date, decision, attendees, and notes. Use for importing hearing records.',
     'download_csv_template' => 'Download CSV template',
     'download_xlsx_template' => 'Download Excel template',
     'template_regenerated_successfully' => 'Template files regenerated successfully.',

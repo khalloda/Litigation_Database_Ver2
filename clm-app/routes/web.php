@@ -300,6 +300,13 @@ Route::middleware(['auth', 'permission:import.view_template'])->group(function (
 
     Route::get('/case-opponents/import/template/xlsx', [App\Http\Controllers\ImportController::class, 'downloadCaseOpponentsTemplateXlsx'])
         ->name('case-opponents.template.xlsx');
+
+    // Hearings Import Templates
+    Route::get('/hearings/import/template/csv', [App\Http\Controllers\ImportController::class, 'downloadHearingsTemplateCsv'])
+        ->name('hearings.template.csv');
+
+    Route::get('/hearings/import/template/xlsx', [App\Http\Controllers\ImportController::class, 'downloadHearingsTemplateXlsx'])
+        ->name('hearings.template.xlsx');
 });
 
 // Case Opponents Companion Import
