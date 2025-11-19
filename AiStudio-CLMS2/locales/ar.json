@@ -2,6 +2,7 @@
 {
   "app": {
     "title": "نظام إدارة الدعاوى",
+    "dashboard": "لوحة التحكم",
     "cases": "القضايا",
     "clients": "العملاء",
     "opponents": "الخصوم",
@@ -21,7 +22,16 @@
     "name": "الاسم"
   },
   "dashboard": {
-    "title": "لوحة تحكم القضايا",
+    "title": "لوحة التحكم",
+    "subtitle": "نظرة عامة على نظام إدارة التقاضي",
+    "clients": "العملاء",
+    "cases": "القضايا",
+    "documents": "المستندات",
+    "power_of_attorneys": "الوكالات",
+    "todays_hearings": "جلسات اليوم",
+    "this_weeks_hearings": "جلسات هذا الأسبوع",
+    "no_hearings_today": "لا توجد جلسات مجدولة لليوم",
+    "no_hearings_this_week": "لا توجد جلسات مجدولة لهذا الأسبوع",
     "filter_cases": "تصفية",
     "new_case": "قضية جديدة",
     "clear_filters": "مسح الفلاتر",
@@ -129,6 +139,9 @@
     "matter_select": "تحديد الدعوى",
     "yes": "نعم",
     "no": "لا"
+  },
+  "cases_page": {
+    "title": "القضايا"
   },
   "clients_page": {
     "title": "العملاء",
@@ -396,6 +409,8 @@
     "Appeal": "استئناف",
     "Active": "نشط",
     "Inactive": "غير نشط",
+    "Disabled": "معطل",
+    "disabled": "معطل",
     "todo": "مطلوبة",
     "in-progress": "قيد التنفيذ",
     "completed": "مكتملة"
@@ -422,11 +437,13 @@
     "applicant": "مقدم الطلب",
     "arbitrant": "محتكم",
     "challenger": "طاعن",
+    "Challenger": "طاعن",
     "civil_rights_plaintiff": "مدعي بالحق المدني",
     "complainant": "شاكي",
     "creditor": "دائنة",
     "accused_criminal": "متهم",
     "defendant_civil": "مدعى عليه",
+    "Defendant (Civil)": "مدعى عليه (مدني)",
     "grievant": "متظلم",
     "inspection_petitioner": "طالب المعاينة",
     "intervener": "متدخل",
@@ -438,6 +455,7 @@
     "offender": "جاني",
     "petitioner": "طالب",
     "plaintiff": "مدعي",
+    "Plaintiff": "مدعي",
     "recusal_petitioner": "طالب الرد",
     "registrar": "مسجل",
     "requester": "ملتمس",

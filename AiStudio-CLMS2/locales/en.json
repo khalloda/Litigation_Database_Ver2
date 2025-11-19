@@ -2,6 +2,7 @@
 {
   "app": {
     "title": "CLMS",
+    "dashboard": "Dashboard",
     "cases": "Cases",
     "clients": "Clients",
     "opponents": "Opponents",
@@ -21,7 +22,16 @@
     "name": "Name"
   },
   "dashboard": {
-    "title": "Case Dashboard",
+    "title": "Dashboard",
+    "subtitle": "Overview of your litigation management system",
+    "clients": "Clients",
+    "cases": "Cases",
+    "documents": "Documents",
+    "power_of_attorneys": "Power of Attorneys",
+    "todays_hearings": "Today's Hearings",
+    "this_weeks_hearings": "This Week's Hearings",
+    "no_hearings_today": "No hearings scheduled for today",
+    "no_hearings_this_week": "No hearings scheduled for this week",
     "filter_cases": "Filter",
     "new_case": "New Case",
     "clear_filters": "Clear Filters",
@@ -129,6 +139,9 @@
     "matter_select": "Matter Select",
     "yes": "Yes",
     "no": "No"
+  },
+  "cases_page": {
+    "title": "Cases"
   },
   "clients_page": {
     "title": "Clients",
@@ -396,6 +409,8 @@
     "Appeal": "Appeal",
     "Active": "Active",
     "Inactive": "Inactive",
+    "Disabled": "Disabled",
+    "disabled": "Disabled",
     "todo": "To Do",
     "in-progress": "In Progress",
     "completed": "Completed"
@@ -422,11 +437,13 @@
     "applicant": "Applicant",
     "arbitrant": "Arbitrant",
     "challenger": "Challenger",
+    "Challenger": "Challenger",
     "civil_rights_plaintiff": "Civil Rights Plaintiff",
     "complainant": "Complainant",
     "creditor": "Creditor",
     "accused_criminal": "Accused (Criminal)",
     "defendant_civil": "Defendant (Civil)",
+    "Defendant (Civil)": "Defendant (Civil)",
     "grievant": "Grievant",
     "inspection_petitioner": "Inspection Petitioner",
     "intervener": "Intervener",
@@ -438,6 +455,7 @@
     "offender": "Offender",
     "petitioner": "Petitioner",
     "plaintiff": "Plaintiff",
+    "Plaintiff": "Plaintiff",
     "recusal_petitioner": "Recusal Petitioner",
     "registrar": "Registrar",
     "requester": "Requester",

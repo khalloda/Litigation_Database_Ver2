@@ -44,16 +44,31 @@ export const I18nProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [language, isLoaded]);
 
   const t = useCallback((key: string): string => {
+    // Return empty string if translations not loaded yet
+    if (!translations || Object.keys(translations).length === 0) {
+      return key;
+    }
+    
     const keys = key.split('.');
     let result: string | Translations | undefined = translations;
-    for (const k of keys) {
+    
+    for (let i = 0; i < keys.length; i++) {
+      const k = keys[i];
       if (typeof result === 'object' && result !== null && k in result) {
         result = result[k] as string | Translations;
       } else {
-        return key; // Return key if translation not found
+        // If key not found, return the original key (not the partial path)
+        return key;
       }
     }
-    return typeof result === 'string' ? result : key;
+    
+    // Return the translated string, or the original key if translation is not a string
+    if (typeof result === 'string' && result !== '') {
+      return result;
+    }
+    
+    // If result is empty string or not a string, return the original key
+    return key;
   }, [translations]);
   
   // Prevent rendering the rest of the app until initial translations are loaded.
