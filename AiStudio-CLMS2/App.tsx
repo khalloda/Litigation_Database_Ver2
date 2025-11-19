@@ -4,6 +4,7 @@ import { I18nProvider } from './context/I18nContext';
 import Layout from './components/Layout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import DashboardPage from './pages/DashboardPage';
+import CasesListPage from './pages/CasesListPage';
 import CaseDetailPage from './pages/CaseDetailPage';
 import ClientDetailPage from './pages/ClientDetailPage';
 import OpponentDetailPage from './pages/OpponentDetailPage';
@@ -30,44 +31,50 @@ import UsersListPage from './pages/UsersListPage';
 import UserDetailPage from './pages/UserDetailPage';
 import NewCaseForm from './components/NewCaseForm';
 import NewClientForm from './components/NewClientForm';
+import LoginPage from './pages/LoginPage';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
       <I18nProvider>
         <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<DashboardPage />} />
-            <Route path="cases/:id" element={<CaseDetailPage />} />
-            <Route path="cases/create" element={<NewCaseForm />} />
-            <Route path="clients" element={<ClientsListPage />} />
-            <Route path="clients/:id" element={<ClientDetailPage />} />
-            <Route path="clients/create" element={<NewClientForm />} />
-            <Route path="opponents" element={<OpponentsListPage />} />
-            <Route path="opponents/:id" element={<OpponentDetailPage />} />
-            <Route path="lawyers" element={<LawyersListPage />} />
-            <Route path="lawyers/:id" element={<LawyerDetailPage />} />
-            <Route path="courts" element={<CourtsListPage />} />
-            <Route path="courts/:id" element={<CourtDetailPage />} />
-            <Route path="hearings" element={<HearingsListPage />} />
-            <Route path="hearings/create" element={<NewHearingForm />} />
-            <Route path="hearings/:id" element={<HearingDetailPage />} />
-            <Route path="documents" element={<DocumentsListPage />} />
-            <Route path="documents/create" element={<UploadDocumentPage />} />
-            <Route path="documents/:id" element={<DocumentDetailPage />} />
-            <Route path="documents/:id/edit" element={<UploadDocumentPage />} />
-            <Route path="tasks" element={<TasksPage />} />
-            <Route path="reports" element={<ReportsPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-            <Route path="settings/roles" element={<RolesListPage />} />
-            <Route path="settings/roles/:id" element={<RoleDetailPage />} />
-            <Route path="settings/teams" element={<TeamsListPage />} />
-            <Route path="settings/teams/:id" element={<TeamDetailPage />} />
-            <Route path="settings/teams/new" element={<TeamDetailPage />} />
-            <Route path="settings/users" element={<UsersListPage />} />
-            <Route path="settings/users/:id" element={<UserDetailPage />} />
-            <Route path="settings/users/new" element={<UserDetailPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<ProtectedRoute />}>
+            <Route element={<Layout />}>
+              <Route index element={<DashboardPage />} />
+              <Route path="cases" element={<CasesListPage />} />
+              <Route path="cases/:id" element={<CaseDetailPage />} />
+              <Route path="cases/create" element={<NewCaseForm />} />
+              <Route path="clients" element={<ClientsListPage />} />
+              <Route path="clients/:id" element={<ClientDetailPage />} />
+              <Route path="clients/create" element={<NewClientForm />} />
+              <Route path="opponents" element={<OpponentsListPage />} />
+              <Route path="opponents/:id" element={<OpponentDetailPage />} />
+              <Route path="lawyers" element={<LawyersListPage />} />
+              <Route path="lawyers/:id" element={<LawyerDetailPage />} />
+              <Route path="courts" element={<CourtsListPage />} />
+              <Route path="courts/:id" element={<CourtDetailPage />} />
+              <Route path="hearings" element={<HearingsListPage />} />
+              <Route path="hearings/create" element={<NewHearingForm />} />
+              <Route path="hearings/:id" element={<HearingDetailPage />} />
+              <Route path="documents" element={<DocumentsListPage />} />
+              <Route path="documents/create" element={<UploadDocumentPage />} />
+              <Route path="documents/:id" element={<DocumentDetailPage />} />
+              <Route path="documents/:id/edit" element={<UploadDocumentPage />} />
+              <Route path="tasks" element={<TasksPage />} />
+              <Route path="reports" element={<ReportsPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+              <Route path="settings/roles" element={<RolesListPage />} />
+              <Route path="settings/roles/:id" element={<RoleDetailPage />} />
+              <Route path="settings/teams" element={<TeamsListPage />} />
+              <Route path="settings/teams/:id" element={<TeamDetailPage />} />
+              <Route path="settings/teams/new" element={<TeamDetailPage />} />
+              <Route path="settings/users" element={<UsersListPage />} />
+              <Route path="settings/users/:id" element={<UserDetailPage />} />
+              <Route path="settings/users/new" element={<UserDetailPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
           </Route>
         </Routes>
       </I18nProvider>

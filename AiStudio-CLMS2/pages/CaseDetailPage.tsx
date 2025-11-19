@@ -54,8 +54,29 @@ const CaseDetailPage: React.FC = () => {
     useEffect(() => {
         if (id) {
             fetchCase(id)
-                .then((data) => setCaseData(data.data || data))
-                .catch((err: any) => setError(err.message || 'Failed to load case'))
+                .then((data) => {
+                    console.log('Case detail data:', data);
+                    // Service function already handles pagination extraction
+                    const caseData = data.data || data;
+                    // Ensure arrays exist and null objects are handled
+                    if (caseData) {
+                        caseData.hearings = caseData.hearings || [];
+                        caseData.tasks = caseData.tasks || [];
+                        caseData.documents = caseData.documents || [];
+                        caseData.opponents = caseData.opponents || [];
+                        // Ensure null objects are not set (convert null to undefined for consistency)
+                        if (caseData.partner === null) caseData.partner = undefined;
+                        if (caseData.client === null) caseData.client = undefined;
+                        if (caseData.court === null) caseData.court = undefined;
+                        if (caseData.lawyer_a === null) caseData.lawyer_a = undefined;
+                        if (caseData.lawyer_b === null) caseData.lawyer_b = undefined;
+                    }
+                    setCaseData(caseData);
+                })
+                .catch((err: any) => {
+                    console.error('Error loading case:', err);
+                    setError(err.response?.data?.message || err.message || 'Failed to load case');
+                })
                 .finally(() => setLoading(false));
         }
     }, [id]);
@@ -83,12 +104,13 @@ const CaseDetailPage: React.FC = () => {
         );
     }
 
-    const clientName = language === 'ar' ? (caseData.client.client_name_ar || caseData.client.client_name_en) : (caseData.client.client_name_en || caseData.client.client_name_ar);
-    const partnerName = language === 'ar' ? caseData.partner.lawyer_name_ar : caseData.partner.lawyer_name_en;
-    const lawyerAName = caseData.lawyer_a ? (language === 'ar' ? caseData.lawyer_a.lawyer_name_ar : caseData.lawyer_a.lawyer_name_en) : null;
-    const lawyerBName = caseData.lawyer_b ? (language === 'ar' ? caseData.lawyer_b.lawyer_name_ar : caseData.lawyer_b.lawyer_name_en) : null;
-    const courtName = caseData.court ? (language === 'ar' ? (caseData.court.court_name_ar || caseData.court.court_name_en) : (caseData.court.court_name_en || caseData.court.court_name_ar)) : null;
-    const teamName = caseData.team ? (language === 'ar' ? caseData.team.name_ar : caseData.team.name_en) : null;
+    // Safe access with optional chaining and null checks
+    const clientName = caseData.client ? (language === 'ar' ? (caseData.client.client_name_ar || caseData.client.client_name_en) : (caseData.client.client_name_en || caseData.client.client_name_ar)) : '-';
+    const partnerName = (caseData.partner && caseData.partner !== null) ? (language === 'ar' ? (caseData.partner.lawyer_name_ar || '-') : (caseData.partner.lawyer_name_en || '-')) : '-';
+    const lawyerAName = (caseData.lawyer_a && caseData.lawyer_a !== null) ? (language === 'ar' ? caseData.lawyer_a.lawyer_name_ar : caseData.lawyer_a.lawyer_name_en) : null;
+    const lawyerBName = (caseData.lawyer_b && caseData.lawyer_b !== null) ? (language === 'ar' ? caseData.lawyer_b.lawyer_name_ar : caseData.lawyer_b.lawyer_name_en) : null;
+    const courtName = (caseData.court && caseData.court !== null) ? (language === 'ar' ? (caseData.court.court_name_ar || caseData.court.court_name_en) : (caseData.court.court_name_en || caseData.court.court_name_ar)) : null;
+    const teamName = (caseData.team && caseData.team !== null) ? (language === 'ar' ? caseData.team.name_ar : caseData.team.name_en) : null;
 
     return (
         <div className="container mx-auto">
@@ -137,13 +159,15 @@ const CaseDetailPage: React.FC = () => {
                 <AccordionItem title={t('case.parties')}>
                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                         <DetailItem label={t('case.client')}>
-                            <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/clients/${caseData.client.id}`); }} className="text-blue-600 hover:underline">{clientName} (ID: {caseData.client.id})</a>
+                            {caseData.client ? (
+                                <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/clients/${caseData.client.id}`); }} className="text-blue-600 hover:underline">{clientName} (ID: {caseData.client.id})</a>
+                            ) : '-'}
                         </DetailItem>
                         <DetailItem label={t('case.client_in_case_name')}>{caseData.client_in_case_name}</DetailItem>
                         <DetailItem label={t('case.capacity')}>{caseData.client_capacity}</DetailItem>
                         <DetailItem label={t('case.client_capacity_note')}>{caseData.client_capacity_note}</DetailItem>
                         
-                        {caseData.opponents.map((opp, index) => (
+                        {(caseData.opponents || []).map((opp, index) => (
                             <React.Fragment key={index}>
                                 <DetailItem label={t('app.opponents')}>
                                     <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/opponents/${opp.id}`); }} className="text-blue-600 hover:underline">{language === 'ar' ? (opp.opponent_name_ar || opp.opponent_name_en) : (opp.opponent_name_en || opp.opponent_name_ar)} (ID: {opp.id})</a>
@@ -199,9 +223,9 @@ const CaseDetailPage: React.FC = () => {
                 
                 <AccordionItem title={t('case.documents_hearings')}>
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <InfoCard title={t('case.related_hearings')} count={caseData.hearings.length} message={t('case.no_hearings')} />
-                        <InfoCard title={t('case.related_tasks')} count={caseData.tasks.length} message={t('case.no_tasks_found')} />
-                        <InfoCard title={t('case.related_documents')} count={caseData.documents.length} message={t('case.no_documents_found')} />
+                        <InfoCard title={t('case.related_hearings')} count={(caseData.hearings || []).length} message={t('case.no_hearings')} />
+                        <InfoCard title={t('case.related_tasks')} count={(caseData.tasks || []).length} message={t('case.no_tasks_found')} />
+                        <InfoCard title={t('case.related_documents')} count={(caseData.documents || []).length} message={t('case.no_documents_found')} />
                     </div>
                 </AccordionItem>
 

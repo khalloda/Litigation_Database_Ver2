@@ -14,8 +14,11 @@ use Illuminate\Support\Facades\Auth;
 |
 */
 
+// Root route - serve React SPA
 Route::get('/', function () {
-    return view('welcome');
+    return file_exists(public_path('index.html'))
+        ? response()->file(public_path('index.html'))
+        : view('welcome');
 });
 
 Auth::routes();
@@ -28,6 +31,9 @@ Route::get('/locale/{locale}', [App\Http\Controllers\LocaleController::class, 's
     ->name('locale.switch');
 
 // Basic CRUD stubs - Client Management
+// COMMENTED OUT: These routes are now handled by React SPA
+// Uncomment if you need to access the old Blade views
+/*
 Route::middleware(['auth'])->group(function () {
     // List clients
     Route::get('/clients', [App\Http\Controllers\ClientsController::class, 'index'])->name('clients.index');
@@ -42,6 +48,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'update'])->name('clients.update');
     Route::delete('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'destroy'])->name('clients.destroy');
 });
+*/
 
 // Admin Import Profiles & Choices
 Route::middleware(['auth', 'permission:import.manage'])->prefix('admin/import')->name('admin.import.')->group(function () {
@@ -56,6 +63,9 @@ Route::middleware(['auth', 'permission:import.manage'])->prefix('admin/import')-
     Route::delete('/profiles/{profile}/choices/{choice}', [App\Http\Controllers\Admin\ImportChoicesController::class, 'destroy'])->name('choices.destroy');
 });
 // Case Management
+// COMMENTED OUT: These routes are now handled by React SPA
+// Uncomment if you need to access the old Blade views
+/*
 Route::middleware(['auth', 'permission:cases.view'])->group(function () {
     Route::get('/cases', [App\Http\Controllers\CasesController::class, 'index'])->name('cases.index');
 });
@@ -73,6 +83,7 @@ Route::middleware(['auth', 'permission:cases.edit'])->group(function () {
 Route::middleware(['auth', 'permission:cases.delete'])->group(function () {
     Route::delete('/cases/{case}', [App\Http\Controllers\CasesController::class, 'destroy'])->name('cases.destroy');
 });
+*/
 
 // Case Opponents Management
 Route::middleware(['auth', 'permission:cases.opponents.view'])->group(function () {
@@ -96,6 +107,9 @@ Route::get('/fuzzy-matching/choices', [App\Http\Controllers\FuzzyMatchingControl
 Route::post('/fuzzy-matching/apply-choice', [App\Http\Controllers\FuzzyMatchingController::class, 'applyChoice'])->name('fuzzy-matching.apply-choice');
 
 // Hearing Management
+// COMMENTED OUT: These routes are now handled by React SPA
+// Uncomment if you need to access the old Blade views
+/*
 Route::middleware(['auth', 'permission:hearings.view'])->group(function () {
     Route::get('/hearings', [App\Http\Controllers\HearingsController::class, 'index'])->name('hearings.index');
 });
@@ -113,8 +127,12 @@ Route::middleware(['auth', 'permission:hearings.edit'])->group(function () {
 Route::middleware(['auth', 'permission:hearings.delete'])->group(function () {
     Route::delete('/hearings/{hearing}', [App\Http\Controllers\HearingsController::class, 'destroy'])->name('hearings.destroy');
 });
+*/
 
 // Lawyer Management (admin only)
+// COMMENTED OUT: These routes are now handled by React SPA
+// Uncomment if you need to access the old Blade views
+/*
 Route::middleware(['auth', 'permission:admin.users.manage'])->group(function () {
     Route::get('/lawyers', [App\Http\Controllers\LawyersController::class, 'index'])->name('lawyers.index');
     Route::get('/lawyers/create', [App\Http\Controllers\LawyersController::class, 'create'])->name('lawyers.create');
@@ -124,6 +142,7 @@ Route::middleware(['auth', 'permission:admin.users.manage'])->group(function () 
     Route::put('/lawyers/{lawyer}', [App\Http\Controllers\LawyersController::class, 'update'])->name('lawyers.update');
     Route::delete('/lawyers/{lawyer}', [App\Http\Controllers\LawyersController::class, 'destroy'])->name('lawyers.destroy');
 });
+*/
 
 // Engagement Letter Management
 Route::middleware(['auth'])->group(function () {
@@ -193,6 +212,10 @@ Route::middleware(['auth', 'permission:admin.audit.view'])->group(function () {
 });
 
 // Document Management
+// COMMENTED OUT: These routes are now handled by React SPA
+// Uncomment if you need to access the old Blade views
+// NOTE: AJAX endpoints like /documents/client-cases are still available via API
+/*
 Route::middleware(['auth'])->group(function () {
     // AJAX endpoint for getting client cases (must be before parameterized routes)
     Route::get('/documents/client-cases', [App\Http\Controllers\DocumentController::class, 'getClientCases'])
@@ -240,6 +263,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('documents.show');
     });
 });
+*/
 
 // Admin Task Management
 Route::middleware(['auth'])->group(function () {
@@ -342,14 +366,47 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 });
 
 // Courts Management
+// COMMENTED OUT: These routes are now handled by React SPA
+// Uncomment if you need to access the old Blade views
+// NOTE: AJAX endpoint /api/courts/{court}/details is still available via API
+/*
 Route::middleware(['auth'])->group(function () {
     Route::resource('courts', App\Http\Controllers\CourtsController::class);
 
     // AJAX endpoint for cascading dropdowns
     Route::get('/api/courts/{court}/details', [App\Http\Controllers\CasesController::class, 'getCourtDetails'])->name('courts.details');
 });
+*/
 
 // Opponents Management
+// COMMENTED OUT: These routes are now handled by React SPA
+// Uncomment if you need to access the old Blade views
+/*
 Route::middleware(['auth'])->group(function () {
     Route::resource('opponents', App\Http\Controllers\OpponentsController::class);
 });
+*/
+
+// SPA Fallback Route - Must be last
+// This route catches all non-API routes and serves the React SPA index.html
+// The React Router will handle client-side routing
+// NOTE: API routes are handled by routes/api.php and should not be caught here
+Route::get('/{any}', function () {
+    // Don't catch API routes - they're handled by routes/api.php
+    // Laravel's RouteServiceProvider loads API routes before web routes,
+    // so API routes will be matched first. This is just a safety check.
+    if (request()->is('api/*')) {
+        abort(404); // API route not found in api.php
+    }
+    
+    // Check if the file exists in public directory (for assets like CSS, JS, images)
+    $path = public_path(request()->path());
+    if (file_exists($path) && !is_dir($path)) {
+        return response()->file($path);
+    }
+
+    // Serve the React SPA index.html for all other routes
+    return file_exists(public_path('index.html'))
+        ? response()->file(public_path('index.html'))
+        : view('welcome');
+})->where('any', '.*');

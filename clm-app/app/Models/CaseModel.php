@@ -121,6 +121,11 @@ class CaseModel extends Model
         return $this->belongsTo(Court::class, 'court_id');
     }
 
+    public function partner()
+    {
+        return $this->belongsTo(Lawyer::class, 'matter_partner_id');
+    }
+
     // New option set relationships
     public function matterCategory()
     {

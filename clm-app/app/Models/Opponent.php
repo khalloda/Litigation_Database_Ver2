@@ -36,7 +36,7 @@ class Opponent extends Model
     // Relationships
     public function cases()
     {
-        return $this->belongsToMany(\App\Models\CaseModel::class, 'case_opponents')
+        return $this->belongsToMany(\App\Models\CaseModel::class, 'case_opponents', 'opponent_id', 'case_id')
             ->withPivot(['capacity_id', 'is_primary', 'display_order', 'alias_text', 'id'])
             ->withTimestamps();
     }

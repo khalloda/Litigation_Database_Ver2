@@ -50,6 +50,11 @@ class Hearing extends Model
         return $this->belongsTo(CaseModel::class, 'matter_id');
     }
 
+    public function lawyer()
+    {
+        return $this->belongsTo(\App\Models\Lawyer::class, 'lawyer_id');
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

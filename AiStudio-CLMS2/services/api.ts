@@ -22,11 +22,24 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Log errors for debugging
+    if (error.response) {
+      console.error('API Error:', {
+        url: error.config?.url,
+        status: error.response.status,
+        data: error.response.data,
+      });
+    } else {
+      console.error('API Error (no response):', error.message);
+    }
+
     if (error.response?.status === 401) {
       // Handle unauthorized - redirect to login
       localStorage.removeItem('auth_token');
       window.location.href = '/login';
     }
+    
+    // Return error with more details
     return Promise.reject(error);
   }
 );

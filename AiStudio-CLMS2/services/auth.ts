@@ -14,17 +14,22 @@ export interface User {
 
 export async function login(credentials: LoginCredentials) {
   const response = await api.post('/login', credentials);
-  // If using token auth:
-  if (response.data.token) {
-    localStorage.setItem('auth_token', response.data.token);
-  }
+  // Laravel Sanctum uses session cookies (withCredentials: true in api.ts)
+  // No need to store token in localStorage for session-based auth
+  // The session cookie is automatically sent with subsequent requests
   return response.data;
 }
 
 export async function logout() {
-  const response = await api.post('/logout');
-  localStorage.removeItem('auth_token');
-  return response.data;
+  try {
+    const response = await api.post('/logout');
+    localStorage.removeItem('auth_token'); // Clean up if it exists
+    return response.data;
+  } catch (error) {
+    // Even if logout fails, clear local storage
+    localStorage.removeItem('auth_token');
+    throw error;
+  }
 }
 
 export async function fetchCurrentUser() {

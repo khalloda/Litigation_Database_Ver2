@@ -6,7 +6,9 @@ export async function fetchLawyers(params?: {
   search?: string;
 }) {
   const response = await api.get('/lawyers', { params });
-  return response.data;
+  // Laravel pagination returns { data: [...], current_page, per_page, total, ... }
+  // Return the data array directly for easier consumption
+  return response.data.data || response.data;
 }
 
 export async function fetchLawyer(id: number | string) {

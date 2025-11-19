@@ -31,4 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+        'verify_ssl' => env('GEMINI_VERIFY_SSL', true), // Set to false for local dev if SSL issues
+    ],
+
 ];
