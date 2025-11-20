@@ -68,6 +68,7 @@ Route::middleware(['auth', 'permission:import.manage'])->prefix('admin/import')-
 // Show route enabled for schema-driven all-fields view
 Route::middleware(['auth', 'permission:cases.view'])->group(function () {
     Route::get('/cases/{case}', [App\Http\Controllers\CasesController::class, 'show'])->name('cases.show');
+    Route::get('/blade/cases/{case}', [App\Http\Controllers\CasesController::class, 'show'])->name('cases.show.blade');
 });
 // Other routes still handled by React SPA
 /*
@@ -112,6 +113,7 @@ Route::post('/fuzzy-matching/apply-choice', [App\Http\Controllers\FuzzyMatchingC
 // Show route enabled for schema-driven all-fields view
 Route::middleware(['auth', 'permission:hearings.view'])->group(function () {
     Route::get('/hearings/{hearing}', [App\Http\Controllers\HearingsController::class, 'show'])->name('hearings.show');
+    Route::get('/blade/hearings/{hearing}', [App\Http\Controllers\HearingsController::class, 'show'])->name('hearings.show.blade');
 });
 // Other routes still handled by React SPA
 /*
@@ -174,6 +176,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/power-of-attorneys/create', [App\Http\Controllers\PowerOfAttorneyController::class, 'create'])->name('power-of-attorneys.create');
     Route::post('/power-of-attorneys', [App\Http\Controllers\PowerOfAttorneyController::class, 'store'])->name('power-of-attorneys.store');
     Route::get('/power-of-attorneys/{powerOfAttorney}', [App\Http\Controllers\PowerOfAttorneyController::class, 'show'])->name('power-of-attorneys.show');
+    Route::get('/blade/power-of-attorneys/{powerOfAttorney}', [App\Http\Controllers\PowerOfAttorneyController::class, 'show'])->name('power-of-attorneys.show.blade');
     Route::get('/power-of-attorneys/{powerOfAttorney}/edit', [App\Http\Controllers\PowerOfAttorneyController::class, 'edit'])->name('power-of-attorneys.edit');
     Route::put('/power-of-attorneys/{powerOfAttorney}', [App\Http\Controllers\PowerOfAttorneyController::class, 'update'])->name('power-of-attorneys.update');
     Route::delete('/power-of-attorneys/{powerOfAttorney}', [App\Http\Controllers\PowerOfAttorneyController::class, 'destroy'])->name('power-of-attorneys.destroy');
@@ -218,6 +221,8 @@ Route::middleware(['auth', 'permission:admin.audit.view'])->group(function () {
 Route::middleware(['auth', 'permission:documents.view'])->group(function () {
     Route::get('/documents/{document}', [App\Http\Controllers\DocumentController::class, 'show'])
         ->name('documents.show');
+    Route::get('/blade/documents/{document}', [App\Http\Controllers\DocumentController::class, 'show'])
+        ->name('documents.show.blade');
     // Inline preview via signed route
     Route::get('/documents/{document}/inline', [App\Http\Controllers\DocumentController::class, 'inline'])
         ->name('documents.inline')->middleware('signed');
@@ -270,6 +275,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin-tasks', [App\Http\Controllers\AdminTaskController::class, 'store'])->name('admin-tasks.store');
     Route::get('/admin-tasks', [App\Http\Controllers\AdminTaskController::class, 'index'])->name('admin-tasks.index');
     Route::get('/admin-tasks/{adminTask}', [App\Http\Controllers\AdminTaskController::class, 'show'])->name('admin-tasks.show');
+    Route::get('/blade/admin-tasks/{adminTask}', [App\Http\Controllers\AdminTaskController::class, 'show'])->name('admin-tasks.show.blade');
     Route::get('/admin-tasks/{adminTask}/edit', [App\Http\Controllers\AdminTaskController::class, 'edit'])->name('admin-tasks.edit');
     Route::put('/admin-tasks/{adminTask}', [App\Http\Controllers\AdminTaskController::class, 'update'])->name('admin-tasks.update');
     Route::delete('/admin-tasks/{adminTask}', [App\Http\Controllers\AdminTaskController::class, 'destroy'])->name('admin-tasks.destroy');
@@ -368,6 +374,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 // Show route enabled for schema-driven all-fields view
 Route::middleware(['auth'])->group(function () {
     Route::get('/courts/{court}', [App\Http\Controllers\CourtsController::class, 'show'])->name('courts.show');
+    Route::get('/blade/courts/{court}', [App\Http\Controllers\CourtsController::class, 'show'])->name('courts.show.blade');
     // AJAX endpoint for cascading dropdowns
     Route::get('/api/courts/{court}/details', [App\Http\Controllers\CasesController::class, 'getCourtDetails'])->name('courts.details');
 });
@@ -387,6 +394,7 @@ Route::middleware(['auth'])->group(function () {
 // Show route enabled for schema-driven all-fields view
 Route::middleware(['auth'])->group(function () {
     Route::get('/opponents/{opponent}', [App\Http\Controllers\OpponentsController::class, 'show'])->name('opponents.show');
+    Route::get('/blade/opponents/{opponent}', [App\Http\Controllers\OpponentsController::class, 'show'])->name('opponents.show.blade');
 });
 // Other routes still handled by React SPA
 /*
@@ -404,12 +412,22 @@ Route::middleware(['auth'])->group(function () {
 // This route catches all non-API routes and serves the React SPA index.html
 // The React Router will handle client-side routing
 // NOTE: API routes are handled by routes/api.php and should not be caught here
+// NOTE: Blade show routes (cases.show, clients.show, etc.) are matched before this catch-all
 Route::get('/{any}', function () {
     // Don't catch API routes - they're handled by routes/api.php
     // Laravel's RouteServiceProvider loads API routes before web routes,
     // so API routes will be matched first. This is just a safety check.
     if (request()->is('api/*')) {
         abort(404); // API route not found in api.php
+    }
+    
+    // Exclude Blade show routes - these should have been matched above
+    // If we reach here, it means the route wasn't matched, so let React handle it
+    $excludedPaths = ['cases', 'clients', 'opponents', 'courts', 'hearings', 'documents', 'power-of-attorneys', 'admin-tasks'];
+    $pathSegments = explode('/', request()->path());
+    if (count($pathSegments) >= 2 && in_array($pathSegments[0], $excludedPaths) && is_numeric($pathSegments[1])) {
+        // This looks like a show route that should have matched above - abort 404
+        abort(404, 'Route not found. Blade show routes should be matched before SPA fallback.');
     }
     
     // Check if the file exists in public directory (for assets like CSS, JS, images)
