@@ -4,6 +4,7 @@ import type { Case } from '../types';
 import { useI18n } from '../hooks/useI18n';
 import { fetchCase } from '../services/cases';
 import { ChevronDownIcon } from '../components/icons';
+import AllFieldsTable from '../components/AllFieldsTable';
 
 const AccordionItem: React.FC<{ title: string; children: React.ReactNode; open?: boolean }> = ({ title, children, open = false }) => {
     return (
@@ -48,13 +49,17 @@ const CaseDetailPage: React.FC = () => {
     const navigate = useNavigate();
     const { t, language } = useI18n();
     const [caseData, setCaseData] = useState<Case | null>(null);
+    const [schemaData, setSchemaData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (id) {
             fetchCase(id)
-                .then((data) => setCaseData(data.data || data))
+                .then((data) => {
+                    setCaseData(data.data || data);
+                    setSchemaData(data.schema || null);
+                })
                 .catch((err: any) => setError(err.message || 'Failed to load case'))
                 .finally(() => setLoading(false));
         }
@@ -232,6 +237,17 @@ const CaseDetailPage: React.FC = () => {
                         </DetailItem>
                     </div>
                 </AccordionItem>
+
+                {/* All Fields Section (Schema-Driven) */}
+                {schemaData && caseData && (
+                    <AccordionItem title="All Fields (Schema-Driven)" open={false}>
+                        <AllFieldsTable
+                            record={caseData as any}
+                            schema={schemaData}
+                            title="All Case Fields"
+                        />
+                    </AccordionItem>
+                )}
             </div>
         </div>
     );

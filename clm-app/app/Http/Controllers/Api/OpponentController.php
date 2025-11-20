@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Models\Opponent;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class OpponentController extends Controller
 {
+    use SchemaDrivenFields;
     public function index(Request $request): JsonResponse
     {
         try {
@@ -150,7 +152,13 @@ class OpponentController extends Controller
             $opponentData = $opponent->toArray();
             $opponentData['cases'] = $transformedCases;
             
-            return response()->json(['data' => $opponentData]);
+            // Get schema-driven field metadata
+            $schemaData = $this->getSchemaFields('opponents', $opponent);
+            
+            return response()->json([
+                'data' => $opponentData,
+                'schema' => $schemaData,
+            ]);
         } catch (\Exception $e) {
             \Log::error('OpponentController@show error: ' . $e->getMessage(), [
                 'opponent_id' => $opponent->id,

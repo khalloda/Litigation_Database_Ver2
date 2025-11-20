@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Models\Court;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class CourtController extends Controller
 {
+    use SchemaDrivenFields;
     public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Court::class);
@@ -58,7 +60,14 @@ class CourtController extends Controller
     public function show(Court $court): JsonResponse
     {
         $this->authorize('view', $court);
-        return response()->json(['data' => $court]);
+        
+        // Get schema-driven field metadata
+        $schemaData = $this->getSchemaFields('courts', $court);
+        
+        return response()->json([
+            'data' => $court,
+            'schema' => $schemaData,
+        ]);
     }
 
     public function update(Request $request, Court $court): JsonResponse

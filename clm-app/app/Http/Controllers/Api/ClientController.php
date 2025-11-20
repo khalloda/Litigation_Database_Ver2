@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class ClientController extends Controller
 {
+    use SchemaDrivenFields;
     /**
      * Display a listing of clients
      */
@@ -99,8 +101,12 @@ class ClientController extends Controller
             'cases:id,client_id,matter_name_ar,matter_name_en',
         ]);
 
+        // Get schema-driven field metadata
+        $schemaData = $this->getSchemaFields('clients', $client);
+
         return response()->json([
             'data' => $client,
+            'schema' => $schemaData,
         ]);
     }
 

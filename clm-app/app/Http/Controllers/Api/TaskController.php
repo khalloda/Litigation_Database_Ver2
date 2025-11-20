@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Models\AdminTask;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class TaskController extends Controller
 {
+    use SchemaDrivenFields;
     public function index(Request $request): JsonResponse
     {
         try {
@@ -75,8 +77,22 @@ class TaskController extends Controller
     public function show(AdminTask $task): JsonResponse
     {
         $this->authorize('view', $task);
-        $task->load(['case', 'lawyer']);
-        return response()->json(['data' => $task]);
+        $task->load(['case', 'lawyer', 'subtasks']);
+        
+        // Get schema-driven field metadata for task
+        $taskSchemaData = $this->getSchemaFields('admin_work_tasks', $task);
+        
+        // Get schema-driven field metadata for subtasks
+        $subtaskSchemaData = null;
+        if ($task->subtasks->isNotEmpty()) {
+            $subtaskSchemaData = $this->getSchemaFields('admin_work_subtasks', $task->subtasks->first());
+        }
+        
+        return response()->json([
+            'data' => $task,
+            'schema' => $taskSchemaData,
+            'subtaskSchema' => $subtaskSchemaData,
+        ]);
     }
 
     public function update(Request $request, AdminTask $task): JsonResponse

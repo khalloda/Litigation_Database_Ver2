@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Models\CaseModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class CaseController extends Controller
 {
+    use SchemaDrivenFields;
     /**
      * Display a listing of cases
      */
@@ -232,8 +234,12 @@ class CaseController extends Controller
                 'adminTasks',
             ]);
 
+            // Get schema-driven field metadata
+            $schemaData = $this->getSchemaFields('cases', $case);
+
             return response()->json([
                 'data' => $this->transformCaseForApi($case),
+                'schema' => $schemaData,
             ]);
         } catch (\Exception $e) {
             Log::error('CaseController@show error: ' . $e->getMessage(), [

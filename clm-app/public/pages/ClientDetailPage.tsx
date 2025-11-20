@@ -4,6 +4,7 @@ import type { Client, Case, Contact, ClientDocument, PowerOfAttorney, CaseStatus
 import { useI18n } from '../hooks/useI18n';
 import { fetchClient } from '../services/clients';
 import { BriefcaseIcon, DocumentIcon, UserGroupIcon, CaseIcon } from '../components/icons';
+import AllFieldsTable from '../components/AllFieldsTable';
 
 const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => {
     if (!value) return null;
@@ -47,13 +48,17 @@ const ClientDetailPage: React.FC = () => {
     const { t, language } = useI18n();
     const [activeTab, setActiveTab] = useState('details');
     const [client, setClient] = useState<Client | null>(null);
+    const [schemaData, setSchemaData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (id) {
             fetchClient(id)
-                .then((data) => setClient(data.data || data))
+                .then((data) => {
+                    setClient(data.data || data);
+                    setSchemaData(data.schema || null);
+                })
                 .catch((err: any) => setError(err.message || 'Failed to load client'))
                 .finally(() => setLoading(false));
         }
@@ -212,6 +217,16 @@ const ClientDetailPage: React.FC = () => {
                     </div>
                 )}
 
+                {/* All Fields Section (Schema-Driven) */}
+                {schemaData && client && (
+                    <div className="mt-6">
+                        <AllFieldsTable
+                            record={client as any}
+                            schema={schemaData}
+                            title="All Fields (Schema-Driven)"
+                        />
+                    </div>
+                )}
 
             </div>
         </div>

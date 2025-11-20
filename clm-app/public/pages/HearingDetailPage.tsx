@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import type { Hearing } from '../types';
 import { useI18n } from '../hooks/useI18n';
 import { fetchHearing } from '../services/hearings';
+import AllFieldsTable from '../components/AllFieldsTable';
 
 const DetailItem: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => {
     if (!value && value !== 0) {
@@ -21,13 +22,17 @@ const HearingDetailPage: React.FC = () => {
     const navigate = useNavigate();
     const { t, language } = useI18n();
     const [hearing, setHearing] = useState<Hearing | null>(null);
+    const [schemaData, setSchemaData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (id) {
             fetchHearing(id)
-                .then((data) => setHearing(data.data || data))
+                .then((data) => {
+                    setHearing(data.data || data);
+                    setSchemaData(data.schema || null);
+                })
                 .catch((err: any) => setError(err.message || 'Failed to load hearing'))
                 .finally(() => setLoading(false));
         }
@@ -86,6 +91,17 @@ const HearingDetailPage: React.FC = () => {
                     </dl>
                 </div>
             </div>
+
+            {/* All Fields Section (Schema-Driven) */}
+            {schemaData && hearing && (
+                <div className="mt-6">
+                    <AllFieldsTable
+                        record={hearing as any}
+                        schema={schemaData}
+                        title="All Hearing Fields"
+                    />
+                </div>
+            )}
         </div>
     );
 };

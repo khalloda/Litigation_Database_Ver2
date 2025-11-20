@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Models\Hearing;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class HearingController extends Controller
 {
+    use SchemaDrivenFields;
     public function index(Request $request): JsonResponse
     {
         try {
@@ -81,7 +83,14 @@ class HearingController extends Controller
     {
         $this->authorize('view', $hearing);
         $hearing->load(['case.client', 'lawyer']);
-        return response()->json(['data' => $hearing]);
+        
+        // Get schema-driven field metadata
+        $schemaData = $this->getSchemaFields('hearings', $hearing);
+        
+        return response()->json([
+            'data' => $hearing,
+            'schema' => $schemaData,
+        ]);
     }
 
     public function update(Request $request, Hearing $hearing): JsonResponse

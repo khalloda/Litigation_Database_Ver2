@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Models\ClientDocument;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
+    use SchemaDrivenFields;
     public function index(Request $request): JsonResponse
     {
         try {
@@ -93,7 +95,14 @@ class DocumentController extends Controller
     {
         $this->authorize('view', $document);
         $document->load(['client', 'case']);
-        return response()->json(['data' => $document]);
+        
+        // Get schema-driven field metadata
+        $schemaData = $this->getSchemaFields('client_documents', $document);
+        
+        return response()->json([
+            'data' => $document,
+            'schema' => $schemaData,
+        ]);
     }
 
     public function update(Request $request, ClientDocument $document): JsonResponse
