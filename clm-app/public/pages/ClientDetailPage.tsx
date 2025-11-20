@@ -53,63 +53,68 @@ const ClientDetailPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (id) {
-            fetchClient(id)
-                .then((response: any) => {
-                    console.log('Client API full response:', response);
-                    console.log('Response type:', typeof response);
-                    console.log('Is array:', Array.isArray(response));
-                    console.log('Response keys:', response && typeof response === 'object' ? Object.keys(response) : 'N/A');
-                    
-                    // Handle both wrapped {data: client, schema: schemaData} and unwrapped client responses
-                    let clientData: any;
-                    let schemaData: any = null;
-                    
-                    if (response && typeof response === 'object') {
-                        // Check if response has 'success', 'data', and 'schema' properties (new wrapped response)
-                        if ('success' in response && 'data' in response && 'schema' in response) {
-                            clientData = response.data;
-                            schemaData = response.schema;
-                            console.log('Found new wrapped response structure with success key');
-                        }
-                        // Check if response has 'data' and 'schema' properties (wrapped response)
-                        else if ('data' in response && 'schema' in response) {
-                            clientData = response.data;
-                            schemaData = response.schema;
-                            console.log('Found wrapped response structure');
-                        } 
-                        // Check if response has 'schema' property but client is at root
-                        else if ('schema' in response && 'id' in response) {
-                            clientData = response;
-                            schemaData = response.schema;
-                            console.log('Found schema at root level');
-                        }
-                        // Otherwise, assume response is the client directly
-                        else {
-                            clientData = response;
-                            console.log('Response appears to be client directly, no schema found');
-                        }
-                    } else {
-                        clientData = response;
-                    }
-                    
-                    console.log('Extracted client data:', clientData);
-                    console.log('Extracted schema data:', schemaData);
-                    
-                    setClient(clientData);
-                    setSchemaData(schemaData);
-                    
-                    if (!schemaData) {
-                        console.warn('Schema data not found in API response. This may indicate the API endpoint needs to be updated to include schema data.');
-                        console.warn('Full response structure:', JSON.stringify(response, null, 2));
-                    }
-                })
-                .catch((err: any) => {
-                    console.error('Error fetching client:', err);
-                    setError(err.message || 'Failed to load client');
-                })
-                .finally(() => setLoading(false));
+        if (!id) {
+            return;
         }
+
+        let isMounted = true;
+        setLoading(true);
+        setSchemaError(null);
+
+        const loadClient = async () => {
+            try {
+                const response = await fetchClient(id);
+
+                let clientPayload: any = response;
+                let schemaPayload: any = null;
+
+                if (response && typeof response === 'object') {
+                    if ('data' in response && 'schema' in response) {
+                        clientPayload = response.data;
+                        schemaPayload = response.schema;
+                    } else if ('success' in response && 'data' in response && 'schema' in response) {
+                        clientPayload = response.data;
+                        schemaPayload = response.schema;
+                    } else if ('schema' in response && 'id' in response) {
+                        clientPayload = response;
+                        schemaPayload = response.schema;
+                    }
+                }
+
+                if (isMounted) {
+                    setClient(clientPayload);
+                }
+
+                if (schemaPayload && isMounted) {
+                    setSchemaData(schemaPayload);
+                } else {
+                    if (isMounted) setSchemaLoading(true);
+                    try {
+                        const schemaResponse = await fetchClientSchema(id);
+                        const resolvedSchema = schemaResponse?.schema ?? schemaResponse;
+                        if (isMounted) setSchemaData(resolvedSchema);
+                    } catch (schemaErr: any) {
+                        if (isMounted) {
+                            console.error('Error fetching client schema:', schemaErr);
+                            setSchemaError(schemaErr?.message || 'Failed to load schema metadata.');
+                        }
+                    } finally {
+                        if (isMounted) setSchemaLoading(false);
+                    }
+                }
+            } catch (err: any) {
+                console.error('Error fetching client:', err);
+                if (isMounted) setError(err.message || 'Failed to load client');
+            } finally {
+                if (isMounted) setLoading(false);
+            }
+        };
+
+        loadClient();
+
+        return () => {
+            isMounted = false;
+        };
     }, [id]);
 
     if (loading) {
@@ -269,18 +274,30 @@ const ClientDetailPage: React.FC = () => {
                 {/* All Fields Section (Schema-Driven) */}
                 {activeTab === 'all-fields' && (
                     <div className="mt-6">
-                        {schemaData && client ? (
+                        {schemaLoading && (
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-800 mb-4">
+                                {t('client_page.loading_schema') || 'Loading schema metadata...'}
+                            </div>
+                        )}
+
+                        {schemaError && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800 mb-4">
+                                {schemaError}
+                            </div>
+                        )}
+
+                        {!schemaLoading && !schemaError && !schemaData && (
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
+                                {t('client_page.schema_not_available') || 'Schema data not available.'}
+                            </div>
+                        )}
+
+                        {schemaData && client && (
                             <AllFieldsTable
                                 record={client as any}
                                 schema={schemaData}
                                 title="All Client Fields"
                             />
-                        ) : (
-                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                <p className="text-yellow-800">
-                                    {!schemaData ? 'Schema data not available. Please refresh the page.' : 'Client data not available.'}
-                                </p>
-                            </div>
                         )}
                     </div>
                 )}

@@ -11,10 +11,11 @@ export async function fetchClients(params?: {
 
 export async function fetchClient(id: number | string) {
   const response = await api.get(`/clients/${id}`);
-  console.log('Raw axios response:', response);
-  console.log('Response data:', response.data);
-  console.log('Response data keys:', response.data ? Object.keys(response.data) : 'null');
-  console.log('Response data type:', typeof response.data);
+  return response.data;
+}
+
+export async function fetchClientSchema(id: number | string) {
+  const response = await api.get(`/clients/${id}/schema`);
   return response.data;
 }
 

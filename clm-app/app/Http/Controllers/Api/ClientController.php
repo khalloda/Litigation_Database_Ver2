@@ -115,6 +115,20 @@ class ClientController extends Controller
     }
 
     /**
+     * Return only schema metadata for a client.
+     */
+    public function schema(Client $client): JsonResponse
+    {
+        $this->authorize('view', $client);
+
+        $client->load(['cashOrProbono', 'statusRef', 'contactLawyer']);
+
+        return response()->json([
+            'schema' => $this->getSchemaFields('clients', $client),
+        ]);
+    }
+
+    /**
      * Update the specified client
      */
     public function update(Request $request, Client $client): JsonResponse
