@@ -31,9 +31,9 @@ Route::get('/locale/{locale}', [App\Http\Controllers\LocaleController::class, 's
     ->name('locale.switch');
 
 // Basic CRUD stubs - Client Management
-// Show route enabled for schema-driven all-fields view
+// Blade show route enabled for schema-driven all-fields view
 Route::middleware(['auth'])->group(function () {
-    Route::get('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'show'])->name('clients.show');
+    Route::get('/blade/clients/{client}', [App\Http\Controllers\ClientsController::class, 'show'])->name('clients.show.blade');
 });
 // Other routes still handled by React SPA
 /*
@@ -65,9 +65,8 @@ Route::middleware(['auth', 'permission:import.manage'])->prefix('admin/import')-
     Route::delete('/profiles/{profile}/choices/{choice}', [App\Http\Controllers\Admin\ImportChoicesController::class, 'destroy'])->name('choices.destroy');
 });
 // Case Management
-// Show route enabled for schema-driven all-fields view
+// Blade show route enabled for schema-driven all-fields view
 Route::middleware(['auth', 'permission:cases.view'])->group(function () {
-    Route::get('/cases/{case}', [App\Http\Controllers\CasesController::class, 'show'])->name('cases.show');
     Route::get('/blade/cases/{case}', [App\Http\Controllers\CasesController::class, 'show'])->name('cases.show.blade');
 });
 // Other routes still handled by React SPA
@@ -110,9 +109,8 @@ Route::get('/fuzzy-matching/choices', [App\Http\Controllers\FuzzyMatchingControl
 Route::post('/fuzzy-matching/apply-choice', [App\Http\Controllers\FuzzyMatchingController::class, 'applyChoice'])->name('fuzzy-matching.apply-choice');
 
 // Hearing Management
-// Show route enabled for schema-driven all-fields view
+// Blade show route enabled for schema-driven all-fields view
 Route::middleware(['auth', 'permission:hearings.view'])->group(function () {
-    Route::get('/hearings/{hearing}', [App\Http\Controllers\HearingsController::class, 'show'])->name('hearings.show');
     Route::get('/blade/hearings/{hearing}', [App\Http\Controllers\HearingsController::class, 'show'])->name('hearings.show.blade');
 });
 // Other routes still handled by React SPA
@@ -217,10 +215,8 @@ Route::middleware(['auth', 'permission:admin.audit.view'])->group(function () {
 });
 
 // Document Management
-// Show route enabled for schema-driven all-fields view
+// Blade show route enabled for schema-driven all-fields view
 Route::middleware(['auth', 'permission:documents.view'])->group(function () {
-    Route::get('/documents/{document}', [App\Http\Controllers\DocumentController::class, 'show'])
-        ->name('documents.show');
     Route::get('/blade/documents/{document}', [App\Http\Controllers\DocumentController::class, 'show'])
         ->name('documents.show.blade');
     // Inline preview via signed route
@@ -371,9 +367,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 });
 
 // Courts Management
-// Show route enabled for schema-driven all-fields view
+// Blade show route enabled for schema-driven all-fields view
 Route::middleware(['auth'])->group(function () {
-    Route::get('/courts/{court}', [App\Http\Controllers\CourtsController::class, 'show'])->name('courts.show');
     Route::get('/blade/courts/{court}', [App\Http\Controllers\CourtsController::class, 'show'])->name('courts.show.blade');
     // AJAX endpoint for cascading dropdowns
     Route::get('/api/courts/{court}/details', [App\Http\Controllers\CasesController::class, 'getCourtDetails'])->name('courts.details');
@@ -391,9 +386,8 @@ Route::middleware(['auth'])->group(function () {
 */
 
 // Opponents Management
-// Show route enabled for schema-driven all-fields view
+// Blade show route enabled for schema-driven all-fields view
 Route::middleware(['auth'])->group(function () {
-    Route::get('/opponents/{opponent}', [App\Http\Controllers\OpponentsController::class, 'show'])->name('opponents.show');
     Route::get('/blade/opponents/{opponent}', [App\Http\Controllers\OpponentsController::class, 'show'])->name('opponents.show.blade');
 });
 // Other routes still handled by React SPA

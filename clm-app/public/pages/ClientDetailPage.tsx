@@ -55,11 +55,59 @@ const ClientDetailPage: React.FC = () => {
     useEffect(() => {
         if (id) {
             fetchClient(id)
-                .then((data) => {
-                    setClient(data.data || data);
-                    setSchemaData(data.schema || null);
+                .then((response: any) => {
+                    console.log('Client API full response:', response);
+                    console.log('Response type:', typeof response);
+                    console.log('Is array:', Array.isArray(response));
+                    console.log('Response keys:', response && typeof response === 'object' ? Object.keys(response) : 'N/A');
+                    
+                    // Handle both wrapped {data: client, schema: schemaData} and unwrapped client responses
+                    let clientData: any;
+                    let schemaData: any = null;
+                    
+                    if (response && typeof response === 'object') {
+                        // Check if response has 'success', 'data', and 'schema' properties (new wrapped response)
+                        if ('success' in response && 'data' in response && 'schema' in response) {
+                            clientData = response.data;
+                            schemaData = response.schema;
+                            console.log('Found new wrapped response structure with success key');
+                        }
+                        // Check if response has 'data' and 'schema' properties (wrapped response)
+                        else if ('data' in response && 'schema' in response) {
+                            clientData = response.data;
+                            schemaData = response.schema;
+                            console.log('Found wrapped response structure');
+                        } 
+                        // Check if response has 'schema' property but client is at root
+                        else if ('schema' in response && 'id' in response) {
+                            clientData = response;
+                            schemaData = response.schema;
+                            console.log('Found schema at root level');
+                        }
+                        // Otherwise, assume response is the client directly
+                        else {
+                            clientData = response;
+                            console.log('Response appears to be client directly, no schema found');
+                        }
+                    } else {
+                        clientData = response;
+                    }
+                    
+                    console.log('Extracted client data:', clientData);
+                    console.log('Extracted schema data:', schemaData);
+                    
+                    setClient(clientData);
+                    setSchemaData(schemaData);
+                    
+                    if (!schemaData) {
+                        console.warn('Schema data not found in API response. This may indicate the API endpoint needs to be updated to include schema data.');
+                        console.warn('Full response structure:', JSON.stringify(response, null, 2));
+                    }
                 })
-                .catch((err: any) => setError(err.message || 'Failed to load client'))
+                .catch((err: any) => {
+                    console.error('Error fetching client:', err);
+                    setError(err.message || 'Failed to load client');
+                })
                 .finally(() => setLoading(false));
         }
     }, [id]);
@@ -103,6 +151,7 @@ const ClientDetailPage: React.FC = () => {
                         <TabButton label={t('client_page.contacts')} icon={<UserGroupIcon className="w-4 h-4" />} isActive={activeTab === 'contacts'} onClick={() => setActiveTab('contacts')} />
                         <TabButton label={t('case.documents')} icon={<DocumentIcon className="w-4 h-4" />} isActive={activeTab === 'documents'} onClick={() => setActiveTab('documents')} />
                         <TabButton label={t('client_page.power_of_attorneys')} icon={<DocumentIcon className="w-4 h-4" />} isActive={activeTab === 'poas'} onClick={() => setActiveTab('poas')} />
+                        <TabButton label={t('client_page.all_fields') || 'All Fields'} icon={<DocumentIcon className="w-4 h-4" />} isActive={activeTab === 'all-fields'} onClick={() => setActiveTab('all-fields')} />
                     </div>
                 </div>
 
@@ -218,13 +267,21 @@ const ClientDetailPage: React.FC = () => {
                 )}
 
                 {/* All Fields Section (Schema-Driven) */}
-                {schemaData && client && (
+                {activeTab === 'all-fields' && (
                     <div className="mt-6">
-                        <AllFieldsTable
-                            record={client as any}
-                            schema={schemaData}
-                            title="All Fields (Schema-Driven)"
-                        />
+                        {schemaData && client ? (
+                            <AllFieldsTable
+                                record={client as any}
+                                schema={schemaData}
+                                title="All Client Fields"
+                            />
+                        ) : (
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <p className="text-yellow-800">
+                                    {!schemaData ? 'Schema data not available. Please refresh the page.' : 'Client data not available.'}
+                                </p>
+                            </div>
+                        )}
                     </div>
                 )}
 

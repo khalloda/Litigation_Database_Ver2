@@ -20,6 +20,7 @@ interface StatCardProps {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ title, thisMonth, total, icon, color, onClick }) => {
+  const { t } = useI18n();
   const colorClasses = {
     blue: 'bg-blue-50 border-blue-200 text-blue-600',
     green: 'bg-green-50 border-green-200 text-green-600',
@@ -44,10 +45,10 @@ const StatCard: React.FC<StatCardProps> = ({ title, thisMonth, total, icon, colo
       <div className="mt-4">
         <div className="flex items-baseline gap-2">
           <p className="text-3xl font-bold">{thisMonth}</p>
-          <p className="text-sm opacity-75">this month</p>
+          <p className="text-sm opacity-75">{t('dashboard.this_month')}</p>
         </div>
         <div className="mt-2 pt-2 border-t border-opacity-20">
-          <p className="text-sm opacity-75">Total: <span className="font-semibold">{total}</span></p>
+          <p className="text-sm opacity-75">{t('dashboard.total')}: <span className="font-semibold">{total}</span></p>
         </div>
       </div>
     </div>

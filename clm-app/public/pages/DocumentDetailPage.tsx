@@ -4,7 +4,6 @@ import type { ClientDocument, DocumentMovementStatus, DocumentMovement } from '.
 import { useI18n } from '../hooks/useI18n';
 import { fetchDocument } from '../services/documents';
 import MovementForm from '../components/MovementForm';
-import AllFieldsTable from '../components/AllFieldsTable';
 
 const DetailItem: React.FC<{ label: string; value?: React.ReactNode; fullWidth?: boolean }> = ({ label, value, fullWidth }) => {
     if (!value && value !== 0 && value !== false) {
@@ -38,7 +37,6 @@ const DocumentDetailPage: React.FC = () => {
     const navigate = useNavigate();
     const { t, language } = useI18n();
     const [document, setDocument] = useState<ClientDocument | null>(null);
-    const [schemaData, setSchemaData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [movementFormState, setMovementFormState] = useState<{ isOpen: boolean; movement: DocumentMovement | null | undefined }>({ isOpen: false, movement: undefined });
@@ -46,10 +44,7 @@ const DocumentDetailPage: React.FC = () => {
     useEffect(() => {
         if (id) {
             fetchDocument(id)
-                .then((data) => {
-                    setDocument(data.data || data);
-                    setSchemaData(data.schema || null);
-                })
+                .then((data) => setDocument(data.data || data))
                 .catch((err: any) => setError(err.message || 'Failed to load document'))
                 .finally(() => setLoading(false));
         }
@@ -199,17 +194,6 @@ const DocumentDetailPage: React.FC = () => {
                     onSave={handleSaveMovement}
                     initialData={movementFormState.movement}
                 />
-            )}
-
-            {/* All Fields Section (Schema-Driven) */}
-            {schemaData && document && (
-                <div className="mt-6">
-                    <AllFieldsTable
-                        record={document as any}
-                        schema={schemaData}
-                        title="All Document Fields"
-                    />
-                </div>
             )}
         </div>
     );

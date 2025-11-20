@@ -7,16 +7,22 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h4">{{ __('app.case_details') }}</h1>
         <div>
+            @if(Route::has('cases.index'))
             <a href="{{ route('cases.index') }}" class="btn btn-outline-secondary me-2">{{ __('app.back_to_cases') }}</a>
+            @endif
             @can('cases.edit')
+            @if(Route::has('cases.edit'))
             <a href="{{ route('cases.edit', $case) }}" class="btn btn-primary me-2">{{ __('app.edit_case') }}</a>
+            @endif
             @endcan
             @can('cases.delete')
+            @if(Route::has('cases.destroy'))
             <form action="{{ route('cases.destroy', $case) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ __('app.confirm_delete_case') }}')">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn btn-danger">{{ __('app.delete') }}</button>
             </form>
+            @endif
             @endcan
         </div>
     </div>

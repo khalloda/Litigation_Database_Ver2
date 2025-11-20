@@ -5,16 +5,22 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h4"><?php echo e(__('app.case_details')); ?></h1>
         <div>
+            <?php if(Route::has('cases.index')): ?>
             <a href="<?php echo e(route('cases.index')); ?>" class="btn btn-outline-secondary me-2"><?php echo e(__('app.back_to_cases')); ?></a>
+            <?php endif; ?>
             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cases.edit')): ?>
+            <?php if(Route::has('cases.edit')): ?>
             <a href="<?php echo e(route('cases.edit', $case)); ?>" class="btn btn-primary me-2"><?php echo e(__('app.edit_case')); ?></a>
             <?php endif; ?>
+            <?php endif; ?>
             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cases.delete')): ?>
+            <?php if(Route::has('cases.destroy')): ?>
             <form action="<?php echo e(route('cases.destroy', $case)); ?>" method="POST" class="d-inline" onsubmit="return confirm('<?php echo e(__('app.confirm_delete_case')); ?>')">
                 <?php echo csrf_field(); ?>
                 <?php echo method_field('DELETE'); ?>
                 <button type="submit" class="btn btn-danger"><?php echo e(__('app.delete')); ?></button>
             </form>
+            <?php endif; ?>
             <?php endif; ?>
         </div>
     </div>
@@ -134,6 +140,43 @@
             <div id="collapse-meta" class="accordion-collapse collapse" aria-labelledby="heading-meta" data-bs-parent="#caseAccordion">
                 <div class="accordion-body">
                     <?php echo $__env->make('cases.partials._section_content', ['section' => 'meta'], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-all-fields">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-all-fields" aria-expanded="false" aria-controls="collapse-all-fields">
+                    All Fields (Schema-Driven)
+                </button>
+            </h2>
+            <div id="collapse-all-fields" class="accordion-collapse collapse" aria-labelledby="heading-all-fields" data-bs-parent="#caseAccordion">
+                <div class="accordion-body">
+                    <?php if(isset($schemaData)): ?>
+                        <?php if (isset($component)) { $__componentOriginal2fb075f3fd550917b20c60bb108248e8 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal2fb075f3fd550917b20c60bb108248e8 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.admin.all-fields-table','data' => ['record' => $case,'columns' => $schemaData['columns'],'types' => $schemaData['types'],'fkHints' => $schemaData['fkHints'],'title' => 'All Case Fields']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
+<?php $component->withName('admin.all-fields-table'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag && $constructor = (new ReflectionClass(Illuminate\View\AnonymousComponent::class))->getConstructor()): ?>
+<?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['record' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($case),'columns' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($schemaData['columns']),'types' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($schemaData['types']),'fkHints' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($schemaData['fkHints']),'title' => 'All Case Fields']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal2fb075f3fd550917b20c60bb108248e8)): ?>
+<?php $attributes = $__attributesOriginal2fb075f3fd550917b20c60bb108248e8; ?>
+<?php unset($__attributesOriginal2fb075f3fd550917b20c60bb108248e8); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal2fb075f3fd550917b20c60bb108248e8)): ?>
+<?php $component = $__componentOriginal2fb075f3fd550917b20c60bb108248e8; ?>
+<?php unset($__componentOriginal2fb075f3fd550917b20c60bb108248e8); ?>
+<?php endif; ?>
+                    <?php else: ?>
+                        <div class="alert alert-warning">Schema data not available. Please refresh the page.</div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

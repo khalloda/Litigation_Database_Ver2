@@ -29,7 +29,7 @@ trait SchemaDrivenFields
             
             foreach ($columns as $column) {
                 $columnObj = $doctrineTable->getColumn($column);
-                $types[$column] = (string)$columnObj->getType();
+                $types[$column] = $columnObj->getType()->getName();
                 
                 // Check if it's a foreign key
                 $isFk = false;

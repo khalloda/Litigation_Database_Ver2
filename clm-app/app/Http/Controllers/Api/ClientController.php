@@ -94,6 +94,8 @@ class ClientController extends Controller
     {
         $this->authorize('view', $client);
 
+        \Log::info('ApiClientController@show invoked via API route', ['client_id' => $client->id]);
+
         $client->load([
             'cashOrProbono',
             'statusRef',
@@ -104,8 +106,10 @@ class ClientController extends Controller
         // Get schema-driven field metadata
         $schemaData = $this->getSchemaFields('clients', $client);
 
+        // Match CaseController structure exactly - use response()->json() with {data: ..., schema: ...}
+        // Convert model to array to avoid Laravel's automatic model serialization unwrapping
         return response()->json([
-            'data' => $client,
+            'data' => $client->toArray(),
             'schema' => $schemaData,
         ]);
     }

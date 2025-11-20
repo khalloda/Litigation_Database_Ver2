@@ -4,7 +4,6 @@ import type { Opponent, CaseStatus } from '../types';
 import { useI18n } from '../hooks/useI18n';
 import { fetchOpponent } from '../services/opponents';
 import { BriefcaseIcon, CaseIcon } from '../components/icons';
-import AllFieldsTable from '../components/AllFieldsTable';
 
 const TabButton: React.FC<{ label: string; isActive: boolean; onClick: () => void; icon: React.ReactNode }> = ({ label, isActive, onClick, icon }) => (
     <button
@@ -39,17 +38,13 @@ const OpponentDetailPage: React.FC = () => {
     const { t, language } = useI18n();
     const [activeTab, setActiveTab] = useState('details');
     const [opponent, setOpponent] = useState<Opponent | null>(null);
-    const [schemaData, setSchemaData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (id) {
             fetchOpponent(id)
-                .then((data) => {
-                    setOpponent(data.data || data);
-                    setSchemaData(data.schema || null);
-                })
+                .then((data) => setOpponent(data.data || data))
                 .catch((err: any) => setError(err.message || 'Failed to load opponent'))
                 .finally(() => setLoading(false));
         }
@@ -135,17 +130,6 @@ const OpponentDetailPage: React.FC = () => {
                             </table>
                         </div>
                         ) : <p className="text-gray-500">{t('opponent_page.no_cases')}</p>}
-                    </div>
-                )}
-
-                {/* All Fields Section (Schema-Driven) */}
-                {schemaData && opponent && (
-                    <div className="mt-6">
-                        <AllFieldsTable
-                            record={opponent as any}
-                            schema={schemaData}
-                            title="All Opponent Fields"
-                        />
                     </div>
                 )}
             </div>

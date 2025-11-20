@@ -5,16 +5,22 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h4">Client Details</h1>
         <div>
+            <?php if(Route::has('clients.index')): ?>
             <a href="<?php echo e(route('clients.index')); ?>" class="btn btn-outline-secondary me-2"><?php echo e(__('app.back_to_clients')); ?></a>
+            <?php endif; ?>
             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('clients.edit')): ?>
+            <?php if(Route::has('clients.edit')): ?>
             <a href="<?php echo e(route('clients.edit', $client)); ?>" class="btn btn-primary me-2"><?php echo e(__('app.edit_client')); ?></a>
             <?php endif; ?>
+            <?php endif; ?>
             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('clients.delete')): ?>
+            <?php if(Route::has('clients.destroy')): ?>
             <form action="<?php echo e(route('clients.destroy', $client)); ?>" method="POST" class="d-inline" onsubmit="return confirm('<?php echo e(__('app.confirm_delete')); ?>')">
                 <?php echo csrf_field(); ?>
                 <?php echo method_field('DELETE'); ?>
                 <button type="submit" class="btn btn-danger"><?php echo e(__('app.delete')); ?></button>
             </form>
+            <?php endif; ?>
             <?php endif; ?>
         </div>
     </div>
@@ -270,6 +276,46 @@
         </div>
     </div>
     <?php endif; ?>
+
+    
+    <div class="accordion mb-3" id="clientAccordion">
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-all-fields">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-all-fields" aria-expanded="false" aria-controls="collapse-all-fields">
+                    All Fields (Schema-Driven)
+                </button>
+            </h2>
+            <div id="collapse-all-fields" class="accordion-collapse collapse" aria-labelledby="heading-all-fields" data-bs-parent="#clientAccordion">
+                <div class="accordion-body">
+                    <?php if(isset($schemaData)): ?>
+                        <?php if (isset($component)) { $__componentOriginal2fb075f3fd550917b20c60bb108248e8 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal2fb075f3fd550917b20c60bb108248e8 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.admin.all-fields-table','data' => ['record' => $client,'columns' => $schemaData['columns'],'types' => $schemaData['types'],'fkHints' => $schemaData['fkHints'],'title' => 'All Client Fields']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
+<?php $component->withName('admin.all-fields-table'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag && $constructor = (new ReflectionClass(Illuminate\View\AnonymousComponent::class))->getConstructor()): ?>
+<?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['record' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($client),'columns' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($schemaData['columns']),'types' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($schemaData['types']),'fkHints' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($schemaData['fkHints']),'title' => 'All Client Fields']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal2fb075f3fd550917b20c60bb108248e8)): ?>
+<?php $attributes = $__attributesOriginal2fb075f3fd550917b20c60bb108248e8; ?>
+<?php unset($__attributesOriginal2fb075f3fd550917b20c60bb108248e8); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal2fb075f3fd550917b20c60bb108248e8)): ?>
+<?php $component = $__componentOriginal2fb075f3fd550917b20c60bb108248e8; ?>
+<?php unset($__componentOriginal2fb075f3fd550917b20c60bb108248e8); ?>
+<?php endif; ?>
+                    <?php else: ?>
+                        <div class="alert alert-warning">Schema data not available. Please refresh the page.</div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <?php $__env->stopSection(); ?>
 

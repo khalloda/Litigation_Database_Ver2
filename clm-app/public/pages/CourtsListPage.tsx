@@ -40,7 +40,9 @@ const CourtsListPage: React.FC = () => {
       try {
         setLoading(true);
         const data = await fetchCourts();
-        setCourts(data.data || data);
+        // Service function already handles pagination extraction
+        setCourts(Array.isArray(data) ? data : []);
+        console.log('Loaded courts:', Array.isArray(data) ? data.length : 'not array');
       } catch (err: any) {
         setError(err.message || 'Failed to load courts');
       } finally {
@@ -60,14 +62,15 @@ const CourtsListPage: React.FC = () => {
       console.log("New Court Saved:", data);
       setIsNewCourtModalOpen(false);
       const courtsData = await fetchCourts();
-      setCourts(courtsData.data || courtsData);
+      setCourts(Array.isArray(courtsData) ? courtsData : []);
     } catch (err: any) {
       setError(err.message || 'Failed to save court');
     }
   }
 
   const filteredCourts = useMemo(() => {
-    return courts.filter(court => {
+    console.log('Filtering courts:', { total: courts.length, searchTerm, activityFilter });
+    const filtered = courts.filter(court => {
         if (activityFilter && String(court.is_active) !== activityFilter) {
             return false;
         }
@@ -77,7 +80,9 @@ const CourtsListPage: React.FC = () => {
         const courtName = `${court.court_name_en || ''} ${court.court_name_ar || ''}`.toLowerCase();
         return courtName.includes(lowercasedSearch);
     });
-  }, [searchTerm, activityFilter]);
+    console.log('Filtered courts count:', filtered.length);
+    return filtered;
+  }, [courts, searchTerm, activityFilter]);
 
   return (
     <div className="container mx-auto">

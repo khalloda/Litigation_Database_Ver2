@@ -7,16 +7,22 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h4">Client Details</h1>
         <div>
+            @if(Route::has('clients.index'))
             <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary me-2">{{ __('app.back_to_clients') }}</a>
+            @endif
             @can('clients.edit')
+            @if(Route::has('clients.edit'))
             <a href="{{ route('clients.edit', $client) }}" class="btn btn-primary me-2">{{ __('app.edit_client') }}</a>
+            @endif
             @endcan
             @can('clients.delete')
+            @if(Route::has('clients.destroy'))
             <form action="{{ route('clients.destroy', $client) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ __('app.confirm_delete') }}')">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn btn-danger">{{ __('app.delete') }}</button>
             </form>
+            @endif
             @endcan
         </div>
     </div>
@@ -256,22 +262,29 @@
     </div>
     @endcan
 
-    {{-- All Fields Section (Schema-Driven) --}}
-    <div class="card shadow-sm mb-4">
-        <div class="card-header">
-            <h5 class="mb-0">All Fields (Schema-Driven)</h5>
-        </div>
-        <div class="card-body">
-            @if(isset($schemaData))
-                <x-admin.all-fields-table 
-                    :record="$client" 
-                    :columns="$schemaData['columns']" 
-                    :types="$schemaData['types']" 
-                    :fkHints="$schemaData['fkHints']"
-                    title="All Client Fields" />
-            @else
-                <div class="alert alert-warning">Schema data not available. Please refresh the page.</div>
-            @endif
+    {{-- Accordion for all screen sizes --}}
+    <div class="accordion mb-3" id="clientAccordion">
+        {{-- All Fields Section (Schema-Driven) --}}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-all-fields">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-all-fields" aria-expanded="false" aria-controls="collapse-all-fields">
+                    All Fields (Schema-Driven)
+                </button>
+            </h2>
+            <div id="collapse-all-fields" class="accordion-collapse collapse" aria-labelledby="heading-all-fields" data-bs-parent="#clientAccordion">
+                <div class="accordion-body">
+                    @if(isset($schemaData))
+                        <x-admin.all-fields-table 
+                            :record="$client" 
+                            :columns="$schemaData['columns']" 
+                            :types="$schemaData['types']" 
+                            :fkHints="$schemaData['fkHints']"
+                            title="All Client Fields" />
+                    @else
+                        <div class="alert alert-warning">Schema data not available. Please refresh the page.</div>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
 </div>

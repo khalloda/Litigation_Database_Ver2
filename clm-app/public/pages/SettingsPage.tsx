@@ -94,10 +94,71 @@ const SettingsPage: React.FC = () => {
             try {
                 setLoading(true);
                 const setsData = await fetchOptionSets();
-                setOptionSets(setsData.data || setsData);
-                // TODO: Load option values when needed
+                // Service function already handles pagination extraction
+                const sets = Array.isArray(setsData) ? setsData : [];
+                setOptionSets(sets);
+                
+                // Debug: Log first set structure
+                if (sets.length > 0) {
+                    console.log('First option set structure:', sets[0]);
+                    console.log('First set optionValues:', sets[0].optionValues);
+                    console.log('First set option_values:', sets[0].option_values);
+                }
+                
+                // Extract option values from the loaded sets (they're already included in the relationship)
+                const allValues: OptionValue[] = [];
+                
+                // First, try to extract from relationship if present
+                sets.forEach(set => {
+                    // Try different possible property names (Laravel might use snake_case)
+                    const values = set.optionValues || set.option_values || set.values || [];
+                    if (Array.isArray(values) && values.length > 0) {
+                        values.forEach((val: any) => {
+                            allValues.push({
+                                id: val.id,
+                                set_id: set.id,
+                                code: val.code || '',
+                                label_en: val.label_en || '',
+                                label_ar: val.label_ar || '',
+                            });
+                        });
+                    }
+                });
+                
+                // If no values found in relationships, load them separately
+                if (allValues.length === 0 && sets.length > 0) {
+                    console.log('No values in relationships, loading separately...');
+                    try {
+                        // Load values for each set using the set key
+                        const valuesPromises = sets.map(async (set: any) => {
+                            try {
+                                const values = await fetchOptionsBySetKey(set.key);
+                                return Array.isArray(values) ? values.map((val: any) => ({
+                                    id: val.id,
+                                    set_id: set.id,
+                                    code: val.code || '',
+                                    label_en: val.label_en || '',
+                                    label_ar: val.label_ar || '',
+                                })) : [];
+                            } catch (err) {
+                                console.warn(`Failed to load values for set ${set.key}:`, err);
+                                return [];
+                            }
+                        });
+                        const valuesArrays = await Promise.all(valuesPromises);
+                        valuesArrays.forEach(values => {
+                            allValues.push(...values);
+                        });
+                    } catch (err) {
+                        console.error('Error loading option values separately:', err);
+                    }
+                }
+                
+                setOptionValues(allValues);
+                console.log('Loaded option sets:', sets.length, 'option values:', allValues.length);
             } catch (err: any) {
-                setError(err.message || 'Failed to load option sets');
+                console.error('Error loading option sets:', err);
+                setError(err.response?.data?.message || err.message || 'Failed to load option sets');
             } finally {
                 setLoading(false);
             }
@@ -146,6 +207,30 @@ const SettingsPage: React.FC = () => {
             return acc;
         }, {} as Record<number, number>);
     }, [optionValues]);
+
+    // Show loading/error states
+    if (loading) {
+        return (
+            <div className="container mx-auto">
+                <div className="text-center py-10">
+                    <p className="text-gray-600">Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error && view === 'optionSets') {
+        return (
+            <div className="container mx-auto">
+                <div className="text-center py-10">
+                    <p className="text-red-600">Error: {error}</p>
+                    <button onClick={() => window.location.reload()} className="mt-4 text-primary-600 hover:underline">
+                        Retry
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     if (view === 'optionSets') {
         // Master View: Table of Option Sets
@@ -240,18 +325,26 @@ const SettingsPage: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
-                                    {optionValuesForSelectedSet.map(val => (
-                                        <tr key={val.id}>
-                                            <td className="p-2 text-sm text-gray-500">{val.id}</td>
-                                            <td className="p-2 text-sm text-gray-700 font-mono">{val.code}</td>
-                                            <td className="p-2 text-sm text-gray-700">{val.label_en}</td>
-                                            <td className="p-2 text-sm text-gray-700">{val.label_ar}</td>
-                                            <td className="p-2 text-sm space-x-2">
-                                                <button onClick={() => openFormToEdit(val)} className="text-blue-600 hover:underline font-medium">{t('settings_page.edit')}</button>
-                                                <button onClick={() => handleDelete(val.id)} className="text-red-600 hover:underline font-medium">{t('settings_page.delete')}</button>
+                                    {optionValuesForSelectedSet.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={5} className="p-4 text-center text-gray-500">
+                                                No values found
                                             </td>
                                         </tr>
-                                    ))}
+                                    ) : (
+                                        optionValuesForSelectedSet.map(val => (
+                                            <tr key={val.id}>
+                                                <td className="p-2 text-sm text-gray-500">{val.id}</td>
+                                                <td className="p-2 text-sm text-gray-700 font-mono">{val.code}</td>
+                                                <td className="p-2 text-sm text-gray-700">{val.label_en}</td>
+                                                <td className="p-2 text-sm text-gray-700">{val.label_ar}</td>
+                                                <td className="p-2 text-sm space-x-2">
+                                                    <button onClick={() => openFormToEdit(val)} className="text-blue-600 hover:underline font-medium">{t('settings_page.edit')}</button>
+                                                    <button onClick={() => handleDelete(val.id)} className="text-red-600 hover:underline font-medium">{t('settings_page.delete')}</button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
                                 </tbody>
                             </table>
                         </div>

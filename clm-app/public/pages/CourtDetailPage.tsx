@@ -4,7 +4,6 @@ import type { Court, CaseStatus } from '../types';
 import { useI18n } from '../hooks/useI18n';
 import { fetchCourt } from '../services/courts';
 import { BriefcaseIcon, CaseIcon } from '../components/icons';
-import AllFieldsTable from '../components/AllFieldsTable';
 
 const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => {
     if (!value) return null;
@@ -48,17 +47,13 @@ const CourtDetailPage: React.FC = () => {
     const { t, language } = useI18n();
     const [activeTab, setActiveTab] = useState('cases');
     const [court, setCourt] = useState<Court | null>(null);
-    const [schemaData, setSchemaData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (id) {
             fetchCourt(id)
-                .then((data) => {
-                    setCourt(data.data || data);
-                    setSchemaData(data.schema || null);
-                })
+                .then((data) => setCourt(data.data || data))
                 .catch((err: any) => setError(err.message || 'Failed to load court'))
                 .finally(() => setLoading(false));
         }
@@ -137,17 +132,6 @@ const CourtDetailPage: React.FC = () => {
                       </div>
                     ) : <p className="text-gray-500">{t('court_page.no_cases')}</p>}
                   </div>
-                )}
-
-                {/* All Fields Section (Schema-Driven) */}
-                {schemaData && court && (
-                    <div className="mt-6">
-                        <AllFieldsTable
-                            record={court as any}
-                            schema={schemaData}
-                            title="All Court Fields"
-                        />
-                    </div>
                 )}
             </div>
         </div>
