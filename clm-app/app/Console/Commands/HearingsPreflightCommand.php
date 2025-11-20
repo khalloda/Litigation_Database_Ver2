@@ -22,8 +22,9 @@ class HearingsPreflightCommand extends Command
         'skipped_rows' => 0,
         'date_null_count' => 0,
         'next_null_count' => 0,
-        'external_id_null_count' => 0,
+        'external_id_null_count' => 0, // Should be 0 after synthesis
         'external_id_duplicate_count' => 0,
+        'external_id_synthesized_count' => 0,
         'errors' => [],
     ];
     private $externalIds = []; // Track external_id duplicates
@@ -110,15 +111,29 @@ class HearingsPreflightCommand extends Command
             throw new \RuntimeException("Cannot open CSV file: {$filePath}");
         }
 
+        // Read and normalize headers (remove BOM, trim whitespace)
         $headers = fgetcsv($handle);
         if (!$headers) {
             throw new \RuntimeException("Cannot read CSV headers");
         }
 
+        // Normalize headers: remove BOM, trim whitespace
+        $headers = array_map(function($header) {
+            // Remove UTF-8 BOM if present
+            $header = preg_replace('/^\xEF\xBB\xBF/', '', $header);
+            return trim($header);
+        }, $headers);
+
         $rowNumber = 0;
         while (($row = fgetcsv($handle)) !== false) {
             $rowNumber++;
             $this->stats['total_rows']++;
+
+            // Ensure row has same number of columns as headers
+            while (count($row) < count($headers)) {
+                $row[] = null;
+            }
+            $row = array_slice($row, 0, count($headers));
 
             $rowData = array_combine($headers, $row);
             $this->processRow($rowData, $sourceFileName, $rowNumber);
@@ -151,24 +166,36 @@ class HearingsPreflightCommand extends Command
     private function processRow(array $row, string $sourceFile, int $sourceRow): void
     {
         try {
-            // Parse external_id from source file (id column)
-            $externalId = $this->normalizer->parseExternalId($row['id'] ?? $row['hearings_id'] ?? null);
-            if (!$externalId) {
-                $this->stats['external_id_null_count']++;
-            } else {
-                // Track duplicates
-                if (isset($this->externalIds[$externalId])) {
-                    $this->stats['external_id_duplicate_count']++;
-                    $this->externalIds[$externalId]++;
-                } else {
-                    $this->externalIds[$externalId] = 1;
+            // Get hearings_id from CSV (raw value first, then parse)
+            // hearings_id maps to both 'id' (integer) and 'external_id' (string)
+            // Case-insensitive lookup for column name
+            $hearingsIdRaw = null;
+            $preferredKeys = ['hearings_id', 'id'];
+            foreach ($preferredKeys as $preferredKey) {
+                // Try exact match first
+                if (isset($row[$preferredKey]) && $row[$preferredKey] !== '' && $row[$preferredKey] !== null) {
+                    $hearingsIdRaw = $row[$preferredKey];
+                    break;
+                }
+                // Try case-insensitive match
+                foreach ($row as $key => $value) {
+                    if (strcasecmp($key, $preferredKey) === 0 && $value !== '' && $value !== null) {
+                        $hearingsIdRaw = $value;
+                        break 2;
+                    }
                 }
             }
+            
+            $hearingId = null;
+            $externalId = null;
+            
+            if ($hearingsIdRaw !== null && ($hearingsIdRaw !== '' || $hearingsIdRaw === '0' || $hearingsIdRaw === 0)) {
+                // hearings_id exists in CSV - use it for both id and external_id
+                $hearingId = $this->normalizer->parseInt($hearingsIdRaw);
+                $externalId = trim((string)$hearingsIdRaw); // Use raw value as string for external_id
+            }
 
-            // Parse legacy hearings_id (kept for compatibility)
-            $hearingId = $this->normalizer->parseInt($row['hearings_id'] ?? null);
-
-            // Validate matter_id
+            // Validate matter_id FIRST (required field)
             $matterId = $this->resolver->resolveMatterId(
                 $row['matter_id'] ?? null,
                 $sourceFile,
@@ -237,9 +264,8 @@ class HearingsPreflightCommand extends Command
             }
             $notesText = implode(' | ', $notes);
 
-            // Build staging row
+            // Build staging row (prepare payload for external_id synthesis)
             $stagingData = [
-                'external_id' => $externalId,
                 'id' => $hearingId, // Legacy column
                 'matter_id' => $matterId,
                 'lawyer_id' => $lawyerId,
@@ -270,6 +296,24 @@ class HearingsPreflightCommand extends Command
                 'transform_warnings' => json_encode($this->resolver->getWarnings()),
                 'loaded_at' => now(),
             ];
+
+            // Synthesize external_id only if hearings_id was not found in CSV
+            if (!$externalId || $externalId === '') {
+                // Synthesize deterministic external_id if hearings_id is missing
+                $externalId = $this->normalizer->synthesizeExternalId($sourceFile, $sourceRow, $stagingData);
+                $this->stats['external_id_synthesized_count']++;
+            }
+            
+            // Track duplicates
+            if (isset($this->externalIds[$externalId])) {
+                $this->stats['external_id_duplicate_count']++;
+                $this->externalIds[$externalId]++;
+            } else {
+                $this->externalIds[$externalId] = 1;
+            }
+            
+            // Add external_id to staging data
+            $stagingData['external_id'] = $externalId;
 
             // Truncate strings to max length
             foreach (['procedure', 'court', 'circuit', 'destination', 'short_decision', 'last_decision', 
@@ -374,8 +418,9 @@ class HearingsPreflightCommand extends Command
             'skipped_rows' => $this->stats['skipped_rows'],
             'date_null_count' => $this->stats['date_null_count'],
             'next_null_count' => $this->stats['next_null_count'],
-            'external_id_null_count' => $this->stats['external_id_null_count'],
+            'external_id_null_count' => $this->stats['external_id_null_count'], // Should be 0 after synthesis
             'external_id_duplicate_count' => $this->stats['external_id_duplicate_count'],
+            'external_id_synthesized_count' => $this->stats['external_id_synthesized_count'],
             'unmatched_count' => count($unmatched),
             'errors_count' => count($this->stats['errors']),
             'timestamp' => now()->toIso8601String(),
@@ -395,7 +440,8 @@ class HearingsPreflightCommand extends Command
         $this->line("<fg=red>Skipped rows: {$this->stats['skipped_rows']}</>");
         $this->line("Date NULL count: {$this->stats['date_null_count']}");
         $this->line("Next hearing NULL count: {$this->stats['next_null_count']}");
-        $this->line("External ID NULL count: {$this->stats['external_id_null_count']}");
+        $this->line("External ID NULL count: {$this->stats['external_id_null_count']} (should be 0 after synthesis)");
+        $this->line("External ID synthesized: {$this->stats['external_id_synthesized_count']}");
         $this->line("External ID duplicates: {$this->stats['external_id_duplicate_count']}");
         $this->line("Unmatched values: " . count($this->resolver->getUnmatched()));
         $this->line("Errors: " . count($this->stats['errors']));

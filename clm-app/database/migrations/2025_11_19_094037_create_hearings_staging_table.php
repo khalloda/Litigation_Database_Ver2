@@ -15,8 +15,8 @@ return new class extends Migration
             // Staging surrogate PK
             $table->bigIncrements('staging_id');
             
-            // External ID from source file (if any)
-            $table->string('external_id', 64)->nullable()->index();
+            // External ID from source file (if any) - synthesized if missing
+            $table->string('external_id', 191)->nullable()->index();
             
             // Legacy id column (kept for compatibility, nullable)
             $table->integer('id')->nullable();

@@ -31,6 +31,7 @@ class HearingsValidateStagingCommand extends Command
         $this->checkBooleanFields();
         $this->checkStringLengths();
         $this->checkNaturalKeyDuplicates();
+        $this->checkCompositeDuplicates();
 
         // Display results
         $this->displayResults();
@@ -41,9 +42,27 @@ class HearingsValidateStagingCommand extends Command
 
     private function checkExternalIdDuplicates(): void
     {
-        $this->info('Checking external_id duplicates...');
+        $this->info('Checking external_id...');
         
-        // Only check if external_id is present (nullable, so don't require uniqueness)
+        // Count NULL external_ids (should be 0 after synthesis)
+        $nullCount = DB::table('hearings_staging')
+            ->whereNull('external_id')
+            ->count();
+
+        if ($nullCount > 0) {
+            $this->highSeverityIssues++;
+            $this->issues[] = [
+                'severity' => 'HIGH',
+                'check' => 'External ID NULL',
+                'count' => $nullCount,
+                'message' => 'Rows with NULL external_id (should be 0 after synthesis)',
+            ];
+            $this->error("  ✗ Found {$nullCount} rows with NULL external_id");
+        } else {
+            $this->line("  ✓ All rows have external_id");
+        }
+
+        // Check for duplicate external_ids (should be 0)
         $duplicates = DB::table('hearings_staging')
             ->select('external_id', DB::raw('COUNT(*) as count'))
             ->whereNotNull('external_id')
@@ -52,14 +71,15 @@ class HearingsValidateStagingCommand extends Command
             ->get();
 
         if ($duplicates->isNotEmpty()) {
+            $this->highSeverityIssues++;
             $this->issues[] = [
-                'severity' => 'MEDIUM',
+                'severity' => 'HIGH',
                 'check' => 'External ID Duplicates',
                 'count' => $duplicates->count(),
-                'message' => 'Duplicate external_id values found (warn only, not blocking)',
+                'message' => 'Duplicate external_id values found (would break upsert)',
                 'details' => $duplicates->pluck('external_id')->toArray(),
             ];
-            $this->warn("  ⚠ Found {$duplicates->count()} duplicate external_ids");
+            $this->error("  ✗ Found {$duplicates->count()} duplicate external_ids");
         } else {
             $this->line("  ✓ No duplicate external_ids");
         }
@@ -69,26 +89,43 @@ class HearingsValidateStagingCommand extends Command
     {
         $this->info('Checking required fields...');
         
-        $missing = DB::table('hearings_staging')
+        // matter_id is required (HIGH severity)
+        $missingMatterId = DB::table('hearings_staging')
             ->where(function ($query) {
                 $query->whereNull('matter_id')
-                    ->orWhere('matter_id', '')
-                    ->orWhereNull('date')
-                    ->orWhere('date', '');
+                    ->orWhere('matter_id', '');
             })
             ->count();
 
-        if ($missing > 0) {
+        // date can be NULL (raw value stored in date_raw), but warn if missing
+        $missingDate = DB::table('hearings_staging')
+            ->whereNull('date')
+            ->count();
+
+        if ($missingMatterId > 0) {
             $this->highSeverityIssues++;
             $this->issues[] = [
                 'severity' => 'HIGH',
                 'check' => 'Required Fields',
-                'count' => $missing,
-                'message' => 'Rows missing required fields (matter_id or date)',
+                'count' => $missingMatterId,
+                'message' => 'Rows missing required field: matter_id',
             ];
-            $this->error("  ✗ Found {$missing} rows with missing required fields");
+            $this->error("  ✗ Found {$missingMatterId} rows with missing matter_id");
         } else {
-            $this->line("  ✓ All required fields present");
+            $this->line("  ✓ All rows have matter_id");
+        }
+
+        if ($missingDate > 0) {
+            // date NULL is a warning, not an error (raw value may be in date_raw)
+            $this->issues[] = [
+                'severity' => 'MEDIUM',
+                'check' => 'Missing Date',
+                'count' => $missingDate,
+                'message' => 'Rows with NULL date (raw value may be in date_raw)',
+            ];
+            $this->warn("  ⚠ Found {$missingDate} rows with NULL date");
+        } else {
+            $this->line("  ✓ All rows have date");
         }
     }
 
@@ -211,9 +248,10 @@ class HearingsValidateStagingCommand extends Command
     {
         $this->info('Checking string field lengths...');
         
+        // Escape 'procedure' as it's a MySQL reserved word
         $longFields = DB::select("
             SELECT 
-                MAX(CHAR_LENGTH(procedure)) as max_procedure,
+                MAX(CHAR_LENGTH(`procedure`)) as max_procedure,
                 MAX(CHAR_LENGTH(court)) as max_court,
                 MAX(CHAR_LENGTH(circuit)) as max_circuit,
                 MAX(CHAR_LENGTH(destination)) as max_destination,
@@ -250,11 +288,12 @@ class HearingsValidateStagingCommand extends Command
         $this->info('Checking natural-key duplicates (matter_id + date + procedure + court)...');
         
         // Natural-key duplicate heuristic
+        // Escape 'procedure' as it's a MySQL reserved word
         $duplicates = DB::table('hearings_staging')
             ->select(
                 'matter_id',
                 DB::raw("COALESCE(date, '1970-01-01') AS d"),
-                DB::raw("COALESCE(procedure, '') AS proc"),
+                DB::raw("COALESCE(`procedure`, '') AS proc"),
                 DB::raw("COALESCE(court, '') AS court"),
                 DB::raw('COUNT(*) as count')
             )
@@ -273,6 +312,40 @@ class HearingsValidateStagingCommand extends Command
             $this->warn("  ⚠ Found {$duplicates->count()} potential duplicate row combinations");
         } else {
             $this->line("  ✓ No natural-key duplicates");
+        }
+    }
+
+    private function checkCompositeDuplicates(): void
+    {
+        $this->info('Checking composite duplicates (matter_id + date + court + procedure + source_file + source_row)...');
+        
+        // Check for rows with same composite key but different payloads
+        // Escape 'procedure' as it's a MySQL reserved word
+        $duplicates = DB::table('hearings_staging')
+            ->select(
+                'matter_id',
+                'date',
+                'court',
+                DB::raw('`procedure`'),
+                'source_file',
+                'source_row',
+                DB::raw('COUNT(*) as count')
+            )
+            ->whereNotNull('matter_id')
+            ->groupBy('matter_id', 'date', 'court', DB::raw('`procedure`'), 'source_file', 'source_row')
+            ->having('count', '>', 1)
+            ->get();
+
+        if ($duplicates->isNotEmpty()) {
+            $this->issues[] = [
+                'severity' => 'MEDIUM',
+                'check' => 'Composite Duplicates',
+                'count' => $duplicates->count(),
+                'message' => 'Rows with same composite key (matter_id + date + court + procedure + source_file + source_row)',
+            ];
+            $this->warn("  ⚠ Found {$duplicates->count()} composite duplicate combinations");
+        } else {
+            $this->line("  ✓ No composite duplicates");
         }
     }
 

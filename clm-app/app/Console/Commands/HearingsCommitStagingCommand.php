@@ -178,7 +178,7 @@ class HearingsCommitStagingCommand extends Command
         return $backupFile;
     }
 
-    private function migrateBatch(int $offset, int $limit): int
+    private function migrateBatch(int $offset, int $limit): array
     {
         return DB::transaction(function () use ($offset, $limit) {
             // Get batch from staging
@@ -197,64 +197,111 @@ class HearingsCommitStagingCommand extends Command
 
             foreach ($stagingRows as $stagingRow) {
                 try {
-                    // Prepare data for hearings table (exclude staging-specific columns and id)
-                    // Let hearings.id auto-increment
+                    // Prepare data for hearings table
+                    // hearings_id from CSV maps to both 'id' (if provided) and 'external_id' (for upsert)
+                    // Truncate VARCHAR fields to max length (255 bytes) to match production schema
+                    // MySQL VARCHAR counts bytes, not characters (UTF-8 Arabic chars = 2-3 bytes each)
                     $hearingData = [
                         'matter_id' => $stagingRow->matter_id,
                         'lawyer_id' => $stagingRow->lawyer_id,
                         'date' => $stagingRow->date,
-                        'procedure' => $stagingRow->procedure,
-                        'court' => $stagingRow->court,
-                        'circuit' => $stagingRow->circuit,
-                        'destination' => $stagingRow->destination,
-                        'decision' => $stagingRow->decision,
-                        'short_decision' => $stagingRow->short_decision,
-                        'last_decision' => $stagingRow->last_decision,
+                        'procedure' => $this->truncateToBytes($stagingRow->procedure ?? '', 255),
+                        'court' => $this->truncateToBytes($stagingRow->court ?? '', 255),
+                        'circuit' => $this->truncateToBytes($stagingRow->circuit ?? '', 255),
+                        'destination' => $this->truncateToBytes($stagingRow->destination ?? '', 255),
+                        'decision' => $stagingRow->decision, // TEXT field, no truncation
+                        'short_decision' => $this->truncateToBytes($stagingRow->short_decision ?? '', 255),
+                        'last_decision' => $this->truncateToBytes($stagingRow->last_decision ?? '', 255),
                         'next_hearing' => $stagingRow->next_hearing,
                         'report' => (bool)$stagingRow->report,
                         'notify_client' => (bool)$stagingRow->notify_client,
-                        'attendee' => $stagingRow->attendee,
-                        'attendee_1' => $stagingRow->attendee_1,
-                        'attendee_2' => $stagingRow->attendee_2,
-                        'attendee_3' => $stagingRow->attendee_3,
-                        'attendee_4' => $stagingRow->attendee_4,
-                        'next_attendee' => $stagingRow->next_attendee,
-                        'evaluation' => $stagingRow->evaluation,
-                        'notes' => $stagingRow->notes,
+                        'attendee' => $this->truncateToBytes($stagingRow->attendee ?? '', 255),
+                        'attendee_1' => $this->truncateToBytes($stagingRow->attendee_1 ?? '', 255),
+                        'attendee_2' => $this->truncateToBytes($stagingRow->attendee_2 ?? '', 255),
+                        'attendee_3' => $this->truncateToBytes($stagingRow->attendee_3 ?? '', 255),
+                        'attendee_4' => $this->truncateToBytes($stagingRow->attendee_4 ?? '', 255),
+                        'next_attendee' => $this->truncateToBytes($stagingRow->next_attendee ?? '', 255),
+                        'evaluation' => $this->truncateToBytes($stagingRow->evaluation ?? '', 255),
+                        'notes' => $stagingRow->notes, // TEXT field, no truncation
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
 
-                    // Add external_id if present (check if column exists in hearings table)
+                    // Add id from hearings_id if present (preserve original ID from CSV)
+                    if ($stagingRow->id && $stagingRow->id > 0) {
+                        $hearingData['id'] = (int)$stagingRow->id;
+                    }
+
+                    // Add external_id (contains hearings_id as string, or synthesized)
                     if ($stagingRow->external_id) {
                         $hearingData['external_id'] = $stagingRow->external_id;
                     }
 
-                    // Upsert by external_id if present and unique, otherwise insert
+                    // Upsert by external_id (idempotent)
+                    // external_id should always be present after synthesis
                     if ($stagingRow->external_id && $this->hasExternalIdColumn()) {
+                        // Check if exists before upsert
                         $existing = DB::table('hearings')
                             ->where('external_id', $stagingRow->external_id)
                             ->first();
                         
                         if ($existing) {
-                            // Update existing by external_id
+                            // Update existing record (don't change id, it's immutable)
+                            unset($hearingData['id']); // Remove id from update data
                             DB::table('hearings')
                                 ->where('external_id', $stagingRow->external_id)
                                 ->update($hearingData);
                             $updated++;
                         } else {
-                            // Insert new
+                            // Insert new record (can set id from hearings_id if provided)
+                            try {
+                                DB::table('hearings')->insert($hearingData);
+                                $inserted++;
+                            } catch (\Exception $e) {
+                                // If id conflict, remove id and let auto-increment handle it
+                                if (strpos($e->getMessage(), 'Duplicate entry') !== false && isset($hearingData['id'])) {
+                                    unset($hearingData['id']);
+                                    DB::table('hearings')->insert($hearingData);
+                                    $inserted++;
+                                } else {
+                                    throw $e;
+                                }
+                            }
+                        }
+                    } elseif ($stagingRow->external_id && !$this->hasExternalIdColumn()) {
+                        // external_id exists but column doesn't - remove it and insert
+                        unset($hearingData['external_id']);
+                        try {
                             DB::table('hearings')->insert($hearingData);
                             $inserted++;
+                        } catch (\Exception $e) {
+                            // If id conflict, remove id and let auto-increment handle it
+                            if (strpos($e->getMessage(), 'Duplicate entry') !== false && isset($hearingData['id'])) {
+                                unset($hearingData['id']);
+                                DB::table('hearings')->insert($hearingData);
+                                $inserted++;
+                            } else {
+                                throw $e;
+                            }
                         }
                     } else {
-                        // No external_id or column doesn't exist, just insert (will auto-increment id)
-                        // Remove external_id from data if column doesn't exist
-                        if (!$this->hasExternalIdColumn()) {
+                        // No external_id (shouldn't happen after synthesis, but handle gracefully)
+                        if (isset($hearingData['external_id'])) {
                             unset($hearingData['external_id']);
                         }
-                        DB::table('hearings')->insert($hearingData);
-                        $inserted++;
+                        try {
+                            DB::table('hearings')->insert($hearingData);
+                            $inserted++;
+                        } catch (\Exception $e) {
+                            // If id conflict, remove id and let auto-increment handle it
+                            if (strpos($e->getMessage(), 'Duplicate entry') !== false && isset($hearingData['id'])) {
+                                unset($hearingData['id']);
+                                DB::table('hearings')->insert($hearingData);
+                                $inserted++;
+                            } else {
+                                throw $e;
+                            }
+                        }
                     }
                 } catch (\Exception $e) {
                     // Log error but continue with batch
@@ -266,6 +313,38 @@ class HearingsCommitStagingCommand extends Command
 
             return ['inserted' => $inserted, 'updated' => $updated, 'skipped' => $skipped];
         });
+    }
+
+    /**
+     * Truncate string to max bytes (for MySQL VARCHAR which counts bytes, not characters).
+     * 
+     * @param string|null $value
+     * @param int $maxBytes
+     * @return string|null
+     */
+    private function truncateToBytes(?string $value, int $maxBytes): ?string
+    {
+        if ($value === null || $value === '') {
+            return $value;
+        }
+
+        $valueBytes = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+        if (strlen($valueBytes) <= $maxBytes) {
+            return $value;
+        }
+
+        // Truncate byte by byte until we're under the limit
+        $truncated = '';
+        for ($i = 0; $i < mb_strlen($value, 'UTF-8'); $i++) {
+            $char = mb_substr($value, $i, 1, 'UTF-8');
+            $charBytes = mb_convert_encoding($char, 'UTF-8', 'UTF-8');
+            if (strlen($truncated . $charBytes) > $maxBytes) {
+                break;
+            }
+            $truncated .= $char;
+        }
+
+        return $truncated ?: null;
     }
 
     private function displaySummary(int $inserted, int $updated, int $skipped, int $failed, bool $dryRun): void

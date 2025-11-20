@@ -266,5 +266,32 @@ class HearingsDataNormalizer
         $trimmed = trim((string)$value);
         return $trimmed ?: null;
     }
+
+    /**
+     * Synthesize a deterministic external_id from row data.
+     * 
+     * Creates a stable fingerprint using fields that won't change during retries:
+     * source_file + source_row + matter_id + date_raw + court + procedure + decision
+     * 
+     * @param string $sourceFile
+     * @param int $sourceRow
+     * @param array $payload Row data after transformation
+     * @return string Deterministic external_id (format: HRN-{16-char-hash})
+     */
+    public function synthesizeExternalId(string $sourceFile, int $sourceRow, array $payload): string
+    {
+        $fingerprint = implode('|', [
+            basename($sourceFile),
+            (string)$sourceRow,
+            (string)($payload['matter_id'] ?? ''),
+            (string)($payload['date_raw'] ?? ''),
+            (string)($payload['court'] ?? ''),
+            (string)($payload['procedure'] ?? ''),
+            mb_substr((string)($payload['decision'] ?? ''), 0, 100), // Limit decision length for stability
+        ]);
+
+        $hash = substr(sha1($fingerprint), 0, 16);
+        return 'HRN-' . strtoupper($hash);
+    }
 }
 
