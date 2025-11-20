@@ -268,4 +268,14 @@
         });
     }
 </script>
+
+{{-- All Fields Section (Schema-Driven) --}}
+@if(isset($schemaData))
+    <x-admin.all-fields-table 
+        :record="$document" 
+        :columns="$schemaData['columns']" 
+        :types="$schemaData['types']" 
+        :fkHints="$schemaData['fkHints']"
+        title="All Document Fields" />
+@endif
 @endsection

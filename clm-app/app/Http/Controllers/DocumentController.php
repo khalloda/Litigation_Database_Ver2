@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Http\Requests\DocumentUploadRequest;
 use App\Models\ClientDocument;
 use Illuminate\Http\Request;
@@ -11,6 +12,7 @@ use Illuminate\Support\Str;
 
 class DocumentController extends Controller
 {
+    use SchemaDrivenFields;
     /**
      * Display a listing of documents.
      */
@@ -141,9 +143,12 @@ class DocumentController extends Controller
      */
     public function show(ClientDocument $document)
     {
-        $document->load(['client', 'case']);
+        $document->load(['client', 'case', 'createdBy', 'updatedBy']);
+        
+        // Get schema-driven field metadata
+        $schemaData = $this->getSchemaFields('client_documents', $document);
 
-        return view('documents.show', compact('document'));
+        return view('documents.show', compact('document', 'schemaData'));
     }
 
     /**

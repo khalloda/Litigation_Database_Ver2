@@ -203,6 +203,16 @@
             </div>
         </div>
     </div>
+
+    {{-- All Fields Section (Schema-Driven) --}}
+    @if(isset($schemaData))
+        <x-admin.all-fields-table 
+            :record="$court" 
+            :columns="$schemaData['columns']" 
+            :types="$schemaData['types']" 
+            :fkHints="$schemaData['fkHints']"
+            title="All Court Fields" />
+    @endif
 </div>
 @endsection
 

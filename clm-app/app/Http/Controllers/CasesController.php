@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Http\Requests\CaseRequest;
 use App\Models\CaseModel;
 use App\Models\Client;
@@ -13,6 +14,7 @@ use Illuminate\Http\Request;
 
 class CasesController extends Controller
 {
+    use SchemaDrivenFields;
     public function index(Request $request)
     {
         $this->authorize('viewAny', CaseModel::class);
@@ -114,6 +116,8 @@ class CasesController extends Controller
     public function show(CaseModel $case)
     {
         $this->authorize('view', $case);
+        
+        // Eager load relations for FK resolution
         $case->load([
             'client',
             'court',
@@ -140,7 +144,11 @@ class CasesController extends Controller
             'documents',
             'opponents'
         ]);
-        return view('cases.show', compact('case'));
+        
+        // Get schema-driven field metadata
+        $schemaData = $this->getSchemaFields('cases', $case);
+        
+        return view('cases.show', compact('case', 'schemaData'));
     }
 
     public function edit(CaseModel $case)

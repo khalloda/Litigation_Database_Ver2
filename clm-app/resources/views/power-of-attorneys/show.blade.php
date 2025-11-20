@@ -172,6 +172,16 @@
             </div>
         </div>
     </div>
+
+    {{-- All Fields Section (Schema-Driven) --}}
+    @if(isset($schemaData))
+        <x-admin.all-fields-table 
+            :record="$powerOfAttorney" 
+            :columns="$schemaData['columns']" 
+            :types="$schemaData['types']" 
+            :fkHints="$schemaData['fkHints']"
+            title="All Power of Attorney Fields" />
+    @endif
 </div>
 </div>
 @endsection

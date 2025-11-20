@@ -34,6 +34,16 @@
             </table>
         </div>
     </div>
+
+    {{-- All Fields Section (Schema-Driven) --}}
+    @if(isset($schemaData))
+        <x-admin.all-fields-table 
+            :record="$opponent" 
+            :columns="$schemaData['columns']" 
+            :types="$schemaData['types']" 
+            :fkHints="$schemaData['fkHints']"
+            title="All Opponent Fields" />
+    @endif
 </div>
 @endsection
 

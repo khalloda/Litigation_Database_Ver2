@@ -31,8 +31,11 @@ Route::get('/locale/{locale}', [App\Http\Controllers\LocaleController::class, 's
     ->name('locale.switch');
 
 // Basic CRUD stubs - Client Management
-// COMMENTED OUT: These routes are now handled by React SPA
-// Uncomment if you need to access the old Blade views
+// Show route enabled for schema-driven all-fields view
+Route::middleware(['auth'])->group(function () {
+    Route::get('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'show'])->name('clients.show');
+});
+// Other routes still handled by React SPA
 /*
 Route::middleware(['auth'])->group(function () {
     // List clients
@@ -42,8 +45,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/clients/create', [App\Http\Controllers\ClientsController::class, 'create'])->name('clients.create');
     Route::post('/clients', [App\Http\Controllers\ClientsController::class, 'store'])->name('clients.store');
 
-    // View, Edit, Delete specific client
-    Route::get('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'show'])->name('clients.show');
+    // Edit, Delete specific client
     Route::get('/clients/{client}/edit', [App\Http\Controllers\ClientsController::class, 'edit'])->name('clients.edit');
     Route::put('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'update'])->name('clients.update');
     Route::delete('/clients/{client}', [App\Http\Controllers\ClientsController::class, 'destroy'])->name('clients.destroy');
@@ -63,8 +65,11 @@ Route::middleware(['auth', 'permission:import.manage'])->prefix('admin/import')-
     Route::delete('/profiles/{profile}/choices/{choice}', [App\Http\Controllers\Admin\ImportChoicesController::class, 'destroy'])->name('choices.destroy');
 });
 // Case Management
-// COMMENTED OUT: These routes are now handled by React SPA
-// Uncomment if you need to access the old Blade views
+// Show route enabled for schema-driven all-fields view
+Route::middleware(['auth', 'permission:cases.view'])->group(function () {
+    Route::get('/cases/{case}', [App\Http\Controllers\CasesController::class, 'show'])->name('cases.show');
+});
+// Other routes still handled by React SPA
 /*
 Route::middleware(['auth', 'permission:cases.view'])->group(function () {
     Route::get('/cases', [App\Http\Controllers\CasesController::class, 'index'])->name('cases.index');
@@ -72,9 +77,6 @@ Route::middleware(['auth', 'permission:cases.view'])->group(function () {
 Route::middleware(['auth', 'permission:cases.create'])->group(function () {
     Route::get('/cases/create', [App\Http\Controllers\CasesController::class, 'create'])->name('cases.create');
     Route::post('/cases', [App\Http\Controllers\CasesController::class, 'store'])->name('cases.store');
-});
-Route::middleware(['auth', 'permission:cases.view'])->group(function () {
-    Route::get('/cases/{case}', [App\Http\Controllers\CasesController::class, 'show'])->name('cases.show');
 });
 Route::middleware(['auth', 'permission:cases.edit'])->group(function () {
     Route::get('/cases/{case}/edit', [App\Http\Controllers\CasesController::class, 'edit'])->name('cases.edit');
@@ -107,8 +109,11 @@ Route::get('/fuzzy-matching/choices', [App\Http\Controllers\FuzzyMatchingControl
 Route::post('/fuzzy-matching/apply-choice', [App\Http\Controllers\FuzzyMatchingController::class, 'applyChoice'])->name('fuzzy-matching.apply-choice');
 
 // Hearing Management
-// COMMENTED OUT: These routes are now handled by React SPA
-// Uncomment if you need to access the old Blade views
+// Show route enabled for schema-driven all-fields view
+Route::middleware(['auth', 'permission:hearings.view'])->group(function () {
+    Route::get('/hearings/{hearing}', [App\Http\Controllers\HearingsController::class, 'show'])->name('hearings.show');
+});
+// Other routes still handled by React SPA
 /*
 Route::middleware(['auth', 'permission:hearings.view'])->group(function () {
     Route::get('/hearings', [App\Http\Controllers\HearingsController::class, 'index'])->name('hearings.index');
@@ -116,9 +121,6 @@ Route::middleware(['auth', 'permission:hearings.view'])->group(function () {
 Route::middleware(['auth', 'permission:hearings.create'])->group(function () {
     Route::get('/hearings/create', [App\Http\Controllers\HearingsController::class, 'create'])->name('hearings.create');
     Route::post('/hearings', [App\Http\Controllers\HearingsController::class, 'store'])->name('hearings.store');
-});
-Route::middleware(['auth', 'permission:hearings.view'])->group(function () {
-    Route::get('/hearings/{hearing}', [App\Http\Controllers\HearingsController::class, 'show'])->name('hearings.show');
 });
 Route::middleware(['auth', 'permission:hearings.edit'])->group(function () {
     Route::get('/hearings/{hearing}/edit', [App\Http\Controllers\HearingsController::class, 'edit'])->name('hearings.edit');
@@ -212,16 +214,27 @@ Route::middleware(['auth', 'permission:admin.audit.view'])->group(function () {
 });
 
 // Document Management
-// COMMENTED OUT: These routes are now handled by React SPA
-// Uncomment if you need to access the old Blade views
-// NOTE: AJAX endpoints like /documents/client-cases are still available via API
-/*
+// Show route enabled for schema-driven all-fields view
+Route::middleware(['auth', 'permission:documents.view'])->group(function () {
+    Route::get('/documents/{document}', [App\Http\Controllers\DocumentController::class, 'show'])
+        ->name('documents.show');
+    // Inline preview via signed route
+    Route::get('/documents/{document}/inline', [App\Http\Controllers\DocumentController::class, 'inline'])
+        ->name('documents.inline')->middleware('signed');
+    Route::get('/documents/{document}/download', [App\Http\Controllers\DocumentController::class, 'download'])
+        ->name('documents.download');
+    Route::get('/documents/{document}/signed-url', [App\Http\Controllers\DocumentController::class, 'signedUrl'])
+        ->name('documents.signed-url');
+});
+// AJAX endpoint for getting client cases
 Route::middleware(['auth'])->group(function () {
-    // AJAX endpoint for getting client cases (must be before parameterized routes)
     Route::get('/documents/client-cases', [App\Http\Controllers\DocumentController::class, 'getClientCases'])
         ->name('documents.client-cases');
-
-    // Document upload (requires documents.upload permission) - MUST be before /documents/{document}
+});
+// Other routes still handled by React SPA
+/*
+Route::middleware(['auth'])->group(function () {
+    // Document upload (requires documents.upload permission)
     Route::middleware(['permission:documents.upload'])->group(function () {
         Route::get('/documents/create', [App\Http\Controllers\DocumentController::class, 'create'])
             ->name('documents.create');
@@ -233,12 +246,9 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['permission:documents.view'])->group(function () {
         Route::get('/documents', [App\Http\Controllers\DocumentController::class, 'index'])
             ->name('documents.index');
-        // Inline preview via signed route
-        Route::get('/documents/{document}/inline', [App\Http\Controllers\DocumentController::class, 'inline'])
-            ->name('documents.inline')->middleware('signed');
     });
 
-    // Document editing (requires documents.edit permission) - MUST be before /documents/{document}
+    // Document editing (requires documents.edit permission)
     Route::middleware(['permission:documents.edit'])->group(function () {
         Route::get('/documents/{document}/edit', [App\Http\Controllers\DocumentController::class, 'edit'])
             ->name('documents.edit');
@@ -246,21 +256,10 @@ Route::middleware(['auth'])->group(function () {
             ->name('documents.update');
     });
 
-    // Document deletion (requires documents.delete permission) - MUST be before /documents/{document}
+    // Document deletion (requires documents.delete permission)
     Route::middleware(['permission:documents.delete'])->group(function () {
         Route::delete('/documents/{document}', [App\Http\Controllers\DocumentController::class, 'destroy'])
             ->name('documents.destroy');
-    });
-
-    // Document operations that require documents.view permission
-    Route::middleware(['permission:documents.view'])->group(function () {
-        Route::get('/documents/{document}/download', [App\Http\Controllers\DocumentController::class, 'download'])
-            ->name('documents.download');
-        Route::get('/documents/{document}/signed-url', [App\Http\Controllers\DocumentController::class, 'signedUrl'])
-            ->name('documents.signed-url');
-        // This MUST be last - it catches any remaining /documents/{anything} patterns
-        Route::get('/documents/{document}', [App\Http\Controllers\DocumentController::class, 'show'])
-            ->name('documents.show');
     });
 });
 */
@@ -366,24 +365,38 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 });
 
 // Courts Management
-// COMMENTED OUT: These routes are now handled by React SPA
-// Uncomment if you need to access the old Blade views
-// NOTE: AJAX endpoint /api/courts/{court}/details is still available via API
-/*
+// Show route enabled for schema-driven all-fields view
 Route::middleware(['auth'])->group(function () {
-    Route::resource('courts', App\Http\Controllers\CourtsController::class);
-
+    Route::get('/courts/{court}', [App\Http\Controllers\CourtsController::class, 'show'])->name('courts.show');
     // AJAX endpoint for cascading dropdowns
     Route::get('/api/courts/{court}/details', [App\Http\Controllers\CasesController::class, 'getCourtDetails'])->name('courts.details');
+});
+// Other routes still handled by React SPA
+/*
+Route::middleware(['auth'])->group(function () {
+    Route::get('/courts', [App\Http\Controllers\CourtsController::class, 'index'])->name('courts.index');
+    Route::get('/courts/create', [App\Http\Controllers\CourtsController::class, 'create'])->name('courts.create');
+    Route::post('/courts', [App\Http\Controllers\CourtsController::class, 'store'])->name('courts.store');
+    Route::get('/courts/{court}/edit', [App\Http\Controllers\CourtsController::class, 'edit'])->name('courts.edit');
+    Route::put('/courts/{court}', [App\Http\Controllers\CourtsController::class, 'update'])->name('courts.update');
+    Route::delete('/courts/{court}', [App\Http\Controllers\CourtsController::class, 'destroy'])->name('courts.destroy');
 });
 */
 
 // Opponents Management
-// COMMENTED OUT: These routes are now handled by React SPA
-// Uncomment if you need to access the old Blade views
+// Show route enabled for schema-driven all-fields view
+Route::middleware(['auth'])->group(function () {
+    Route::get('/opponents/{opponent}', [App\Http\Controllers\OpponentsController::class, 'show'])->name('opponents.show');
+});
+// Other routes still handled by React SPA
 /*
 Route::middleware(['auth'])->group(function () {
-    Route::resource('opponents', App\Http\Controllers\OpponentsController::class);
+    Route::get('/opponents', [App\Http\Controllers\OpponentsController::class, 'index'])->name('opponents.index');
+    Route::get('/opponents/create', [App\Http\Controllers\OpponentsController::class, 'create'])->name('opponents.create');
+    Route::post('/opponents', [App\Http\Controllers\OpponentsController::class, 'store'])->name('opponents.store');
+    Route::get('/opponents/{opponent}/edit', [App\Http\Controllers\OpponentsController::class, 'edit'])->name('opponents.edit');
+    Route::put('/opponents/{opponent}', [App\Http\Controllers\OpponentsController::class, 'update'])->name('opponents.update');
+    Route::delete('/opponents/{opponent}', [App\Http\Controllers\OpponentsController::class, 'destroy'])->name('opponents.destroy');
 });
 */
 

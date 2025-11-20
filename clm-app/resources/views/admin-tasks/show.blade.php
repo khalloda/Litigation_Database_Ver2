@@ -241,6 +241,38 @@
             </div>
         </div>
     </div>
+
+    {{-- All Fields Section (Schema-Driven) - Task --}}
+    @if(isset($taskSchemaData))
+        <x-admin.all-fields-table 
+            :record="$adminTask" 
+            :columns="$taskSchemaData['columns']" 
+            :types="$taskSchemaData['types']" 
+            :fkHints="$taskSchemaData['fkHints']"
+            title="All Task Fields" />
+    @endif
+
+    {{-- All Fields Section (Schema-Driven) - Subtasks --}}
+    @if(isset($subtaskSchemaData) && $adminTask->subtasks->isNotEmpty())
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">All Subtask Fields</h5>
+            </div>
+            <div class="card-body p-0">
+                @foreach($adminTask->subtasks as $subtask)
+                    <div class="border-bottom p-3">
+                        <h6 class="mb-3">Subtask #{{ $subtask->id }}</h6>
+                        <x-admin.all-fields-table 
+                            :record="$subtask" 
+                            :columns="$subtaskSchemaData['columns']" 
+                            :types="$subtaskSchemaData['types']" 
+                            :fkHints="$subtaskSchemaData['fkHints']"
+                            :title="'Subtask #' . $subtask->id" />
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 </div>
 @endsection
 

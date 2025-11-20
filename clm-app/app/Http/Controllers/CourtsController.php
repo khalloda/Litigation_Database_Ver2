@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Http\Requests\CourtRequest;
 use App\Models\Court;
 use App\Models\CaseModel;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 
 class CourtsController extends Controller
 {
+    use SchemaDrivenFields;
     public function index(Request $request)
     {
         $this->authorize('viewAny', Court::class);
@@ -118,7 +120,7 @@ class CourtsController extends Controller
         $this->authorize('view', $court);
         
         // Load many-to-many relationships
-        $court->load(['circuits', 'secretaries', 'floors', 'halls']);
+        $court->load(['circuits', 'secretaries', 'floors', 'halls', 'createdBy', 'updatedBy']);
         
         // Load related cases with pagination
         $cases = CaseModel::where('court_id', $court->id)
@@ -129,9 +131,12 @@ class CourtsController extends Controller
         
         // Placeholder for hearings and tasks
         $hearings = collect([]);
+        
+        // Get schema-driven field metadata
+        $schemaData = $this->getSchemaFields('courts', $court);
         $tasks = collect([]);
         
-        return view('courts.show', compact('court', 'cases', 'hearings', 'tasks'));
+        return view('courts.show', compact('court', 'cases', 'hearings', 'tasks', 'schemaData'));
     }
 
     public function edit(Court $court)

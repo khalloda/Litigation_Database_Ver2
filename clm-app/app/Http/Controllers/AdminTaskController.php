@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Http\Requests\AdminTaskRequest;
 use App\Models\AdminTask;
 use App\Models\CaseModel;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 
 class AdminTaskController extends Controller
 {
+    use SchemaDrivenFields;
     public function index()
     {
         $this->authorize('viewAny', AdminTask::class);
@@ -46,9 +48,19 @@ class AdminTaskController extends Controller
     {
         $this->authorize('view', $adminTask);
 
-        $adminTask->load(['case', 'lawyer', 'subtasks.lawyer']);
+        // Eager load relations for FK resolution
+        $adminTask->load(['case', 'lawyer', 'subtasks.lawyer', 'createdBy', 'updatedBy']);
 
-        return view('admin-tasks.show', compact('adminTask'));
+        // Get schema-driven field metadata for task
+        $taskSchemaData = $this->getSchemaFields('admin_work_tasks', $adminTask);
+        
+        // Get schema-driven field metadata for subtasks
+        $subtaskSchemaData = null;
+        if ($adminTask->subtasks->isNotEmpty()) {
+            $subtaskSchemaData = $this->getSchemaFields('admin_work_subtasks', $adminTask->subtasks->first());
+        }
+
+        return view('admin-tasks.show', compact('adminTask', 'taskSchemaData', 'subtaskSchemaData'));
     }
 
     public function edit(AdminTask $adminTask)

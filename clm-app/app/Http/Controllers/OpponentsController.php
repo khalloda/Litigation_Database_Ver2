@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Http\Requests\OpponentRequest;
 use App\Models\Opponent;
 use Illuminate\Http\Request;
 
 class OpponentsController extends Controller
 {
+    use SchemaDrivenFields;
     /**
      * Display a listing of the resource.
      */
@@ -55,7 +57,14 @@ class OpponentsController extends Controller
     public function show(Opponent $opponent)
     {
         $this->authorize('view', $opponent);
-        return view('opponents.show', compact('opponent'));
+        
+        // Eager load relations for FK resolution
+        $opponent->load(['createdBy', 'updatedBy']);
+        
+        // Get schema-driven field metadata
+        $schemaData = $this->getSchemaFields('opponents', $opponent);
+        
+        return view('opponents.show', compact('opponent', 'schemaData'));
     }
 
     /**

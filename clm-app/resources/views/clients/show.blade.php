@@ -255,5 +255,24 @@
         </div>
     </div>
     @endcan
+
+    {{-- All Fields Section (Schema-Driven) --}}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">All Fields (Schema-Driven)</h5>
+        </div>
+        <div class="card-body">
+            @if(isset($schemaData))
+                <x-admin.all-fields-table 
+                    :record="$client" 
+                    :columns="$schemaData['columns']" 
+                    :types="$schemaData['types']" 
+                    :fkHints="$schemaData['fkHints']"
+                    title="All Client Fields" />
+            @else
+                <div class="alert alert-warning">Schema data not available. Please refresh the page.</div>
+            @endif
+        </div>
+    </div>
 </div>
 @endsection

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Http\Requests\HearingRequest;
 use App\Models\Hearing;
 use App\Models\CaseModel;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 
 class HearingsController extends Controller
 {
+    use SchemaDrivenFields;
     public function index(Request $request)
     {
         $this->authorize('viewAny', Hearing::class);
@@ -43,8 +45,14 @@ class HearingsController extends Controller
     public function show(Hearing $hearing)
     {
         $this->authorize('view', $hearing);
-        $hearing->load('case.client');
-        return view('hearings.show', compact('hearing'));
+        
+        // Eager load relations for FK resolution
+        $hearing->load(['case.client', 'lawyer', 'createdBy', 'updatedBy']);
+        
+        // Get schema-driven field metadata
+        $schemaData = $this->getSchemaFields('hearings', $hearing);
+        
+        return view('hearings.show', compact('hearing', 'schemaData'));
     }
 
     public function edit(Hearing $hearing)

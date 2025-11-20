@@ -86,5 +86,15 @@
             </table>
         </div>
     </div>
+
+    {{-- All Fields Section (Schema-Driven) --}}
+    @if(isset($schemaData))
+        <x-admin.all-fields-table 
+            :record="$hearing" 
+            :columns="$schemaData['columns']" 
+            :types="$schemaData['types']" 
+            :fkHints="$schemaData['fkHints']"
+            title="All Hearing Fields" />
+    @endif
 </div>
 @endsection

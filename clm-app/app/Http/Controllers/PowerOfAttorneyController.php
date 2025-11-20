@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Http\Requests\PowerOfAttorneyRequest;
 use App\Models\PowerOfAttorney;
 use App\Models\Client;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 
 class PowerOfAttorneyController extends Controller
 {
+    use SchemaDrivenFields;
     public function index(Request $request)
     {
         $this->authorize('viewAny', PowerOfAttorney::class);
@@ -48,9 +50,13 @@ class PowerOfAttorneyController extends Controller
     {
         $this->authorize('view', $powerOfAttorney);
 
-        $powerOfAttorney->load('client');
+        // Eager load relations for FK resolution
+        $powerOfAttorney->load(['client', 'createdBy', 'updatedBy']);
+        
+        // Get schema-driven field metadata
+        $schemaData = $this->getSchemaFields('power_of_attorneys', $powerOfAttorney);
 
-        return view('power-of-attorneys.show', compact('powerOfAttorney'));
+        return view('power-of-attorneys.show', compact('powerOfAttorney', 'schemaData'));
     }
 
     public function edit(PowerOfAttorney $powerOfAttorney)

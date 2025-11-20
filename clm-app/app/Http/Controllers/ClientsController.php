@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use App\Http\Requests\ClientRequest;
 
 class ClientsController extends Controller
 {
+    use SchemaDrivenFields;
     public function index(Request $request)
     {
         $this->authorize('viewAny', Client::class);
@@ -90,12 +92,15 @@ class ClientsController extends Controller
                 $query->orderBy('created_at', 'desc');
             }
         ]);
+        
+        // Get schema-driven field metadata
+        $schemaData = $this->getSchemaFields('clients', $client);
 
         $cases = \App\Models\CaseModel::where('client_id', $client->id)
             ->select('id', 'matter_name_ar', 'matter_name_en')
             ->orderBy('matter_name_ar')
             ->paginate(15);
-        return view('clients.show', compact('client', 'cases'));
+        return view('clients.show', compact('client', 'cases', 'schemaData'));
     }
 
     public function create()

@@ -131,6 +131,29 @@
                 </div>
             </div>
         </div>
+
+        {{-- All Fields Section (Schema-Driven) --}}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-all-fields">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-all-fields" aria-expanded="false" aria-controls="collapse-all-fields">
+                    All Fields (Schema-Driven)
+                </button>
+            </h2>
+            <div id="collapse-all-fields" class="accordion-collapse collapse" aria-labelledby="heading-all-fields" data-bs-parent="#caseAccordion">
+                <div class="accordion-body">
+                    @if(isset($schemaData))
+                        <x-admin.all-fields-table 
+                            :record="$case" 
+                            :columns="$schemaData['columns']" 
+                            :types="$schemaData['types']" 
+                            :fkHints="$schemaData['fkHints']"
+                            title="All Case Fields" />
+                    @else
+                        <div class="alert alert-warning">Schema data not available. Please refresh the page.</div>
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
