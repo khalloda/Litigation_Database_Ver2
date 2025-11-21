@@ -225,6 +225,7 @@ class CaseController extends Controller
 
             $case->load([
                 'client',
+                'contract',
                 'opponent',
                 'opponents',
                 'partner',
@@ -232,6 +233,22 @@ class CaseController extends Controller
                 'hearings',
                 'documents',
                 'adminTasks',
+                'matterCategory',
+                'matterDegree',
+                'matterStatus',
+                'matterImportance',
+                'matterBranch',
+                'clientCapacity',
+                'clientType',
+                'opponentCapacity',
+                'matterDestinationRef',
+                'matterPartnerRef',
+                'circuitName',
+                'circuitSerial',
+                'circuitShift',
+                'circuitSecretaryRef',
+                'courtFloorRef',
+                'courtHallRef',
             ]);
 
             // Get schema-driven field metadata
@@ -239,6 +256,7 @@ class CaseController extends Controller
 
             return response()->json([
                 'data' => $this->transformCaseForApi($case),
+                'raw' => $case->toArray(),
                 'schema' => $schemaData,
             ]);
         } catch (\Exception $e) {
@@ -251,6 +269,18 @@ class CaseController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Get schema metadata for the specified case.
+     */
+    public function schema(CaseModel $case): JsonResponse
+    {
+        $this->authorize('view', $case);
+
+        $schemaData = $this->getSchemaFields('cases', $case);
+
+        return response()->json($schemaData);
     }
 
     /**

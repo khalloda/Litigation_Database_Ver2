@@ -45,9 +45,14 @@ const ClientsListPage: React.FC = () => {
       try {
         setLoading(true);
         const data = await fetchClients();
-        // Service function already handles pagination extraction
-        setClients(Array.isArray(data) ? data : []);
-        console.log('Loaded clients:', Array.isArray(data) ? data.length : 'not array');
+        // Normalize API response: handle paginated ({ data: [...] }) vs plain arrays
+        const normalized = Array.isArray(data?.data)
+          ? data.data
+          : Array.isArray(data)
+            ? data
+            : [];
+        setClients(normalized);
+        console.log('Loaded clients:', normalized.length);
       } catch (err: any) {
         setError(err.message || 'Failed to load clients');
       } finally {
@@ -71,7 +76,12 @@ const ClientsListPage: React.FC = () => {
       setIsNewClientModalOpen(false);
       // Refresh clients list
       const data = await fetchClients();
-      setClients(data.data || data);
+      const normalized = Array.isArray(data?.data)
+        ? data.data
+        : Array.isArray(data)
+          ? data
+          : [];
+      setClients(normalized);
     } catch (err: any) {
       setError(err.message || 'Failed to save client');
     }

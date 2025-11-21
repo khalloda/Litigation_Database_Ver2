@@ -29,6 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Cases
     Route::apiResource('cases', App\Http\Controllers\Api\CaseController::class);
+    Route::get('cases/{case}/schema', [App\Http\Controllers\Api\CaseController::class, 'schema'])->name('cases.schema');
 
     // Clients
     Route::apiResource('clients', App\Http\Controllers\Api\ClientController::class);

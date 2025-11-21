@@ -17,6 +17,11 @@ export async function fetchCase(id: number | string) {
   return response.data;
 }
 
+export async function fetchCaseSchema(id: number | string) {
+  const response = await api.get(`/cases/${id}/schema`);
+  return response.data;
+}
+
 export async function createCase(payload: Partial<Case>) {
   const response = await api.post('/cases', payload);
   return response.data;

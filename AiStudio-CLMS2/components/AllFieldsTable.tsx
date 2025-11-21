@@ -12,6 +12,82 @@ interface AllFieldsTableProps {
     title?: string;
 }
 
+const toCamelCase = (value: string): string =>
+    value
+        .toLowerCase()
+        .replace(/[_\-\s]+(.)?/g, (_, chr) => (chr ? chr.toUpperCase() : ''))
+        .replace(/^(.)/, (match) => match.toLowerCase());
+
+const toPascalCase = (value: string): string => {
+    const camel = toCamelCase(value);
+    return camel.charAt(0).toUpperCase() + camel.slice(1);
+};
+
+const getRelationCandidates = (columnName: string): string[] => {
+    const base = columnName.endsWith('_id') ? columnName.replace(/_id$/, '') : columnName;
+    const camel = toCamelCase(base);
+    const pascal = toPascalCase(base);
+    const candidates = [
+        base,
+        `${base}_ref`,
+        camel,
+        `${camel}Ref`,
+        pascal,
+        `${pascal}Ref`,
+    ];
+    return [...new Set(candidates.filter(Boolean))];
+};
+
+const getRelatedRecordInfo = (record: Record<string, any>, columnName: string) => {
+    const candidates = getRelationCandidates(columnName);
+    for (const key of candidates) {
+        if (record && typeof record === 'object' && record[key]) {
+            return { relation: record[key], key };
+        }
+    }
+    return null;
+};
+
+const buildRelatedLabel = (related: any): { display: string; full: string } | null => {
+    if (!related) {
+        return null;
+    }
+
+    if (Array.isArray(related)) {
+        const text = `${related.length} record${related.length === 1 ? '' : 's'}`;
+        return { display: text, full: text };
+    }
+
+    const candidates = [
+        related.name,
+        related.full_name,
+        related.title,
+        related.client_name_ar,
+        related.client_name_en,
+        related.matter_name_ar,
+        related.matter_name_en,
+        related.opponent_name_ar,
+        related.opponent_name_en,
+        related.court_name_ar,
+        related.court_name_en,
+        related.lawyer_name_ar,
+        related.lawyer_name_en,
+        related.label_ar,
+        related.label_en,
+        related.code,
+        related.slug,
+        related.id,
+    ].filter((candidate) => candidate !== null && candidate !== undefined);
+
+    if (!candidates.length) {
+        return null;
+    }
+
+    const full = String(candidates[0]);
+    const display = full.length > 60 ? `${full.substring(0, 57)}...` : full;
+    return { display, full };
+};
+
 const AllFieldsTable: React.FC<AllFieldsTableProps> = ({ record, schema, title = 'All Fields' }) => {
     const [expandedJson, setExpandedJson] = useState<Record<number, boolean>>({});
     const [expandedLong, setExpandedLong] = useState<Record<number, boolean>>({});
@@ -102,13 +178,19 @@ const AllFieldsTable: React.FC<AllFieldsTableProps> = ({ record, schema, title =
             );
         }
 
-        if (isFk && typeof value === 'number') {
-            // Try to resolve FK relation (simplified - would need relation data)
+        if (isFk) {
+            const relatedInfo = getRelatedRecordInfo(record, columnName);
+            const labelInfo = relatedInfo ? buildRelatedLabel(relatedInfo.relation) : null;
+
             return (
                 <div>
-                    <span className="text-gray-400">{value}</span>
-                    <span className="ml-2">→</span>
-                    <span className="ml-2 text-gray-500">(FK)</span>
+                    <div className="text-xs uppercase text-gray-500">ID</div>
+                    <div className="font-mono text-sm text-gray-800">{value ?? '—'}</div>
+                    {labelInfo && (
+                        <div className="text-sm text-gray-700 mt-1" title={labelInfo.full}>
+                            {labelInfo.display}
+                        </div>
+                    )}
                 </div>
             );
         }

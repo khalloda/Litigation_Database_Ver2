@@ -40,8 +40,12 @@ export async function fetchCases(params?: {
 
 export async function fetchCase(id: number | string) {
   const response = await api.get(`/cases/${id}`);
-  // Single item endpoints wrap data in { data: {...} }
-  return response.data.data || response.data;
+  return response.data;
+}
+
+export async function fetchCaseSchema(id: number | string) {
+  const response = await api.get(`/cases/${id}/schema`);
+  return response.data;
 }
 
 export async function createCase(payload: Partial<Case>) {

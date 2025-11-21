@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { Case } from '../types';
 import { useI18n } from '../hooks/useI18n';
-import { fetchCase } from '../services/cases';
+import { fetchCase, fetchCaseSchema } from '../services/cases';
 import { ChevronDownIcon } from '../components/icons';
+import AllFieldsTable from '../components/AllFieldsTable';
 
 const AccordionItem: React.FC<{ title: string; children: React.ReactNode; open?: boolean }> = ({ title, children, open = false }) => {
     return (
@@ -48,37 +49,84 @@ const CaseDetailPage: React.FC = () => {
     const navigate = useNavigate();
     const { t, language } = useI18n();
     const [caseData, setCaseData] = useState<Case | null>(null);
+    const [schemaData, setSchemaData] = useState<any>(null);
+    const [rawCaseData, setRawCaseData] = useState<Record<string, any> | null>(null);
+    const [schemaLoading, setSchemaLoading] = useState(true);
+    const [schemaError, setSchemaError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (id) {
-            fetchCase(id)
-                .then((data) => {
-                    console.log('Case detail data:', data);
-                    // Service function already handles pagination extraction
-                    const caseData = data.data || data;
-                    // Ensure arrays exist and null objects are handled
-                    if (caseData) {
-                        caseData.hearings = caseData.hearings || [];
-                        caseData.tasks = caseData.tasks || [];
-                        caseData.documents = caseData.documents || [];
-                        caseData.opponents = caseData.opponents || [];
-                        // Ensure null objects are not set (convert null to undefined for consistency)
-                        if (caseData.partner === null) caseData.partner = undefined;
-                        if (caseData.client === null) caseData.client = undefined;
-                        if (caseData.court === null) caseData.court = undefined;
-                        if (caseData.lawyer_a === null) caseData.lawyer_a = undefined;
-                        if (caseData.lawyer_b === null) caseData.lawyer_b = undefined;
+        if (!id) {
+            return;
+        }
+
+        let isMounted = true;
+        setLoading(true);
+        setSchemaLoading(true);
+        setError(null);
+        setSchemaError(null);
+        setSchemaData(null);
+
+        const loadCase = async () => {
+            try {
+                const response = await fetchCase(id);
+                const casePayload = response?.data ?? response;
+                const rawPayload = response?.raw ?? null;
+
+                if (casePayload && isMounted) {
+                    casePayload.hearings = casePayload.hearings || [];
+                    casePayload.tasks = casePayload.tasks || [];
+                    casePayload.documents = casePayload.documents || [];
+                    casePayload.opponents = casePayload.opponents || [];
+                    if (casePayload.partner === null) casePayload.partner = undefined;
+                    if (casePayload.client === null) casePayload.client = undefined;
+                    if (casePayload.court === null) casePayload.court = undefined;
+                    if (casePayload.lawyer_a === null) casePayload.lawyer_a = undefined;
+                    if (casePayload.lawyer_b === null) casePayload.lawyer_b = undefined;
+                    setCaseData(casePayload);
+                    setRawCaseData(rawPayload || casePayload);
+                }
+
+                const inlineSchema = response?.schema ?? null;
+                if (inlineSchema && isMounted) {
+                    setSchemaData(inlineSchema);
+                    setSchemaLoading(false);
+                } else {
+                    try {
+                        const schemaResponse = await fetchCaseSchema(id);
+                        const resolvedSchema = schemaResponse?.schema ?? schemaResponse;
+                        if (isMounted) {
+                            setSchemaData(resolvedSchema);
+                        }
+                    } catch (schemaErr: any) {
+                        if (isMounted) {
+                            console.error('Error loading case schema:', schemaErr);
+                            setSchemaError(schemaErr?.message || 'Failed to load schema metadata.');
+                        }
+                    } finally {
+                        if (isMounted) {
+                            setSchemaLoading(false);
+                        }
                     }
-                    setCaseData(caseData);
-                })
-                .catch((err: any) => {
+                }
+            } catch (err: any) {
+                if (isMounted) {
                     console.error('Error loading case:', err);
                     setError(err.response?.data?.message || err.message || 'Failed to load case');
-                })
-                .finally(() => setLoading(false));
-        }
+                }
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        loadCase();
+
+        return () => {
+            isMounted = false;
+        };
     }, [id]);
 
     if (loading) {
@@ -111,6 +159,7 @@ const CaseDetailPage: React.FC = () => {
     const lawyerBName = (caseData.lawyer_b && caseData.lawyer_b !== null) ? (language === 'ar' ? caseData.lawyer_b.lawyer_name_ar : caseData.lawyer_b.lawyer_name_en) : null;
     const courtName = (caseData.court && caseData.court !== null) ? (language === 'ar' ? (caseData.court.court_name_ar || caseData.court.court_name_en) : (caseData.court.court_name_en || caseData.court.court_name_ar)) : null;
     const teamName = (caseData.team && caseData.team !== null) ? (language === 'ar' ? caseData.team.name_ar : caseData.team.name_en) : null;
+    const recordForAllFields = rawCaseData || caseData;
 
     return (
         <div className="container mx-auto">
@@ -255,6 +304,34 @@ const CaseDetailPage: React.FC = () => {
                             </span>
                         </DetailItem>
                     </div>
+                </AccordionItem>
+
+                <AccordionItem title={t('case.all_fields') || 'All Fields (Schema-Driven)'}>
+                    {schemaLoading && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-800 mb-4">
+                            {t('case.loading_schema') || 'Loading schema metadata...'}
+                        </div>
+                    )}
+
+                    {schemaError && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800 mb-4">
+                            {schemaError}
+                        </div>
+                    )}
+
+                    {!schemaLoading && !schemaError && !schemaData && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
+                            {t('case.schema_not_available') || 'Schema data not available.'}
+                        </div>
+                    )}
+
+                    {schemaData && recordForAllFields && !schemaLoading && !schemaError && (
+                        <AllFieldsTable
+                            record={recordForAllFields as any}
+                            schema={schemaData}
+                            title="All Case Fields"
+                        />
+                    )}
                 </AccordionItem>
             </div>
         </div>

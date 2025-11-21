@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { Client, Case, Contact, ClientDocument, PowerOfAttorney, CaseStatus } from '../types';
 import { useI18n } from '../hooks/useI18n';
-import { fetchClient } from '../services/clients';
+import { fetchClient, fetchClientSchema } from '../services/clients';
 import { BriefcaseIcon, DocumentIcon, UserGroupIcon, CaseIcon } from '../components/icons';
 import AllFieldsTable from '../components/AllFieldsTable';
 
@@ -49,6 +49,8 @@ const ClientDetailPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState('details');
     const [client, setClient] = useState<Client | null>(null);
     const [schemaData, setSchemaData] = useState<any>(null);
+    const [schemaLoading, setSchemaLoading] = useState(false);
+    const [schemaError, setSchemaError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -59,58 +61,47 @@ const ClientDetailPage: React.FC = () => {
 
         let isMounted = true;
         setLoading(true);
+        setSchemaLoading(true);
+        setError(null);
         setSchemaError(null);
 
-        const loadClient = async () => {
+        const loadData = async () => {
             try {
                 const response = await fetchClient(id);
-
-                let clientPayload: any = response;
-                let schemaPayload: any = null;
-
-                if (response && typeof response === 'object') {
-                    if ('data' in response && 'schema' in response) {
-                        clientPayload = response.data;
-                        schemaPayload = response.schema;
-                    } else if ('success' in response && 'data' in response && 'schema' in response) {
-                        clientPayload = response.data;
-                        schemaPayload = response.schema;
-                    } else if ('schema' in response && 'id' in response) {
-                        clientPayload = response;
-                        schemaPayload = response.schema;
-                    }
-                }
-
+                const clientPayload = response?.data ?? response;
                 if (isMounted) {
                     setClient(clientPayload);
                 }
-
-                if (schemaPayload && isMounted) {
-                    setSchemaData(schemaPayload);
-                } else {
-                    if (isMounted) setSchemaLoading(true);
-                    try {
-                        const schemaResponse = await fetchClientSchema(id);
-                        const resolvedSchema = schemaResponse?.schema ?? schemaResponse;
-                        if (isMounted) setSchemaData(resolvedSchema);
-                    } catch (schemaErr: any) {
-                        if (isMounted) {
-                            console.error('Error fetching client schema:', schemaErr);
-                            setSchemaError(schemaErr?.message || 'Failed to load schema metadata.');
-                        }
-                    } finally {
-                        if (isMounted) setSchemaLoading(false);
-                    }
-                }
             } catch (err: any) {
-                console.error('Error fetching client:', err);
-                if (isMounted) setError(err.message || 'Failed to load client');
+                if (isMounted) {
+                    console.error('Error fetching client:', err);
+                    setError(err?.message || 'Failed to load client.');
+                }
             } finally {
-                if (isMounted) setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+
+            try {
+                const schemaResponse = await fetchClientSchema(id);
+                const resolvedSchema = schemaResponse?.schema ?? schemaResponse;
+                if (isMounted) {
+                    setSchemaData(resolvedSchema);
+                }
+            } catch (schemaErr: any) {
+                if (isMounted) {
+                    console.error('Error fetching client schema:', schemaErr);
+                    setSchemaError(schemaErr?.message || 'Failed to load schema metadata.');
+                }
+            } finally {
+                if (isMounted) {
+                    setSchemaLoading(false);
+                }
             }
         };
 
-        loadClient();
+        loadData();
 
         return () => {
             isMounted = false;
@@ -169,7 +160,7 @@ const ClientDetailPage: React.FC = () => {
                         )}
                     </div>
                 )}
-                
+
                 {activeTab === 'cases' && (
                   <div>
                     {client.cases && client.cases.length > 0 ? (
