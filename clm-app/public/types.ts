@@ -59,22 +59,27 @@ export interface Contact {
 
 // Based on `power_of_attorneys` table schema
 export interface PowerOfAttorney {
-    id: number;
-    client_id: number;
-    client_print_name?: string | null;
-    principal_name: string;
-    year?: number | null;
-    capacity?: string | null;
-    authorized_lawyers?: string | null;
-    issue_date?: string | null;
-    inventory: boolean;
-    issuing_authority?: string | null;
-    letter?: string | null;
-    poa_number?: number | null;
-    principal_capacity?: string | null;
-    copies_count?: number | null;
-    serial?: string | null;
-    notes?: string | null;
+  id: number;
+  client_id: number;
+  client_print_name?: string | null;
+  principal_name: string;
+  year?: number | null;
+  capacity?: string | null;
+  authorized_lawyers?: string | null;
+  issue_date?: string | null;
+  inventory: boolean;
+  issuing_authority?: string | null;
+  letter?: string | null;
+  poa_number?: number | null;
+  principal_capacity?: string | null;
+  copies_count?: number | null;
+  serial?: string | null;
+  notes?: string | null;
+  created_by?: number | null;
+  updated_by?: number | null;
+  created_at?: string;
+  updated_at?: string;
+  client?: Client | null;
 }
 
 export type DocumentMovementStatus = 'checked_out' | 'checked_in' | 'archived' | 'transferred';

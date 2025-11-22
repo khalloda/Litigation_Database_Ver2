@@ -628,5 +628,22 @@ php artisan migrate:rollback  # Rolls back permission tables
 
 ---
 
-**Last Updated**: 2025-11-11 00:00 UTC
+## 17. SPA All-Fields Parity
+
+### 17.5 Power of Attorney Details (Blade + React)
+- **ID**: SPA-POA-ALLFIELDS
+- **Status**: Done
+- **Branch**: `feat/spa-all-entities`
+- **Description**: Deliver schema-driven PoA detail parity across Blade and the React SPA, including API metadata endpoints and a full list page.
+- **DoD**:
+  - [x] Added `createdBy`/`updatedBy` relations on `PowerOfAttorney` plus `App\Http\Controllers\Api\PowerOfAttorneyController` with `/api/power-of-attorneys` + `/schema` routes returning `{ data, raw, schema }`.
+  - [x] Implemented `fetchPowerOfAttorneys`/`fetchPowerOfAttorneySchema` services and new list/detail SPA pages (AiStudio + mirrored `clm-app/public`) that render every DB column via `AllFieldsTable`, FK labels, JSON/CSV developer tools, and long-text handling.
+  - [x] Updated SPA routing + sidebar navigation to expose `/power-of-attorneys` and rebuilt localized strings (EN/AR) for PoA-specific UI text.
+  - [x] Ran `npm run build`, copied hashed assets (`index-D42d51qA.js` / `index-DkOechfl.css`) into `clm-app/public`, and logged work in `/docs/worklogs/2025-11-22/step-1.md`.
+- **Commits**: (pending in this branch)
+- **Docs**: `docs/worklogs/2025-11-22/step-1.md`
+
+---
+
+**Last Updated**: 2025-11-22 00:00 UTC
 

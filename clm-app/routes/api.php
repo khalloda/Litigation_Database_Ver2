@@ -55,6 +55,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('documents', App\Http\Controllers\Api\DocumentController::class);
     Route::get('documents/{document}/schema', [App\Http\Controllers\Api\DocumentController::class, 'schema'])->name('documents.schema');
 
+           // Power of Attorneys
+           Route::apiResource('power-of-attorneys', App\Http\Controllers\Api\PowerOfAttorneyController::class);
+           Route::get('power-of-attorneys/{powerOfAttorney}/schema', [App\Http\Controllers\Api\PowerOfAttorneyController::class, 'schema'])->name('power-of-attorneys.schema');
+
     // Tasks
     Route::apiResource('tasks', App\Http\Controllers\Api\TaskController::class);
 

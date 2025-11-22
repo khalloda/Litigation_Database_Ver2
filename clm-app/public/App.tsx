@@ -31,7 +31,8 @@ import UserDetailPage from './pages/UserDetailPage';
 import NewCaseForm from './components/NewCaseForm';
 import NewClientForm from './components/NewClientForm';
 import LoginPage from './pages/LoginPage';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import PowerOfAttorneyListPage from './pages/PowerOfAttorneyListPage';
+import PowerOfAttorneyDetailPage from './pages/PowerOfAttorneyDetailPage';
 
 const App: React.FC = () => {
   return (
@@ -60,6 +61,8 @@ const App: React.FC = () => {
               <Route path="documents/create" element={<UploadDocumentPage />} />
               <Route path="documents/:id" element={<DocumentDetailPage />} />
               <Route path="documents/:id/edit" element={<UploadDocumentPage />} />
+              <Route path="power-of-attorneys" element={<PowerOfAttorneyListPage />} />
+              <Route path="power-of-attorneys/:id" element={<PowerOfAttorneyDetailPage />} />
               <Route path="tasks" element={<TasksPage />} />
               <Route path="reports" element={<ReportsPage />} />
               <Route path="settings" element={<SettingsPage />} />

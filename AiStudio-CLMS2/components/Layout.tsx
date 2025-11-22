@@ -47,6 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => {
                 <NavItem icon={<CourtIcon />} label={t('app.courts')} active={currentView === 'courts'} onClick={() => onNavigate('/courts')} />
                 <NavItem icon={<CalendarIcon />} label={t('app.hearings')} active={currentView === 'hearings'} onClick={() => onNavigate('/hearings')} />
                 <NavItem icon={<DocumentIcon />} label={t('app.documents')} active={currentView === 'documents'} onClick={() => onNavigate('/documents')} />
+                <NavItem icon={<DocumentIcon />} label={t('app.power_of_attorneys')} active={currentView === 'power-of-attorneys'} onClick={() => onNavigate('/power-of-attorneys')} />
                 <NavItem icon={<TaskIcon />} label={t('app.tasks')} active={currentView === 'tasks'} onClick={() => onNavigate('/tasks')} />
                 <NavItem icon={<ReportIcon />} label={t('app.reports')} active={currentView === 'reports'} onClick={() => onNavigate('/reports')} />
             </nav>

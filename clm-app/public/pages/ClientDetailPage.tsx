@@ -249,7 +249,7 @@ const ClientDetailPage: React.FC = () => {
                                     </thead>
                                     <tbody>
                                         {client.power_of_attorneys.map(poa => (
-                                            <tr key={poa.id} className="border-b">
+                                            <tr key={poa.id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => navigate(`/power-of-attorneys/${poa.id}`)}>
                                                 <td className="p-3 text-gray-800 font-medium">{poa.poa_number}</td>
                                                 <td className="p-3 text-gray-600">{poa.principal_name}</td>
                                                 <td className="p-3 text-gray-600">{poa.issue_date ? new Date(poa.issue_date).toLocaleDateString() : '-'}</td>
