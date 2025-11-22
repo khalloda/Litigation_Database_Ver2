@@ -1,0 +1,55 @@
+Lookup_Type,ID,Name_AR,Name_EN,Code,Set_ID,Is_Active,Notes
+Cases,1,Case Name AR 1,Case Name EN 1,,,1,Example case record - Replace with actual cases from DB
+Cases,2,Case Name AR 2,Case Name EN 2,,,1,Example case record - Replace with actual cases from DB
+Lawyers,1,د. هاني سري الدين,Hani Sarie El-Din,,,1,Dr. Hani Sarie El-Din
+Lawyers,2,د. أحمد عبد الله,Ahmed Abdullah,,,1,Dr. Ahmed Abdullah
+Lawyers,3,ناجي رمضان,Nagy Ramadan,,,1,Mr. Nagy Ramadan
+Lawyers,4,محمد عبد العزيز,Mohamed Abd El-Aziz,,,1,Mr. Mohamed Abd El-Aziz
+Lawyers,5,أحمد سعيد,Ahmed Said,,,1,Mr. Ahmed Said
+Lawyers,6,إيهاب حمدي,Ihab Hamdy,,,1,Mr. Ihab Hamdy
+Lawyers,7,هاني الدالي,Hani El-Daly,,,1,Mr. Hani El-Daly
+Lawyers,8,مؤمن سليم,Mo'men Selim,,,1,Mr. Mo'men Selim
+Lawyers,9,أحمد إسماعيل,Ahmed Ismail,,,1,Mr. Ahmed Ismail
+Lawyers,10,أحمد سيف,Ahmed Seif,,,1,Mr. Ahmed Seif
+Lawyers,11,سامي خطاب,Samy Khattab,,,1,Mr. Samy Khattab
+Lawyers,12,محمود علي,Mahmoud Ali,,,1,Mr. Mahmoud Ali
+Lawyers,13,محمود شعبان,Mahmoud Sha'ban,,,1,Mr. Mahmoud Sha'ban
+Lawyers,14,نيرمين هاني,Nermin Hani,,,1,Ms. Nermin Hani
+Lawyers,15,محامي غير محدد,Lawyer Undefined,,,1,Undefined lawyer placeholder
+Lawyers,16,خالد كمال,Khaled Kamal,,,1,Mr. Khaled Kamal
+Lawyers,17,عمرو صقر,Amr Sakr,,,1,Mr. Amr Sakr
+Lawyers,18,مصطفى نصار,Mostafa Nassar,,,1,Mr. Mostafa Nassar
+Lawyers,19,عمر عصام,Omar Essam,,,1,Mr. Omar Essam
+Lawyers,20,محمد طارق,Mohamed Tarek,,,1,Mr. Mohamed Tarek
+Lawyers,21,عبد الرحمن البنا,Abd El-Rahman El-Banna,,,1,Mr. Abd El-Rahman El-Banna
+Lawyers,22,أحمد رزق,Ahmed Rezk,,,1,Mr. Ahmed Rezk
+Lawyers,23,عمرو محمد سليم,Amr Mohamed Selim,,,1,Mr. Amr Mohamed Selim
+Courts,1,6 أكتوبر,6th of October,,,1,
+Courts,2,استئناف 6 أكتوبر,6th of October Court of Appeals,,,1,
+Courts,3,استئناف الجيزة,Giza Court of Appeals,,,1,
+Courts,4,استئناف الزقازيق,Zagazig Court of Appeals,,,1,
+Courts,5,استئناف القاهرة,Cairo Court of Appeals,,,1,
+Courts,8,استئناف شمال القاهرة,North Cairo Court of Appeals,,,1,
+Courts,19,القاهرة الاقتصادية,Cairo Economic Court,,,1,
+Courts,26,النقض,Court of Cassation,,,1,
+Circuit_Names,20,16 جنوب -137 س,16 South – 137 s,circuit_name_1,9,1,
+Circuit_Names,21,إداري,Administrative,circuit_name_2,9,1,
+Circuit_Names,37,اقتصادي,Economic,circuit_name_18,9,1,
+Circuit_Names,49,عمال,Labor,circuit_name_30,9,1,
+Circuit_Names,65,مستعجل,Urgent,circuit_name_46,9,1,
+Circuit_Serials,67,1,1,serial_1,10,1,
+Circuit_Serials,68,2,2,serial_2,10,1,
+Circuit_Serials,69,3,3,serial_3,10,1,
+Circuit_Serials,70,4,4,serial_4,10,1,
+Circuit_Serials,71,5,5,serial_5,10,1,
+Proposed_Mapping,Legacy_Value,Canonical_Value,Match_Type,Confidence,Action_Required
+Lawyer_Name,أحمد سعيد,Ahmed Said (ID: 5),Exact,100%,None
+Lawyer_Name,محمد الغرابلي,Mohamed Abd El-Aziz (ID: 4),Fuzzy,85%,Review
+Lawyer_Name,محمود شعبان,Mahmoud Sha'ban (ID: 13),Exact,100%,None
+Lawyer_Name,أ. أحمد إسماعيل,Ahmed Ismail (ID: 9),Fuzzy,90%,Review
+Court_Name,شمال القاهرة,North Cairo Court of Appeals (ID: 8),Fuzzy,80%,Review
+Court_Name,القاهرة الاقتصادية,Cairo Economic Court (ID: 19),Exact,100%,None
+Circuit_Name,40 عمال,Labor (ID: 49) + Serial: 40,Parse,95%,None
+Circuit_Name,5 اقتصادي,Economic (ID: 37) + Serial: 5,Parse,95%,None
+Circuit_Name,2 - رول (36) شق مستعجل,Urgent (ID: 65) + Serial: 2 + Notes: رول (36),Parse,90%,Review
+
