@@ -50,4 +50,14 @@ class Opponent extends Model
             ->useLogName('opponent')
             ->setDescriptionForEvent(fn(string $eventName) => "Opponent was {$eventName}");
     }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 }

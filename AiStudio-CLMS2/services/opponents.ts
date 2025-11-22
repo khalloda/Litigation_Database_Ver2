@@ -40,6 +40,11 @@ export async function fetchOpponent(id: number | string) {
   return response.data;
 }
 
+export async function fetchOpponentSchema(id: number | string) {
+  const response = await api.get(`/opponents/${id}/schema`);
+  return response.data;
+}
+
 export async function createOpponent(payload: Partial<Opponent>) {
   const response = await api.post('/opponents', payload);
   return response.data;

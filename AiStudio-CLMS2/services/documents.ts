@@ -20,6 +20,11 @@ export async function fetchDocument(id: number | string) {
   return response.data;
 }
 
+export async function fetchDocumentSchema(id: number | string) {
+  const response = await api.get(`/documents/${id}/schema`);
+  return response.data;
+}
+
 export async function uploadDocument(payload: {
   file: File;
   client_id?: number;

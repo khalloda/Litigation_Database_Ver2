@@ -37,18 +37,23 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Opponents
     Route::apiResource('opponents', App\Http\Controllers\Api\OpponentController::class);
+    Route::get('opponents/{opponent}/schema', [App\Http\Controllers\Api\OpponentController::class, 'schema'])->name('opponents.schema');
 
     // Lawyers
     Route::apiResource('lawyers', App\Http\Controllers\Api\LawyerController::class);
+    Route::get('lawyers/{lawyer}/schema', [App\Http\Controllers\Api\LawyerController::class, 'schema'])->name('lawyers.schema');
 
     // Courts
     Route::apiResource('courts', App\Http\Controllers\Api\CourtController::class);
+    Route::get('courts/{court}/schema', [App\Http\Controllers\Api\CourtController::class, 'schema'])->name('courts.schema');
 
     // Hearings
     Route::apiResource('hearings', App\Http\Controllers\Api\HearingController::class);
+    Route::get('hearings/{hearing}/schema', [App\Http\Controllers\Api\HearingController::class, 'schema'])->name('hearings.schema');
 
     // Documents
     Route::apiResource('documents', App\Http\Controllers\Api\DocumentController::class);
+    Route::get('documents/{document}/schema', [App\Http\Controllers\Api\DocumentController::class, 'schema'])->name('documents.schema');
 
     // Tasks
     Route::apiResource('tasks', App\Http\Controllers\Api\TaskController::class);

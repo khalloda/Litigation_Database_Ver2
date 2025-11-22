@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { ClientDocument, DocumentMovementStatus, DocumentMovement } from '../types';
 import { useI18n } from '../hooks/useI18n';
-import { fetchDocument } from '../services/documents';
+import { fetchDocument, fetchDocumentSchema } from '../services/documents';
 import MovementForm from '../components/MovementForm';
+import { DocumentIcon } from '../components/icons';
+import AllFieldsTable from '../components/AllFieldsTable';
 
 const DetailItem: React.FC<{ label: string; value?: React.ReactNode; fullWidth?: boolean }> = ({ label, value, fullWidth }) => {
     if (!value && value !== 0 && value !== false) {
@@ -36,18 +38,78 @@ const DocumentDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { t, language } = useI18n();
+    const [activeTab, setActiveTab] = useState<'details' | 'all-fields'>('details');
     const [document, setDocument] = useState<ClientDocument | null>(null);
+    const [rawDocument, setRawDocument] = useState<Record<string, any> | null>(null);
+    const [schemaData, setSchemaData] = useState<any>(null);
+    const [schemaLoading, setSchemaLoading] = useState(true);
+    const [schemaError, setSchemaError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [movementFormState, setMovementFormState] = useState<{ isOpen: boolean; movement: DocumentMovement | null | undefined }>({ isOpen: false, movement: undefined });
 
     useEffect(() => {
-        if (id) {
-            fetchDocument(id)
-                .then((data) => setDocument(data.data || data))
-                .catch((err: any) => setError(err.message || 'Failed to load document'))
-                .finally(() => setLoading(false));
+        if (!id) {
+            return;
         }
+
+        let isMounted = true;
+        setLoading(true);
+        setSchemaLoading(true);
+        setError(null);
+        setSchemaError(null);
+        setSchemaData(null);
+
+        const loadData = async () => {
+            try {
+                const response = await fetchDocument(id);
+                const docPayload = response?.data ?? response;
+                const rawPayload = response?.raw ?? docPayload;
+
+                if (isMounted) {
+                    setDocument(docPayload);
+                    setRawDocument(rawPayload);
+                }
+
+                const inlineSchema = response?.schema ?? null;
+                if (inlineSchema && isMounted) {
+                    setSchemaData(inlineSchema);
+                    setSchemaLoading(false);
+                } else {
+                    try {
+                        const schemaResponse = await fetchDocumentSchema(id);
+                        const resolvedSchema = schemaResponse?.schema ?? schemaResponse;
+                        if (isMounted) {
+                            setSchemaData(resolvedSchema);
+                        }
+                    } catch (schemaErr: any) {
+                        if (isMounted) {
+                            console.error('Error loading document schema:', schemaErr);
+                            setSchemaError(schemaErr?.message || 'Failed to load schema metadata.');
+                        }
+                    } finally {
+                        if (isMounted) {
+                            setSchemaLoading(false);
+                        }
+                    }
+                }
+            } catch (err: any) {
+                if (isMounted) {
+                    console.error('Error loading document:', err);
+                    setError(err?.message || 'Failed to load document');
+                }
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        loadData();
+
+        return () => {
+            isMounted = false;
+        };
     }, [id]);
 
     if (loading) {
@@ -75,6 +137,7 @@ const DocumentDetailPage: React.FC = () => {
     
     const clientName = document.client ? (language === 'ar' ? (document.client.client_name_ar || document.client.client_name_en) : (document.client.client_name_en || document.client.client_name_ar)) : 'N/A';
     const caseName = document.case ? (language === 'ar' ? document.case.case_name_ar : document.case.case_name_en) : 'N/A';
+    const recordForAllFields = rawDocument || document;
     
     const handleSaveMovement = (data: any) => {
         console.log("Saving movement:", data);
@@ -99,30 +162,84 @@ const DocumentDetailPage: React.FC = () => {
                     </button>
                  </div>
                 
-                <div className="mt-6 border-t border-gray-200">
-                    <dl>
-                        <DetailItem 
-                            label={t('documents_page.client')}
-                            value={document.client ? <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/clients/${document.client!.id}`); }} className="text-blue-600 hover:underline font-semibold">{clientName}</a> : clientName}
-                        />
-                         <DetailItem 
-                            label={t('documents_page.case')}
-                            value={document.case ? <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/cases/${document.case!.id}`); }} className="text-blue-600 hover:underline font-semibold">{caseName}</a> : caseName}
-                        />
-                        <DetailItem label={t('case.case_number')} value={document.case_number} />
-                        <DetailItem label={t('documents_page.type')} value={document.document_type} />
-                        <DetailItem label={t('documents_page.deposit_date')} value={document.deposit_date ? new Date(document.deposit_date).toLocaleDateString() : undefined} />
-                        <DetailItem label={t('new_document_form.document_date')} value={document.document_date ? new Date(document.document_date).toLocaleDateString() : undefined} />
-                        <DetailItem label={t('documents_page.lawyer')} value={document.responsible_lawyer} />
-                        <DetailItem label={t('documents_page.storage')} value={<span className="capitalize">{document.document_storage_type}</span>} />
-                        <DetailItem label={t('new_document_form.pages_count')} value={document.pages_count} />
-                        <DetailItem label={t('new_document_form.uploaded_to_mfiles')} value={document.mfiles_uploaded ? t('case.yes') : t('case.no')} />
-                        <DetailItem label={t('new_document_form.mfiles_id')} value={document.mfiles_id} />
-
-                         <DetailItem label={t('common.description')} value={<p className="whitespace-pre-wrap">{document.document_description}</p>} fullWidth />
-                         <DetailItem label={t('new_document_form.notes')} value={<p className="whitespace-pre-wrap">{document.notes}</p>} fullWidth />
-                    </dl>
+                <div className="border-b border-gray-200 mt-6 mb-6">
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setActiveTab('details')}
+                            className={`flex items-center gap-2 px-4 py-2 font-semibold rounded-md transition-colors text-sm ${
+                                activeTab === 'details' ? 'bg-primary-600 text-white shadow' : 'text-gray-600 hover:bg-primary-100'
+                            }`}
+                        >
+                            {t('document_page.details')}
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('all-fields')}
+                            className={`flex items-center gap-2 px-4 py-2 font-semibold rounded-md transition-colors text-sm ${
+                                activeTab === 'all-fields' ? 'bg-primary-600 text-white shadow' : 'text-gray-600 hover:bg-primary-100'
+                            }`}
+                        >
+                            <DocumentIcon className="w-4 h-4" />
+                            {t('document_page.all_fields') || 'All Fields'}
+                        </button>
+                    </div>
                 </div>
+
+                {activeTab === 'details' && (
+                    <div className="mt-6 border-t border-gray-200">
+                        <dl>
+                            <DetailItem 
+                                label={t('documents_page.client')}
+                                value={document.client ? <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/clients/${document.client!.id}`); }} className="text-blue-600 hover:underline font-semibold">{clientName}</a> : clientName}
+                            />
+                            <DetailItem 
+                                label={t('documents_page.case')}
+                                value={document.case ? <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/cases/${document.case!.id}`); }} className="text-blue-600 hover:underline font-semibold">{caseName}</a> : caseName}
+                            />
+                            <DetailItem label={t('case.case_number')} value={document.case_number} />
+                            <DetailItem label={t('documents_page.type')} value={document.document_type} />
+                            <DetailItem label={t('documents_page.deposit_date')} value={document.deposit_date ? new Date(document.deposit_date).toLocaleDateString() : undefined} />
+                            <DetailItem label={t('new_document_form.document_date')} value={document.document_date ? new Date(document.document_date).toLocaleDateString() : undefined} />
+                            <DetailItem label={t('documents_page.lawyer')} value={document.responsible_lawyer} />
+                            <DetailItem label={t('documents_page.storage')} value={<span className="capitalize">{document.document_storage_type}</span>} />
+                            <DetailItem label={t('new_document_form.pages_count')} value={document.pages_count} />
+                            <DetailItem label={t('new_document_form.uploaded_to_mfiles')} value={document.mfiles_uploaded ? t('case.yes') : t('case.no')} />
+                            <DetailItem label={t('new_document_form.mfiles_id')} value={document.mfiles_id} />
+
+                            <DetailItem label={t('common.description')} value={<p className="whitespace-pre-wrap">{document.document_description}</p>} fullWidth />
+                            <DetailItem label={t('new_document_form.notes')} value={<p className="whitespace-pre-wrap">{document.notes}</p>} fullWidth />
+                        </dl>
+                    </div>
+                )}
+
+                {activeTab === 'all-fields' && (
+                    <div className="mt-6">
+                        {schemaLoading && (
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-800 mb-4">
+                                {t('document_page.loading_schema') || 'Loading schema metadata...'}
+                            </div>
+                        )}
+
+                        {schemaError && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800 mb-4">
+                                {schemaError}
+                            </div>
+                        )}
+
+                        {!schemaLoading && !schemaError && !schemaData && (
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
+                                {t('document_page.schema_not_available') || 'Schema data not available.'}
+                            </div>
+                        )}
+
+                        {schemaData && recordForAllFields && !schemaLoading && !schemaError && (
+                            <AllFieldsTable
+                                record={recordForAllFields as any}
+                                schema={schemaData}
+                                title="All Document Fields"
+                            />
+                        )}
+                    </div>
+                )}
 
                 {(document.document_storage_type === 'physical' || document.document_storage_type === 'both') && (
                     <div className="mt-6 border-t pt-6">

@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { Opponent, CaseStatus } from '../types';
 import { useI18n } from '../hooks/useI18n';
-import { fetchOpponent } from '../services/opponents';
-import { BriefcaseIcon, CaseIcon } from '../components/icons';
+import { fetchOpponent, fetchOpponentSchema } from '../services/opponents';
+import { BriefcaseIcon, CaseIcon, DocumentIcon } from '../components/icons';
+import AllFieldsTable from '../components/AllFieldsTable';
 
 const TabButton: React.FC<{ label: string; isActive: boolean; onClick: () => void; icon: React.ReactNode }> = ({ label, isActive, onClick, icon }) => (
     <button
@@ -38,16 +39,74 @@ const OpponentDetailPage: React.FC = () => {
     const { t, language } = useI18n();
     const [activeTab, setActiveTab] = useState('details');
     const [opponent, setOpponent] = useState<Opponent | null>(null);
+    const [schemaData, setSchemaData] = useState<any>(null);
+    const [rawOpponent, setRawOpponent] = useState<Record<string, any> | null>(null);
+    const [schemaLoading, setSchemaLoading] = useState(true);
+    const [schemaError, setSchemaError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (id) {
-            fetchOpponent(id)
-                .then((data) => setOpponent(data.data || data))
-                .catch((err: any) => setError(err.message || 'Failed to load opponent'))
-                .finally(() => setLoading(false));
+        if (!id) {
+            return;
         }
+
+        let isMounted = true;
+        setLoading(true);
+        setSchemaLoading(true);
+        setError(null);
+        setSchemaError(null);
+        setSchemaData(null);
+
+        const loadOpponent = async () => {
+            try {
+                const response = await fetchOpponent(id);
+                const payload = response?.data ?? response;
+                const rawPayload = response?.raw ?? payload;
+                if (isMounted) {
+                    setOpponent(payload);
+                    setRawOpponent(rawPayload);
+                }
+
+                const inlineSchema = response?.schema ?? null;
+                if (inlineSchema && isMounted) {
+                    setSchemaData(inlineSchema);
+                    setSchemaLoading(false);
+                } else {
+                    try {
+                        const schemaResponse = await fetchOpponentSchema(id);
+                        const resolvedSchema = schemaResponse?.schema ?? schemaResponse;
+                        if (isMounted) {
+                            setSchemaData(resolvedSchema);
+                        }
+                    } catch (schemaErr: any) {
+                        if (isMounted) {
+                            console.error('Error loading opponent schema:', schemaErr);
+                            setSchemaError(schemaErr?.message || 'Failed to load schema metadata.');
+                        }
+                    } finally {
+                        if (isMounted) {
+                            setSchemaLoading(false);
+                        }
+                    }
+                }
+            } catch (err: any) {
+                if (isMounted) {
+                    console.error('Error loading opponent:', err);
+                    setError(err?.message || 'Failed to load opponent');
+                }
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        loadOpponent();
+
+        return () => {
+            isMounted = false;
+        };
     }, [id]);
 
     if (loading) {
@@ -74,6 +133,7 @@ const OpponentDetailPage: React.FC = () => {
     }
 
     const opponentName = language === 'ar' ? (opponent.opponent_name_ar || opponent.opponent_name_en) : (opponent.opponent_name_en || opponent.opponent_name_ar);
+    const recordForAllFields = rawOpponent || opponent;
 
     return (
         <div className="container mx-auto">
@@ -86,6 +146,7 @@ const OpponentDetailPage: React.FC = () => {
                     <div className="flex items-center gap-4">
                         <TabButton label={t('opponent_page.details')} icon={<BriefcaseIcon className="w-4 h-4" />} isActive={activeTab === 'details'} onClick={() => setActiveTab('details')} />
                         <TabButton label={t('opponent_page.associated_cases')} icon={<CaseIcon className="w-4 h-4" />} isActive={activeTab === 'cases'} onClick={() => setActiveTab('cases')} />
+                        <TabButton label={t('opponent_page.all_fields') || 'All Fields'} icon={<DocumentIcon className="w-4 h-4" />} isActive={activeTab === 'all-fields'} onClick={() => setActiveTab('all-fields')} />
                     </div>
                 </div>
 
@@ -130,6 +191,36 @@ const OpponentDetailPage: React.FC = () => {
                             </table>
                         </div>
                         ) : <p className="text-gray-500">{t('opponent_page.no_cases')}</p>}
+                    </div>
+                )}
+
+                {activeTab === 'all-fields' && (
+                    <div className="mt-6">
+                        {schemaLoading && (
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-800 mb-4">
+                                {t('opponent_page.loading_schema') || 'Loading schema metadata...'}
+                            </div>
+                        )}
+
+                        {schemaError && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800 mb-4">
+                                {schemaError}
+                            </div>
+                        )}
+
+                        {!schemaLoading && !schemaError && !schemaData && (
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
+                                {t('opponent_page.schema_not_available') || 'Schema data not available.'}
+                            </div>
+                        )}
+
+                        {schemaData && recordForAllFields && !schemaLoading && !schemaError && (
+                            <AllFieldsTable
+                                record={recordForAllFields as any}
+                                schema={schemaData}
+                                title="All Opponent Fields"
+                            />
+                        )}
                     </div>
                 )}
             </div>

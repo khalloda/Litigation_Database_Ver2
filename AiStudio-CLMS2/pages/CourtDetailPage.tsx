@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { Court, CaseStatus } from '../types';
 import { useI18n } from '../hooks/useI18n';
-import { fetchCourt } from '../services/courts';
-import { BriefcaseIcon, CaseIcon } from '../components/icons';
+import { fetchCourt, fetchCourtSchema } from '../services/courts';
+import { BriefcaseIcon, CaseIcon, DocumentIcon } from '../components/icons';
+import AllFieldsTable from '../components/AllFieldsTable';
 
 const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => {
     if (!value) return null;
@@ -47,16 +48,75 @@ const CourtDetailPage: React.FC = () => {
     const { t, language } = useI18n();
     const [activeTab, setActiveTab] = useState('cases');
     const [court, setCourt] = useState<Court | null>(null);
+    const [rawCourt, setRawCourt] = useState<Record<string, any> | null>(null);
+    const [schemaData, setSchemaData] = useState<any>(null);
+    const [schemaLoading, setSchemaLoading] = useState(true);
+    const [schemaError, setSchemaError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (id) {
-            fetchCourt(id)
-                .then((data) => setCourt(data.data || data))
-                .catch((err: any) => setError(err.message || 'Failed to load court'))
-                .finally(() => setLoading(false));
+        if (!id) {
+            return;
         }
+
+        let isMounted = true;
+        setLoading(true);
+        setSchemaLoading(true);
+        setError(null);
+        setSchemaError(null);
+        setSchemaData(null);
+
+        const loadCourt = async () => {
+            try {
+                const response = await fetchCourt(id);
+                const courtPayload = response?.data ?? response;
+                const rawPayload = response?.raw ?? courtPayload;
+
+                if (isMounted) {
+                    setCourt(courtPayload);
+                    setRawCourt(rawPayload);
+                }
+
+                const inlineSchema = response?.schema ?? null;
+                if (inlineSchema && isMounted) {
+                    setSchemaData(inlineSchema);
+                    setSchemaLoading(false);
+                } else {
+                    try {
+                        const schemaResponse = await fetchCourtSchema(id);
+                        const resolvedSchema = schemaResponse?.schema ?? schemaResponse;
+                        if (isMounted) {
+                            setSchemaData(resolvedSchema);
+                        }
+                    } catch (schemaErr: any) {
+                        if (isMounted) {
+                            console.error('Error loading court schema:', schemaErr);
+                            setSchemaError(schemaErr?.message || 'Failed to load schema metadata.');
+                        }
+                    } finally {
+                        if (isMounted) {
+                            setSchemaLoading(false);
+                        }
+                    }
+                }
+            } catch (err: any) {
+                if (isMounted) {
+                    console.error('Error loading court:', err);
+                    setError(err?.message || 'Failed to load court');
+                }
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        loadCourt();
+
+        return () => {
+            isMounted = false;
+        };
     }, [id]);
 
     if (loading) {
@@ -83,6 +143,7 @@ const CourtDetailPage: React.FC = () => {
     }
 
     const courtName = language === 'ar' ? (court.court_name_ar || court.court_name_en) : (court.court_name_en || court.court_name_ar);
+    const recordForAllFields = rawCourt || court;
 
     return (
         <div className="container mx-auto">
@@ -95,6 +156,7 @@ const CourtDetailPage: React.FC = () => {
                     <div className="flex items-center gap-4">
                         <TabButton label={t('court_page.details')} icon={<BriefcaseIcon className="w-4 h-4" />} isActive={activeTab === 'details'} onClick={() => setActiveTab('details')} />
                         <TabButton label={t('court_page.associated_cases')} icon={<CaseIcon className="w-4 h-4" />} isActive={activeTab === 'cases'} onClick={() => setActiveTab('cases')} />
+                        <TabButton label={t('court_page.all_fields') || 'All Fields'} icon={<DocumentIcon className="w-4 h-4" />} isActive={activeTab === 'all-fields'} onClick={() => setActiveTab('all-fields')} />
                     </div>
                 </div>
 
@@ -124,7 +186,7 @@ const CourtDetailPage: React.FC = () => {
                                 <td className="p-3 text-gray-600">{c.case_number}</td>
                                 <td className="p-3 text-gray-800 font-medium">{language === 'ar' ? c.case_name_ar : c.case_name_en}</td>
                                 <td className="p-3"><CaseStatusBadge status={c.status} /></td>
-                                <td className="p-3 text-gray-600">{language === 'ar' ? c.client.client_name_ar : c.client.client_name_en}</td>
+                                <td className="p-3 text-gray-600">{c.client ? (language === 'ar' ? c.client.client_name_ar : c.client.client_name_en) : '—'}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -132,6 +194,36 @@ const CourtDetailPage: React.FC = () => {
                       </div>
                     ) : <p className="text-gray-500">{t('court_page.no_cases')}</p>}
                   </div>
+                )}
+
+                {activeTab === 'all-fields' && (
+                    <div className="mt-6">
+                        {schemaLoading && (
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-800 mb-4">
+                                {t('court_page.loading_schema') || 'Loading schema metadata...'}
+                            </div>
+                        )}
+
+                        {schemaError && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800 mb-4">
+                                {schemaError}
+                            </div>
+                        )}
+
+                        {!schemaLoading && !schemaError && !schemaData && (
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
+                                {t('court_page.schema_not_available') || 'Schema data not available.'}
+                            </div>
+                        )}
+
+                        {schemaData && recordForAllFields && !schemaLoading && !schemaError && (
+                            <AllFieldsTable
+                                record={recordForAllFields as any}
+                                schema={schemaData}
+                                title="All Court Fields"
+                            />
+                        )}
+                    </div>
                 )}
             </div>
         </div>

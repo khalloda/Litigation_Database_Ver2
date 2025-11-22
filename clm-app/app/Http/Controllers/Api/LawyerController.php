@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Http\Controllers\Controller;
 use App\Models\Lawyer;
 use Illuminate\Http\Request;
@@ -9,6 +10,8 @@ use Illuminate\Http\JsonResponse;
 
 class LawyerController extends Controller
 {
+    use SchemaDrivenFields;
+
     public function index(Request $request): JsonResponse
     {
         try {
@@ -66,9 +69,38 @@ class LawyerController extends Controller
 
     public function show(Lawyer $lawyer): JsonResponse
     {
-        $this->authorize('view', $lawyer);
-        $lawyer->load(['title', 'casesAsLawyerA', 'casesAsLawyerB']);
-        return response()->json(['data' => $lawyer]);
+        try {
+            $this->authorize('view', $lawyer);
+            $lawyer->load([
+                'title',
+                'casesAsLawyerA:id,lawyer_a,lawyer_b,matter_name_ar,matter_name_en,matter_status',
+                'casesAsLawyerB:id,lawyer_a,lawyer_b,matter_name_ar,matter_name_en,matter_status',
+                'createdBy:id,name',
+                'updatedBy:id,name',
+            ]);
+
+            $cases = $this->buildCaseCollection($lawyer);
+            $rawData = $lawyer->toArray();
+            $rawData['cases'] = $cases;
+
+            $schemaData = $this->getSchemaFields('lawyers', $lawyer);
+
+            return response()->json([
+                'data' => array_merge($rawData, ['cases' => $cases]),
+                'raw' => $rawData,
+                'schema' => $schemaData,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('LawyerController@show error: ' . $e->getMessage(), [
+                'lawyer_id' => $lawyer->id,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to fetch lawyer',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function update(Request $request, Lawyer $lawyer): JsonResponse
@@ -100,6 +132,37 @@ class LawyerController extends Controller
         $this->authorize('delete', $lawyer);
         $lawyer->delete();
         return response()->json(['message' => 'Lawyer deleted successfully']);
+    }
+
+    public function schema(Lawyer $lawyer): JsonResponse
+    {
+        $this->authorize('view', $lawyer);
+
+        $schemaData = $this->getSchemaFields('lawyers', $lawyer);
+
+        return response()->json($schemaData);
+    }
+
+    protected function buildCaseCollection(Lawyer $lawyer): array
+    {
+        $casesA = $lawyer->casesAsLawyerA->map(fn($case) => $this->transformCaseForLawyer($case));
+        $casesB = $lawyer->casesAsLawyerB->map(fn($case) => $this->transformCaseForLawyer($case));
+
+        return $casesA->merge($casesB)
+            ->unique('id')
+            ->values()
+            ->toArray();
+    }
+
+    protected function transformCaseForLawyer($case): array
+    {
+        return [
+            'id' => $case->id,
+            'case_number' => (string) $case->id,
+            'case_name_ar' => $case->matter_name_ar,
+            'case_name_en' => $case->matter_name_en,
+            'status' => $case->matter_status ?? '',
+        ];
     }
 }
 

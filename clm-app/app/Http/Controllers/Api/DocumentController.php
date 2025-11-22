@@ -93,16 +93,57 @@ class DocumentController extends Controller
 
     public function show(ClientDocument $document): JsonResponse
     {
-        $this->authorize('view', $document);
-        $document->load(['client', 'case']);
-        
-        // Get schema-driven field metadata
-        $schemaData = $this->getSchemaFields('client_documents', $document);
-        
-        return response()->json([
-            'data' => $document,
-            'schema' => $schemaData,
-        ]);
+        try {
+            $this->authorize('view', $document);
+            $document->load([
+                'client',
+                'case.client:id,client_name_ar,client_name_en',
+                'createdBy:id,name',
+                'updatedBy:id,name',
+            ]);
+
+            $clientData = $document->client ? [
+                'id' => $document->client->id,
+                'client_name_ar' => $document->client->client_name_ar,
+                'client_name_en' => $document->client->client_name_en,
+            ] : null;
+
+            $caseData = $document->case ? [
+                'id' => $document->case->id,
+                'case_name_ar' => $document->case->matter_name_ar,
+                'case_name_en' => $document->case->matter_name_en,
+                'client' => $document->case->client ? [
+                    'id' => $document->case->client->id,
+                    'client_name_ar' => $document->case->client->client_name_ar,
+                    'client_name_en' => $document->case->client->client_name_en,
+                ] : null,
+            ] : null;
+
+            $rawData = $document->toArray();
+            $rawData['client'] = $clientData;
+            $rawData['case'] = $caseData;
+
+            $schemaData = $this->getSchemaFields('client_documents', $document);
+
+            return response()->json([
+                'data' => array_merge($rawData, [
+                    'client' => $clientData,
+                    'case' => $caseData,
+                ]),
+                'raw' => $rawData,
+                'schema' => $schemaData,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('DocumentController@show error: ' . $e->getMessage(), [
+                'document_id' => $document->id,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to fetch document',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function update(Request $request, ClientDocument $document): JsonResponse
@@ -137,6 +178,15 @@ class DocumentController extends Controller
         $document->delete();
 
         return response()->json(['message' => 'Document deleted successfully']);
+    }
+
+    public function schema(ClientDocument $document): JsonResponse
+    {
+        $this->authorize('view', $document);
+
+        $schemaData = $this->getSchemaFields('client_documents', $document);
+
+        return response()->json($schemaData);
     }
 }
 

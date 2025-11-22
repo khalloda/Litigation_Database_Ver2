@@ -55,6 +55,16 @@ class Hearing extends Model
         return $this->belongsTo(\App\Models\Lawyer::class, 'lawyer_id');
     }
 
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

@@ -68,6 +68,7 @@ class OpponentController extends Controller
     {
         try {
             $this->authorize('view', $opponent);
+            $opponent->load(['createdBy', 'updatedBy']);
             
             // Get cases from both pivot table and legacy opponent_id field
             // First, get cases from pivot table (many-to-many relationship)
@@ -149,7 +150,8 @@ class OpponentController extends Controller
             })->values()->toArray();
             
             // Build opponent data with cases
-            $opponentData = $opponent->toArray();
+            $rawData = $opponent->toArray();
+            $opponentData = $rawData;
             $opponentData['cases'] = $transformedCases;
             
             // Get schema-driven field metadata
@@ -157,6 +159,7 @@ class OpponentController extends Controller
             
             return response()->json([
                 'data' => $opponentData,
+                'raw' => $rawData,
                 'schema' => $schemaData,
             ]);
         } catch (\Exception $e) {
@@ -194,6 +197,15 @@ class OpponentController extends Controller
         $this->authorize('delete', $opponent);
         $opponent->delete();
         return response()->json(['message' => 'Opponent deleted successfully']);
+    }
+
+    public function schema(Opponent $opponent): JsonResponse
+    {
+        $this->authorize('view', $opponent);
+
+        $schemaData = $this->getSchemaFields('opponents', $opponent);
+
+        return response()->json($schemaData);
     }
 }
 

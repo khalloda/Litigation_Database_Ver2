@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Http\Requests\LawyerRequest;
 use App\Models\Lawyer;
 use App\Models\OptionValue;
@@ -9,6 +10,8 @@ use Illuminate\Http\Request;
 
 class LawyersController extends Controller
 {
+    use SchemaDrivenFields;
+
     public function index(Request $request)
     {
         $this->authorize('viewAny', Lawyer::class);
@@ -43,12 +46,21 @@ class LawyersController extends Controller
         $this->authorize('view', $lawyer);
 
         // Load relationships
-        $lawyer->load(['title', 'casesAsLawyerA', 'casesAsLawyerB', 'adminTasks']);
+        $lawyer->load([
+            'title',
+            'casesAsLawyerA',
+            'casesAsLawyerB',
+            'adminTasks',
+            'createdBy',
+            'updatedBy',
+        ]);
 
         // Get all cases (merge both relationships)
         $cases = $lawyer->getAllCases();
 
-        return view('lawyers.show', compact('lawyer', 'cases'));
+        $schemaData = $this->getSchemaFields('lawyers', $lawyer);
+
+        return view('lawyers.show', compact('lawyer', 'cases', 'schemaData'));
     }
 
     public function edit(Lawyer $lawyer)

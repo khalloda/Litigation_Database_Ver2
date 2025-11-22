@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { Lawyer, CaseStatus, OptionValue } from '../types';
 import { useI18n } from '../hooks/useI18n';
-import { fetchLawyer } from '../services/lawyers';
+import { fetchLawyer, fetchLawyerSchema } from '../services/lawyers';
 import { fetchOptionsBySetKey } from '../services/options';
-import { BriefcaseIcon, CaseIcon } from '../components/icons';
+import { BriefcaseIcon, CaseIcon, DocumentIcon } from '../components/icons';
+import AllFieldsTable from '../components/AllFieldsTable';
 
 const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => {
     if (!value) return null;
@@ -48,23 +49,81 @@ const LawyerDetailPage: React.FC = () => {
     const { t, language } = useI18n();
     const [activeTab, setActiveTab] = useState('details');
     const [lawyer, setLawyer] = useState<Lawyer | null>(null);
+    const [rawLawyer, setRawLawyer] = useState<Record<string, any> | null>(null);
     const [lawyerTitles, setLawyerTitles] = useState<OptionValue[]>([]);
+    const [schemaData, setSchemaData] = useState<any>(null);
+    const [schemaLoading, setSchemaLoading] = useState(true);
+    const [schemaError, setSchemaError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (id) {
-            Promise.all([
-                fetchLawyer(id),
-                fetchOptionsBySetKey('lawyer.title'),
-            ])
-                .then(([lawyerData, titlesData]) => {
-                    setLawyer(lawyerData.data || lawyerData);
-                    setLawyerTitles(titlesData.data || titlesData);
-                })
-                .catch((err: any) => setError(err.message || 'Failed to load lawyer'))
-                .finally(() => setLoading(false));
+        if (!id) {
+            return;
         }
+
+        let isMounted = true;
+        setLoading(true);
+        setSchemaLoading(true);
+        setError(null);
+        setSchemaError(null);
+        setSchemaData(null);
+
+        const loadData = async () => {
+            try {
+                const [lawyerResponse, titlesData] = await Promise.all([
+                    fetchLawyer(id),
+                    fetchOptionsBySetKey('lawyer.title'),
+                ]);
+
+                const lawyerPayload = lawyerResponse?.data ?? lawyerResponse;
+                const rawPayload = lawyerResponse?.raw ?? lawyerPayload;
+
+                if (isMounted) {
+                    setLawyer(lawyerPayload);
+                    setRawLawyer(rawPayload);
+                    setLawyerTitles(titlesData.data || titlesData);
+                }
+
+                const inlineSchema = lawyerResponse?.schema ?? null;
+                if (inlineSchema && isMounted) {
+                    setSchemaData(inlineSchema);
+                    setSchemaLoading(false);
+                } else {
+                    try {
+                        const schemaResponse = await fetchLawyerSchema(id);
+                        const resolvedSchema = schemaResponse?.schema ?? schemaResponse;
+                        if (isMounted) {
+                            setSchemaData(resolvedSchema);
+                        }
+                    } catch (schemaErr: any) {
+                        if (isMounted) {
+                            console.error('Error loading lawyer schema:', schemaErr);
+                            setSchemaError(schemaErr?.message || 'Failed to load schema metadata.');
+                        }
+                    } finally {
+                        if (isMounted) {
+                            setSchemaLoading(false);
+                        }
+                    }
+                }
+            } catch (err: any) {
+                if (isMounted) {
+                    console.error('Error loading lawyer:', err);
+                    setError(err?.message || 'Failed to load lawyer');
+                }
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        loadData();
+
+        return () => {
+            isMounted = false;
+        };
     }, [id]);
 
     if (loading) {
@@ -91,6 +150,7 @@ const LawyerDetailPage: React.FC = () => {
     }
 
     const lawyerName = language === 'ar' ? lawyer.lawyer_name_ar : lawyer.lawyer_name_en;
+    const recordForAllFields = rawLawyer || lawyer;
     
     const titleOption = lawyerTitles.find(o => o.id === lawyer.title_id);
     const lawyerTitle = titleOption ? (language === 'ar' ? titleOption.label_ar : titleOption.label_en) : '';
@@ -106,6 +166,7 @@ const LawyerDetailPage: React.FC = () => {
                     <div className="flex items-center gap-4">
                         <TabButton label={t('lawyer_page.details')} icon={<BriefcaseIcon className="w-4 h-4" />} isActive={activeTab === 'details'} onClick={() => setActiveTab('details')} />
                         <TabButton label={t('lawyer_page.associated_cases')} icon={<CaseIcon className="w-4 h-4" />} isActive={activeTab === 'cases'} onClick={() => setActiveTab('cases')} />
+                        <TabButton label={t('lawyer_page.all_fields') || 'All Fields'} icon={<DocumentIcon className="w-4 h-4" />} isActive={activeTab === 'all-fields'} onClick={() => setActiveTab('all-fields')} />
                     </div>
                 </div>
 
@@ -133,7 +194,7 @@ const LawyerDetailPage: React.FC = () => {
                               <tr key={c.id} onClick={() => navigate(`/cases/${c.id}`)} className="border-b hover:bg-gray-50 cursor-pointer">
                                 <td className="p-3 text-gray-600">{c.case_number}</td>
                                 <td className="p-3 text-gray-800 font-medium">{language === 'ar' ? c.case_name_ar : c.case_name_en}</td>
-                                <td className="p-3"><CaseStatusBadge status={c.status} /></td>
+                                <td className="p-3"><CaseStatusBadge status={c.status as CaseStatus} /></td>
                               </tr>
                             ))}
                           </tbody>
@@ -141,6 +202,36 @@ const LawyerDetailPage: React.FC = () => {
                       </div>
                     ) : <p className="text-gray-500">{t('lawyer_page.no_cases')}</p>}
                   </div>
+                )}
+
+                {activeTab === 'all-fields' && (
+                    <div className="mt-6">
+                        {schemaLoading && (
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-800 mb-4">
+                                {t('lawyer_page.loading_schema') || 'Loading schema metadata...'}
+                            </div>
+                        )}
+
+                        {schemaError && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800 mb-4">
+                                {schemaError}
+                            </div>
+                        )}
+
+                        {!schemaLoading && !schemaError && !schemaData && (
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
+                                {t('lawyer_page.schema_not_available') || 'Schema data not available.'}
+                            </div>
+                        )}
+
+                        {schemaData && recordForAllFields && !schemaLoading && !schemaError && (
+                            <AllFieldsTable
+                                record={recordForAllFields as any}
+                                schema={schemaData}
+                                title="All Lawyer Fields"
+                            />
+                        )}
+                    </div>
                 )}
             </div>
         </div>

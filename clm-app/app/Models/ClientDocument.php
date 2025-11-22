@@ -56,6 +56,16 @@ class ClientDocument extends Model
         return $this->belongsTo(CaseModel::class, 'matter_id');
     }
 
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
     // Attribute mapping: description <-> document_description
     public function getDescriptionAttribute(): ?string
     {

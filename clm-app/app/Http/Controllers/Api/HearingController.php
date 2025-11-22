@@ -81,16 +81,57 @@ class HearingController extends Controller
 
     public function show(Hearing $hearing): JsonResponse
     {
-        $this->authorize('view', $hearing);
-        $hearing->load(['case.client', 'lawyer']);
-        
-        // Get schema-driven field metadata
-        $schemaData = $this->getSchemaFields('hearings', $hearing);
-        
-        return response()->json([
-            'data' => $hearing,
-            'schema' => $schemaData,
-        ]);
+        try {
+            $this->authorize('view', $hearing);
+            $hearing->load([
+                'case.client:id,client_name_ar,client_name_en',
+                'lawyer:id,lawyer_name_ar,lawyer_name_en',
+                'createdBy:id,name',
+                'updatedBy:id,name',
+            ]);
+
+            $caseData = $hearing->case ? [
+                'id' => $hearing->case->id,
+                'case_name_ar' => $hearing->case->matter_name_ar,
+                'case_name_en' => $hearing->case->matter_name_en,
+                'client' => $hearing->case->client ? [
+                    'id' => $hearing->case->client->id,
+                    'client_name_ar' => $hearing->case->client->client_name_ar,
+                    'client_name_en' => $hearing->case->client->client_name_en,
+                ] : null,
+            ] : null;
+
+            $lawyerData = $hearing->lawyer ? [
+                'id' => $hearing->lawyer->id,
+                'lawyer_name_ar' => $hearing->lawyer->lawyer_name_ar,
+                'lawyer_name_en' => $hearing->lawyer->lawyer_name_en,
+            ] : null;
+
+            $rawData = $hearing->toArray();
+            $rawData['case'] = $caseData;
+            $rawData['lawyer'] = $lawyerData;
+
+            $schemaData = $this->getSchemaFields('hearings', $hearing);
+
+            return response()->json([
+                'data' => array_merge($rawData, [
+                    'case' => $caseData,
+                    'lawyer' => $lawyerData,
+                ]),
+                'raw' => $rawData,
+                'schema' => $schemaData,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('HearingController@show error: ' . $e->getMessage(), [
+                'hearing_id' => $hearing->id,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to fetch hearing',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function update(Request $request, Hearing $hearing): JsonResponse
@@ -134,6 +175,15 @@ class HearingController extends Controller
         $this->authorize('delete', $hearing);
         $hearing->delete();
         return response()->json(['message' => 'Hearing deleted successfully']);
+    }
+
+    public function schema(Hearing $hearing): JsonResponse
+    {
+        $this->authorize('view', $hearing);
+
+        $schemaData = $this->getSchemaFields('hearings', $hearing);
+
+        return response()->json($schemaData);
     }
 }
 

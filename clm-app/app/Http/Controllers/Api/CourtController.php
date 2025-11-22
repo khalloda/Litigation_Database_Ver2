@@ -59,15 +59,55 @@ class CourtController extends Controller
 
     public function show(Court $court): JsonResponse
     {
-        $this->authorize('view', $court);
-        
-        // Get schema-driven field metadata
-        $schemaData = $this->getSchemaFields('courts', $court);
-        
-        return response()->json([
-            'data' => $court,
-            'schema' => $schemaData,
-        ]);
+        try {
+            $this->authorize('view', $court);
+
+            $court->load([
+                'circuits',
+                'secretaries',
+                'floors',
+                'halls',
+                'createdBy:id,name',
+                'updatedBy:id,name',
+                'cases.client:id,client_name_ar,client_name_en',
+            ]);
+
+            $cases = $court->cases->map(function ($case) {
+                return [
+                    'id' => $case->id,
+                    'case_number' => (string) $case->id,
+                    'case_name_ar' => $case->matter_name_ar,
+                    'case_name_en' => $case->matter_name_en,
+                    'status' => $case->matter_status ?? '',
+                    'client' => $case->client ? [
+                        'id' => $case->client->id,
+                        'client_name_ar' => $case->client->client_name_ar,
+                        'client_name_en' => $case->client->client_name_en,
+                    ] : null,
+                ];
+            })->values()->toArray();
+
+            $rawData = $court->toArray();
+            $rawData['cases'] = $cases;
+
+            $schemaData = $this->getSchemaFields('courts', $court);
+
+            return response()->json([
+                'data' => array_merge($rawData, ['cases' => $cases]),
+                'raw' => $rawData,
+                'schema' => $schemaData,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('CourtController@show error: ' . $e->getMessage(), [
+                'court_id' => $court->id,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to fetch court',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function update(Request $request, Court $court): JsonResponse
@@ -93,6 +133,15 @@ class CourtController extends Controller
         $this->authorize('delete', $court);
         $court->delete();
         return response()->json(['message' => 'Court deleted successfully']);
+    }
+
+    public function schema(Court $court): JsonResponse
+    {
+        $this->authorize('view', $court);
+
+        $schemaData = $this->getSchemaFields('courts', $court);
+
+        return response()->json($schemaData);
     }
 }
 

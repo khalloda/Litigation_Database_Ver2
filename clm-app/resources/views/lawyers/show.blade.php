@@ -88,5 +88,18 @@
             </div>
         </div>
     </div>
+
+    @if(isset($schemaData))
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <x-admin.all-fields-table
+                    :record="$lawyer"
+                    :columns="$schemaData['columns']"
+                    :types="$schemaData['types']"
+                    :fkHints="$schemaData['fkHints']"
+                    title="All Lawyer Fields" />
+            </div>
+        </div>
+    @endif
 </div>
 @endsection

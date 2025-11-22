@@ -16,6 +16,11 @@ export async function fetchHearing(id: number | string) {
   return response.data;
 }
 
+export async function fetchHearingSchema(id: number | string) {
+  const response = await api.get(`/hearings/${id}/schema`);
+  return response.data;
+}
+
 export async function createHearing(payload: Partial<Hearing>) {
   const response = await api.post('/hearings', payload);
   return response.data;

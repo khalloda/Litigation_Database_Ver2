@@ -16,6 +16,11 @@ export async function fetchCourt(id: number | string) {
   return response.data;
 }
 
+export async function fetchCourtSchema(id: number | string) {
+  const response = await api.get(`/courts/${id}/schema`);
+  return response.data;
+}
+
 export async function createCourt(payload: Partial<Court>) {
   const response = await api.post('/courts', payload);
   return response.data;

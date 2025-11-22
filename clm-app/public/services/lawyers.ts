@@ -14,6 +14,11 @@ export async function fetchLawyer(id: number | string) {
   return response.data;
 }
 
+export async function fetchLawyerSchema(id: number | string) {
+  const response = await api.get(`/lawyers/${id}/schema`);
+  return response.data;
+}
+
 export async function createLawyer(payload: Partial<Lawyer>) {
   const response = await api.post('/lawyers', payload);
   return response.data;
