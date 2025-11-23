@@ -133,6 +133,19 @@
   - ETL Validation Report: `/docs/etl/ETL-Validation-Report-20251008.md`
   - ETL Runbook: `/docs/runbooks/ETL_Import_Runbook.md`
 
+### 3.3 Document Metadata Parity
+- **ID**: T-Doc-01
+- **Status**: Done
+- **Branch**: (current)
+- **Description**: Align `client_documents` schema with legacy registers, introduce automatic document location sync.
+- **DoD**:
+  - [x] Added `department`, `admin_staff`, `lawyer`, `document_location` columns + backfill.
+  - [x] Captured legacy matter names from Access/CSV exports in `legacy_matter_name`.
+  - [x] ClientDocument model auto-syncs `document_location` from Clients.
+  - [x] Document upload/edit flows accept/show the new metadata.
+  - [x] ETL importer + docs/tests updated (data dictionary, DocumentManagementTest).
+  - [x] Added `legacy_document_id` tracking + staging import workflow (`client_documents_staging`, CLI dry-run commands). During legacy imports we temporarily disable auto-increment on `client_documents.id` so Access `document_id` values become both `id` and `legacy_document_id`.
+
 ---
 
 ## 3A. Trash / Recycle Bin System ✅

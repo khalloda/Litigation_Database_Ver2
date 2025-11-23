@@ -2,11 +2,23 @@
 
 namespace App\Console;
 
+use App\Console\Commands\ImportDocumentsStagingCommand;
+use App\Console\Commands\ProcessDocumentsStagingCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
+    /**
+     * The Artisan commands provided by the application.
+     *
+     * @var array<int, class-string>
+     */
+    protected $commands = [
+        ImportDocumentsStagingCommand::class,
+        ProcessDocumentsStagingCommand::class,
+    ];
+
     /**
      * Define the application's command schedule.
      */

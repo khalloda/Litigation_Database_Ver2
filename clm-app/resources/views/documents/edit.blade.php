@@ -99,6 +99,37 @@
                             @enderror
                         </div>
 
+                        {{-- Administrative Metadata --}}
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="department" class="form-label">Department</label>
+                                <input type="text" class="form-control @error('department') is-invalid @enderror"
+                                       id="department" name="department"
+                                       value="{{ old('department', $document->department) }}">
+                                @error('department')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label for="admin_staff" class="form-label">Admin Staff</label>
+                                <input type="text" class="form-control @error('admin_staff') is-invalid @enderror"
+                                       id="admin_staff" name="admin_staff"
+                                       value="{{ old('admin_staff', $document->admin_staff) }}">
+                                @error('admin_staff')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label for="lawyer" class="form-label">Lawyer</label>
+                                <input type="text" class="form-control @error('lawyer') is-invalid @enderror"
+                                       id="lawyer" name="lawyer"
+                                       value="{{ old('lawyer', $document->lawyer) }}">
+                                @error('lawyer')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
                         {{-- Description --}}
                         <div class="mb-4">
                             <label for="description" class="form-label">Description (Optional)</label>

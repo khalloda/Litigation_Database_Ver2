@@ -137,6 +137,34 @@
                             @enderror
                         </div>
 
+                        {{-- Administrative Metadata --}}
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label for="department" class="form-label">{{ __('app.department') }}</label>
+                                <input type="text" class="form-control @error('department') is-invalid @enderror"
+                                    id="department" name="department" value="{{ old('department') }}">
+                                @error('department')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label for="admin_staff" class="form-label">{{ __('app.admin_staff') }}</label>
+                                <input type="text" class="form-control @error('admin_staff') is-invalid @enderror"
+                                    id="admin_staff" name="admin_staff" value="{{ old('admin_staff') }}">
+                                @error('admin_staff')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label for="lawyer" class="form-label">{{ __('app.lawyer') }}</label>
+                                <input type="text" class="form-control @error('lawyer') is-invalid @enderror"
+                                    id="lawyer" name="lawyer" value="{{ old('lawyer') }}">
+                                @error('lawyer')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
                         {{-- Physical Document Fields --}}
                         <div class="mb-4" id="physical-fields">
                             <h6 class="border-bottom pb-2 mb-3">📄 {{ __('app.physical_document') }} {{ __('app.details') }}</h6>

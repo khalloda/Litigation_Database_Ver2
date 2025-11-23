@@ -14,8 +14,11 @@ class ClientDocument extends Model
     use HasFactory, SoftDeletes, InteractsWithDeletionBundles, LogsActivity;
 
     protected $fillable = [
+        'id',
+        'legacy_document_id',
         'client_id',
         'matter_id',
+        'legacy_matter_name',
         'client_name',
         'document_name', // File-related field (nullable for physical docs)
         'document_type', // File-related field
@@ -25,8 +28,12 @@ class ClientDocument extends Model
         'document_storage_type', // New: 'physical', 'digital', 'both'
         'mfiles_uploaded', // New: boolean for M-Files integration
         'mfiles_id', // New: M-Files document ID
+        'department',
+        'admin_staff',
+        'lawyer',
         'responsible_lawyer',
         'movement_card',
+        'document_location',
         // Map UI attribute 'description' to DB column via accessors/mutators
         'description',
         'deposit_date',
@@ -44,6 +51,24 @@ class ClientDocument extends Model
         'movement_card' => 'boolean',
         'mfiles_uploaded' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (ClientDocument $document) {
+            if (!$document->client_id) {
+                $document->document_location = null;
+                return;
+            }
+
+            $client = $document->relationLoaded('client')
+                ? $document->client
+                : Client::with('documentsLocation')
+                    ->select('id', 'documents_location_id')
+                    ->find($document->client_id);
+
+            $document->document_location = $client?->documentsLocation?->label;
+        });
+    }
 
     // Relationships
     public function client()
@@ -106,7 +131,29 @@ class ClientDocument extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['client_id', 'matter_id', 'client_name', 'responsible_lawyer', 'description', 'deposit_date', 'case_number', 'document_name', 'document_type', 'file_path', 'file_size', 'mime_type', 'document_storage_type', 'mfiles_uploaded', 'mfiles_id'])
+            ->logOnly([
+                'legacy_document_id',
+                'client_id',
+                'matter_id',
+                'client_name',
+                'legacy_matter_name',
+                'department',
+                'admin_staff',
+                'lawyer',
+                'document_location',
+                'responsible_lawyer',
+                'description',
+                'deposit_date',
+                'case_number',
+                'document_name',
+                'document_type',
+                'file_path',
+                'file_size',
+                'mime_type',
+                'document_storage_type',
+                'mfiles_uploaded',
+                'mfiles_id',
+            ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('clientdocument')

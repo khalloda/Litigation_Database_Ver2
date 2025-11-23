@@ -213,9 +213,21 @@ Core domain tables support soft deletes:
 
 ### client_documents
 **Description**: Uploaded legal documents  
-**Source**: `clients_matters_documents.xlsx`  
+**Source**: `clients_matters_documents.xlsx` / `Documents-Original.csv`  
 **Records**: 404 (100% imported)  
-**Key Columns**: `client_id`, `case_id`, `document_name`, `document_type`, `document_description`, `file_path`, `file_size`, `mime_type`, `uploaded_by`
+**Key Columns**: `id` (legacy document id), `legacy_document_id`, `client_id`, `case_id`, `legacy_matter_name`, `department`, `admin_staff`, `lawyer`, `document_location`, `document_name`, `document_type`, `document_description`, `file_path`, `file_size`, `mime_type`, `uploaded_by`
+
+- `legacy_document_id`: Primary key from the legacy Access register/CSV (unique constraint) mirrored in `id` (auto-increment disabled during imports to preserve values).
+- `department` / `admin_staff` / `lawyer`: Text metadata imported from legacy registers and editable through the Document UI/API.
+- `document_location`: Snapshot of `clients.documents_location` automatically refreshed whenever a document is saved (ensures physical vault references stay aligned with the client master record).
+- `legacy_matter_name`: Stores the original textual `matter_id` value from Access/CSV exports so legacy filing labels remain searchable even when no modern `cases.id` match exists.
+
+### client_documents_staging
+**Description**: Raw rows imported from `DocumentsImport/Documents-Original.csv` for validation/dry runs before touching production data.  
+**Columns**: `legacy_document_id`, `legacy_client_id`, `client_name`, `legacy_matter_name`, `document_description`, `document_date_raw`, `document_date`, `pages_count_raw`, `pages_count`, `deposit_date_raw`, `deposit_date`, `department`, `admin_staff`, `lawyer`, `responsible_lawyer`, `notes`, `movement_card_raw`, `movement_card`, `raw_payload`.
+
+- Populated via `php artisan documents:staging-import`.
+- Use `php artisan documents:staging-process --dry-run` to verify readiness, then rerun with `--execute` to push into `client_documents`.
 
 ---
 

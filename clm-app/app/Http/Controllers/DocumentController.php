@@ -97,6 +97,9 @@ class DocumentController extends Controller
                 'matter_id' => $request->matter_id,
                 'document_storage_type' => $request->document_storage_type,
                 'document_type' => $request->document_type,
+                'department' => $request->department,
+                'admin_staff' => $request->admin_staff,
+                'lawyer' => $request->lawyer,
                 'description' => $request->description,
                 'responsible_lawyer' => $request->responsible_lawyer,
                 'movement_card' => $request->boolean('movement_card', false),
@@ -233,6 +236,9 @@ class DocumentController extends Controller
             'client_id' => 'required|integer|exists:clients,id',
             'matter_id' => 'nullable|integer|exists:cases,id',
             'document_type' => 'required|string|max:255',
+            'department' => 'nullable|string|max:255',
+            'admin_staff' => 'nullable|string|max:255',
+            'lawyer' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:1000',
         ]);
 
@@ -240,6 +246,9 @@ class DocumentController extends Controller
             'client_id' => $request->client_id,
             'matter_id' => $request->matter_id,
             'document_type' => $request->document_type,
+            'department' => $request->department,
+            'admin_staff' => $request->admin_staff,
+            'lawyer' => $request->lawyer,
             'description' => $request->description,
             'updated_by' => auth()->id(),
         ]);

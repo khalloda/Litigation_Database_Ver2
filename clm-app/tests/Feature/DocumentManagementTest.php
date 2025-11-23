@@ -26,6 +26,7 @@ beforeEach(function () {
         'status' => 'Active',
         'cash_or_probono' => 'Cash',
         'power_of_attorney_location' => 'Office',
+        'documents_location' => 'Archive Room A',
     ]);
 });
 
@@ -82,7 +83,9 @@ test('document upload works with valid file', function () {
     ]);
 
     // Check file was stored
-    Storage::disk('secure')->assertExists('documents/' . basename(ClientDocument::first()->file_path));
+    $createdDocument = ClientDocument::first();
+    Storage::disk('secure')->assertExists('documents/' . basename($createdDocument->file_path));
+    expect($createdDocument->document_location)->toBe('Archive Room A');
 });
 
 test('document upload validates file size', function () {

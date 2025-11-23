@@ -64,6 +64,9 @@ class DocumentController extends Controller
             'matter_id' => 'nullable|exists:cases,id',
             'document_name' => 'nullable|string|max:255',
             'document_type' => 'nullable|string|max:255',
+            'department' => 'nullable|string|max:255',
+            'admin_staff' => 'nullable|string|max:255',
+            'lawyer' => 'nullable|string|max:255',
             'description' => 'nullable|string',
         ]);
 
@@ -76,6 +79,9 @@ class DocumentController extends Controller
             'matter_id' => $validated['matter_id'] ?? null,
             'document_name' => $validated['document_name'] ?? $file->getClientOriginalName(),
             'document_type' => $validated['document_type'] ?? null,
+            'department' => $validated['department'] ?? null,
+            'admin_staff' => $validated['admin_staff'] ?? null,
+            'lawyer' => $validated['lawyer'] ?? null,
             'description' => $validated['description'] ?? null,
             'document_storage_type' => 'local',
             'document_path' => $path,

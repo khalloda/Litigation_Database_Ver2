@@ -36,8 +36,28 @@
                                     <td>{{ $document->document_name }}</td>
                                 </tr>
                                 <tr>
+                                    <td><strong>{{ __('app.legacy_document_id') }}:</strong></td>
+                                    <td>{{ $document->legacy_document_id ?? __('app.not_available') }}</td>
+                                </tr>
+                                <tr>
                                     <td><strong>Document Type:</strong></td>
                                     <td><span class="badge bg-info">{{ $document->document_type }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{{ __('app.legacy_matter_name') }}:</strong></td>
+                                    <td>{{ $document->legacy_matter_name ?? __('app.not_available') }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{{ __('app.department') }}:</strong></td>
+                                    <td>{{ $document->department ?? __('app.not_available') }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{{ __('app.admin_staff') }}:</strong></td>
+                                    <td>{{ $document->admin_staff ?? __('app.not_available') }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{{ __('app.lawyer') }}:</strong></td>
+                                    <td>{{ $document->lawyer ?? __('app.not_available') }}</td>
                                 </tr>
                                 <tr>
                                     <td><strong>File Size:</strong></td>
@@ -72,6 +92,10 @@
                                 <tr>
                                     <td><strong>File Path:</strong></td>
                                     <td><code>{{ $document->file_path }}</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{{ __('app.document_location') }}</strong></td>
+                                    <td>{{ $document->document_location ?? __('app.not_available') }}</td>
                                 </tr>
                             </table>
                         </div>
