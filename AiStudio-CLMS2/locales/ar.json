@@ -303,7 +303,28 @@
     "upcoming_hearings": "الجلسات القادمة",
     "partner_name": "اسم الشريك",
     "client_name": "اسم العميل",
-    "case_count": "عدد القضايا"
+    "case_count": "عدد القضايا",
+    "client_cases_report_title": "تقرير قضايا العميل (PDF)",
+    "select_client_label": "العميل",
+    "select_client_placeholder": "اختر عميلاً",
+    "select_columns_label": "الأعمدة",
+    "column_toggle_hint": "اختر الأعمدة التي ترغب في تضمينها داخل التقرير.",
+    "reset_columns": "إعادة ضبط الأعمدة",
+    "generate_pdf": "توليد ملف PDF",
+    "generating_pdf": "جاري التوليد...",
+    "select_client_warning": "يرجى اختيار عميل قبل توليد التقرير.",
+    "report_error_generic": "تعذر توليد التقرير. يرجى المحاولة مرة أخرى.",
+    "columns": {
+      "serial": "م/#",
+      "matter": "رقم الدعوى / اسمها",
+      "court": "المحكمة",
+      "clientRole": "الموكل وصفته",
+      "opponentRole": "الخصم وصفته",
+      "subject": "موضوع الدعوى",
+      "latestDecision": "آخر موقف",
+      "evaluation": "التقييم",
+      "financialProvision": "المخصص المالي"
+    }
   },
   "documents_page": {
     "title": "سجلات المستندات",

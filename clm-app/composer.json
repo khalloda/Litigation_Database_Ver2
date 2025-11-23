@@ -14,7 +14,8 @@
         "laravel/ui": "*",
         "phpoffice/phpspreadsheet": "^5.1",
         "spatie/laravel-activitylog": "*",
-        "spatie/laravel-permission": "*"
+        "spatie/laravel-permission": "*",
+        "barryvdh/laravel-snappy": "^1.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.1",

@@ -303,7 +303,28 @@
     "upcoming_hearings": "Upcoming Hearings",
     "partner_name": "Partner Name",
     "client_name": "Client Name",
-    "case_count": "Case Count"
+    "case_count": "Case Count",
+    "client_cases_report_title": "Client Case Report (PDF)",
+    "select_client_label": "Client",
+    "select_client_placeholder": "Select a client",
+    "select_columns_label": "Columns",
+    "column_toggle_hint": "Choose the columns you want to include in the PDF.",
+    "reset_columns": "Reset columns",
+    "generate_pdf": "Generate PDF",
+    "generating_pdf": "Generating…",
+    "select_client_warning": "Please select a client before generating the report.",
+    "report_error_generic": "Unable to generate the report. Please try again.",
+    "columns": {
+      "serial": "Serial",
+      "matter": "Case Number & Name",
+      "court": "Court",
+      "clientRole": "Client & Capacity",
+      "opponentRole": "Opponent & Capacity",
+      "subject": "Subject",
+      "latestDecision": "Latest Decision",
+      "evaluation": "Evaluation",
+      "financialProvision": "Financial Provision"
+    }
   },
   "documents_page": {
     "title": "Document Records",

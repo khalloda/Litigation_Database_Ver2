@@ -80,4 +80,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dashboard
     Route::get('/dashboard/statistics', [App\Http\Controllers\Api\DashboardController::class, 'statistics']);
+
+    // Reports
+    Route::post('/reports/client-cases/pdf', [App\Http\Controllers\Api\ReportController::class, 'clientCasesPdf'])
+        ->middleware('permission:reports.view');
 });

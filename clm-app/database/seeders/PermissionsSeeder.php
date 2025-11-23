@@ -72,6 +72,9 @@ class PermissionsSeeder extends Seeder
             'cases.opponents.edit',
             'cases.opponents.attach',
             'cases.opponents.detach',
+
+            // Reporting
+            'reports.view',
         ];
 
         // Create each permission if it doesn't exist

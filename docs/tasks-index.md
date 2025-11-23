@@ -467,6 +467,24 @@
 
 ---
 
+## 7. Reporting
+
+### 7.1 Client Case PDF Generator
+- **ID**: T-Report-01
+- **Status**: Done
+- **Branch**: (current)
+- **Description**: Build Toyota-style client report with selectable columns + server PDF export.
+- **DoD**:
+  - [x] Reports SPA exposes client dropdown, column toggles, and download CTA.
+  - [x] API endpoint `/api/reports/client-cases/pdf` secured by `reports.view`.
+  - [x] Snappy/Laravel integration with wkhtmltopdf config + env overrides.
+  - [x] Blade template mirrors provided layout (RTL table, header logos, totals).
+  - [x] Feature test fakes Snappy and asserts PDF response.
+  - [x] Usage documented in `/docs/reports.md` + daily worklog entry.
+- **Commits**: (pending)
+
+---
+
 ## Rollback Instructions
 
 ### T-01: Laravel Project Setup

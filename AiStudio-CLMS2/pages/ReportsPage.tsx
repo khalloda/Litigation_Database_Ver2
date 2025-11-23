@@ -5,6 +5,7 @@ import { fetchCases } from '../services/cases';
 import { fetchClients } from '../services/clients';
 import { fetchHearings } from '../services/hearings';
 import { fetchLawyers } from '../services/lawyers';
+import api from '../services/api';
 import type { CaseStatus, Lawyer, Client, Case } from '../types';
 
 const ReportWidget: React.FC<{ title: string; children: React.ReactNode; className?: string }> = ({ title, children, className = '' }) => (
@@ -13,6 +14,36 @@ const ReportWidget: React.FC<{ title: string; children: React.ReactNode; classNa
     <div>{children}</div>
   </div>
 );
+
+type ReportColumnKey =
+  | 'serial'
+  | 'matter'
+  | 'court'
+  | 'clientRole'
+  | 'opponentRole'
+  | 'subject'
+  | 'latestDecision'
+  | 'evaluation'
+  | 'financialProvision';
+
+const reportColumnKeys: ReportColumnKey[] = [
+  'serial',
+  'matter',
+  'court',
+  'clientRole',
+  'opponentRole',
+  'subject',
+  'latestDecision',
+  'evaluation',
+  'financialProvision',
+];
+
+type ColumnState = Record<ReportColumnKey, boolean>;
+
+const defaultColumnState: ColumnState = reportColumnKeys.reduce((acc, key) => {
+  acc[key] = true;
+  return acc;
+}, {} as ColumnState);
 
 const ReportsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -23,6 +54,10 @@ const ReportsPage: React.FC = () => {
   const [lawyers, setLawyers] = useState<Lawyer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedClientId, setSelectedClientId] = useState<number | ''>('');
+  const [columnVisibility, setColumnVisibility] = useState<ColumnState>(defaultColumnState);
+  const [reportError, setReportError] = useState<string | null>(null);
+  const [reportLoading, setReportLoading] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -46,6 +81,73 @@ const ReportsPage: React.FC = () => {
     };
     loadData();
   }, []);
+
+  const columnDefinitions = React.useMemo(
+    () =>
+      reportColumnKeys.map((key) => ({
+        key,
+        label: t(`reports_page.columns.${key}`),
+      })),
+    [t, language]
+  );
+
+  const handleColumnToggle = (key: ReportColumnKey) => {
+    setColumnVisibility((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
+  const handleResetColumns = () => {
+    setColumnVisibility(defaultColumnState);
+  };
+
+  const handleGenerateReport = async () => {
+    if (!selectedClientId) {
+      setReportError(t('reports_page.select_client_warning'));
+      return;
+    }
+
+    setReportError(null);
+    setReportLoading(true);
+
+    try {
+      const response = await api.post(
+        '/reports/client-cases/pdf',
+        {
+          client_id: selectedClientId,
+          columns: columnVisibility,
+        },
+        { responseType: 'blob' }
+      );
+
+      const client = clients.find((c) => c.id === selectedClientId);
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const fileNameBase =
+        client?.client_name_en ||
+        client?.client_name_ar ||
+        `client-${selectedClientId}`;
+      link.href = url;
+      link.setAttribute(
+        'download',
+        `${fileNameBase.replace(/\s+/g, '-').toLowerCase()}-report.pdf`
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        t('reports_page.report_error_generic');
+      setReportError(message);
+    } finally {
+      setReportLoading(false);
+    }
+  };
 
   const caseStatusData = React.useMemo(() => {
     const counts = cases.reduce((acc, currentCase) => {
@@ -125,7 +227,77 @@ const ReportsPage: React.FC = () => {
     <div className="container mx-auto">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">{t('reports_page.title')}</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-        
+        <ReportWidget title={t('reports_page.client_cases_report_title')} className="lg:col-span-2">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                {t('reports_page.select_client_label')}
+              </label>
+              <select
+                value={selectedClientId}
+                onChange={(e) => setSelectedClientId(Number(e.target.value) || '')}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-primary-200"
+                disabled={reportLoading}
+              >
+                <option value="">{t('reports_page.select_client_placeholder')}</option>
+                {clients.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {language === 'ar'
+                      ? client.client_name_ar || client.client_name_en
+                      : client.client_name_en || client.client_name_ar}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-gray-700">
+                  {t('reports_page.select_columns_label')}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleResetColumns}
+                  className="text-sm text-primary-600 hover:underline"
+                  disabled={reportLoading}
+                >
+                  {t('reports_page.reset_columns')}
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 mb-2">
+                {t('reports_page.column_toggle_hint')}
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {columnDefinitions.map((column) => (
+                  <label key={column.key} className="flex items-center gap-2 text-sm text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={columnVisibility[column.key]}
+                      onChange={() => handleColumnToggle(column.key)}
+                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      disabled={reportLoading}
+                    />
+                    <span>{column.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {reportError && <p className="text-sm text-red-600">{reportError}</p>}
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleGenerateReport}
+                disabled={reportLoading}
+                className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-60"
+              >
+                {reportLoading ? t('reports_page.generating_pdf') : t('reports_page.generate_pdf')}
+              </button>
+            </div>
+          </div>
+        </ReportWidget>
+
         <ReportWidget title={t('reports_page.case_status_distribution')}>
             <div className="space-y-4">
                 {(['active', 'closed', 'pending'] as CaseStatus[]).map(status => {

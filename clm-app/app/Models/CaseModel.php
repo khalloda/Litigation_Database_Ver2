@@ -126,6 +126,11 @@ class CaseModel extends Model
         return $this->belongsTo(Lawyer::class, 'matter_partner_id');
     }
 
+    public function latestHearing()
+    {
+        return $this->hasOne(Hearing::class, 'matter_id')->orderByDesc('date')->orderByDesc('id');
+    }
+
     // New option set relationships
     public function matterCategory()
     {
