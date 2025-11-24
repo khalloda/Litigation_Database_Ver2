@@ -479,6 +479,7 @@
   - [x] API endpoint `/api/reports/client-cases/pdf` secured by `reports.view`.
   - [x] Snappy/Laravel integration with wkhtmltopdf config + env overrides.
   - [x] Blade template mirrors provided layout (RTL table, header logos, totals).
+  - [x] Matter status filter (الكل / سارية / منتهية) wired from SPA to API.
   - [x] Feature test fakes Snappy and asserts PDF response.
   - [x] Usage documented in `/docs/reports.md` + daily worklog entry.
 - **Commits**: (pending)

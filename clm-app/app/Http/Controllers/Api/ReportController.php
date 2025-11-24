@@ -30,19 +30,27 @@ class ReportController extends Controller
             'columns' => ['array'],
             'columns.*' => ['boolean'],
             'orientation' => ['nullable', 'in:portrait,landscape'],
+            'status_filter' => ['nullable', 'string', 'in:الكل,سارية,منتهية,all,active,closed'],
         ]);
 
         $columns = $this->normalizeColumns($payload['columns'] ?? []);
         $client = Client::with('documentsLocation')->findOrFail($payload['client_id']);
+        $statusFilter = $this->resolveStatusFilter($payload['status_filter'] ?? null);
 
-        $cases = CaseModel::with([
+        $casesQuery = CaseModel::with([
             'client',
             'court',
             'clientCapacity',
             'opponentCapacity',
             'latestHearing',
         ])
-            ->where('client_id', $client->id)
+            ->where('client_id', $client->id);
+
+        if ($statusFilter !== null) {
+            $casesQuery->where('matter_status', $statusFilter);
+        }
+
+        $cases = $casesQuery
             ->orderBy('matter_name_ar')
             ->get();
 
@@ -147,6 +155,19 @@ class ReportController extends Controller
             'evaluation' => 'التقييم',
             'financialProvision' => 'المخصص المالي',
         ];
+    }
+
+    protected function resolveStatusFilter(?string $value): ?string
+    {
+        if ($value === null || in_array($value, ['الكل', 'all'], true)) {
+            return null;
+        }
+
+        return match ($value) {
+            'سارية', 'active' => 'سارية',
+            'منتهية', 'closed' => 'منتهية',
+            default => null,
+        };
     }
 }
 

@@ -43,8 +43,14 @@ This document explains how to generate the Toyota-style client case report that 
 
 1. Ensure the authenticated user has the `reports.view` permission (seed via `PermissionsSeeder` or assign manually).
 2. Open **Reports** page in the SPA. The "Client Case Report" widget should appear at the top of the page.
-3. Select a client, optionally toggle columns, and click **Generate PDF**. The browser automatically downloads the PDF.
+3. Select a client, optionally toggle columns, pick the **Matter Status** filter (`الكل`, `سارية`, or `منتهية`), and click **Generate PDF**. The browser automatically downloads the PDF.
 4. The backend fetches the client's cases, latest hearing decisions, evaluation, and financial provisions, then renders the PDF using `resources/views/reports/client_cases_pdf.blade.php`.
+
+### Filtering by Matter Status
+
+- Use the status dropdown in the SPA to limit the report to **Active (`سارية`)**, **Closed (`منتهية`)**, or **All** cases.
+- The API accepts the `status_filter` field with either the Arabic labels above or their English equivalents (`all`, `active`, `closed`).
+- Filtering happens against the legacy `matter_status` column on the `cases` table to match the data source requested by the user.
 
 ## API Example
 
@@ -52,7 +58,7 @@ This document explains how to generate the Toyota-style client case report that 
 curl -X POST /api/reports/client-cases/pdf \
      -H "Authorization: Bearer <token>" \
      -H "Accept: application/pdf" \
-     -d '{"client_id":123,"columns":{"serial":true,"subject":false}}' \
+     -d '{"client_id":123,"columns":{"serial":true,"subject":false},"status_filter":"سارية"}' \
      --output client-report.pdf
 ```
 

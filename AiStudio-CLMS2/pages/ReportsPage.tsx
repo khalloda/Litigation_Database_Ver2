@@ -39,6 +39,7 @@ const reportColumnKeys: ReportColumnKey[] = [
 ];
 
 type ColumnState = Record<ReportColumnKey, boolean>;
+type StatusFilterValue = 'الكل' | 'سارية' | 'منتهية';
 
 const defaultColumnState: ColumnState = reportColumnKeys.reduce((acc, key) => {
   acc[key] = true;
@@ -59,6 +60,7 @@ const ReportsPage: React.FC = () => {
   const [reportError, setReportError] = useState<string | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
   const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
+  const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('الكل');
 
   useEffect(() => {
     const loadData = async () => {
@@ -119,6 +121,7 @@ const ReportsPage: React.FC = () => {
           client_id: selectedClientId,
           columns: columnVisibility,
           orientation,
+          status_filter: statusFilter,
         },
         { responseType: 'blob' }
       );
@@ -264,6 +267,22 @@ const ReportsPage: React.FC = () => {
               >
                 <option value="portrait">{t('reports_page.orientation_portrait')}</option>
                 <option value="landscape">{t('reports_page.orientation_landscape')}</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                {t('reports_page.status_filter_label')}
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as StatusFilterValue)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-primary-200"
+                disabled={reportLoading}
+              >
+                <option value="الكل">{t('reports_page.status_filter_all')}</option>
+                <option value="سارية">{t('reports_page.status_filter_active')}</option>
+                <option value="منتهية">{t('reports_page.status_filter_closed')}</option>
               </select>
             </div>
 
