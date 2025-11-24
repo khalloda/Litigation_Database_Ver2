@@ -156,6 +156,7 @@
     "associated_cases": "Associated Cases",
     "contacts": "Contacts",
     "power_of_attorneys": "Power of Attorneys",
+    "role_unknown": "Role not specified",
     "no_contacts": "No contacts found for this client.",
     "no_documents": "No documents found for this client.",
     "no_poas": "No Power of Attorneys found for this client.",
@@ -476,6 +477,7 @@
     "Inactive": "Inactive",
     "Disabled": "Disabled",
     "disabled": "Disabled",
+    "undefined": "Undefined",
     "todo": "To Do",
     "in-progress": "In Progress",
     "completed": "Completed"

@@ -156,6 +156,7 @@
     "associated_cases": "القضايا المرتبطة",
     "contacts": "جهات الاتصال",
     "power_of_attorneys": "التوكيلات",
+    "role_unknown": "صفة غير محددة",
     "no_contacts": "لا توجد جهات اتصال لهذا العميل.",
     "no_documents": "لا توجد مستندات لهذا العميل.",
     "no_poas": "لا توجد توكيلات لهذا العميل.",
@@ -476,6 +477,7 @@
     "Inactive": "غير نشط",
     "Disabled": "معطل",
     "disabled": "معطل",
+    "undefined": "غير محددة",
     "todo": "مطلوبة",
     "in-progress": "قيد التنفيذ",
     "completed": "مكتملة"

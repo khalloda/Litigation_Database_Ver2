@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import type { Client, Case, Contact, ClientDocument, PowerOfAttorney, CaseStatus } from '../types';
+import type { Client, Case, Contact, ClientDocument, PowerOfAttorney } from '../types';
 import { useI18n } from '../hooks/useI18n';
 import { fetchClient, fetchClientSchema } from '../services/clients';
 import { BriefcaseIcon, DocumentIcon, UserGroupIcon, CaseIcon } from '../components/icons';
@@ -28,18 +28,67 @@ const TabButton: React.FC<{ label: string; isActive: boolean; onClick: () => voi
     </button>
 );
 
-const CaseStatusBadge: React.FC<{ status: CaseStatus }> = ({ status }) => {
+const CaseStatusBadge: React.FC<{ status?: string | null }> = ({ status }) => {
     const { t } = useI18n();
-    const statusClasses = {
-        active: 'bg-green-100 text-green-800',
-        closed: 'bg-red-100 text-red-800',
-        pending: 'bg-yellow-100 text-yellow-800',
-    };
+    const raw = (status ?? '').trim();
+    const lower = raw.toLowerCase();
+
+    let variant = 'bg-gray-100 text-gray-700';
+    let label = raw || t('status.undefined');
+
+    if (lower.length) {
+        if (['active', 'سارية'].includes(lower)) {
+            variant = 'bg-green-100 text-green-800';
+            label = t('status.active');
+        } else if (['closed', 'منتهية'].includes(lower)) {
+            variant = 'bg-red-100 text-red-800';
+            label = t('status.closed');
+        } else if (['pending', 'معلقة', 'جار المتابعة', 'جاري المتابعة'].includes(lower)) {
+            variant = 'bg-yellow-100 text-yellow-800';
+            label = t('status.pending');
+        }
+    }
+
     return (
-        <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusClasses[status]}`}>
-            {t(`status.${status}`)}
+        <span className={`px-2 py-1 text-xs font-medium rounded-full ${variant}`}>
+            {label}
         </span>
     );
+};
+
+const resolveCaseName = (record: Case, language: 'en' | 'ar') => {
+    const arabicName = record.case_name_ar || record.matter_name_ar || record.matter_name_en || '';
+    const englishName = record.case_name_en || record.matter_name_en || record.matter_name_ar || '';
+
+    return language === 'ar' ? (arabicName || englishName) : (englishName || arabicName);
+};
+
+const resolveClientRole = (record: Case, language: 'en' | 'ar', translate: (key: string) => string) => {
+    if (record.client_capacity) {
+        const key = `party_roles.${record.client_capacity}`;
+        const translated = translate(key);
+        if (translated !== key) {
+            return translated;
+        }
+    }
+
+    if (record.client_capacity_note) {
+        return record.client_capacity_note;
+    }
+
+    const capacityRelation = (record as any)?.clientCapacity;
+    if (capacityRelation) {
+        if (language === 'ar') {
+            return capacityRelation.label_ar ?? capacityRelation.label_en ?? translate('client_page.role_unknown');
+        }
+        return capacityRelation.label_en ?? capacityRelation.label_ar ?? translate('client_page.role_unknown');
+    }
+
+    if (record.client_in_case_name) {
+        return record.client_in_case_name;
+    }
+
+    return translate('client_page.role_unknown');
 };
 
 const ClientDetailPage: React.FC = () => {
@@ -160,7 +209,7 @@ const ClientDetailPage: React.FC = () => {
                         )}
                     </div>
                 )}
-
+                
                 {activeTab === 'cases' && (
                   <div>
                     {client.cases && client.cases.length > 0 ? (
@@ -174,13 +223,19 @@ const ClientDetailPage: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {client.cases.map(c => (
-                              <tr key={c.id} onClick={() => navigate(`/cases/${c.id}`)} className="border-b hover:bg-gray-50 cursor-pointer">
-                                <td className="p-3 text-gray-800 font-medium">{language === 'ar' ? c.case_name_ar : c.case_name_en}</td>
-                                <td className="p-3"><CaseStatusBadge status={c.status} /></td>
-                                <td className="p-3 text-gray-600">{t(`party_roles.${c.client_capacity}`)}</td>
-                              </tr>
-                            ))}
+                            {client.cases.map((c) => {
+                              const displayName = resolveCaseName(c, language) || '—';
+                              const statusValue = c.status ?? (c as any)?.matter_status ?? c.current_status ?? null;
+                              const roleLabel = resolveClientRole(c, language, t);
+
+                              return (
+                                <tr key={c.id} onClick={() => navigate(`/cases/${c.id}`)} className="border-b hover:bg-gray-50 cursor-pointer">
+                                  <td className="p-3 text-gray-800 font-medium">{displayName}</td>
+                                  <td className="p-3"><CaseStatusBadge status={statusValue} /></td>
+                                  <td className="p-3 text-gray-600">{roleLabel}</td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>
