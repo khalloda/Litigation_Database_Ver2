@@ -5,36 +5,13 @@
     <title>بيان بموقف دعاوى العميل</title>
     <style>
         @page {
-            margin: 25mm 15mm 20mm 15mm;
+            margin: 40mm 15mm 25mm 15mm;
         }
         body {
             font-family: 'Cairo', 'Noto Kufi Arabic', 'Tahoma', 'Arial', sans-serif;
             color: #1f2937;
             font-size: 12px;
             line-height: 1.5;
-        }
-        .report-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #e5e7eb;
-        }
-        .firm-brand {
-            color: #256b3f;
-            font-weight: 700;
-        }
-        .firm-brand small {
-            display: block;
-            font-size: 10px;
-            color: #1c4532;
-        }
-        .client-brand {
-            text-align: left;
-            color: #b91c1c;
-            font-weight: 700;
-            min-width: 180px;
         }
         .report-title {
             text-align: center;
@@ -72,16 +49,6 @@
     </style>
 </head>
 <body>
-    <header class="report-header">
-        <div class="firm-brand">
-            Sarie Eldin & Partners
-            <small>Attorneys at Law & Legal Consultants</small>
-        </div>
-        <div class="client-brand">
-            {{ $client->client_name_ar ?? $client->client_name_en }}
-        </div>
-    </header>
-
     <h2 class="report-title">بيان بموقف دعاوى العميل</h2>
 
     <table class="report-table">

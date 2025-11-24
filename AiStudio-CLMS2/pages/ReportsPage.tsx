@@ -58,6 +58,7 @@ const ReportsPage: React.FC = () => {
   const [columnVisibility, setColumnVisibility] = useState<ColumnState>(defaultColumnState);
   const [reportError, setReportError] = useState<string | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
+  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
 
   useEffect(() => {
     const loadData = async () => {
@@ -117,6 +118,7 @@ const ReportsPage: React.FC = () => {
         {
           client_id: selectedClientId,
           columns: columnVisibility,
+          orientation,
         },
         { responseType: 'blob' }
       );
@@ -247,6 +249,21 @@ const ReportsPage: React.FC = () => {
                       : client.client_name_en || client.client_name_ar}
                   </option>
                 ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                {t('reports_page.orientation_label')}
+              </label>
+              <select
+                value={orientation}
+                onChange={(e) => setOrientation(e.target.value as 'portrait' | 'landscape')}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-primary-200"
+                disabled={reportLoading}
+              >
+                <option value="portrait">{t('reports_page.orientation_portrait')}</option>
+                <option value="landscape">{t('reports_page.orientation_landscape')}</option>
               </select>
             </div>
 

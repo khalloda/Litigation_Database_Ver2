@@ -10,6 +10,7 @@ use App\Models\User;
 use Barryvdh\Snappy\Facades\SnappyPdf;
 use Database\Seeders\PermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Mockery;
 use Tests\TestCase;
 
 class ClientCasesReportTest extends TestCase
@@ -54,19 +55,16 @@ class ClientCasesReportTest extends TestCase
             'decision' => 'تأجيل الجلسة',
         ]);
 
+        $mockPdf = Mockery::mock();
+        $mockPdf->shouldReceive('setPaper')->once()->with('a4', 'portrait')->andReturnSelf();
+        $mockPdf->shouldReceive('setOption')->times(7)->andReturnSelf();
+        $mockPdf->shouldReceive('download')
+            ->once()
+            ->andReturn(response('PDF', 200, ['Content-Type' => 'application/pdf']));
+
         SnappyPdf::shouldReceive('loadView')
             ->once()
-            ->andReturn(new class {
-                public function setPaper(): self
-                {
-                    return $this;
-                }
-
-                public function download($fileName)
-                {
-                    return response('PDF', 200, ['Content-Type' => 'application/pdf']);
-                }
-            });
+            ->andReturn($mockPdf);
 
         $response = $this->actingAs($user, 'sanctum')->postJson('/api/reports/client-cases/pdf', [
             'client_id' => $client->id,
