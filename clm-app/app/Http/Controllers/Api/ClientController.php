@@ -100,7 +100,21 @@ class ClientController extends Controller
             'cashOrProbono',
             'statusRef',
             'contactLawyer',
-            'cases:id,client_id,matter_name_ar,matter_name_en',
+            'cases' => function ($query) {
+                $query->select([
+                    'id',
+                    'client_id',
+                    'matter_name_ar',
+                    'matter_name_en',
+                    'matter_status',
+                    'current_status',
+                    'client_capacity',
+                    'client_capacity_id',
+                    'client_capacity_note',
+                    'client_in_case_name',
+                ]);
+            },
+            'cases.clientCapacity:id,label_ar,label_en',
         ]);
 
         // Get schema-driven field metadata

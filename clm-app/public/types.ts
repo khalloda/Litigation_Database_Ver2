@@ -266,7 +266,12 @@ export interface Case {
   client: Client;
   client_in_case_name?: string | null;
   client_capacity: string;
+  client_capacity_id?: number | null;
   client_capacity_note?: string | null;
+  clientCapacity?: {
+    label_ar?: string | null;
+    label_en?: string | null;
+  } | null;
   opponents: CaseOpponent[];
   lawyer_a?: Lawyer | null;
   lawyer_b?: Lawyer | null;
@@ -285,6 +290,7 @@ export interface Case {
   // Status & Progress section
   case_degree: string;
   status: string;
+  matter_status?: string | null;
   case_importance: string;
   case_category: string;
   current_status?: string | null;
