@@ -113,6 +113,9 @@ export interface ClientDocument {
     mfiles_uploaded: boolean;
     mfiles_id?: string | null;
     responsible_lawyer?: string | null;
+    department?: string | null;
+    admin_staff?: string | null;
+    lawyer?: string | null;
     movement_card: boolean;
     document_description?: string | null;
     deposit_date: string;

@@ -199,6 +199,9 @@ const DocumentDetailPage: React.FC = () => {
                             <DetailItem label={t('documents_page.type')} value={document.document_type} />
                             <DetailItem label={t('documents_page.deposit_date')} value={document.deposit_date ? new Date(document.deposit_date).toLocaleDateString() : undefined} />
                             <DetailItem label={t('new_document_form.document_date')} value={document.document_date ? new Date(document.document_date).toLocaleDateString() : undefined} />
+                            <DetailItem label={t('documents_page.department_label')} value={document.department} />
+                            <DetailItem label={t('documents_page.admin_staff_label')} value={document.admin_staff} />
+                            <DetailItem label={t('documents_page.lawyer_field')} value={document.lawyer} />
                             <DetailItem label={t('documents_page.lawyer')} value={document.responsible_lawyer} />
                             <DetailItem label={t('documents_page.storage')} value={<span className="capitalize">{document.document_storage_type}</span>} />
                             <DetailItem label={t('new_document_form.pages_count')} value={document.pages_count} />

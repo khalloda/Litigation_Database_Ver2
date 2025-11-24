@@ -352,9 +352,26 @@
     "case": "القضية",
     "type": "النوع",
     "deposit_date": "تاريخ الإيداع",
+    "department_label": "القسم",
+    "admin_staff_label": "الموظف الإداري",
+    "lawyer_field": "المحامي",
     "lawyer": "المحامي المسؤول",
     "storage": "نوع التخزين",
-    "no_documents": "لا توجد مستندات تطابق الفلاتر الحالية."
+    "no_documents": "لا توجد مستندات تطابق الفلاتر الحالية.",
+    "all_departments": "كل الأقسام",
+    "all_admin_staff": "كل الموظفين الإداريين",
+    "all_lawyers_field": "كل المحامين",
+    "all_responsible_lawyers": "كل المحامين المسؤولين",
+    "sort": {
+      "label": "ترتيب حسب",
+      "deposit_date": "تاريخ الإيداع",
+      "document_name": "اسم المستند",
+      "client": "العميل",
+      "case": "القضية",
+      "direction": "الاتجاه",
+      "asc": "تصاعدي",
+      "desc": "تنازلي"
+    }
   },
   "document_page": {
     "title": "تفاصيل المستند",

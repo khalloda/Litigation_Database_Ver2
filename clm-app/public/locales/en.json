@@ -352,9 +352,26 @@
     "case": "Case",
     "type": "Type",
     "deposit_date": "Deposit Date",
+    "department_label": "Department",
+    "admin_staff_label": "Admin Staff",
+    "lawyer_field": "Lawyer",
     "lawyer": "Responsible Lawyer",
     "storage": "Storage Type",
-    "no_documents": "No documents match the current filters."
+    "no_documents": "No documents match the current filters.",
+    "all_departments": "All Departments",
+    "all_admin_staff": "All Admin Staff",
+    "all_lawyers_field": "All Lawyers",
+    "all_responsible_lawyers": "All Responsible Lawyers",
+    "sort": {
+      "label": "Sort By",
+      "deposit_date": "Deposit Date",
+      "document_name": "Document Name",
+      "client": "Client",
+      "case": "Case",
+      "direction": "Direction",
+      "asc": "Ascending",
+      "desc": "Descending"
+    }
   },
   "document_page": {
     "title": "Document Details",
