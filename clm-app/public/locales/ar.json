@@ -170,6 +170,7 @@
   },
   "document": {
     "document_name": "اسم المستند",
+    "description": "الوصف",
     "document_type": "النوع",
     "deposit_date": "تاريخ الإيداع",
     "related_case": "القضية المرتبطة"
@@ -344,6 +345,7 @@
     "all_clients": "كل العملاء",
     "all_cases": "كل القضايا",
     "all_types": "كل الأنواع",
+    "all_storage_types": "كل أنواع التخزين",
     "all_lawyers": "كل المحامين",
     "start_date": "تاريخ بدء الإيداع",
     "end_date": "تاريخ انتهاء الإيداع",

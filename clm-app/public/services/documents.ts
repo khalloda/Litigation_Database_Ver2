@@ -1,4 +1,4 @@
-import api from './api';
+import api, { fetchAllPages } from './api';
 import type { ClientDocument } from '../types';
 
 export async function fetchDocuments(params?: {
@@ -9,10 +9,7 @@ export async function fetchDocuments(params?: {
   date_from?: string;
   date_to?: string;
 }) {
-  const response = await api.get('/documents', { params });
-  // Laravel pagination returns { data: [...], current_page, per_page, total, ... }
-  // Return the data array directly for easier consumption
-  return response.data.data || response.data;
+  return fetchAllPages<ClientDocument>('/documents', params, 200);
 }
 
 export async function fetchDocument(id: number | string) {

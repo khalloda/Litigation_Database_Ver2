@@ -170,6 +170,7 @@
   },
   "document": {
     "document_name": "Document Name",
+    "description": "Description",
     "document_type": "Type",
     "deposit_date": "Deposit Date",
     "related_case": "Related Case"
@@ -344,6 +345,7 @@
     "all_clients": "All Clients",
     "all_cases": "All Cases",
     "all_types": "All Types",
+    "all_storage_types": "All Storage Types",
     "all_lawyers": "All Lawyers",
     "start_date": "Deposit Start Date",
     "end_date": "Deposit End Date",
