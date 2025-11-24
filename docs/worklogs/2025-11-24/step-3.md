@@ -17,7 +17,8 @@ Copy-Item AiStudio-CLMS2\dist\index.html clm-app\public\index.html -Force
 - Rebuilt SPA assets and synced to Laravel public folder.
 
 ## Errors & Fixes
-- None (Vite chunk warning persists, expected).
+- Vite chunk warning persists (expected).
+- Follow-up: removed legacy `client_capacity` column from the eager-load select after MySQL reported `Unknown column` (cases table only stores `client_capacity_id` + note).
 
 ## Validation
 - `npm run build` — ✅

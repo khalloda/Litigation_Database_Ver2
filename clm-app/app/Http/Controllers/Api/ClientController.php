@@ -108,7 +108,6 @@ class ClientController extends Controller
                     'matter_name_en',
                     'matter_status',
                     'current_status',
-                    'client_capacity',
                     'client_capacity_id',
                     'client_capacity_note',
                     'client_in_case_name',
