@@ -66,19 +66,28 @@ const resolveCaseName = (record: Case, language: 'en' | 'ar') => {
 };
 
 const resolveClientRole = (record: Case, language: 'en' | 'ar', translate: (key: string) => string) => {
-    const relation = (record as any)?.clientCapacity;
+    const relation =
+        (record as any)?.clientCapacity ??
+        (record as any)?.client_capacity;
+
     if (relation) {
-        return language === 'ar'
-            ? relation.label_ar ?? relation.label_en ?? translate('client_page.role_unknown')
-            : relation.label_en ?? relation.label_ar ?? translate('client_page.role_unknown');
+        const labelAr = (relation as any)?.label_ar;
+        const labelEn = (relation as any)?.label_en;
+
+        if (labelAr || labelEn) {
+            return language === 'ar'
+                ? labelAr ?? labelEn ?? translate('client_page.role_unknown')
+                : labelEn ?? labelAr ?? translate('client_page.role_unknown');
+        }
     }
 
     if (record.client_capacity_note) {
         return record.client_capacity_note;
     }
 
-    if (record.client_capacity) {
-        return record.client_capacity;
+    const legacyCapacity = (record as any)?.client_capacity;
+    if (legacyCapacity && typeof legacyCapacity === 'string') {
+        return legacyCapacity;
     }
 
     return translate('client_page.role_unknown');
