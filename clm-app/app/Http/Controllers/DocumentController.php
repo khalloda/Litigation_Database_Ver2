@@ -50,7 +50,7 @@ class DocumentController extends Controller
             });
         }
 
-        $documents = $query->paginate(20);
+        $documents = $query->paginate(25);
 
         // Get filter options
         $clients = \App\Models\Client::select('id', 'client_name_ar', 'client_name_en')

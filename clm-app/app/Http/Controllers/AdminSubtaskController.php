@@ -16,7 +16,7 @@ class AdminSubtaskController extends Controller
 
         $subtasks = AdminSubtask::with(['task.case', 'lawyer'])
             ->orderBy('next_date', 'desc')
-            ->paginate(20);
+            ->paginate(25);
 
         return view('admin-subtasks.index', compact('subtasks'));
     }

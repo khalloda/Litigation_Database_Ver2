@@ -7,7 +7,9 @@ export async function fetchTasks(params?: {
   priority?: string;
 }) {
   const response = await api.get('/tasks', { params });
-  return response.data;
+  // Laravel pagination returns { data: [...], current_page, per_page, total, ... }
+  // Return the data array directly for easier consumption
+  return response.data.data || response.data;
 }
 
 export async function fetchTask(id: number | string) {

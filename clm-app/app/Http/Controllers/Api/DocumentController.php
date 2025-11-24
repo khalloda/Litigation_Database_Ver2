@@ -40,7 +40,7 @@ class DocumentController extends Controller
             }
 
             $documents = $query->orderBy('created_at', 'desc')
-                ->paginate($request->get('per_page', 20));
+                ->paginate($request->get('per_page', 25));
 
             return response()->json($documents);
         } catch (\Exception $e) {

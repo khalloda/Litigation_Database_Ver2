@@ -34,7 +34,7 @@ class TrashController extends Controller
             $query->where('status', $status);
         }
 
-        $bundles = $query->paginate(20);
+        $bundles = $query->paginate(25);
 
         // Get statistics
         $stats = [

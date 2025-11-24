@@ -3,7 +3,9 @@ import type { OptionValue, OptionSet } from '../types';
 
 export async function fetchOptionSets() {
   const response = await api.get('/options');
-  return response.data;
+  // Laravel pagination returns { data: [...], current_page, per_page, total, ... }
+  // Return the data array directly for easier consumption
+  return response.data.data || response.data;
 }
 
 export async function fetchOptionsBySetKey(setKey: string) {
@@ -12,8 +14,15 @@ export async function fetchOptionsBySetKey(setKey: string) {
 }
 
 export async function fetchOptionSet(id: number | string) {
-  const response = await api.get(`/options/sets/${id}`);
-  return response.data;
+  const response = await api.get(`/options/${id}`);
+  // Single item endpoints wrap data in { data: {...} }
+  return response.data.data || response.data;
+}
+
+export async function fetchOptionValuesBySetId(setId: number | string) {
+  const response = await api.get(`/options/${setId}`);
+  // Returns array of option values
+  return Array.isArray(response.data) ? response.data : (response.data.data || []);
 }
 
 export async function createOptionSet(payload: Partial<OptionSet>) {

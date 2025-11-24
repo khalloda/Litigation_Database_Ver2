@@ -99,7 +99,7 @@ class ClientsController extends Controller
         $cases = \App\Models\CaseModel::where('client_id', $client->id)
             ->select('id', 'matter_name_ar', 'matter_name_en')
             ->orderBy('matter_name_ar')
-            ->paginate(15);
+            ->paginate(25);
         return view('clients.show', compact('client', 'cases', 'schemaData'));
     }
 

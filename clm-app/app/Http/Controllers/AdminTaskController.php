@@ -18,7 +18,7 @@ class AdminTaskController extends Controller
 
         $tasks = AdminTask::with(['case', 'lawyer'])
             ->orderBy('execution_date', 'desc')
-            ->paginate(20);
+            ->paginate(25);
 
         return view('admin-tasks.index', compact('tasks'));
     }

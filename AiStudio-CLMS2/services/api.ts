@@ -46,3 +46,59 @@ api.interceptors.response.use(
 
 export default api;
 
+export async function fetchAllPages<T = any>(
+  endpoint: string,
+  params: Record<string, any> = {},
+  perPage = 100
+): Promise<T[]> {
+  const baseParams = { ...params };
+  delete baseParams.page;
+
+  const firstResponse = await api.get(endpoint, {
+    params: {
+      ...baseParams,
+      per_page: params?.per_page ?? perPage,
+      page: 1,
+    },
+  });
+
+  const payload = firstResponse.data;
+  const combined: T[] = Array.isArray(payload?.data)
+    ? [...payload.data]
+    : Array.isArray(payload)
+      ? [...payload]
+      : [];
+
+  const totalPages = payload?.last_page ?? 1;
+  const currentPage = payload?.current_page ?? 1;
+
+  if (!payload?.last_page || totalPages <= currentPage) {
+    return combined;
+  }
+
+  const requests: Promise<any>[] = [];
+  for (let page = currentPage + 1; page <= totalPages; page++) {
+    requests.push(
+      api.get(endpoint, {
+        params: {
+          ...baseParams,
+          per_page: params?.per_page ?? perPage,
+          page,
+        },
+      })
+    );
+  }
+
+  const responses = await Promise.all(requests);
+  responses.forEach((res) => {
+    const chunk = Array.isArray(res.data?.data)
+      ? res.data.data
+      : Array.isArray(res.data)
+        ? res.data
+        : [];
+    combined.push(...chunk);
+  });
+
+  return combined;
+}
+

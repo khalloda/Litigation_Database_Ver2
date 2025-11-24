@@ -20,7 +20,7 @@ class ImportProfilesController extends Controller
         if ($request->filled('active')) {
             $query->where('is_active', (bool) $request->boolean('active'));
         }
-        $profiles = $query->paginate(20);
+        $profiles = $query->paginate(25);
 
         return view('admin.import.profiles.index', compact('profiles'));
     }

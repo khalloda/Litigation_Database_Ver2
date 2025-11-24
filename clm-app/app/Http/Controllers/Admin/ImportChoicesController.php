@@ -22,7 +22,7 @@ class ImportChoicesController extends Controller
                     ->orWhere('normalized_value', 'like', "%$s%");
             });
         }
-        $choices = $query->paginate(20);
+        $choices = $query->paginate(25);
         return view('admin.import.choices.index', compact('profile', 'choices'));
     }
 

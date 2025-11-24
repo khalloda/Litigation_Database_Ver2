@@ -1,14 +1,17 @@
-import api from './api';
+import api, { fetchAllPages } from './api';
 import type { Court } from '../types';
 
 export async function fetchCourts(params?: {
   is_active?: boolean;
   search?: string;
+  per_page?: number;
 }) {
-  const response = await api.get('/courts', { params });
-  // Laravel pagination returns { data: [...], current_page, per_page, total, ... }
-  // Return the data array directly for easier consumption
-  return response.data.data || response.data;
+  if (params?.per_page && params.per_page <= 25) {
+    const response = await api.get('/courts', { params });
+    return response.data?.data ?? response.data;
+  }
+
+  return fetchAllPages<Court>('/courts', params, params?.per_page ?? 100);
 }
 
 export async function fetchCourt(id: number | string) {

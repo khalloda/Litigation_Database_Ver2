@@ -127,7 +127,7 @@ class CourtsController extends Controller
             ->with(['client:id,client_name_ar,client_name_en'])
             ->select('id', 'client_id', 'court_id', 'matter_name_ar', 'matter_name_en', 'matter_status', 'matter_start_date')
             ->orderBy('matter_start_date', 'desc')
-            ->paginate(15);
+            ->paginate(25);
         
         // Placeholder for hearings and tasks
         $hearings = collect([]);
