@@ -121,6 +121,7 @@ export interface ClientDocument {
     deposit_date: string;
     document_date?: string | null;
     case_number?: string | null;
+    legacy_matter_name?: string | null;
     pages_count?: string | null;
     notes?: string | null;
     // For detail view
