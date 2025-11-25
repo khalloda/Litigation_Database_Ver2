@@ -250,11 +250,11 @@ const DocumentsListPage: React.FC = () => {
 
       {loading ? (
         <div className="text-center py-10 bg-white rounded-lg shadow-sm">
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">{t('common.loading')}</p>
         </div>
       ) : error ? (
         <div className="text-center py-10 bg-white rounded-lg shadow-sm">
-          <p className="text-red-600">Error: {error}</p>
+          <p className="text-red-600">{t('common.error')}: {error}</p>
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">

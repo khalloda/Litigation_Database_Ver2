@@ -140,7 +140,7 @@ const DashboardPage: React.FC = () => {
     return (
       <div className="container mx-auto p-6">
         <div className="text-center py-20">
-          <p className="text-gray-600">Loading dashboard...</p>
+          <p className="text-gray-600">{t('common.loading_dashboard')}</p>
         </div>
       </div>
     );
@@ -150,7 +150,7 @@ const DashboardPage: React.FC = () => {
     return (
       <div className="container mx-auto p-6">
         <div className="text-center py-20">
-          <p className="text-red-600">Error: {error}</p>
+          <p className="text-red-600">{t('common.error')}: {error}</p>
         </div>
       </div>
     );

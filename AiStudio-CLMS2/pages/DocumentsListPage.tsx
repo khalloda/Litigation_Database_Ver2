@@ -250,11 +250,11 @@ const DocumentsListPage: React.FC = () => {
 
       {loading ? (
         <div className="text-center py-10 bg-white rounded-lg shadow-sm">
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">{t('common.loading')}</p>
         </div>
       ) : error ? (
         <div className="text-center py-10 bg-white rounded-lg shadow-sm">
-          <p className="text-red-600">Error: {error}</p>
+          <p className="text-red-600">{t('common.error')}: {error}</p>
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -263,7 +263,7 @@ const DocumentsListPage: React.FC = () => {
             <table className="min-w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="text-start p-4 font-semibold text-gray-600 text-sm">{t('documents_page.document_name')}</th>
+                  <th className="text-start p-4 font-semibold text-gray-600 text-sm">{t('documents_page.matter_name')}</th>
                   <th className="text-start p-4 font-semibold text-gray-600 text-sm">{t('documents_page.description')}</th>
                   <th className="text-start p-4 font-semibold text-gray-600 text-sm">{t('documents_page.client')}</th>
                   <th className="text-start p-4 font-semibold text-gray-600 text-sm">{t('documents_page.case')}</th>
@@ -284,7 +284,7 @@ const DocumentsListPage: React.FC = () => {
 
                   return (
                     <tr key={doc.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => navigate(`/documents/${doc.id}`)}>
-                      <td className="p-4 whitespace-nowrap text-sm font-medium text-gray-800">{doc.document_name}</td>
+                      <td className="p-4 whitespace-nowrap text-sm font-medium text-gray-800">{doc.legacy_matter_name || '—'}</td>
                       <td className="p-4 text-sm text-gray-600 max-w-xs truncate">{doc.document_description || '—'}</td>
                       <td className="p-4 whitespace-nowrap text-sm">
                         {client ? <a href="#" onClick={(e) => { e.stopPropagation(); e.preventDefault(); navigate(`/clients/${client.id}`); }} className="text-primary-600 hover:underline">{clientName}</a> : clientName}

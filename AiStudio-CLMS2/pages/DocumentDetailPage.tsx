@@ -116,7 +116,7 @@ const DocumentDetailPage: React.FC = () => {
         return (
             <div className="container mx-auto">
                 <div className="text-center py-10">
-                    <p className="text-gray-600">Loading...</p>
+                    <p className="text-gray-600">{t('common.loading')}</p>
                 </div>
             </div>
         );
@@ -126,7 +126,7 @@ const DocumentDetailPage: React.FC = () => {
         return (
             <div className="container mx-auto">
                 <div className="text-center py-10">
-                    <p className="text-red-600">Error: {error || 'Document not found'}</p>
+                    <p className="text-red-600">{t('common.error')}: {error || t('common.not_found').replace('{item}', '')}</p>
                     <button onClick={() => navigate('/documents')} className="mt-4 text-primary-600 hover:underline">
                         &larr; {t('app.back_to_documents')}
                     </button>

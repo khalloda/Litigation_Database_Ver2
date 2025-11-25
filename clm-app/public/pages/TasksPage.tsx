@@ -269,7 +269,7 @@ const TasksPage: React.FC = () => {
         return (
             <div className="container mx-auto">
                 <div className="text-center py-10">
-                    <p className="text-gray-600">Loading...</p>
+                    <p className="text-gray-600">{t('common.loading')}</p>
                 </div>
             </div>
         );
@@ -279,7 +279,7 @@ const TasksPage: React.FC = () => {
         return (
             <div className="container mx-auto">
                 <div className="text-center py-10">
-                    <p className="text-red-600">Error: {error}</p>
+                    <p className="text-red-600">{t('common.error')}: {error}</p>
                 </div>
             </div>
         );
