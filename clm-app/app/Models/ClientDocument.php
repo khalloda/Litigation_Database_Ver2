@@ -36,6 +36,7 @@ class ClientDocument extends Model
         'document_location',
         // Map UI attribute 'description' to DB column via accessors/mutators
         'description',
+        'document_description',
         'deposit_date',
         'document_date',
         'case_number',
@@ -63,8 +64,8 @@ class ClientDocument extends Model
             $client = $document->relationLoaded('client')
                 ? $document->client
                 : Client::with('documentsLocation')
-                    ->select('id', 'documents_location_id')
-                    ->find($document->client_id);
+                ->select('id', 'documents_location_id')
+                ->find($document->client_id);
 
             $document->document_location = $client?->documentsLocation?->label;
         });
