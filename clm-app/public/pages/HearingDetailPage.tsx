@@ -133,13 +133,17 @@ const HearingDetailPage: React.FC = () => {
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => setActiveTab('details')}
-                            className={`flex items-center gap-2 px-4 py-2 font-semibold rounded-md transition-colors text-sm ${activeTab === 'details' ? 'bg-primary-600 text-white shadow' : 'text-gray-600 hover:bg-primary-100'}`}
+                            className={`flex items-center gap-2 px-4 py-2 font-semibold rounded-md transition-colors text-sm ${
+                                activeTab === 'details' ? 'bg-primary-600 text-white shadow' : 'text-gray-600 hover:bg-primary-100'
+                            }`}
                         >
                             {t('hearing_page.details')}
                         </button>
                         <button
                             onClick={() => setActiveTab('all-fields')}
-                            className={`flex items-center gap-2 px-4 py-2 font-semibold rounded-md transition-colors text-sm ${activeTab === 'all-fields' ? 'bg-primary-600 text-white shadow' : 'text-gray-600 hover:bg-primary-100'}`}
+                            className={`flex items-center gap-2 px-4 py-2 font-semibold rounded-md transition-colors text-sm ${
+                                activeTab === 'all-fields' ? 'bg-primary-600 text-white shadow' : 'text-gray-600 hover:bg-primary-100'
+                            }`}
                         >
                             <DocumentIcon className="w-4 h-4" />
                             {t('hearing_page.all_fields') || 'All Fields'}
@@ -163,8 +167,8 @@ const HearingDetailPage: React.FC = () => {
                                 label={t('hearing_page.attending_lawyer')}
                                 value={hearing.lawyer ? <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/lawyers/${hearing.lawyer!.id}`); }} className="text-blue-600 hover:underline">{lawyerName}</a> : lawyerName}
                             />
-                             <DetailItem label={t('hearing_page.decision')} value={<p className="whitespace-pre-wrap">{hearing.decision}</p>} />
-                             <DetailItem label={t('hearing_page.notes')} value={<p className="whitespace-pre-wrap">{hearing.notes}</p>} />
+                            <DetailItem label={t('hearing_page.decision')} value={<p className="whitespace-pre-wrap">{hearing.decision}</p>} />
+                            <DetailItem label={t('hearing_page.notes')} value={<p className="whitespace-pre-wrap">{hearing.notes}</p>} />
                         </dl>
                     </div>
                 )}

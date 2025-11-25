@@ -350,6 +350,7 @@
     "start_date": "Deposit Start Date",
     "end_date": "Deposit End Date",
     "document_name": "Document Name",
+    "matter_name": "Matter Name",
     "client": "Client",
     "case": "Case",
     "type": "Type",

@@ -14,10 +14,10 @@ const PowerOfAttorneyListPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [clientFilter, setClientFilter] = useState('');
 
-  const loadData = async () => {
+  const loadData = async (opts: { search?: string; client_id?: number } = {}) => {
     try {
       setLoading(true);
-      const response = await fetchPowerOfAttorneys();
+      const response = await fetchPowerOfAttorneys(opts);
       const collection = Array.isArray(response) ? response : response.data || [];
       setPowerOfAttorneys(collection);
     } catch (err: any) {
@@ -60,10 +60,9 @@ const PowerOfAttorneyListPage: React.FC = () => {
     const map = new Map<number, { id: number; label: string }>();
     powerOfAttorneys.forEach((poa) => {
       if (poa.client) {
-        const label =
-          language === 'ar'
-            ? poa.client.client_name_ar || poa.client.client_name_en || ''
-            : poa.client.client_name_en || poa.client.client_name_ar || '';
+        const label = language === 'ar'
+          ? (poa.client.client_name_ar || poa.client.client_name_en || '')
+          : (poa.client.client_name_en || poa.client.client_name_ar || '');
         map.set(poa.client.id, { id: poa.client.id, label });
       }
     });
@@ -110,7 +109,10 @@ const PowerOfAttorneyListPage: React.FC = () => {
         </div>
         {(search || clientFilter) && (
           <div className="flex items-end">
-            <button onClick={clearFilters} className="inline-flex gap-2 items-center text-sm text-red-600 hover:text-red-800">
+            <button
+              onClick={clearFilters}
+              className="inline-flex gap-2 items-center text-sm text-red-600 hover:text-red-800"
+            >
               <XIcon className="w-4 h-4" />
               {t('dashboard.clear_filters')}
             </button>
@@ -123,7 +125,9 @@ const PowerOfAttorneyListPage: React.FC = () => {
           <p className="text-gray-500">{t('poa_page.loading')}</p>
         </div>
       ) : error ? (
-        <div className="bg-white p-6 rounded-lg shadow text-center text-red-600">{error}</div>
+        <div className="bg-white p-6 rounded-lg shadow text-center text-red-600">
+          {error}
+        </div>
       ) : (
         <div className="bg-white rounded-xl shadow overflow-hidden">
           <div className="overflow-x-auto">
@@ -145,7 +149,10 @@ const PowerOfAttorneyListPage: React.FC = () => {
                       <td className="py-3 px-4 text-sm font-medium text-gray-800">{poa.principal_name}</td>
                       <td className="py-3 px-4 text-sm text-gray-700">
                         {poa.client ? (
-                          <button className="text-primary-600 hover:underline" onClick={() => navigate(`/clients/${poa.client?.id}`)}>
+                          <button
+                            className="text-primary-600 hover:underline"
+                            onClick={() => navigate(`/clients/${poa.client?.id}`)}
+                          >
                             {language === 'ar'
                               ? poa.client?.client_name_ar || poa.client?.client_name_en
                               : poa.client?.client_name_en || poa.client?.client_name_ar}
@@ -154,7 +161,9 @@ const PowerOfAttorneyListPage: React.FC = () => {
                           <span className="text-gray-500">—</span>
                         )}
                       </td>
-                      <td className="py-3 px-4 text-sm text-gray-700">{poa.poa_number ?? '—'}</td>
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {poa.poa_number ?? '—'}
+                      </td>
                       <td className="py-3 px-4 text-sm text-gray-700">
                         {poa.issue_date ? new Date(poa.issue_date).toLocaleDateString() : '—'}
                       </td>
@@ -168,7 +177,10 @@ const PowerOfAttorneyListPage: React.FC = () => {
                         </span>
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <button onClick={() => navigate(`/power-of-attorneys/${poa.id}`)} className="text-primary-600 hover:underline text-sm font-medium">
+                        <button
+                          onClick={() => navigate(`/power-of-attorneys/${poa.id}`)}
+                          className="text-primary-600 hover:underline text-sm font-medium"
+                        >
                           {t('poa_page.view_details')}
                         </button>
                       </td>

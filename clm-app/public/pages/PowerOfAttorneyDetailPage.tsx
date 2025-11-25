@@ -31,6 +31,7 @@ const PowerOfAttorneyDetailPage: React.FC = () => {
     if (!id) return;
 
     let isMounted = true;
+
     const load = async () => {
       try {
         setLoading(true);
@@ -42,7 +43,9 @@ const PowerOfAttorneyDetailPage: React.FC = () => {
           setRawRecord(raw);
         }
       } catch (err: any) {
-        if (isMounted) setError(err?.response?.data?.message || err?.message || 'Failed to load power of attorney.');
+        if (isMounted) {
+          setError(err?.response?.data?.message || err?.message || 'Failed to load power of attorney.');
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -51,15 +54,20 @@ const PowerOfAttorneyDetailPage: React.FC = () => {
         setSchemaLoading(true);
         const schemaResponse = await fetchPowerOfAttorneySchema(id);
         const schema = schemaResponse?.schema ?? schemaResponse;
-        if (isMounted) setSchemaData(schema);
+        if (isMounted) {
+          setSchemaData(schema);
+        }
       } catch (schemaErr: any) {
-        if (isMounted) setSchemaError(schemaErr?.message || 'Failed to load schema metadata.');
+        if (isMounted) {
+          setSchemaError(schemaErr?.message || 'Failed to load schema metadata.');
+        }
       } finally {
         if (isMounted) setSchemaLoading(false);
       }
     };
 
     load();
+
     return () => {
       isMounted = false;
     };
@@ -80,7 +88,10 @@ const PowerOfAttorneyDetailPage: React.FC = () => {
       <div className="container mx-auto">
         <div className="bg-white rounded-lg shadow p-6 text-center">
           <p className="text-red-600 font-semibold">{error || t('poa_page.not_found')}</p>
-          <button onClick={() => navigate('/power-of-attorneys')} className="mt-4 text-primary-600 hover:underline">
+          <button
+            onClick={() => navigate('/power-of-attorneys')}
+            className="mt-4 text-primary-600 hover:underline"
+          >
             &larr; {t('app.back')}
           </button>
         </div>
@@ -104,13 +115,14 @@ const PowerOfAttorneyDetailPage: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between items-start gap-4">
           <div>
             <p className="text-sm uppercase tracking-wide text-gray-500">{t('poa_page.principal_name')}</p>
-            <h1 className="text-3xl font-bold text-gray-800" dir="auto">
-              {powerOfAttorney.principal_name}
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-800" dir="auto">{powerOfAttorney.principal_name}</h1>
             {clientName && (
               <p className="text-gray-500 mt-1" dir="auto">
                 {t('poa_page.client')}:{' '}
-                <button className="text-primary-600 hover:underline" onClick={() => navigate(`/clients/${powerOfAttorney.client!.id}`)}>
+                <button
+                  className="text-primary-600 hover:underline"
+                  onClick={() => navigate(`/clients/${powerOfAttorney.client!.id}`)}
+                >
                   {clientName}
                 </button>
               </p>
@@ -118,7 +130,9 @@ const PowerOfAttorneyDetailPage: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
             <span
-              className={`px-3 py-1 rounded-full text-sm font-semibold ${powerOfAttorney.inventory ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}
+              className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                powerOfAttorney.inventory ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+              }`}
             >
               {powerOfAttorney.inventory ? t('app.yes') : t('app.no')}
             </span>
@@ -172,9 +186,13 @@ const PowerOfAttorneyDetailPage: React.FC = () => {
       <div className="bg-white rounded-xl shadow p-6">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">{t('case.all_fields') || 'All Fields'}</h2>
         {schemaLoading ? (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-800">{t('poa_page.loading_schema') || 'Loading schema metadata...'}</div>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-800">
+            {t('poa_page.loading_schema') || 'Loading schema metadata...'}
+          </div>
         ) : schemaError ? (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">{schemaError}</div>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
+            {schemaError}
+          </div>
         ) : schemaData && rawRecord ? (
           <AllFieldsTable record={rawRecord} schema={schemaData} title={t('poa_page.all_fields_title')} />
         ) : (
