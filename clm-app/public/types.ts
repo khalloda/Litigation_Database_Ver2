@@ -79,6 +79,7 @@ export interface PowerOfAttorney {
   updated_by?: number | null;
   created_at?: string;
   updated_at?: string;
+  // relations
   client?: Client | null;
 }
 
@@ -120,6 +121,7 @@ export interface ClientDocument {
     deposit_date: string;
     document_date?: string | null;
     case_number?: string | null;
+    legacy_matter_name?: string | null;
     pages_count?: string | null;
     notes?: string | null;
     // For detail view
@@ -405,8 +407,9 @@ export interface OptionSet {
     key: string;
     name_en: string;
     name_ar: string;
-    description_en: string;
-    description_ar: string;
+    description_en?: string;
+    description_ar?: string;
+    optionValues?: OptionValue[]; // Relationship loaded from API
 }
 
 export type Permission = 

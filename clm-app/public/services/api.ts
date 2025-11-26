@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   withCredentials: true, // For Laravel Sanctum session cookies
   headers: {
     'Content-Type': 'application/json',
@@ -44,13 +44,15 @@ api.interceptors.response.use(
   }
 );
 
+export default api;
+
 export async function fetchAllPages<T = any>(
   endpoint: string,
   params: Record<string, any> = {},
   perPage = 100
 ): Promise<T[]> {
   const baseParams = { ...params };
-  delete baseParams.page; // avoid caller-provided page overriding iteration
+  delete baseParams.page;
 
   const firstResponse = await api.get(endpoint, {
     params: {
@@ -99,6 +101,4 @@ export async function fetchAllPages<T = any>(
 
   return combined;
 }
-
-export default api;
 

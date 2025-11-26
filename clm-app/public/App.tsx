@@ -4,6 +4,7 @@ import { I18nProvider } from './context/I18nContext';
 import Layout from './components/Layout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import DashboardPage from './pages/DashboardPage';
+import CasesListPage from './pages/CasesListPage';
 import CaseDetailPage from './pages/CaseDetailPage';
 import ClientDetailPage from './pages/ClientDetailPage';
 import OpponentDetailPage from './pages/OpponentDetailPage';
@@ -43,6 +44,7 @@ const App: React.FC = () => {
           <Route path="/" element={<ProtectedRoute />}>
             <Route element={<Layout />}>
               <Route index element={<DashboardPage />} />
+              <Route path="cases" element={<CasesListPage />} />
               <Route path="cases/:id" element={<CaseDetailPage />} />
               <Route path="cases/create" element={<NewCaseForm />} />
               <Route path="clients" element={<ClientsListPage />} />
