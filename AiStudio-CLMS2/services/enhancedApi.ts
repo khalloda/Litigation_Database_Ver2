@@ -1,4 +1,4 @@
-import { api } from './api';
+import api from './api';
 import { cachedRequest, generateCacheKey, requestCache } from '../utils/requestCache';
 import { retryRequest, RetryConfig } from '../utils/retryRequest';
 
