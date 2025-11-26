@@ -171,32 +171,32 @@ const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
           title={t('dashboard.clients')}
-          thisMonth={statistics.clients.this_month}
-          total={statistics.clients.total}
+          thisMonth={statistics?.clients?.this_month || 0}
+          total={statistics?.clients?.total || 0}
           icon={<ClientIcon className="w-6 h-6" />}
           color="blue"
           onClick={() => navigate('/clients')}
         />
         <StatCard
           title={t('dashboard.cases')}
-          thisMonth={statistics.cases.this_month}
-          total={statistics.cases.total}
+          thisMonth={statistics?.cases?.this_month || 0}
+          total={statistics?.cases?.total || 0}
           icon={<CaseIcon className="w-6 h-6" />}
           color="green"
           onClick={() => navigate('/cases')}
         />
         <StatCard
           title={t('dashboard.documents')}
-          thisMonth={statistics.documents.this_month}
-          total={statistics.documents.total}
+          thisMonth={statistics?.documents?.this_month || 0}
+          total={statistics?.documents?.total || 0}
           icon={<DocumentIcon className="w-6 h-6" />}
           color="purple"
           onClick={() => navigate('/documents')}
         />
         <StatCard
           title={t('dashboard.power_of_attorneys')}
-          thisMonth={statistics.power_of_attorneys.this_month}
-          total={statistics.power_of_attorneys.total}
+          thisMonth={statistics?.power_of_attorneys?.this_month || 0}
+          total={statistics?.power_of_attorneys?.total || 0}
           icon={<UserIcon className="w-6 h-6" />}
           color="indigo"
         />
@@ -206,12 +206,12 @@ const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <HearingCard
           title={t('dashboard.todays_hearings')}
-          hearings={statistics.hearings.today}
+          hearings={statistics?.hearings?.today || []}
           emptyMessage={t('dashboard.no_hearings_today')}
         />
         <HearingCard
           title={t('dashboard.this_weeks_hearings')}
-          hearings={statistics.hearings.this_week}
+          hearings={statistics?.hearings?.this_week || []}
           emptyMessage={t('dashboard.no_hearings_this_week')}
         />
       </div>
