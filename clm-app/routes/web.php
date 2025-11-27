@@ -21,9 +21,11 @@ Route::get('/', function () {
         : view('welcome');
 });
 
-Auth::routes();
+// DISABLED: Laravel Auth routes - React SPA handles authentication via API
+// Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+// DISABLED: Laravel home route - React SPA handles this
+// Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 // Locale switch
 Route::get('/locale/{locale}', [App\Http\Controllers\LocaleController::class, 'switch'])
@@ -401,6 +403,85 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/opponents/{opponent}', [App\Http\Controllers\OpponentsController::class, 'destroy'])->name('opponents.destroy');
 });
 */
+
+// Temporary admin route to check/fix auto-increment (REMOVE AFTER USE)
+Route::get('/admin/fix-auto-increment', function () {
+    $tables = [
+        'clients', 'lawyers', 'cases', 'hearings', 'engagement_letters',
+        'contacts', 'power_of_attorneys', 'admin_tasks', 'admin_subtasks',
+        'client_documents', 'option_sets', 'option_values', 'opponents',
+        'courts', 'case_opponents',
+    ];
+    
+    $results = [];
+    
+    foreach ($tables as $table) {
+        if (!\Illuminate\Support\Facades\Schema::hasTable($table)) {
+            $results[$table] = ['status' => 'TABLE_NOT_FOUND'];
+            continue;
+        }
+        
+        // Check current state
+        $columnInfo = \Illuminate\Support\Facades\DB::select("SHOW COLUMNS FROM `{$table}` WHERE Field = 'id'");
+        if (empty($columnInfo)) {
+            $results[$table] = ['status' => 'NO_ID_COLUMN'];
+            continue;
+        }
+        
+        $isAutoInc = stripos($columnInfo[0]->Extra ?? '', 'auto_increment') !== false;
+        $maxId = \Illuminate\Support\Facades\DB::table($table)->max('id') ?? 0;
+        
+        // Get current AUTO_INCREMENT value
+        $tableStatus = \Illuminate\Support\Facades\DB::select("SHOW TABLE STATUS WHERE Name = '{$table}'");
+        $currentAutoInc = $tableStatus[0]->Auto_increment ?? null;
+        
+        $needsFix = false;
+        $reason = '';
+        
+        // Check if fix is needed
+        if (!$isAutoInc) {
+            $needsFix = true;
+            $reason = 'auto_increment not enabled';
+        } elseif ($currentAutoInc === null || $currentAutoInc <= $maxId) {
+            $needsFix = true;
+            $reason = 'auto_increment value is null or too low';
+        }
+        
+        if ($needsFix) {
+            try {
+                // Ensure auto-increment is enabled on the column
+                \Illuminate\Support\Facades\DB::statement("ALTER TABLE `{$table}` MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT");
+                
+                // Set the AUTO_INCREMENT value to max + 1
+                $nextId = $maxId + 1;
+                \Illuminate\Support\Facades\DB::statement("ALTER TABLE `{$table}` AUTO_INCREMENT = {$nextId}");
+                
+                $results[$table] = [
+                    'status' => 'FIXED',
+                    'reason' => $reason,
+                    'max_id' => $maxId,
+                    'next_id' => $nextId
+                ];
+            } catch (\Exception $e) {
+                $results[$table] = [
+                    'status' => 'ERROR',
+                    'error' => $e->getMessage()
+                ];
+            }
+        } else {
+            $results[$table] = [
+                'status' => 'OK',
+                'max_id' => $maxId,
+                'auto_increment' => $currentAutoInc
+            ];
+        }
+    }
+    
+    return response()->json([
+        'message' => 'Auto-increment check/fix completed',
+        'results' => $results
+    ], 200, [], JSON_PRETTY_PRINT);
+})->name('admin.fix-auto-increment');
 
 // SPA Fallback Route - Must be last
 // This route catches all non-API routes and serves the React SPA index.html
