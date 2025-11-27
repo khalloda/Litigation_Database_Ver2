@@ -1,0 +1,145 @@
+<?php
+
+namespace Tests\Feature\Reports;
+
+use App\Models\CaseModel;
+use App\Models\Client;
+use App\Models\Court;
+use App\Models\Hearing;
+use App\Models\User;
+use Barryvdh\Snappy\Facades\SnappyPdf;
+use Database\Seeders\PermissionsSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Mockery;
+use Tests\TestCase;
+
+class ClientCasesReportTest extends TestCase
+{
+    use RefreshDatabase;
+
+    /** @test */
+    public function it_generates_a_pdf_report_for_a_client(): void
+    {
+        $this->seed(PermissionsSeeder::class);
+
+        $user = User::factory()->create();
+        $user->givePermissionTo('reports.view');
+
+        $client = Client::factory()->create([
+            'client_name_ar' => 'تويوتا إيجيبت',
+            'client_name_en' => 'Toyota Egypt',
+        ]);
+
+        $court = Court::create([
+            'court_name_ar' => 'محكمة النقض',
+            'court_name_en' => 'Court of Cassation',
+            'is_active' => true,
+        ]);
+
+        $case = CaseModel::create([
+            'client_id' => $client->id,
+            'matter_name_ar' => 'القضية رقم 123/ق',
+            'matter_name_en' => 'Case 123',
+            'client_in_case_name' => 'تويوتا إيجيبت',
+            'opponent_in_case_name' => 'اسم الخصم',
+            'matter_description' => 'نص مختصر عن الدعوى.',
+            'court_id' => $court->id,
+            'matter_evaluation' => 'متوسط',
+            'financial_provision' => '150000',
+            'current_status' => 'جار المتابعة',
+            'matter_status' => 'سارية',
+        ]);
+
+        Hearing::create([
+            'matter_id' => $case->id,
+            'date' => now()->subDay(),
+            'decision' => 'تأجيل الجلسة',
+        ]);
+
+        $mockPdf = Mockery::mock();
+        $mockPdf->shouldReceive('setPaper')->once()->with('a4', 'portrait')->andReturnSelf();
+        $mockPdf->shouldReceive('setOption')->times(7)->andReturnSelf();
+        $mockPdf->shouldReceive('download')
+            ->once()
+            ->andReturn(response('PDF', 200, ['Content-Type' => 'application/pdf']));
+
+        SnappyPdf::shouldReceive('loadView')
+            ->once()
+            ->andReturn($mockPdf);
+
+        $response = $this->actingAs($user, 'sanctum')->postJson('/api/reports/client-cases/pdf', [
+            'client_id' => $client->id,
+        ]);
+
+        $response->assertOk();
+        $response->assertHeader('content-type', 'application/pdf');
+    }
+
+    /** @test */
+    public function it_filters_cases_by_matter_status_when_requested(): void
+    {
+        $this->seed(PermissionsSeeder::class);
+
+        $user = User::factory()->create();
+        $user->givePermissionTo('reports.view');
+
+        $client = Client::factory()->create([
+            'client_name_ar' => 'عميل اختباري',
+            'client_name_en' => 'Test Client',
+        ]);
+
+        $court = Court::create([
+            'court_name_ar' => 'محكمة النقض',
+            'court_name_en' => 'Court of Cassation',
+            'is_active' => true,
+        ]);
+
+        $activeCase = CaseModel::create([
+            'client_id' => $client->id,
+            'matter_name_ar' => 'دعوى سارية',
+            'matter_name_en' => 'Active Matter',
+            'client_in_case_name' => 'عميل اختباري',
+            'matter_description' => 'قضية سارية.',
+            'court_id' => $court->id,
+            'matter_status' => 'سارية',
+        ]);
+
+        CaseModel::create([
+            'client_id' => $client->id,
+            'matter_name_ar' => 'دعوى منتهية',
+            'matter_name_en' => 'Closed Matter',
+            'client_in_case_name' => 'عميل اختباري',
+            'matter_description' => 'قضية منتهية.',
+            'court_id' => $court->id,
+            'matter_status' => 'منتهية',
+        ]);
+
+        $mockPdf = Mockery::mock();
+        $mockPdf->shouldReceive('setPaper')->once()->with('a4', 'portrait')->andReturnSelf();
+        $mockPdf->shouldReceive('setOption')->times(7)->andReturnSelf();
+        $mockPdf->shouldReceive('download')
+            ->once()
+            ->andReturn(response('PDF', 200, ['Content-Type' => 'application/pdf']));
+
+        SnappyPdf::shouldReceive('loadView')
+            ->once()
+            ->with('reports.client_cases_pdf', Mockery::on(function (array $viewData) use ($activeCase) {
+                $rows = $viewData['rows'];
+
+                return $viewData['totalCases'] === 1
+                    && $rows instanceof \Illuminate\Support\Collection
+                    && $rows->count() === 1
+                    && $rows->first()['matter'] === ($activeCase->matter_name_ar ?? $activeCase->matter_name_en ?? '—');
+            }))
+            ->andReturn($mockPdf);
+
+        $response = $this->actingAs($user, 'sanctum')->postJson('/api/reports/client-cases/pdf', [
+            'client_id' => $client->id,
+            'status_filter' => 'سارية',
+        ]);
+
+        $response->assertOk();
+        $response->assertHeader('content-type', 'application/pdf');
+    }
+}
+

@@ -1,0 +1,5 @@
+{
+  "name": "Centralized Litigation Management System",
+  "description": "A comprehensive system for law firms to manage cases, parties, hearings, and documents. Features bilingual support (English/Arabic) and AI-powered case summaries.",
+  "requestFramePermissions": []
+}

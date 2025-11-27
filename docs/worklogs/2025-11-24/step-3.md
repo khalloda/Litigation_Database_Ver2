@@ -1,0 +1,27 @@
+# Step 3 — Client Case Status/Role Source Fix
+- Branch: `fix/client-details-cases`
+- Commit: _(pending)_
+
+## Commands
+```
+cd AiStudio-CLMS2 && npm run build
+Remove-Item clm-app\public\assets\* -Recurse -Force
+robocopy AiStudio-CLMS2\dist\assets clm-app\public\assets /E
+Copy-Item AiStudio-CLMS2\dist\index.html clm-app\public\index.html -Force
+```
+
+## Changes
+- `ClientController@show` now eager-loads `cases` with `matter_status`, `client_capacity_id`, notes, and the `clientCapacity` relation.
+- SPA `Case` types extended to include `matter_status`, `client_capacity_id`, etc. (mirrored in `clm-app/public/types.ts`).
+- `ClientDetailPage` reads status strictly from `matter_status` and role text from the option value labels (or fallback notes), including guards when the backend relation is serialized as `client_capacity`.
+- Rebuilt SPA assets and synced to Laravel public folder.
+
+## Errors & Fixes
+- Vite chunk warning persists (expected).
+- Follow-up: removed legacy `client_capacity` column from the eager-load select after MySQL reported `Unknown column` (cases table only stores `client_capacity_id` + note).
+- Additional fix: frontend now detects when `client_capacity` arrives as an option-value object and resolves its labels instead of crashing React.
+
+## Validation
+- `npm run build` — ✅
+- Manual QA: Client Associated Cases now display real status text (Arabic) and capacity labels.
+
