@@ -27,6 +27,125 @@
         flex-shrink: 0 !important;
       }
 
+      /* ========== Brand Color Theme Override ========== */
+      /* Primary Green: #3E7443, #4A8F50, #2D5A32 */
+      /* Accent Gold: #C9A847, #DAB955, #B89A3D */
+      
+      :root {
+        --brand-green-50: #f0f7f1;
+        --brand-green-100: #dcedde;
+        --brand-green-200: #badcc0;
+        --brand-green-300: #8fc49a;
+        --brand-green-400: #5fa56e;
+        --brand-green-500: #3E7443;
+        --brand-green-600: #2f5c34;
+        --brand-green-700: #274a2b;
+        --brand-green-800: #213c24;
+        --brand-green-900: #1c321f;
+        --brand-gold-50: #fdfbf3;
+        --brand-gold-100: #faf5e0;
+        --brand-gold-200: #f4e9bc;
+        --brand-gold-300: #edd98e;
+        --brand-gold-400: #e4c55e;
+        --brand-gold-500: #C9A847;
+        --brand-gold-600: #b89a3d;
+        --brand-gold-700: #997a33;
+        --brand-gold-800: #7d6230;
+        --brand-gold-900: #68512b;
+      }
+
+      /* Override primary colors (originally blue) with brand green */
+      .bg-primary-50 { background-color: var(--brand-green-50) !important; }
+      .bg-primary-100 { background-color: var(--brand-green-100) !important; }
+      .bg-primary-200 { background-color: var(--brand-green-200) !important; }
+      .bg-primary-500 { background-color: var(--brand-green-500) !important; }
+      .bg-primary-600 { background-color: var(--brand-green-600) !important; }
+      .bg-primary-700 { background-color: var(--brand-green-700) !important; }
+      
+      .text-primary-600 { color: var(--brand-green-600) !important; }
+      .text-primary-700 { color: var(--brand-green-700) !important; }
+      .text-primary-800 { color: var(--brand-green-800) !important; }
+      
+      .border-primary-500 { border-color: var(--brand-green-500) !important; }
+      .border-primary-600 { border-color: var(--brand-green-600) !important; }
+      
+      .ring-primary-200 { --tw-ring-color: var(--brand-green-200) !important; }
+      .ring-primary-500 { --tw-ring-color: var(--brand-green-500) !important; }
+      
+      .hover\:bg-primary-50:hover { background-color: var(--brand-green-50) !important; }
+      .hover\:bg-primary-100:hover { background-color: var(--brand-green-100) !important; }
+      .hover\:bg-primary-700:hover { background-color: var(--brand-green-700) !important; }
+      .hover\:text-primary-800:hover { color: var(--brand-green-800) !important; }
+      .hover\:border-primary-300:hover { border-color: var(--brand-green-300) !important; }
+      
+      .focus\:border-primary-500:focus { border-color: var(--brand-green-500) !important; }
+      .focus\:ring-primary-200:focus { --tw-ring-color: var(--brand-green-200) !important; }
+      .focus\:ring-primary-500:focus { --tw-ring-color: var(--brand-green-500) !important; }
+      
+      .group-hover\:text-primary-600 { color: var(--brand-green-600) !important; }
+
+      /* Override blue colors with brand green */
+      .bg-blue-50 { background-color: var(--brand-green-50) !important; }
+      .bg-blue-100 { background-color: var(--brand-green-100) !important; }
+      .bg-blue-200 { background-color: var(--brand-green-200) !important; }
+      .bg-blue-500 { background-color: var(--brand-green-500) !important; }
+      .bg-blue-600 { background-color: var(--brand-green-600) !important; }
+      
+      .text-blue-600 { color: var(--brand-green-600) !important; }
+      .text-blue-700 { color: var(--brand-green-700) !important; }
+      .text-blue-800 { color: var(--brand-green-800) !important; }
+      
+      .border-blue-200 { border-color: var(--brand-green-200) !important; }
+      .border-blue-500 { border-color: var(--brand-green-500) !important; }
+      
+      .hover\:bg-blue-600:hover { background-color: var(--brand-green-600) !important; }
+
+      /* Override indigo with brand gold for accent elements */
+      .bg-indigo-50 { background-color: var(--brand-gold-50) !important; }
+      .bg-indigo-600 { background-color: var(--brand-gold-600) !important; }
+      
+      .text-indigo-600 { color: var(--brand-gold-600) !important; }
+      .text-indigo-700 { color: var(--brand-gold-700) !important; }
+      .text-indigo-800 { color: var(--brand-gold-800) !important; }
+      
+      .border-indigo-200 { border-color: var(--brand-gold-200) !important; }
+      
+      .hover\:bg-indigo-700:hover { background-color: var(--brand-gold-700) !important; }
+      
+      .focus\:border-indigo-500:focus { border-color: var(--brand-gold-500) !important; }
+      .focus\:ring-indigo-500:focus { --tw-ring-color: var(--brand-gold-500) !important; }
+
+      /* Sidebar active state - use brand green */
+      aside a.bg-primary-500,
+      aside .bg-primary-500 {
+        background-color: var(--brand-green-500) !important;
+      }
+
+      /* Focus rings */
+      input:focus, select:focus, textarea:focus, button:focus {
+        --tw-ring-color: var(--brand-green-300) !important;
+        border-color: var(--brand-green-500) !important;
+      }
+
+      /* Links */
+      a.text-blue-600, a.text-primary-600, a.text-indigo-600 {
+        color: var(--brand-green-600) !important;
+      }
+      a.text-blue-600:hover, a.text-primary-600:hover, a.text-indigo-600:hover {
+        color: var(--brand-green-800) !important;
+      }
+
+      /* Badges and tags with gold accent */
+      .bg-yellow-100, .bg-yellow-50 {
+        background-color: var(--brand-gold-100) !important;
+      }
+      .text-yellow-800, .text-yellow-600 {
+        color: var(--brand-gold-800) !important;
+      }
+      .border-yellow-200, .border-yellow-500 {
+        border-color: var(--brand-gold-300) !important;
+      }
+
       /* ========== Initial Loading Screen ========== */
       #initial-loader {
         position: fixed;
@@ -99,7 +218,7 @@
         background: linear-gradient(90deg, #3E7443, #4A8F50, #C9A847, #DAB955);
         background-size: 300% 100%;
         border-radius: 4px;
-        animation: progressGrow 2.5s ease-in-out forwards, progressShimmer 1.5s ease-in-out infinite;
+        animation: progressGrow 5s ease-in-out forwards, progressShimmer 1.5s ease-in-out infinite;
         position: relative;
       }
 
@@ -214,7 +333,7 @@
   }
 }
   </script>
-  <script type="module" crossorigin src="/assets/index-CRJcDuHr.js"></script>
+  <script type="module" crossorigin src="/assets/index-CUlFeNie.js"></script>
   <link rel="stylesheet" crossorigin href="/assets/index-CrMpmKSj.css">
 </head>
   <body>
@@ -234,7 +353,12 @@
     <div id="root"></div>
 
     <script>
-      // Hide loader when React app is ready
+      // Minimum display time for loading screen (5 seconds)
+      const MIN_LOADING_TIME = 5000;
+      const loadStartTime = Date.now();
+      let appReady = false;
+
+      // Hide loader with smooth transition
       const hideLoader = () => {
         const loader = document.getElementById('initial-loader');
         if (loader) {
@@ -246,11 +370,25 @@
         }
       };
 
+      // Hide loader only after minimum time has passed
+      const hideLoaderWhenReady = () => {
+        const elapsed = Date.now() - loadStartTime;
+        const remaining = MIN_LOADING_TIME - elapsed;
+        
+        if (remaining > 0) {
+          // Wait for remaining time before hiding
+          setTimeout(hideLoader, remaining);
+        } else {
+          hideLoader();
+        }
+      };
+
       // Observer to detect when React mounts content
       const observer = new MutationObserver((mutations) => {
         const root = document.getElementById('root');
-        if (root && root.children.length > 0) {
-          hideLoader();
+        if (root && root.children.length > 0 && !appReady) {
+          appReady = true;
+          hideLoaderWhenReady();
           observer.disconnect();
         }
       });
@@ -261,8 +399,12 @@
         observer.observe(root, { childList: true });
       }
 
-      // Fallback: hide after max 5 seconds regardless
-      setTimeout(hideLoader, 5000);
+      // Fallback: hide after 5 seconds even if app doesn't mount
+      setTimeout(() => {
+        if (!appReady) {
+          hideLoader();
+        }
+      }, MIN_LOADING_TIME);
     </script>
   </body>
 </html>
