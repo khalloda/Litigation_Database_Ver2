@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useI18n } from '../hooks/useI18n';
 import { fetchPowerOfAttorneys } from '../services/powerOfAttorneys';
 import type { PowerOfAttorney } from '../types';
-import { FilterIcon, XIcon } from '../components/icons';
+import { FilterIcon, XIcon, PlusIcon } from '../components/icons';
+import NewPowerOfAttorneyForm from '../components/NewPowerOfAttorneyForm';
 
 const PowerOfAttorneyListPage: React.FC = () => {
   const { t, language } = useI18n();
@@ -13,6 +14,7 @@ const PowerOfAttorneyListPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [clientFilter, setClientFilter] = useState('');
+  const [isNewPoaModalOpen, setIsNewPoaModalOpen] = useState(false);
 
   const loadData = async (opts: { search?: string; client_id?: number } = {}) => {
     try {
@@ -69,13 +71,29 @@ const PowerOfAttorneyListPage: React.FC = () => {
     return Array.from(map.values());
   }, [powerOfAttorneys, language]);
 
+  const handleSavePowerOfAttorney = (poa: PowerOfAttorney) => {
+    setPowerOfAttorneys((prev) => [poa, ...prev]);
+    setIsNewPoaModalOpen(false);
+  };
+
+  const newPoaLabelRaw = t('poa_page.new_poa_button');
+  const newPoaButtonLabel =
+    newPoaLabelRaw === 'poa_page.new_poa_button' ? 'New Power of Attorney' : newPoaLabelRaw;
+
   return (
     <div className="container mx-auto">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">{t('poa_page.title')}</h1>
           <p className="text-gray-500">{t('poa_page.subtitle')}</p>
         </div>
+        <button
+          onClick={() => setIsNewPoaModalOpen(true)}
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors"
+        >
+          <PlusIcon className="w-5 h-5" />
+          {newPoaButtonLabel}
+        </button>
       </div>
 
       <div className="bg-white border rounded-md p-4 mb-4 flex flex-col md:flex-row gap-4">
@@ -193,6 +211,12 @@ const PowerOfAttorneyListPage: React.FC = () => {
             )}
           </div>
         </div>
+      )}
+      {isNewPoaModalOpen && (
+        <NewPowerOfAttorneyForm
+          onClose={() => setIsNewPoaModalOpen(false)}
+          onSave={handleSavePowerOfAttorney}
+        />
       )}
     </div>
   );

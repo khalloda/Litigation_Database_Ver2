@@ -7,6 +7,7 @@ import { fetchLawyers } from '../services/lawyers';
 import { useI18n } from '../hooks/useI18n';
 import type { ClientDocument } from '../types';
 import { FilterIcon, XIcon, PlusIcon } from '../components/icons';
+import NewDocumentForm from '../components/NewDocumentForm';
 
 const DocumentsListPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ const DocumentsListPage: React.FC = () => {
     key: 'deposit_date',
     direction: 'desc',
   });
+  const [isNewDocumentModalOpen, setIsNewDocumentModalOpen] = useState(false);
 
   useEffect(() => {
   const loadData = async () => {
@@ -63,6 +65,11 @@ const DocumentsListPage: React.FC = () => {
   const uniqueAdminStaff = useMemo(() => [...new Set(documents.map(d => d.admin_staff).filter(Boolean))], [documents]);
   const uniqueLawyers = useMemo(() => [...new Set(documents.map(d => d.lawyer).filter(Boolean))], [documents]);
   const uniqueResponsibleLawyers = useMemo(() => [...new Set(documents.map(d => d.responsible_lawyer).filter(Boolean))], [documents]);
+
+  const handleDocumentSaved = (document: ClientDocument) => {
+    setDocuments(prev => [document, ...prev]);
+    setIsNewDocumentModalOpen(false);
+  };
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFilters(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -154,7 +161,7 @@ const DocumentsListPage: React.FC = () => {
                 {t('dashboard.filter_cases')}
             </button>
             <button
-                onClick={() => navigate('/documents/create')}
+                onClick={() => setIsNewDocumentModalOpen(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors"
             >
                 <PlusIcon className="w-5 h-5" />
@@ -308,6 +315,12 @@ const DocumentsListPage: React.FC = () => {
             )}
           </div>
         </div>
+      )}
+      {isNewDocumentModalOpen && (
+        <NewDocumentForm
+          onClose={() => setIsNewDocumentModalOpen(false)}
+          onSave={handleDocumentSaved}
+        />
       )}
     </div>
   );
