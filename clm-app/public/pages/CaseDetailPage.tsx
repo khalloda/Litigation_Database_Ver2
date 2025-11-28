@@ -5,6 +5,7 @@ import { useI18n } from '../hooks/useI18n';
 import { fetchCase, fetchCaseSchema } from '../services/cases';
 import { ChevronDownIcon } from '../components/icons';
 import AllFieldsTable from '../components/AllFieldsTable';
+import EditCaseForm from '../components/EditCaseForm';
 
 const AccordionItem: React.FC<{ title: string; children: React.ReactNode; open?: boolean }> = ({ title, children, open = false }) => {
     return (
@@ -55,6 +56,7 @@ const CaseDetailPage: React.FC = () => {
     const [schemaError, setSchemaError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     useEffect(() => {
         if (!id) {
@@ -170,7 +172,7 @@ const CaseDetailPage: React.FC = () => {
                     <button onClick={() => navigate('/')} className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition-colors">
                         {t('app.back_to_cases')}
                     </button>
-                    <button onClick={() => navigate(`/cases/${id}/edit`)} className="px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors">
+                    <button onClick={() => setIsEditModalOpen(true)} className="px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors">
                         {t('case.edit_case')}
                     </button>
                     <button onClick={async () => {
@@ -334,6 +336,37 @@ const CaseDetailPage: React.FC = () => {
                     )}
                 </AccordionItem>
             </div>
+            {isEditModalOpen && id && (
+                <EditCaseForm
+                    caseId={id}
+                    onClose={() => setIsEditModalOpen(false)}
+                    onSave={() => {
+                        setIsEditModalOpen(false);
+                        // Reload case data
+                        const loadCase = async () => {
+                            try {
+                                const response = await fetchCase(id);
+                                const casePayload = response?.data ?? response;
+                                if (casePayload) {
+                                    casePayload.hearings = casePayload.hearings || [];
+                                    casePayload.tasks = casePayload.tasks || [];
+                                    casePayload.documents = casePayload.documents || [];
+                                    casePayload.opponents = casePayload.opponents || [];
+                                    if (casePayload.partner === null) casePayload.partner = undefined;
+                                    if (casePayload.client === null) casePayload.client = undefined;
+                                    if (casePayload.court === null) casePayload.court = undefined;
+                                    if (casePayload.lawyer_a === null) casePayload.lawyer_a = undefined;
+                                    if (casePayload.lawyer_b === null) casePayload.lawyer_b = undefined;
+                                    setCaseData(casePayload);
+                                }
+                            } catch (err: any) {
+                                console.error('Error reloading case:', err);
+                            }
+                        };
+                        loadCase();
+                    }}
+                />
+            )}
         </div>
     );
 };

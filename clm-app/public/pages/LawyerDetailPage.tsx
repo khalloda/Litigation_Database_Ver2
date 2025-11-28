@@ -6,6 +6,7 @@ import { fetchLawyer, fetchLawyerSchema } from '../services/lawyers';
 import { fetchOptionsBySetKey } from '../services/options';
 import { BriefcaseIcon, CaseIcon, DocumentIcon } from '../components/icons';
 import AllFieldsTable from '../components/AllFieldsTable';
+import EditLawyerForm from '../components/EditLawyerForm';
 
 const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => {
     if (!value) return null;
@@ -56,6 +57,7 @@ const LawyerDetailPage: React.FC = () => {
     const [schemaError, setSchemaError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     useEffect(() => {
         if (!id) {
@@ -159,8 +161,15 @@ const LawyerDetailPage: React.FC = () => {
         <div className="container mx-auto">
             <button onClick={() => navigate('/lawyers')} className="text-primary-600 hover:underline mb-4">&larr; {t('app.back')}</button>
             <div className="bg-white rounded-xl shadow-md p-6">
-                <h1 className="text-3xl font-bold text-gray-800">{lawyerName}</h1>
-                <p className="text-gray-500 mt-1">{t('lawyer_page.title')}</p>
+                <div className="flex justify-between items-center mb-4">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-800">{lawyerName}</h1>
+                        <p className="text-gray-500 mt-1">{t('lawyer_page.title')}</p>
+                    </div>
+                    <button onClick={() => setIsEditModalOpen(true)} className="px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors">
+                        {t('edit_lawyer_form.title') || 'Edit Lawyer'}
+                    </button>
+                </div>
 
                 <div className="border-b border-gray-200 mt-6 mb-6">
                     <div className="flex items-center gap-4">
@@ -234,6 +243,34 @@ const LawyerDetailPage: React.FC = () => {
                     </div>
                 )}
             </div>
+            {isEditModalOpen && id && (
+                <EditLawyerForm
+                    lawyerId={id}
+                    onClose={() => setIsEditModalOpen(false)}
+                    onSave={() => {
+                        setIsEditModalOpen(false);
+                        // Reload lawyer data
+                        const loadData = async () => {
+                            try {
+                                const [lawyerResponse, titlesData] = await Promise.all([
+                                    fetchLawyer(id),
+                                    fetchOptionsBySetKey('lawyer.title'),
+                                ]);
+                                const lawyerPayload = lawyerResponse?.data ?? lawyerResponse;
+                                const rawPayload = lawyerResponse?.raw ?? lawyerPayload;
+                                if (lawyerPayload) {
+                                    setLawyer(lawyerPayload);
+                                    setRawLawyer(rawPayload);
+                                    setLawyerTitles(titlesData.data || titlesData);
+                                }
+                            } catch (err: any) {
+                                console.error('Error reloading lawyer:', err);
+                            }
+                        };
+                        loadData();
+                    }}
+                />
+            )}
         </div>
     );
 };

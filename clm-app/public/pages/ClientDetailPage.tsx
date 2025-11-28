@@ -5,6 +5,7 @@ import { useI18n } from '../hooks/useI18n';
 import { fetchClient, fetchClientSchema } from '../services/clients';
 import { BriefcaseIcon, DocumentIcon, UserGroupIcon, CaseIcon } from '../components/icons';
 import AllFieldsTable from '../components/AllFieldsTable';
+import EditClientForm from '../components/EditClientForm';
 
 const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => {
     if (!value) return null;
@@ -104,6 +105,7 @@ const ClientDetailPage: React.FC = () => {
     const [schemaError, setSchemaError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     useEffect(() => {
         if (!id) {
@@ -188,8 +190,15 @@ const ClientDetailPage: React.FC = () => {
         <div className="container mx-auto">
             <button onClick={() => navigate('/clients')} className="text-primary-600 hover:underline mb-4">&larr; {t('app.back')}</button>
             <div className="bg-white rounded-xl shadow-md p-6">
-                <h1 className="text-3xl font-bold text-gray-800">{clientName}</h1>
-                <p className="text-gray-500 mt-1">{t('client_page.title')}</p>
+                <div className="flex justify-between items-center mb-4">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-800">{clientName}</h1>
+                        <p className="text-gray-500 mt-1">{t('client_page.title')}</p>
+                    </div>
+                    <button onClick={() => setIsEditModalOpen(true)} className="px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors">
+                        {t('edit_client_form.title') || 'Edit Client'}
+                    </button>
+                </div>
 
                 <div className="border-b border-gray-200 mt-6 mb-6">
                     <div className="flex items-center gap-4">
@@ -351,6 +360,28 @@ const ClientDetailPage: React.FC = () => {
                 )}
 
             </div>
+            {isEditModalOpen && id && (
+                <EditClientForm
+                    clientId={id}
+                    onClose={() => setIsEditModalOpen(false)}
+                    onSave={() => {
+                        setIsEditModalOpen(false);
+                        // Reload client data
+                        const loadData = async () => {
+                            try {
+                                const response = await fetchClient(id);
+                                const clientPayload = response?.data ?? response;
+                                if (clientPayload) {
+                                    setClient(clientPayload);
+                                }
+                            } catch (err: any) {
+                                console.error('Error reloading client:', err);
+                            }
+                        };
+                        loadData();
+                    }}
+                />
+            )}
         </div>
     );
 };

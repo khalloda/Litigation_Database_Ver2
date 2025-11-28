@@ -5,14 +5,47 @@ import type { PowerOfAttorney } from '../types';
 import { fetchPowerOfAttorney, fetchPowerOfAttorneySchema } from '../services/powerOfAttorneys';
 import AllFieldsTable from '../components/AllFieldsTable';
 
-const DetailRow: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
-  <div className="flex items-baseline justify-between py-2 border-b border-gray-100">
-    <span className="text-sm text-gray-500">{label}</span>
-    <span className="text-sm font-semibold text-gray-800 text-right" dir="auto">
-      {value ?? <span className="text-gray-400">—</span>}
-    </span>
-  </div>
-);
+const DetailRow: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => {
+  const renderValue = () => {
+    if (value === null || value === undefined || value === '') {
+      return <span className="text-gray-400">—</span>;
+    }
+
+    if (React.isValidElement(value)) {
+      return value;
+    }
+
+    if (typeof value === 'object') {
+      const possible =
+        (value as any).name ??
+        (value as any).full_name ??
+        (value as any).client_name_en ??
+        (value as any).client_name_ar ??
+        (value as any).label_en ??
+        (value as any).label_ar ??
+        (value as any).id;
+      if (possible) {
+        return <span dir="auto">{String(possible)}</span>;
+      }
+      return (
+        <code className="text-xs bg-gray-50 px-1 py-0.5 rounded">
+          {JSON.stringify(value)}
+        </code>
+      );
+    }
+
+    return <span dir="auto">{value}</span>;
+  };
+
+  return (
+    <div className="flex items-baseline justify-between py-2 border-b border-gray-100">
+      <span className="text-sm text-gray-500">{label}</span>
+      <span className="text-sm font-semibold text-gray-800 text-right" dir="auto">
+        {renderValue()}
+      </span>
+    </div>
+  );
+};
 
 const PowerOfAttorneyDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

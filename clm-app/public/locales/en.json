@@ -666,6 +666,7 @@
     "select_case": "Select Case",
     "document_type": "Document Type *",
     "select_document_type": "Select Document Type",
+    "document_type_missing": "Document types option set is not configured yet.",
     "case_number": "Case Number",
     "physical_details": "Physical Document Details",
     "pages_count": "Pages Count",

@@ -5,6 +5,7 @@ import { useI18n } from '../hooks/useI18n';
 import { fetchCourt, fetchCourtSchema } from '../services/courts';
 import { BriefcaseIcon, CaseIcon, DocumentIcon } from '../components/icons';
 import AllFieldsTable from '../components/AllFieldsTable';
+import EditCourtForm from '../components/EditCourtForm';
 
 const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => {
     if (!value) return null;
@@ -54,6 +55,7 @@ const CourtDetailPage: React.FC = () => {
     const [schemaError, setSchemaError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     useEffect(() => {
         if (!id) {
@@ -149,8 +151,15 @@ const CourtDetailPage: React.FC = () => {
         <div className="container mx-auto">
             <button onClick={() => navigate('/courts')} className="text-primary-600 hover:underline mb-4">&larr; {t('app.back')}</button>
             <div className="bg-white rounded-xl shadow-md p-6">
-                <h1 className="text-3xl font-bold text-gray-800">{courtName}</h1>
-                <p className="text-gray-500 mt-1">{t('court_page.title')}</p>
+                <div className="flex justify-between items-center mb-4">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-800">{courtName}</h1>
+                        <p className="text-gray-500 mt-1">{t('court_page.title')}</p>
+                    </div>
+                    <button onClick={() => setIsEditModalOpen(true)} className="px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors">
+                        {t('edit_court_form.title') || 'Edit Court'}
+                    </button>
+                </div>
 
                 <div className="border-b border-gray-200 mt-6 mb-6">
                     <div className="flex items-center gap-4">
@@ -226,6 +235,30 @@ const CourtDetailPage: React.FC = () => {
                     </div>
                 )}
             </div>
+            {isEditModalOpen && id && (
+                <EditCourtForm
+                    courtId={id}
+                    onClose={() => setIsEditModalOpen(false)}
+                    onSave={() => {
+                        setIsEditModalOpen(false);
+                        // Reload court data
+                        const loadCourt = async () => {
+                            try {
+                                const response = await fetchCourt(id);
+                                const courtPayload = response?.data ?? response;
+                                const rawPayload = response?.raw ?? courtPayload;
+                                if (courtPayload) {
+                                    setCourt(courtPayload);
+                                    setRawCourt(rawPayload);
+                                }
+                            } catch (err: any) {
+                                console.error('Error reloading court:', err);
+                            }
+                        };
+                        loadCourt();
+                    }}
+                />
+            )}
         </div>
     );
 };

@@ -5,6 +5,7 @@ import { useI18n } from '../hooks/useI18n';
 import { fetchHearing, fetchHearingSchema } from '../services/hearings';
 import { DocumentIcon } from '../components/icons';
 import AllFieldsTable from '../components/AllFieldsTable';
+import EditHearingForm from '../components/EditHearingForm';
 
 const DetailItem: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => {
     if (!value && value !== 0) {
@@ -30,6 +31,7 @@ const HearingDetailPage: React.FC = () => {
     const [schemaError, setSchemaError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     useEffect(() => {
         if (!id) {
@@ -126,8 +128,15 @@ const HearingDetailPage: React.FC = () => {
         <div className="container mx-auto">
             <button onClick={() => navigate('/hearings')} className="text-primary-600 hover:underline mb-4">&larr; {t('app.back')}</button>
             <div className="bg-white rounded-xl shadow-md p-6">
-                 <h1 className="text-3xl font-bold text-gray-800">{t('hearing_page.title')}</h1>
-                 <p className="text-gray-500 mt-1">{t('hearing_page.hearing_date')}: {hearing.date ? new Date(hearing.date).toLocaleDateString() : 'N/A'}</p>
+                <div className="flex justify-between items-center mb-4">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-800">{t('hearing_page.title')}</h1>
+                        <p className="text-gray-500 mt-1">{t('hearing_page.hearing_date')}: {hearing.date ? new Date(hearing.date).toLocaleDateString() : 'N/A'}</p>
+                    </div>
+                    <button onClick={() => setIsEditModalOpen(true)} className="px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors">
+                        {t('edit_hearing_form.title') || 'Edit Hearing'}
+                    </button>
+                </div>
 
                 <div className="border-b border-gray-200 mt-6 mb-6">
                     <div className="flex items-center gap-4">
@@ -203,6 +212,30 @@ const HearingDetailPage: React.FC = () => {
                     </div>
                 )}
             </div>
+            {isEditModalOpen && id && (
+                <EditHearingForm
+                    hearingId={id}
+                    onClose={() => setIsEditModalOpen(false)}
+                    onSave={() => {
+                        setIsEditModalOpen(false);
+                        // Reload hearing data
+                        const loadData = async () => {
+                            try {
+                                const response = await fetchHearing(id);
+                                const hearingPayload = response?.data ?? response;
+                                const rawPayload = response?.raw ?? hearingPayload;
+                                if (hearingPayload) {
+                                    setHearing(hearingPayload);
+                                    setRawHearing(rawPayload);
+                                }
+                            } catch (err: any) {
+                                console.error('Error reloading hearing:', err);
+                            }
+                        };
+                        loadData();
+                    }}
+                />
+            )}
         </div>
     );
 };

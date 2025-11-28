@@ -158,6 +158,13 @@ const UploadDocumentPage: React.FC = () => {
     const isPhysical = formData.storageType === 'physical' || formData.storageType === 'both';
     
     const pageTitle = isEditing ? t('document_page.edit_document') : t('new_document_form.title');
+    const handleBack = () => {
+        if (isEditing && id) {
+            navigate(`/documents/${id}`);
+        } else {
+            navigate('/documents');
+        }
+    };
 
     return (
         <div className="container mx-auto">
@@ -297,7 +304,7 @@ const UploadDocumentPage: React.FC = () => {
                 </div>
 
                 <div className="flex justify-end gap-3 pt-4 mt-6">
-                    <button type="button" onClick={onBack} className="px-6 py-2 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700">
+                    <button type="button" onClick={handleBack} className="px-6 py-2 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700">
                         {t('common.cancel')}
                     </button>
                     <button type="submit" className="px-6 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700">

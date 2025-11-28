@@ -667,6 +667,7 @@
     "select_case": "اختر القضية",
     "document_type": "نوع المستند *",
     "select_document_type": "اختر نوع المستند",
+    "document_type_missing": "لم يتم إعداد خيارات نوع المستند بعد.",
     "case_number": "رقم القضية",
     "physical_details": "تفاصيل المستند المادي",
     "pages_count": "عدد الصفحات",

@@ -5,6 +5,7 @@ import { useI18n } from '../hooks/useI18n';
 import { fetchOpponent, fetchOpponentSchema } from '../services/opponents';
 import { BriefcaseIcon, CaseIcon, DocumentIcon } from '../components/icons';
 import AllFieldsTable from '../components/AllFieldsTable';
+import EditOpponentForm from '../components/EditOpponentForm';
 
 const TabButton: React.FC<{ label: string; isActive: boolean; onClick: () => void; icon: React.ReactNode }> = ({ label, isActive, onClick, icon }) => (
     <button
@@ -45,6 +46,7 @@ const OpponentDetailPage: React.FC = () => {
     const [schemaError, setSchemaError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     useEffect(() => {
         if (!id) {
@@ -139,8 +141,15 @@ const OpponentDetailPage: React.FC = () => {
         <div className="container mx-auto">
             <button onClick={() => navigate('/opponents')} className="text-primary-600 hover:underline mb-4">&larr; {t('app.back')}</button>
             <div className="bg-white rounded-xl shadow-md p-6">
-                <h1 className="text-3xl font-bold text-gray-800">{opponentName}</h1>
-                <p className="text-gray-500 mt-1">{t('opponent_page.title')}</p>
+                <div className="flex justify-between items-center mb-4">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-800">{opponentName}</h1>
+                        <p className="text-gray-500 mt-1">{t('opponent_page.title')}</p>
+                    </div>
+                    <button onClick={() => setIsEditModalOpen(true)} className="px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors">
+                        {t('edit_opponent_form.title') || 'Edit Opponent'}
+                    </button>
+                </div>
 
                 <div className="border-b border-gray-200 mt-6 mb-6">
                     <div className="flex items-center gap-4">
@@ -224,6 +233,30 @@ const OpponentDetailPage: React.FC = () => {
                     </div>
                 )}
             </div>
+            {isEditModalOpen && id && (
+                <EditOpponentForm
+                    opponentId={id}
+                    onClose={() => setIsEditModalOpen(false)}
+                    onSave={() => {
+                        setIsEditModalOpen(false);
+                        // Reload opponent data
+                        const loadOpponent = async () => {
+                            try {
+                                const response = await fetchOpponent(id);
+                                const payload = response?.data ?? response;
+                                const rawPayload = response?.raw ?? payload;
+                                if (payload) {
+                                    setOpponent(payload);
+                                    setRawOpponent(rawPayload);
+                                }
+                            } catch (err: any) {
+                                console.error('Error reloading opponent:', err);
+                            }
+                        };
+                        loadOpponent();
+                    }}
+                />
+            )}
         </div>
     );
 };

@@ -2,7 +2,7 @@
 import React from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useI18n } from '../hooks/useI18n';
-import { CaseIcon, ReportIcon, SettingsIcon, TaskIcon, LanguageIcon, ClientIcon, OpponentIcon, UserIcon, CourtIcon, CalendarIcon, DocumentIcon } from './icons';
+import { CaseIcon, ReportIcon, SettingsIcon, TaskIcon, LanguageIcon, ClientIcon, OpponentIcon, UserIcon, CourtIcon, CalendarIcon, DocumentIcon, SparklesIcon } from './icons';
 import type { Language } from '../types';
 
 interface NavItemProps {
@@ -39,7 +39,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => {
                 <span className="text-xl font-bold text-gray-800">{t('app.title')}</span>
             </div>
             <nav className="mt-8 flex flex-col gap-2">
-                <NavItem icon={<CaseIcon />} label={t('app.cases')} active={currentView === '' || currentView === 'cases'} onClick={() => onNavigate('/')} />
+                <NavItem icon={<SparklesIcon />} label={t('app.dashboard')} active={currentView === ''} onClick={() => onNavigate('/')} />
+                <NavItem icon={<CaseIcon />} label={t('app.cases')} active={currentView === 'cases'} onClick={() => onNavigate('/cases')} />
                 <NavItem icon={<ClientIcon />} label={t('app.clients')} active={currentView === 'clients'} onClick={() => onNavigate('/clients')} />
                 <NavItem icon={<OpponentIcon />} label={t('app.opponents')} active={currentView === 'opponents'} onClick={() => onNavigate('/opponents')} />
                 <NavItem icon={<UserIcon />} label={t('app.lawyers')} active={currentView === 'lawyers'} onClick={() => onNavigate('/lawyers')} />
