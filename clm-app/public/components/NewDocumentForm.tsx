@@ -25,6 +25,7 @@ const NewDocumentForm: React.FC<NewDocumentFormProps> = ({ onClose, onSave }) =>
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [docTypeWarning, setDocTypeWarning] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState({
@@ -49,16 +50,29 @@ const NewDocumentForm: React.FC<NewDocumentFormProps> = ({ onClose, onSave }) =>
     const loadData = async () => {
       try {
         setLoading(true);
-        const [clientsData, casesData, lawyersData, docTypesData] = await Promise.all([
+        const [clientsData, casesData, lawyersData] = await Promise.all([
           fetchClients(),
           fetchCases(),
           fetchLawyers(),
-          fetchOptionsBySetKey('document.type'),
         ]);
         setClients(clientsData.data || clientsData);
         setCases(casesData.data || casesData);
         setLawyers(lawyersData.data || lawyersData);
-        setDocTypes((docTypesData.data || docTypesData) ?? []);
+
+        try {
+          const docTypesData = await fetchOptionsBySetKey('document.type');
+          setDocTypes((docTypesData?.data || docTypesData || []) as any[]);
+          setDocTypeWarning(null);
+        } catch (docErr: any) {
+          console.warn('[NewDocumentForm] document.type option set missing or inaccessible', docErr);
+          setDocTypes([]);
+          const fallbackLabel = t('new_document_form.document_type_missing');
+          const resolvedLabel =
+            fallbackLabel === 'new_document_form.document_type_missing'
+              ? 'Document types option set not configured'
+              : fallbackLabel;
+          setDocTypeWarning((docErr?.response?.data?.error as string) || resolvedLabel);
+        }
       } catch (err: any) {
         setError(err.message || 'Failed to load form data');
       } finally {
@@ -66,7 +80,7 @@ const NewDocumentForm: React.FC<NewDocumentFormProps> = ({ onClose, onSave }) =>
       }
     };
     loadData();
-  }, []);
+  }, [t]);
 
   const clientOptions = useMemo(
     () =>
@@ -275,7 +289,13 @@ const NewDocumentForm: React.FC<NewDocumentFormProps> = ({ onClose, onSave }) =>
                   value={formData.documentType}
                   onChange={(value) => handleSelectChange('documentType', value)}
                   placeholder={t('new_document_form.select_document_type')}
+                  isDisabled={!documentTypeOptions.length}
                 />
+                {docTypeWarning && (
+                  <p className="mt-1 text-xs text-amber-600">
+                    {docTypeWarning}
+                  </p>
+                )}
               </div>
             </div>
 
