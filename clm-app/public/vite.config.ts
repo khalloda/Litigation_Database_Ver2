@@ -10,15 +10,13 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: 'dist', // Default - will copy to Laravel public/ during deployment
+    outDir: 'dist',
     emptyOutDir: true,
-    // Ensure relative paths for assets
     assetsDir: 'assets',
     rollupOptions: {
       output: {
-        manualChunks: undefined, // Or configure code splitting
+        manualChunks: undefined,
       },
     },
   },
-  // Removed Gemini API key from frontend - now handled by Laravel backend
 });
