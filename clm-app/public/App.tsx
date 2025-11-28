@@ -21,7 +21,6 @@ import HearingDetailPage from './pages/HearingDetailPage';
 import DocumentsListPage from './pages/DocumentsListPage';
 import DocumentDetailPage from './pages/DocumentDetailPage';
 import ReportsPage from './pages/ReportsPage';
-import NewHearingForm from './components/NewHearingForm';
 import UploadDocumentPage from './pages/UploadDocumentPage';
 import RolesListPage from './pages/RolesListPage';
 import RoleDetailPage from './pages/RoleDetailPage';
@@ -29,8 +28,6 @@ import TeamsListPage from './pages/TeamsListPage';
 import TeamDetailPage from './pages/TeamDetailPage';
 import UsersListPage from './pages/UsersListPage';
 import UserDetailPage from './pages/UserDetailPage';
-import NewCaseForm from './components/NewCaseForm';
-import NewClientForm from './components/NewClientForm';
 import LoginPage from './pages/LoginPage';
 import PowerOfAttorneyListPage from './pages/PowerOfAttorneyListPage';
 import PowerOfAttorneyDetailPage from './pages/PowerOfAttorneyDetailPage';
@@ -46,10 +43,8 @@ const App: React.FC = () => {
               <Route index element={<DashboardPage />} />
               <Route path="cases" element={<CasesListPage />} />
               <Route path="cases/:id" element={<CaseDetailPage />} />
-              <Route path="cases/create" element={<NewCaseForm />} />
               <Route path="clients" element={<ClientsListPage />} />
               <Route path="clients/:id" element={<ClientDetailPage />} />
-              <Route path="clients/create" element={<NewClientForm />} />
               <Route path="opponents" element={<OpponentsListPage />} />
               <Route path="opponents/:id" element={<OpponentDetailPage />} />
               <Route path="lawyers" element={<LawyersListPage />} />
@@ -57,7 +52,6 @@ const App: React.FC = () => {
               <Route path="courts" element={<CourtsListPage />} />
               <Route path="courts/:id" element={<CourtDetailPage />} />
               <Route path="hearings" element={<HearingsListPage />} />
-              <Route path="hearings/create" element={<NewHearingForm />} />
               <Route path="hearings/:id" element={<HearingDetailPage />} />
               <Route path="documents" element={<DocumentsListPage />} />
               <Route path="documents/create" element={<UploadDocumentPage />} />

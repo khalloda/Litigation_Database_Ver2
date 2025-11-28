@@ -6,12 +6,14 @@ import { fetchClients } from '../services/clients';
 import { fetchLawyers } from '../services/lawyers';
 import { useI18n } from '../hooks/useI18n';
 import { FilterIcon, XIcon, PlusIcon } from '../components/icons';
+import NewHearingForm from '../components/NewHearingForm';
 
 const HearingsListPage: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useI18n();
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [isNewHearingModalOpen, setIsNewHearingModalOpen] = useState(false);
   const [filters, setFilters] = useState({
     startDate: '',
     endDate: '',
@@ -53,6 +55,17 @@ const HearingsListPage: React.FC = () => {
 
   const clearFilters = () => {
     setFilters({ startDate: '', endDate: '', clientId: '' });
+  };
+
+  const handleSaveHearing = async () => {
+    try {
+      setIsNewHearingModalOpen(false);
+      // Refresh hearings list
+      const hearingsData = await fetchHearings();
+      setHearings(hearingsData.data || hearingsData);
+    } catch (err: any) {
+      setError(err.message || 'Failed to refresh hearings');
+    }
   };
   
   const sortedHearings = useMemo(() => [...hearings].sort((a, b) => {
@@ -117,7 +130,7 @@ const HearingsListPage: React.FC = () => {
                 {t('dashboard.filter_cases')}
             </button>
             <button
-                onClick={() => navigate('/hearings/create')}
+                onClick={() => setIsNewHearingModalOpen(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors"
             >
                 <PlusIcon className="w-5 h-5" />
@@ -226,6 +239,13 @@ const HearingsListPage: React.FC = () => {
           )}
           </div>
         </div>
+      )}
+
+      {isNewHearingModalOpen && (
+        <NewHearingForm 
+            onClose={() => setIsNewHearingModalOpen(false)}
+            onSave={handleSaveHearing}
+        />
       )}
     </div>
   );
