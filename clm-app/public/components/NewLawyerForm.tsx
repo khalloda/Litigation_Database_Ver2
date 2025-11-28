@@ -69,14 +69,9 @@ const NewLawyerForm: React.FC<NewLawyerFormProps> = ({ onClose, onSave }) => {
                 email: formData.email || null,
                 title_id: formData.titleId ? Number(formData.titleId) : null,
             };
-            if (onSave) {
-                // If callback provided, use it (for backward compatibility)
-                onSave(formData);
-            } else {
-                // Otherwise, call API directly
-                await createLawyer(payload);
-                onClose();
-            }
+            const result = await createLawyer(payload);
+            onSave?.(result?.data ?? result);
+            onClose();
         } catch (err: any) {
             setError(err.message || 'Failed to create lawyer');
         } finally {

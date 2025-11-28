@@ -20,6 +20,8 @@ class Lawyer extends Model
         'title_id',
         'lawyer_email',
         'attendance_track',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

@@ -75,14 +75,9 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) 
                 status: formData.status,
                 parent_id: formData.parentId || null,
             };
-            if (onSave) {
-                // If callback provided, use it (for backward compatibility)
-                onSave(formData);
-            } else {
-                // Otherwise, call API directly
-                await createTask(payload);
-                onClose();
-            }
+            const result = await createTask(payload);
+            onSave?.(result?.data ?? result);
+            onClose();
         } catch (err: any) {
             setError(err.message || 'Failed to create task');
         } finally {

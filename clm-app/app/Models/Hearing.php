@@ -35,6 +35,8 @@ class Hearing extends Model
         'next_attendee',
         'evaluation',
         'notes',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

@@ -17,7 +17,7 @@ class PowerOfAttorney extends Model
     protected $fillable = [
         'client_id', 'client_print_name', 'principal_name', 'year', 'capacity', 'authorized_lawyers', 
         'issue_date', 'inventory', 'issuing_authority', 'letter', 'poa_number', 'principal_capacity', 
-        'copies_count', 'serial', 'notes'
+        'copies_count', 'serial', 'notes', 'created_by', 'updated_by'
     ];
 
     protected $casts = [

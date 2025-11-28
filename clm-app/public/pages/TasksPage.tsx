@@ -183,9 +183,14 @@ const TasksPage: React.FC = () => {
         setFilters({ priority: '', caseId: '' });
     };
 
-    const handleSaveTask = (data: any) => {
-        console.log("Saving Task:", data);
-        setNewTaskModalState({ isOpen: false });
+    const handleSaveTask = async () => {
+        try {
+            setNewTaskModalState({ isOpen: false });
+            const refreshed = await fetchTasks();
+            setTasks(Array.isArray(refreshed) ? refreshed : refreshed?.data || []);
+        } catch (err: any) {
+            setError(err.message || 'Failed to refresh tasks');
+        }
     };
 
     const handleOpenNewTaskModal = (parentId?: number) => {

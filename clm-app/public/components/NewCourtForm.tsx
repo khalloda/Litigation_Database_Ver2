@@ -37,14 +37,9 @@ const NewCourtForm: React.FC<NewCourtFormProps> = ({ onClose, onSave }) => {
                 court_name_ar: formData.nameAr,
                 is_active: formData.isActive,
             };
-            if (onSave) {
-                // If callback provided, use it (for backward compatibility)
-                onSave(formData);
-            } else {
-                // Otherwise, call API directly
-                await createCourt(payload);
-                onClose();
-            }
+            const result = await createCourt(payload);
+            onSave?.(result?.data ?? result);
+            onClose();
         } catch (err: any) {
             setError(err.message || 'Failed to create court');
         } finally {

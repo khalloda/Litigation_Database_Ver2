@@ -29,6 +29,8 @@ class AdminTask extends Model
         'creation_date',
         'execution_date',
         'alert',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

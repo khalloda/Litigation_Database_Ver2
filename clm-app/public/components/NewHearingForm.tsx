@@ -104,14 +104,11 @@ const NewHearingForm: React.FC<NewHearingFormProps> = ({ onClose, onSave, presel
                 notes: formData.notes || null,
                 attending_lawyer_id: formData.attendingLawyerId ? Number(formData.attendingLawyerId) : null,
             };
+            await createHearing(payload);
             if (onSave) {
-                // If callback provided, use it (for backward compatibility)
-                onSave(formData);
-            } else {
-                // Otherwise, call API directly
-                await createHearing(payload);
-                onClose();
+                onSave(payload);
             }
+            onClose();
         } catch (err: any) {
             setError(err.message || 'Failed to create hearing');
         } finally {

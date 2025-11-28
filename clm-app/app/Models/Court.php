@@ -16,6 +16,8 @@ class Court extends Model
         'court_name_ar',
         'court_name_en',
         'is_active',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

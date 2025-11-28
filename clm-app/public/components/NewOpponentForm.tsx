@@ -34,14 +34,9 @@ const NewOpponentForm: React.FC<NewOpponentFormProps> = ({ onClose, onSave }) =>
                 opponent_name_ar: formData.nameAr,
                 description: formData.description || null,
             };
-            if (onSave) {
-                // If callback provided, use it (for backward compatibility)
-                onSave(formData);
-            } else {
-                // Otherwise, call API directly
-                await createOpponent(payload);
-                onClose();
-            }
+            const result = await createOpponent(payload);
+            onSave?.(result?.data ?? result);
+            onClose();
         } catch (err: any) {
             setError(err.message || 'Failed to create opponent');
         } finally {
