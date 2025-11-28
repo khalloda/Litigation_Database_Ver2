@@ -30,6 +30,7 @@ const ClientCard: React.FC<{ client: Client; onSelect: () => void }> = ({ client
 }
 
 const ClientsListPage: React.FC = () => {
+  console.log('[ClientsListPage] modal build active');
   const navigate = useNavigate();
   const { t } = useI18n();
   const [searchTerm, setSearchTerm] = useState('');

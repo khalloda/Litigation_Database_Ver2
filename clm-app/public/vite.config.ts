@@ -14,6 +14,7 @@ export default defineConfig({
     emptyOutDir: true,
     assetsDir: 'assets',
     rollupOptions: {
+      input: path.resolve(__dirname, 'index.build.html'),
       output: {
         manualChunks: undefined,
       },

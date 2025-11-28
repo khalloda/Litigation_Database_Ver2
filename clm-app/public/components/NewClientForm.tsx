@@ -39,8 +39,8 @@ const NewClientForm: React.FC<NewClientFormProps> = ({ onClose, onSave }) => {
                 start_date: formData.startDate || null,
             };
             if (onSave) {
-                // If callback provided, use it (for backward compatibility)
-                onSave(formData);
+                // If callback provided (list page), pass normalized payload
+                onSave(payload);
             } else {
                 // Otherwise, call API directly
                 await createClient(payload);

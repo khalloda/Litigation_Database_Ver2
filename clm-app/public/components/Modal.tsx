@@ -26,7 +26,16 @@ const Modal: React.FC<ModalProps> = ({ title, onClose, children }) => {
 
     return (
         <div
-            className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
+            style={{
+                position: 'fixed',
+                inset: 0,
+                backgroundColor: 'rgba(0,0,0,0.6)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '1rem',
+                zIndex: 9999,
+            }}
             onClick={onClose}
             dir={direction}
             role="dialog"
@@ -34,12 +43,30 @@ const Modal: React.FC<ModalProps> = ({ title, onClose, children }) => {
             aria-labelledby="modal-title"
         >
             <div
-                className="bg-white rounded-lg shadow-2xl p-6 w-full max-w-lg relative"
+                style={{
+                    backgroundColor: '#fff',
+                    borderRadius: '0.75rem',
+                    boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
+                    padding: '1.5rem',
+                    width: '100%',
+                    maxWidth: '640px',
+                    position: 'relative',
+                }}
                 onClick={e => e.stopPropagation()}
             >
-                <div className="flex justify-between items-center border-b pb-3 mb-4">
-                    <h2 id="modal-title" className="text-xl font-bold text-gray-800">{title}</h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="Close">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e7eb', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+                    <h2 id="modal-title" style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1f2937', margin: 0 }}>{title}</h2>
+                    <button
+                        onClick={onClose}
+                        aria-label="Close"
+                        style={{
+                            border: 'none',
+                            background: 'transparent',
+                            color: '#9ca3af',
+                            cursor: 'pointer',
+                            padding: 0,
+                        }}
+                    >
                         <XIcon className="w-6 h-6" />
                     </button>
                 </div>
