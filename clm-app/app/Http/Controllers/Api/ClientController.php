@@ -65,26 +65,51 @@ class ClientController extends Controller
     {
         $this->authorize('create', Client::class);
 
-        $validated = $request->validate([
-            'client_name_en' => 'required|string|max:255',
-            'client_name_ar' => 'required|string|max:255',
-            'status' => 'nullable|string',
-            'client_code' => 'nullable|string|max:255',
-            'start_date' => 'nullable|date',
-        ]);
+        try {
+            $validated = $request->validate([
+                'client_name_en' => 'required|string|max:255',
+                'client_name_ar' => 'required|string|max:255',
+                'status' => 'nullable|string',
+                'client_code' => 'nullable|string|max:255',
+                'start_date' => 'nullable|date',
+            ]);
 
-        $validated['status_id'] = $request->status_id ?? null;
-        $validated['client_start'] = $validated['start_date'] ?? null;
-        $validated['created_by'] = auth()->id();
-        $validated['updated_by'] = auth()->id();
+            $validated['status'] = $request->status ?? null;
+            if ($request->filled('status_id')) {
+                $validated['status_id'] = $request->status_id;
+            }
+            $validated['client_print_name'] = $request->client_print_name
+                ?: ($request->client_name_en ?? $request->client_name_ar);
+            $validated['client_start'] = $request->start_date ?? null;
+            $validated['created_by'] = auth()->id();
+            $validated['updated_by'] = auth()->id();
 
-        $client = Client::create($validated);
-        $client->load(['contactLawyer', 'statusRef', 'cashOrProbono']);
+            \Log::info('API ClientController@store payload', [
+                'payload' => $validated,
+                'raw_request' => $request->all(),
+                'user_id' => auth()->id(),
+            ]);
 
-        return response()->json([
-            'data' => $client,
-            'message' => 'Client created successfully',
-        ], 201);
+            $client = Client::create($validated);
+            $client->load(['contactLawyer', 'statusRef', 'cashOrProbono']);
+
+            return response()->json([
+                'data' => $client,
+                'message' => 'Client created successfully',
+            ], 201);
+        } catch (\Throwable $e) {
+            \Log::error('API ClientController@store failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'payload' => $request->all(),
+                'user_id' => auth()->id(),
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to create client',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

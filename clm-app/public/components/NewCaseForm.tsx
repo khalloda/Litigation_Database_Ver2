@@ -81,14 +81,11 @@ const NewCaseForm: React.FC<NewCaseFormProps> = ({ onClose, onSave }) => {
                 court_id: formData.courtId ? Number(formData.courtId) : null,
                 start_date: formData.startDate || null,
             };
+            await createCase(payload);
             if (onSave) {
-                // If callback provided, use it (for backward compatibility)
-                onSave(formData);
-            } else {
-                // Otherwise, call API directly
-                await createCase(payload);
-                onClose();
+                onSave(payload);
             }
+            onClose();
         } catch (err: any) {
             setError(err.message || 'Failed to create case');
         } finally {

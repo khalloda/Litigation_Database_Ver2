@@ -38,14 +38,11 @@ const NewClientForm: React.FC<NewClientFormProps> = ({ onClose, onSave }) => {
                 client_code: formData.clientCode || null,
                 start_date: formData.startDate || null,
             };
+            await createClient(payload);
             if (onSave) {
-                // If callback provided (list page), pass normalized payload
                 onSave(payload);
-            } else {
-                // Otherwise, call API directly
-                await createClient(payload);
-                onClose();
             }
+            onClose();
         } catch (err: any) {
             setError(err.message || 'Failed to create client');
         } finally {

@@ -33,6 +33,8 @@ class Client extends Model
         'logo',
         'power_of_attorney_location',
         'documents_location',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

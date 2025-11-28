@@ -72,6 +72,8 @@ class CaseModel extends Model
         'opponent_capacity_id',
         'opponent_capacity_note',
         'matter_select',
+        'created_by',
+        'updated_by',
     ];
 
     // @deprecated opponent_id is now read-only mirror of primary opponent
