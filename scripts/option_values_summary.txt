@@ -1,0 +1,151 @@
+[1] client.cash_or_probono — Cash or Pro Bono / نقدي أو مجاني (active=1)
+Description EN: Client payment type classification
+Description AR: تصنيف نوع دفع العميل
+Total values: 3
+  - pos 01 | code=cash | Cash / نقدي (active=1)
+  - pos 02 | code=probono | Pro Bono / مجاني (active=1)
+  - pos 03 | code=unknown | Unknown / غير محدد (active=1)
+
+[2] client.status — Client Status / حالة العميل (active=1)
+Description EN: Current status of the client relationship
+Description AR: الحالة الحالية لعلاقة العميل
+Total values: 3
+  - pos 01 | code=disabled | Disabled / معطل (active=1)
+  - pos 02 | code=active | Active / نشط (active=1)
+  - pos 03 | code=potential | Potential / محتمل (active=1)
+
+[3] client.power_of_attorney_location — Power of Attorney Location / مكان التوكيل (active=1)
+Description EN: Physical location of power of attorney document
+Description AR: الموقع المادي لمستند التوكيل
+Total values: 3
+  - pos 01 | code=archive | Archive / أرشيف (active=1)
+  - pos 02 | code=safe | Safe / خزنة (active=1)
+  - pos 03 | code=handed_to_client | Handed to Client / مسلم للعميل (active=1)
+
+[4] client.documents_location — Documents Location / مكان المستندات (active=1)
+Description EN: Physical location of client documents
+Description AR: الموقع المادي لمستندات العميل
+Total values: 3
+  - pos 01 | code=archive | Archive / أرشيف (active=1)
+  - pos 02 | code=safe | Safe / خزنة (active=1)
+  - pos 03 | code=handed_to_client | Handed to Client / مسلم للعميل (active=1)
+
+[5] court.circuit — Court Circuits / دوائر المحاكم (active=1)
+Description EN: List of court circuits
+Description AR: قائمة دوائر المحاكم
+Total values: 2
+  - pos 01 | code=C01 | First Circuit / الدائرة الأولي (active=1)
+  - pos 02 | code=C02 | Second Circuit / الدائرة الثانية (active=1)
+
+[6] court.circuit_secretary — Circuit Secretaries / أمناء الدوائر (active=1)
+Description EN: List of circuit secretaries
+Description AR: قائمة أمناء الدوائر
+Total values: 1
+  - pos 01 | code=SEC01 | Ahmed Adli / أحمد عدلي (active=1)
+
+[7] court.floor — Court Floors / طوابق المحاكم (active=1)
+Description EN: List of court floor numbers
+Description AR: قائمة أرقام طوابق المحاكم
+Total values: 3
+  - pos 01 | code=F01 | First Floor / الدور الأول (active=1)
+  - pos 02 | code=F02 | Second Floor / الدور الثاني (active=1)
+  - pos 03 | code=F03 | Third Floor / الدور الثالث (active=1)
+
+[8] court.hall — Court Halls / قاعات المحاكم (active=1)
+Description EN: List of court hall numbers
+Description AR: قائمة أرقام قاعات المحاكم
+Total values: 1
+  - pos 01 | code=H01 | Main Hall / القاعة الرئيسية (active=1)
+
+[9] circuit.name — Circuit Names / أسماء الدوائر (active=1)
+Description EN: List of circuit names
+Description AR: قائمة أسماء الدوائر
+Total values: 48
+  - pos 00 | code=circuit_name_1 | 16 South – 137 s / 16 جنوب -137 س (active=1)
+  - pos 00 | code=circuit_name_2 | Administrative / إداري (active=1)
+  - pos 00 | code=circuit_name_3 | Administrative – First of October / إداري أول أكتوبر (active=1)
+  - pos 00 | code=circuit_name_4 | Appeal / استئناف (active=1)
+  - pos 00 | code=circuit_name_5 | Appeals – Misdemeanors / جنح مستأنف (active=1)
+  ...
+
+[10] circuit.serial — Circuit Serials / أرقام الدوائر التسلسلية (active=1)
+Description EN: Numeric and alphabetic serials for circuits
+Description AR: الأرقام والحروف التسلسلية للدوائر
+Total values: 154
+  - pos 00 | code=serial_1 | 1 / 1 (active=1)
+  - pos 00 | code=serial_2 | 2 / 2 (active=1)
+  - pos 00 | code=serial_3 | 3 / 3 (active=1)
+  - pos 00 | code=serial_4 | 4 / 4 (active=1)
+  - pos 00 | code=serial_5 | 5 / 5 (active=1)
+  ...
+
+[11] circuit.shift — Circuit Shifts / دوام الدوائر (active=1)
+Description EN: Morning or night shift
+Description AR: دوام صباحي أو مسائي
+Total values: 2
+  - pos 00 | code=shift_morning | Morning / صباحي (active=1)
+  - pos 00 | code=shift_night | Night / مسائي (active=1)
+
+[12] lawyer.title — Lawyer Titles / مسميات المحامين (active=1)
+Description EN: Standardized titles for lawyers
+Description AR: مسميات قياسية للمحامين
+Total values: 10
+  - pos 00 | code=title_managing_partner | Managing Partner / الشريك المدير (active=1)
+  - pos 00 | code=title_senior_partner | Senior Partner / شريك رئيسي (active=1)
+  - pos 00 | code=title_partner | Partner / شريك (active=1)
+  - pos 00 | code=title_junior_partner | Junior Partner / شريك مبتدئ (active=1)
+  - pos 00 | code=title_senior_associate | Senior Associate / محامي رئيسي (active=1)
+  ...
+
+[13] case.category — Case Categories / تصنيفات القضايا (active=1)
+Description EN: List of case categories
+Description AR: قائمة تصنيفات القضايا
+Total values: 27
+  - pos 00 | code=consultations | Consultations / استشارات (active=1)
+  - pos 00 | code=economic | Economic / اقتصادي (active=1)
+  - pos 00 | code=procedures | Procedures / إجراءات (active=1)
+  - pos 00 | code=administrative | Administrative / إداري (active=1)
+  - pos 00 | code=petition | Petition / إلتماس (active=1)
+  ...
+
+[14] case.degree — Case Degrees / درجات التقاضي (active=1)
+Description EN: List of case degrees
+Description AR: قائمة درجات التقاضي
+Total values: 21
+  - pos 00 | code=primary | Primary / ابتدائي (active=1)
+  - pos 00 | code=appeal | Appeal / استئناف (active=1)
+  - pos 00 | code=constitutional | Constitutional / الدستورية (active=1)
+  - pos 00 | code=supreme_administrative | Supreme Administrative / إدارية عليا (active=1)
+  - pos 00 | code=objection | Objection / إشكال (active=1)
+  ...
+
+[15] case.status — Case Status / حالة القضية (active=1)
+Description EN: List of case statuses
+Description AR: قائمة حالات القضايا
+Total values: 3
+  - pos 00 | code=closed | Closed / منتهية (active=1)
+  - pos 00 | code=active | Active / سارية (active=1)
+  - pos 00 | code=pending | Pending / معلقة (active=1)
+
+[16] case.importance — Case Importance / أهمية القضية (active=1)
+Description EN: List of case importance levels
+Description AR: قائمة مستويات أهمية القضايا
+Total values: 6
+  - pos 00 | code=grievance | Grievance / تظلم (active=1)
+  - pos 00 | code=critical | Critical / حرجة (active=1)
+  - pos 00 | code=active | Active / سارية (active=1)
+  - pos 00 | code=urgent | Urgent / عاجل (active=1)
+  - pos 00 | code=normal | Normal / عادية (active=1)
+  ...
+
+[18] capacity.type — Capacity Types / الصفات القانونية (active=1)
+Description EN: Capacity types for clients and opponents
+Description AR: الصفات القانونية للعميل والخصم
+Total values: 39
+  - pos 00 | code=accused_party | Accused Party / مشكو في حقه (active=1)
+  - pos 00 | code=aggressive_intervener | Aggressive Intervener / متدخل هجومي (active=1)
+  - pos 00 | code=appellant | Appellant / مستأنف (active=1)
+  - pos 00 | code=applicant | Applicant / مقدم الطلب (active=1)
+  - pos 00 | code=arbitrant | Arbitrant / محتكم (active=1)
+  ...
+
