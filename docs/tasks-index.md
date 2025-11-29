@@ -469,7 +469,86 @@
 
 ## 7. Reporting
 
-### 7.1 Client Case PDF Generator
+### 7.1 Operational Reports Foundation (Phase 1) ✅ COMPLETE
+- **ID**: T-Report-Phase-1
+- **Status**: Done
+- **Branch**: (current)
+- **Description**: Foundation infrastructure for operational reports including Excel export, utilities, shared layouts, and frontend UI structure.
+- **DoD**:
+  - [x] ✅ Excel export infrastructure using PhpSpreadsheet 5.1 directly (BaseReportExport.php created)
+  - [x] ✅ Common report utilities created (DateRangeHelper, ReportFormatter, ReportQueryBuilder)
+  - [x] ✅ Shared Blade layouts and partials for PDF reports (base_pdf.blade.php + 5 partials)
+  - [x] ✅ Frontend UI structure updated (4 new report widgets added to ReportsPage.tsx)
+  - [x] ✅ All code compiles without errors
+  - [x] ✅ Documentation created (Phase-1-Foundation-Summary.md)
+- **Commits**: (foundation work complete)
+- **Related**: T-Report-02, T-Report-03, T-Report-04, T-Report-05
+
+---
+
+### 7.3 Hearing Schedule Report ✅ COMPLETE
+- **ID**: T-Report-02
+- **Status**: Done
+- **Branch**: (current)
+- **Description**: Comprehensive hearing schedule report showing upcoming and past court hearings with case details, decision summaries, and alerts for overdue/missed hearings. Supports PDF and Excel export with calendar view option.
+- **DoD**:
+  - [x] ✅ Backend API implementation complete (PDF + Excel)
+  - [x] ✅ Validation request class created (HearingScheduleReportRequest)
+  - [x] ✅ PDF export with list and calendar views
+  - [x] ✅ Excel export with 4 sheets (upcoming, past, overdue, summary)
+  - [x] ✅ Enhanced calendar view template with monthly grid
+  - [x] ✅ Frontend widget fully connected and functional
+  - [x] ✅ All filters working (date range, court, case, lawyer, status)
+  - [x] ✅ Overdue detection logic implemented
+  - [x] ✅ Bilingual support (EN/AR with RTL)
+  - [x] ✅ Routes secured with permission middleware
+  - [ ] ⏳ Feature tests (Phase 3)
+  - [ ] ⏳ Documentation updates (Phase 3)
+- **Files Created/Modified**:
+  - `app/Http/Requests/HearingScheduleReportRequest.php`
+  - `app/Http/Controllers/Api/ReportController.php` (hearingSchedulePdf, hearingScheduleExcel)
+  - `app/Exports/HearingScheduleExport.php`
+  - `resources/views/reports/hearing_schedule_pdf.blade.php`
+  - `resources/views/reports/hearing_schedule_calendar_pdf.blade.php`
+  - `public/pages/ReportsPage.tsx` (frontend integration)
+  - `routes/api.php` (routes added)
+- **Commits**: (pending)
+- **Related**: T-Report-Phase-1
+
+---
+
+### 7.4 Administrative Tasks Report ✅ COMPLETE (PDF only)
+- **ID**: T-Report-03
+- **Status**: Done (PDF complete, Excel placeholder)
+- **Branch**: (current)
+- **Description**: Administrative tasks report showing task status, workload distribution, and completion rates. Supports filtering by lawyer, case, status, and includes overdue task alerts and subtask breakdowns.
+- **DoD**:
+  - [x] ✅ Backend API implementation complete (PDF working)
+  - [x] ✅ Validation request class created (AdminTasksReportRequest)
+  - [x] ✅ PDF export with task details and subtasks
+  - [x] ✅ Completion rate calculation
+  - [x] ✅ Overdue task detection
+  - [x] ✅ Frontend widget fully connected and functional
+  - [x] ✅ All filters working (lawyer, case, status, date range)
+  - [x] ✅ Grouping by lawyer/case supported
+  - [x] ✅ Subtask inclusion option
+  - [x] ✅ Bilingual support (EN/AR with RTL)
+  - [x] ✅ Routes secured with permission middleware
+  - [ ] ⏳ Excel export implementation (placeholder ready)
+  - [ ] ⏳ Feature tests (Phase 3)
+  - [ ] ⏳ Documentation updates (Phase 3)
+- **Files Created/Modified**:
+  - `app/Http/Requests/AdminTasksReportRequest.php`
+  - `app/Http/Controllers/Api/ReportController.php` (adminTasksPdf, adminTasksExcel placeholder)
+  - `resources/views/reports/admin_tasks_pdf.blade.php`
+  - `public/pages/ReportsPage.tsx` (frontend integration)
+  - `routes/api.php` (routes added)
+- **Commits**: (pending)
+- **Related**: T-Report-Phase-1
+
+---
+
+### 7.2 Client Case PDF Generator
 - **ID**: T-Report-01
 - **Status**: Done
 - **Branch**: (current)
