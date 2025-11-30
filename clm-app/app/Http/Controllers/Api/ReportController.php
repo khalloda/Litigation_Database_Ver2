@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\AdminTasksExport;
+use App\Exports\DocumentInventoryExport;
 use App\Exports\HearingScheduleExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\HearingScheduleReportRequest;
 use App\Http\Requests\AdminTasksReportRequest;
+use App\Http\Requests\CaseStatusDashboardReportRequest;
+use App\Http\Requests\DocumentInventoryReportRequest;
 use App\Models\AdminTask;
 use App\Models\CaseModel;
 use App\Models\Client;
+use App\Models\ClientDocument;
 use App\Models\Hearing;
 use App\Support\Reports\DateRangeHelper;
 use Barryvdh\Snappy\Facades\SnappyPdf;
@@ -520,11 +525,525 @@ class ReportController extends Controller
 
     /**
      * Generate Administrative Tasks Report as Excel.
+     *
+     * Creates a multi-sheet Excel export containing:
+     * - Summary sheet with statistics (total, completed, pending, overdue, completion rate)
+     * - Detailed sheet with all tasks
+     * - Overdue tasks sheet
+     * - Optional grouped sheets (by lawyer or by case, if requested)
+     *
+     * @param AdminTasksReportRequest $request Validated request with filters
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse Excel file download
+     * @throws \Exception If Excel generation fails
      */
     public function adminTasksExcel(AdminTasksReportRequest $request)
     {
-        // TODO: Implement Excel export using AdminTasksExport class
-        return response()->json(['message' => 'Excel export not yet implemented'], 501);
+        $validated = $request->validated();
+
+        // Resolve date range if provided
+        $dateRange = null;
+        if (!empty($validated['date_range_type'])) {
+            $dateRange = DateRangeHelper::resolveDateRange(
+                $validated['date_range_type'],
+                $validated['start_date'] ?? null,
+                $validated['end_date'] ?? null
+            );
+        }
+
+        // Build query (same logic as PDF)
+        $query = AdminTask::with([
+            'case.client',
+            'lawyer',
+            'subtasks',
+        ]);
+
+        // Apply filters
+        if (!empty($validated['lawyer_id'])) {
+            $query->where('lawyer_id', $validated['lawyer_id']);
+        }
+
+        if (!empty($validated['case_id'])) {
+            $query->where('matter_id', $validated['case_id']);
+        }
+
+        if (!empty($validated['status'])) {
+            $query->where('status', $validated['status']);
+        }
+
+        // Apply date range filter if provided
+        if ($dateRange) {
+            $query->whereBetween('execution_date', [
+                $dateRange['start'],
+                $dateRange['end'],
+            ]);
+        }
+
+        // Filter overdue tasks if requested
+        if (!empty($validated['show_overdue'])) {
+            $now = Carbon::now('Africa/Cairo');
+            $query->where(function ($q) use ($now) {
+                $q->where('execution_date', '<', $now)
+                    ->whereNull('result')
+                    ->orWhere('alert', true);
+            });
+        }
+
+        // Get tasks
+        $tasks = $query->orderBy('execution_date', 'asc')
+            ->orderBy('creation_date', 'desc')
+            ->get();
+
+        // Categorize tasks
+        $now = Carbon::now('Africa/Cairo');
+        $overdue = $tasks->filter(function ($task) use ($now) {
+            return ($task->execution_date && $task->execution_date < $now && empty($task->result))
+                || $task->alert;
+        });
+
+        $completed = $tasks->filter(fn ($task) => !empty($task->result));
+        $pending = $tasks->filter(fn ($task) => empty($task->result) && (!$task->execution_date || $task->execution_date >= $now));
+
+        // Calculate completion rates
+        $completionRate = $tasks->count() > 0 
+            ? ($completed->count() / $tasks->count()) * 100 
+            : 0;
+
+        // Get grouping option
+        $groupBy = $validated['group_by'] ?? null;
+        $includeSubtasks = $validated['include_subtasks'] ?? false;
+
+        // Generate Excel export
+        $locale = App::getLocale();
+        $export = new AdminTasksExport(
+            $tasks,
+            $overdue,
+            $completed,
+            $pending,
+            $completionRate,
+            $groupBy,
+            $includeSubtasks,
+            $dateRange,
+            $locale
+        );
+
+        return $export->export();
+    }
+
+    /**
+     * Generate Case Status Dashboard Report as PDF.
+     */
+    public function caseStatusDashboardPdf(CaseStatusDashboardReportRequest $request)
+    {
+        $validated = $request->validated();
+
+        // Build query
+        $query = CaseModel::with([
+            'client',
+            'court',
+            'matterCategory',
+            'latestHearing',
+            'adminTasks' => function ($q) {
+                $q->orderBy('updated_at', 'desc')->limit(1);
+            },
+        ]);
+
+        // Apply filters
+        $statusFilter = $this->resolveStatusFilter($validated['status'] ?? null);
+        if ($statusFilter !== null) {
+            $query->where('matter_status', $statusFilter);
+        }
+
+        if (!empty($validated['category_id'])) {
+            $query->where('matter_category_id', $validated['category_id']);
+        }
+
+        if (!empty($validated['court_id'])) {
+            $query->where('court_id', $validated['court_id']);
+        }
+
+        if (!empty($validated['lawyer_id'])) {
+            $query->where(function ($q) use ($validated) {
+                $q->where('lawyer_a', $validated['lawyer_id'])
+                    ->orWhere('lawyer_b', $validated['lawyer_id']);
+            });
+        }
+
+        $cases = $query->get();
+
+        // Helper function to build base query with filters
+        $buildStatsQuery = function () use ($statusFilter, $validated) {
+            $q = CaseModel::query();
+            if ($statusFilter !== null) {
+                $q->where('matter_status', $statusFilter);
+            }
+            if (!empty($validated['category_id'])) {
+                $q->where('matter_category_id', $validated['category_id']);
+            }
+            if (!empty($validated['court_id'])) {
+                $q->where('court_id', $validated['court_id']);
+            }
+            if (!empty($validated['lawyer_id'])) {
+                $q->where(function ($q2) use ($validated) {
+                    $q2->where('lawyer_a', $validated['lawyer_id'])
+                        ->orWhere('lawyer_b', $validated['lawyer_id']);
+                });
+            }
+            return $q;
+        };
+
+        // Calculate summary statistics (respecting filters)
+        $baseQuery = $buildStatsQuery();
+        $stats = [
+            'total' => (clone $baseQuery)->count(),
+            'active' => (clone $baseQuery)->where('matter_status', 'سارية')->count(),
+            'closed' => (clone $baseQuery)->where('matter_status', 'منتهية')->count(),
+            'by_category' => (clone $baseQuery)
+                ->selectRaw('matter_category_id, COUNT(*) as count')
+                ->whereNotNull('matter_category_id')
+                ->groupBy('matter_category_id')
+                ->with('matterCategory')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'category' => $item->matterCategory?->label_ar ?? $item->matterCategory?->label_en ?? 'غير محدد',
+                        'count' => $item->count,
+                    ];
+                }),
+            'by_court' => (clone $baseQuery)
+                ->selectRaw('court_id, COUNT(*) as count')
+                ->whereNotNull('court_id')
+                ->groupBy('court_id')
+                ->with('court')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'court' => $item->court?->court_name_ar ?? $item->court?->court_name_en ?? 'غير محدد',
+                        'count' => $item->count,
+                    ];
+                }),
+        ];
+
+        // Helper to apply filters to a query
+        $applyFiltersToQuery = function ($query) use ($statusFilter, $validated) {
+            if ($statusFilter !== null) {
+                $query->where('matter_status', $statusFilter);
+            }
+            if (!empty($validated['category_id'])) {
+                $query->where('matter_category_id', $validated['category_id']);
+            }
+            if (!empty($validated['court_id'])) {
+                $query->where('court_id', $validated['court_id']);
+            }
+            if (!empty($validated['lawyer_id'])) {
+                $query->where(function ($q) use ($validated) {
+                    $q->where('lawyer_a', $validated['lawyer_id'])
+                        ->orWhere('lawyer_b', $validated['lawyer_id']);
+                });
+            }
+            return $query;
+        };
+
+        // Cases requiring attention
+        $attentionRequired = collect();
+        if ($validated['show_attention_required'] ?? true) {
+            $now = Carbon::now('Africa/Cairo');
+
+            // Cases with overdue tasks
+            $casesWithOverdueTasks = $applyFiltersToQuery(CaseModel::whereHas('adminTasks', function ($q) use ($now) {
+                $q->where(function ($q2) use ($now) {
+                    $q2->where('execution_date', '<', $now)
+                        ->whereNull('result')
+                        ->orWhere('alert', true);
+                });
+            }))
+                ->with(['client', 'latestHearing'])
+                ->limit(30)
+                ->get()
+                ->map(function ($case) {
+                    return [
+                        'case' => $case->matter_name_ar ?? $case->matter_name_en,
+                        'client' => $case->client?->client_name_ar ?? $case->client?->client_name_en,
+                        'reason' => 'overdue_task',
+                    ];
+                });
+
+            // Cases with missing critical data
+            $casesWithMissingData = $applyFiltersToQuery(CaseModel::where(function ($q) {
+                $q->whereNull('matter_description')
+                    ->orWhereNull('matter_start_date')
+                    ->orWhereNull('client_id');
+            }))
+                ->with(['client'])
+                ->limit(30)
+                ->get()
+                ->map(function ($case) {
+                    return [
+                        'case' => $case->matter_name_ar ?? $case->matter_name_en,
+                        'client' => $case->client?->client_name_ar ?? $case->client?->client_name_en,
+                        'reason' => 'missing_data',
+                    ];
+                });
+
+            // Cases with upcoming hearings (within 7 days)
+            $casesWithUpcomingHearings = $applyFiltersToQuery(CaseModel::whereHas('hearings', function ($q) use ($now) {
+                $q->where('date', '>=', $now)
+                    ->where('date', '<=', $now->copy()->addDays(7));
+            }))
+                ->with(['client', 'latestHearing'])
+                ->limit(30)
+                ->get()
+                ->map(function ($case) {
+                    return [
+                        'case' => $case->matter_name_ar ?? $case->matter_name_en,
+                        'client' => $case->client?->client_name_ar ?? $case->client?->client_name_en,
+                        'reason' => 'upcoming_hearing',
+                    ];
+                });
+
+            $attentionRequired = $casesWithOverdueTasks
+                ->merge($casesWithMissingData)
+                ->merge($casesWithUpcomingHearings)
+                ->unique(function ($item) {
+                    return $item['case'];
+                });
+        }
+
+        // Recent activity (limit to top 20)
+        $recentActivity = collect();
+        if ($validated['show_recent_activity'] ?? true) {
+            $recentActivity = $applyFiltersToQuery(CaseModel::with([
+                'client',
+                'latestHearing',
+                'adminTasks' => function ($q) {
+                    $q->orderBy('updated_at', 'desc')->limit(1);
+                },
+            ]))
+                ->get()
+                ->map(function ($case) {
+                    $lastHearing = $case->latestHearing?->date;
+                    $lastTask = $case->adminTasks->first()?->updated_at?->toDateString();
+
+                    return [
+                        'case' => $case->matter_name_ar ?? $case->matter_name_en,
+                        'client' => $case->client?->client_name_ar ?? $case->client?->client_name_en,
+                        'last_hearing' => $lastHearing?->format('Y-m-d'),
+                        'last_task' => $lastTask,
+                        'last_activity' => max($lastHearing?->format('Y-m-d'), $lastTask ?? ''),
+                    ];
+                })
+                ->filter(fn ($item) => !empty($item['last_activity']))
+                ->sortByDesc('last_activity')
+                ->take(20);
+        }
+
+        $orientation = $validated['orientation'] ?? 'portrait';
+
+        $pdf = SnappyPdf::loadView('reports.case_status_dashboard_pdf', [
+            'cases' => $cases,
+            'stats' => $stats,
+            'attentionRequired' => $attentionRequired,
+            'recentActivity' => $recentActivity,
+            'filters' => $validated,
+            'generatedAt' => now('Africa/Cairo'),
+        ])
+        ->setPaper('a4', $orientation === 'landscape' ? 'landscape' : 'portrait')
+        ->setOption('margin-top', '15mm')
+        ->setOption('margin-bottom', '15mm')
+        ->setOption('footer-left', 'Page [page] of [toPage]')
+        ->setOption('footer-font-size', 9)
+        ->setOption('footer-spacing', 5);
+
+        $fileName = 'case-status-dashboard-' . now()->format('Ymd_His') . '.pdf';
+
+        return $pdf->download($fileName);
+    }
+
+    /**
+     * Generate Document Inventory Report as PDF.
+     */
+    public function documentInventoryPdf(DocumentInventoryReportRequest $request)
+    {
+        $validated = $request->validated();
+
+        // Build query
+        $query = ClientDocument::with(['client', 'case']);
+
+        // Apply filters
+        if (!empty($validated['client_id'])) {
+            $query->where('client_id', $validated['client_id']);
+        }
+
+        if (!empty($validated['case_id'])) {
+            $query->where('matter_id', $validated['case_id']);
+        }
+
+        if (!empty($validated['document_type'])) {
+            $query->where('document_type', $validated['document_type']);
+        }
+
+        if (!empty($validated['location'])) {
+            $query->where('document_location', 'like', '%' . $validated['location'] . '%');
+        }
+
+        if (!empty($validated['storage_type']) && $validated['storage_type'] !== 'all') {
+            $query->where('document_storage_type', $validated['storage_type']);
+        }
+
+        $documents = $query->orderBy('client_id', 'asc')
+            ->orderBy('matter_id', 'asc')
+            ->orderBy('deposit_date', 'desc')
+            ->get();
+
+        // Calculate summary statistics
+        $stats = [
+            'total' => ClientDocument::count(),
+            'physical' => ClientDocument::where('document_storage_type', 'physical')->count(),
+            'digital' => ClientDocument::where('document_storage_type', 'digital')->count(),
+            'both' => ClientDocument::where('document_storage_type', 'both')->count(),
+            'by_location' => ClientDocument::selectRaw('document_location, COUNT(*) as count')
+                ->whereNotNull('document_location')
+                ->groupBy('document_location')
+                ->orderBy('count', 'desc')
+                ->get(),
+            'by_client' => ClientDocument::selectRaw('client_id, COUNT(*) as total_documents')
+                ->groupBy('client_id')
+                ->with('client')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'client' => $item->client?->client_name_ar ?? $item->client?->client_name_en ?? 'غير محدد',
+                        'count' => $item->total_documents,
+                    ];
+                }),
+        ];
+
+        // Missing documents (cases without documents)
+        $missingDocuments = collect();
+        if ($validated['show_missing'] ?? false) {
+            $missingDocuments = CaseModel::whereDoesntHave('documents')
+                ->whereNotNull('matter_description')
+                ->with('client')
+                ->limit(50)
+                ->get()
+                ->map(function ($case) {
+                    return [
+                        'case' => $case->matter_name_ar ?? $case->matter_name_en,
+                        'client' => $case->client?->client_name_ar ?? $case->client?->client_name_en,
+                    ];
+                });
+        }
+
+        $orientation = $validated['orientation'] ?? 'portrait';
+        $groupBy = $validated['group_by'] ?? null;
+
+        $pdf = SnappyPdf::loadView('reports.document_inventory_pdf', [
+            'documents' => $documents,
+            'stats' => $stats,
+            'missingDocuments' => $missingDocuments,
+            'filters' => $validated,
+            'groupBy' => $groupBy,
+            'generatedAt' => now('Africa/Cairo'),
+        ])
+        ->setPaper('a4', $orientation === 'landscape' ? 'landscape' : 'portrait')
+        ->setOption('margin-top', '20mm')
+        ->setOption('margin-bottom', '20mm')
+        ->setOption('footer-left', 'Page [page] of [toPage]')
+        ->setOption('footer-font-size', 9)
+        ->setOption('footer-spacing', 5);
+
+        $fileName = 'document-inventory-' . now()->format('Ymd_His') . '.pdf';
+
+        return $pdf->download($fileName);
+    }
+
+    /**
+     * Generate Document Inventory Report as Excel.
+     */
+    /**
+     * Generate Document Inventory Report as Excel.
+     *
+     * Creates a multi-sheet Excel export containing:
+     * - Summary sheet with document counts by storage type
+     * - Detailed inventory sheet with all documents
+     * - By Location sheet (grouped by physical location)
+     * - By Client sheet (grouped by client)
+     * - By Case sheet (grouped by case)
+     * - Missing Documents sheet (if requested and applicable)
+     *
+     * @param DocumentInventoryReportRequest $request Validated request with filters
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse Excel file download
+     * @throws \Exception If Excel generation fails
+     */
+    public function documentInventoryExcel(DocumentInventoryReportRequest $request)
+    {
+        $validated = $request->validated();
+
+        // Build query (same logic as PDF)
+        $query = ClientDocument::with(['client', 'case']);
+
+        // Apply filters
+        if (!empty($validated['client_id'])) {
+            $query->where('client_id', $validated['client_id']);
+        }
+
+        if (!empty($validated['case_id'])) {
+            $query->where('matter_id', $validated['case_id']);
+        }
+
+        if (!empty($validated['document_type'])) {
+            $query->where('document_type', $validated['document_type']);
+        }
+
+        if (!empty($validated['location'])) {
+            $query->where('document_location', 'like', '%' . $validated['location'] . '%');
+        }
+
+        if (!empty($validated['storage_type']) && $validated['storage_type'] !== 'all') {
+            $query->where('document_storage_type', $validated['storage_type']);
+        }
+
+        $documents = $query->orderBy('client_id', 'asc')
+            ->orderBy('matter_id', 'asc')
+            ->orderBy('deposit_date', 'desc')
+            ->get();
+
+        // Calculate summary statistics
+        $stats = [
+            'total' => ClientDocument::count(),
+            'physical' => ClientDocument::where('document_storage_type', 'physical')->count(),
+            'digital' => ClientDocument::where('document_storage_type', 'digital')->count(),
+            'both' => ClientDocument::where('document_storage_type', 'both')->count(),
+        ];
+
+        // Missing documents (cases without documents)
+        $missingDocuments = collect();
+        if ($validated['show_missing'] ?? false) {
+            $missingDocuments = CaseModel::whereDoesntHave('documents')
+                ->whereNotNull('matter_description')
+                ->with('client')
+                ->limit(50)
+                ->get()
+                ->map(function ($case) {
+                    return [
+                        'case' => $case->matter_name_ar ?? $case->matter_name_en,
+                        'client' => $case->client?->client_name_ar ?? $case->client?->client_name_en,
+                    ];
+                });
+        }
+
+        $groupBy = $validated['group_by'] ?? null;
+
+        // Generate Excel export
+        $locale = App::getLocale();
+        $export = new DocumentInventoryExport(
+            $documents,
+            $stats,
+            $missingDocuments,
+            $groupBy,
+            $locale
+        );
+
+        return $export->export();
     }
 }
 
