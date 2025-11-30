@@ -94,6 +94,33 @@ const ReportsPage: React.FC = () => {
   });
   const [adminTasksError, setAdminTasksError] = useState<string | null>(null);
   const [adminTasksLoading, setAdminTasksLoading] = useState(false);
+  
+  // Case Status Dashboard Report state
+  const [caseStatusFilters, setCaseStatusFilters] = useState({
+    status: 'all' as 'all' | 'سارية' | 'منتهية' | 'active' | 'closed',
+    categoryId: '' as number | '',
+    courtId: '' as number | '',
+    lawyerId: '' as number | '',
+    showAttentionRequired: true,
+    showRecentActivity: true,
+    orientation: 'portrait' as 'portrait' | 'landscape',
+  });
+  const [caseStatusError, setCaseStatusError] = useState<string | null>(null);
+  const [caseStatusLoading, setCaseStatusLoading] = useState(false);
+  
+  // Document Inventory Report state
+  const [documentInventoryFilters, setDocumentInventoryFilters] = useState({
+    clientId: '' as number | '',
+    caseId: '' as number | '',
+    documentType: '' as string,
+    location: '' as string,
+    storageType: 'all' as 'physical' | 'digital' | 'both' | 'all',
+    showMissing: false,
+    groupBy: '' as 'client' | 'case' | 'location' | '',
+    orientation: 'portrait' as 'portrait' | 'landscape',
+  });
+  const [documentInventoryError, setDocumentInventoryError] = useState<string | null>(null);
+  const [documentInventoryLoading, setDocumentInventoryLoading] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -297,6 +324,96 @@ const ReportsPage: React.FC = () => {
       setAdminTasksError(message);
     } finally {
       setAdminTasksLoading(false);
+    }
+  };
+
+  const handleGenerateCaseStatusDashboard = async () => {
+    setCaseStatusError(null);
+    setCaseStatusLoading(true);
+
+    try {
+      const payload: any = {
+        status: caseStatusFilters.status,
+        category_id: caseStatusFilters.categoryId || null,
+        court_id: caseStatusFilters.courtId || null,
+        lawyer_id: caseStatusFilters.lawyerId || null,
+        show_attention_required: caseStatusFilters.showAttentionRequired,
+        show_recent_activity: caseStatusFilters.showRecentActivity,
+        orientation: caseStatusFilters.orientation,
+      };
+
+      const endpoint = `/reports/case-status-dashboard/pdf`;
+      const responseType = 'blob';
+      const mimeType = 'application/pdf';
+
+      const response = await api.post(endpoint, payload, { responseType });
+
+      const blob = new Blob([response.data], { type: mimeType });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute(
+        'download',
+        `case-status-dashboard-${new Date().toISOString().split('T')[0]}.pdf`
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        t('reports_page.report_error_generic');
+      setCaseStatusError(message);
+    } finally {
+      setCaseStatusLoading(false);
+    }
+  };
+
+  const handleGenerateDocumentInventory = async (format: 'pdf' | 'excel') => {
+    setDocumentInventoryError(null);
+    setDocumentInventoryLoading(true);
+
+    try {
+      const payload: any = {
+        client_id: documentInventoryFilters.clientId || null,
+        case_id: documentInventoryFilters.caseId || null,
+        document_type: documentInventoryFilters.documentType || null,
+        location: documentInventoryFilters.location || null,
+        storage_type: documentInventoryFilters.storageType === 'all' ? null : documentInventoryFilters.storageType,
+        show_missing: documentInventoryFilters.showMissing,
+        group_by: documentInventoryFilters.groupBy || null,
+        orientation: documentInventoryFilters.orientation,
+      };
+
+      const endpoint = `/reports/document-inventory/${format}`;
+      const responseType = 'blob';
+      const mimeType = format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      const fileExtension = format === 'pdf' ? 'pdf' : 'xlsx';
+
+      const response = await api.post(endpoint, payload, { responseType });
+
+      const blob = new Blob([response.data], { type: mimeType });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute(
+        'download',
+        `document-inventory-${new Date().toISOString().split('T')[0]}.${fileExtension}`
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        t('reports_page.report_error_generic');
+      setDocumentInventoryError(message);
+    } finally {
+      setDocumentInventoryLoading(false);
     }
   };
 
@@ -935,71 +1052,126 @@ const ReportsPage: React.FC = () => {
 
         <ReportWidget title={t('reports_page.case_status_dashboard_title')} className="lg:col-span-2">
           <div className="space-y-4">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
-              <p className="text-sm text-yellow-800">
-                {language === 'ar' 
-                  ? '⏳ هذا التقرير قيد التطوير - سيتم تفعيله قريباً'
-                  : '⏳ This report is under development - will be available soon'}
-              </p>
-            </div>
-            
+            {caseStatusError && (
+              <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
+                <p className="text-sm text-red-800">{caseStatusError}</p>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t('reports_page.case_status')}
+                  {t('reports.case_status_dashboard.status')}
                 </label>
-                <select disabled className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 cursor-not-allowed">
-                  <option value="all">{t('reports_page.all')}</option>
-                  <option value="active">{t('reports_page.active')}</option>
-                  <option value="closed">{t('reports_page.closed')}</option>
+                <select
+                  value={caseStatusFilters.status}
+                  onChange={(e) => setCaseStatusFilters(prev => ({
+                    ...prev,
+                    status: e.target.value as 'all' | 'سارية' | 'منتهية' | 'active' | 'closed'
+                  }))}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-primary-200"
+                  disabled={caseStatusLoading}
+                >
+                  <option value="all">{t('common.all')}</option>
+                  <option value="سارية">{t('common.active')}</option>
+                  <option value="منتهية">{t('common.closed')}</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t('reports_page.filter_by_category')}
+                  {t('reports.case_status_dashboard.filter_court')}
                 </label>
-                <select disabled className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 cursor-not-allowed">
-                  <option>{t('reports_page.all_categories')}</option>
+                <select
+                  value={caseStatusFilters.courtId}
+                  onChange={(e) => setCaseStatusFilters(prev => ({
+                    ...prev,
+                    courtId: e.target.value ? Number(e.target.value) : ''
+                  }))}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-primary-200"
+                  disabled={caseStatusLoading}
+                >
+                  <option value="">{t('common.all')}</option>
+                  {courts.map(court => (
+                    <option key={court.id} value={court.id}>
+                      {language === 'ar' ? court.court_name_ar : court.court_name_en}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t('reports_page.filter_by_court')}
+                  {t('reports.case_status_dashboard.filter_lawyer')}
                 </label>
-                <select disabled className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 cursor-not-allowed">
-                  <option>{t('reports_page.all_courts')}</option>
+                <select
+                  value={caseStatusFilters.lawyerId}
+                  onChange={(e) => setCaseStatusFilters(prev => ({
+                    ...prev,
+                    lawyerId: e.target.value ? Number(e.target.value) : ''
+                  }))}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-primary-200"
+                  disabled={caseStatusLoading}
+                >
+                  <option value="">{t('common.all')}</option>
+                  {lawyers.map(lawyer => (
+                    <option key={lawyer.id} value={lawyer.id}>
+                      {language === 'ar' ? lawyer.lawyer_name_ar : lawyer.lawyer_name_en}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t('reports_page.filter_by_lawyer')}
+                  {t('reports.case_status_dashboard.orientation')}
                 </label>
-                <select disabled className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 cursor-not-allowed">
-                  <option>{t('reports_page.all_lawyers')}</option>
+                <select
+                  value={caseStatusFilters.orientation}
+                  onChange={(e) => setCaseStatusFilters(prev => ({
+                    ...prev,
+                    orientation: e.target.value as 'portrait' | 'landscape'
+                  }))}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-primary-200"
+                  disabled={caseStatusLoading}
+                >
+                  <option value="portrait">{t('reports.case_status_dashboard.orientation_portrait')}</option>
+                  <option value="landscape">{t('reports.case_status_dashboard.orientation_landscape')}</option>
                 </select>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
               <label className="flex items-center gap-2 text-sm text-gray-700">
-                <input type="checkbox" disabled className="rounded border-gray-300 bg-gray-100" />
-                <span>{t('reports_page.show_attention_required')}</span>
+                <input
+                  type="checkbox"
+                  checked={caseStatusFilters.showAttentionRequired}
+                  onChange={(e) => setCaseStatusFilters(prev => ({ ...prev, showAttentionRequired: e.target.checked }))}
+                  className="rounded border-gray-300"
+                  disabled={caseStatusLoading}
+                />
+                <span>{t('reports.case_status_dashboard.show_attention_required')}</span>
               </label>
               <label className="flex items-center gap-2 text-sm text-gray-700">
-                <input type="checkbox" disabled className="rounded border-gray-300 bg-gray-100" />
-                <span>{t('reports_page.show_recent_activity')}</span>
+                <input
+                  type="checkbox"
+                  checked={caseStatusFilters.showRecentActivity}
+                  onChange={(e) => setCaseStatusFilters(prev => ({ ...prev, showRecentActivity: e.target.checked }))}
+                  className="rounded border-gray-300"
+                  disabled={caseStatusLoading}
+                />
+                <span>{t('reports.case_status_dashboard.show_recent_activity')}</span>
               </label>
             </div>
 
             <div className="flex items-center gap-3">
               <button
-                disabled
-                className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-gray-300 text-gray-500 cursor-not-allowed"
+                type="button"
+                onClick={handleGenerateCaseStatusDashboard}
+                disabled={caseStatusLoading}
+                className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {t('reports_page.generate_dashboard_pdf')}
+                {caseStatusLoading ? t('reports_page.generating_pdf') : t('reports_page.generate_pdf')}
               </button>
             </div>
           </div>
@@ -1007,95 +1179,173 @@ const ReportsPage: React.FC = () => {
 
         <ReportWidget title={t('reports_page.document_inventory_title')} className="lg:col-span-2">
           <div className="space-y-4">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
-              <p className="text-sm text-yellow-800">
-                {language === 'ar' 
-                  ? '⏳ هذا التقرير قيد التطوير - سيتم تفعيله قريباً'
-                  : '⏳ This report is under development - will be available soon'}
-              </p>
-            </div>
-            
+            {documentInventoryError && (
+              <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
+                <p className="text-sm text-red-800">{documentInventoryError}</p>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t('reports_page.filter_by_client')}
+                  {t('reports.document_inventory.filter_client')}
                 </label>
-                <select disabled className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 cursor-not-allowed">
-                  <option>{t('reports_page.all_clients')}</option>
+                <select
+                  value={documentInventoryFilters.clientId}
+                  onChange={(e) => setDocumentInventoryFilters(prev => ({
+                    ...prev,
+                    clientId: e.target.value ? Number(e.target.value) : ''
+                  }))}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-primary-200"
+                  disabled={documentInventoryLoading}
+                >
+                  <option value="">{t('common.all')}</option>
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>
+                      {language === 'ar' ? client.client_name_ar : client.client_name_en}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t('reports_page.filter_by_case')}
+                  {t('reports.document_inventory.filter_case')}
                 </label>
-                <select disabled className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 cursor-not-allowed">
-                  <option>{t('reports_page.all_cases')}</option>
+                <select
+                  value={documentInventoryFilters.caseId}
+                  onChange={(e) => setDocumentInventoryFilters(prev => ({
+                    ...prev,
+                    caseId: e.target.value ? Number(e.target.value) : ''
+                  }))}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-primary-200"
+                  disabled={documentInventoryLoading}
+                >
+                  <option value="">{t('common.all')}</option>
+                  {cases.map(caseItem => (
+                    <option key={caseItem.id} value={caseItem.id}>
+                      {language === 'ar' ? caseItem.matter_name_ar : caseItem.matter_name_en}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t('reports_page.document_type')}
+                  {t('reports.document_inventory.document_type')}
                 </label>
-                <select disabled className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 cursor-not-allowed">
-                  <option>{t('reports_page.all_types')}</option>
+                <input
+                  type="text"
+                  value={documentInventoryFilters.documentType}
+                  onChange={(e) => setDocumentInventoryFilters(prev => ({ ...prev, documentType: e.target.value }))}
+                  placeholder={t('reports.document_inventory.document_type_placeholder')}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-primary-200"
+                  disabled={documentInventoryLoading}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  {t('reports.document_inventory.location')}
+                </label>
+                <input
+                  type="text"
+                  value={documentInventoryFilters.location}
+                  onChange={(e) => setDocumentInventoryFilters(prev => ({ ...prev, location: e.target.value }))}
+                  placeholder={t('reports.document_inventory.location_placeholder')}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-primary-200"
+                  disabled={documentInventoryLoading}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  {t('reports.document_inventory.storage_type')}
+                </label>
+                <select
+                  value={documentInventoryFilters.storageType}
+                  onChange={(e) => setDocumentInventoryFilters(prev => ({
+                    ...prev,
+                    storageType: e.target.value as 'physical' | 'digital' | 'both' | 'all'
+                  }))}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-primary-200"
+                  disabled={documentInventoryLoading}
+                >
+                  <option value="all">{t('common.all')}</option>
+                  <option value="physical">{t('reports.document_inventory.storage_type_physical')}</option>
+                  <option value="digital">{t('reports.document_inventory.storage_type_digital')}</option>
+                  <option value="both">{t('reports.document_inventory.storage_type_both')}</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t('reports_page.filter_by_location')}
+                  {t('reports.document_inventory.group_by')}
                 </label>
-                <select disabled className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 cursor-not-allowed">
-                  <option>{t('reports_page.all_locations')}</option>
+                <select
+                  value={documentInventoryFilters.groupBy}
+                  onChange={(e) => setDocumentInventoryFilters(prev => ({
+                    ...prev,
+                    groupBy: e.target.value as 'client' | 'case' | 'location' | ''
+                  }))}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-primary-200"
+                  disabled={documentInventoryLoading}
+                >
+                  <option value="">{t('common.none')}</option>
+                  <option value="client">{t('reports.document_inventory.group_by_client')}</option>
+                  <option value="case">{t('reports.document_inventory.group_by_case')}</option>
+                  <option value="location">{t('reports.document_inventory.group_by_location')}</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t('reports_page.storage_type')}
+                  {t('reports.document_inventory.orientation')}
                 </label>
-                <select disabled className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 cursor-not-allowed">
-                  <option value="all">{t('reports_page.all_storage_types')}</option>
-                  <option value="physical">{t('reports_page.physical')}</option>
-                  <option value="digital">{t('reports_page.digital')}</option>
-                  <option value="both">{t('reports_page.both')}</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t('reports_page.group_by')}
-                </label>
-                <select disabled className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 cursor-not-allowed">
-                  <option value="">{t('reports_page.no_grouping')}</option>
-                  <option value="client">{t('reports_page.group_by_client')}</option>
-                  <option value="case">{t('reports_page.group_by_case')}</option>
-                  <option value="location">{t('reports_page.group_by_location')}</option>
+                <select
+                  value={documentInventoryFilters.orientation}
+                  onChange={(e) => setDocumentInventoryFilters(prev => ({
+                    ...prev,
+                    orientation: e.target.value as 'portrait' | 'landscape'
+                  }))}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-primary-200"
+                  disabled={documentInventoryLoading}
+                >
+                  <option value="portrait">{t('reports.document_inventory.orientation_portrait')}</option>
+                  <option value="landscape">{t('reports.document_inventory.orientation_landscape')}</option>
                 </select>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               <label className="flex items-center gap-2 text-sm text-gray-700">
-                <input type="checkbox" disabled className="rounded border-gray-300 bg-gray-100" />
-                <span>{t('reports_page.show_missing_documents')}</span>
+                <input
+                  type="checkbox"
+                  checked={documentInventoryFilters.showMissing}
+                  onChange={(e) => setDocumentInventoryFilters(prev => ({ ...prev, showMissing: e.target.checked }))}
+                  className="rounded border-gray-300"
+                  disabled={documentInventoryLoading}
+                />
+                <span>{t('reports.document_inventory.show_missing')}</span>
               </label>
             </div>
 
             <div className="flex items-center gap-3">
               <button
-                disabled
-                className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-gray-300 text-gray-500 cursor-not-allowed"
+                type="button"
+                onClick={() => handleGenerateDocumentInventory('pdf')}
+                disabled={documentInventoryLoading}
+                className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {t('reports_page.generate_pdf')}
+                {documentInventoryLoading ? t('reports_page.generating_pdf') : t('reports_page.generate_pdf')}
               </button>
               <button
-                disabled
-                className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-gray-300 text-gray-500 cursor-not-allowed"
+                type="button"
+                onClick={() => handleGenerateDocumentInventory('excel')}
+                disabled={documentInventoryLoading}
+                className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {t('reports_page.export_excel')}
+                {documentInventoryLoading ? t('reports_page.generating_excel') : t('reports_page.generate_excel')}
               </button>
             </div>
           </div>

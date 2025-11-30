@@ -96,4 +96,13 @@ Route::middleware('auth:sanctum')->group(function () {
     
     Route::post('/reports/admin-tasks/excel', [App\Http\Controllers\Api\ReportController::class, 'adminTasksExcel'])
         ->middleware('permission:reports.view');
+    
+    Route::post('/reports/case-status-dashboard/pdf', [App\Http\Controllers\Api\ReportController::class, 'caseStatusDashboardPdf'])
+        ->middleware('permission:reports.view');
+    
+    Route::post('/reports/document-inventory/pdf', [App\Http\Controllers\Api\ReportController::class, 'documentInventoryPdf'])
+        ->middleware('permission:reports.view');
+    
+    Route::post('/reports/document-inventory/excel', [App\Http\Controllers\Api\ReportController::class, 'documentInventoryExcel'])
+        ->middleware('permission:reports.view');
 });

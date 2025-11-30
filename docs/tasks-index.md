@@ -502,8 +502,8 @@
   - [x] ✅ Overdue detection logic implemented
   - [x] ✅ Bilingual support (EN/AR with RTL)
   - [x] ✅ Routes secured with permission middleware
-  - [ ] ⏳ Feature tests (Phase 3)
-  - [ ] ⏳ Documentation updates (Phase 3)
+  - [x] ✅ Feature tests (31 tests created in Phase 3)
+  - [x] ✅ Documentation updates (all docs updated in Phase 3)
 - **Files Created/Modified**:
   - `app/Http/Requests/HearingScheduleReportRequest.php`
   - `app/Http/Controllers/Api/ReportController.php` (hearingSchedulePdf, hearingScheduleExcel)
@@ -512,14 +512,15 @@
   - `resources/views/reports/hearing_schedule_calendar_pdf.blade.php`
   - `public/pages/ReportsPage.tsx` (frontend integration)
   - `routes/api.php` (routes added)
+  - `tests/Feature/Reports/HearingScheduleReportTest.php` (6 tests)
 - **Commits**: (pending)
 - **Related**: T-Report-Phase-1
 
 ---
 
-### 7.4 Administrative Tasks Report ✅ COMPLETE (PDF only)
+### 7.4 Administrative Tasks Report ✅ COMPLETE
 - **ID**: T-Report-03
-- **Status**: Done (PDF complete, Excel placeholder)
+- **Status**: Done (PDF + Excel complete)
 - **Branch**: (current)
 - **Description**: Administrative tasks report showing task status, workload distribution, and completion rates. Supports filtering by lawyer, case, status, and includes overdue task alerts and subtask breakdowns.
 - **DoD**:
@@ -534,17 +535,113 @@
   - [x] ✅ Subtask inclusion option
   - [x] ✅ Bilingual support (EN/AR with RTL)
   - [x] ✅ Routes secured with permission middleware
-  - [ ] ⏳ Excel export implementation (placeholder ready)
-  - [ ] ⏳ Feature tests (Phase 3)
-  - [ ] ⏳ Documentation updates (Phase 3)
+  - [x] ✅ Excel export implementation complete (multi-sheet)
+  - [x] ✅ Feature tests (31 tests created in Phase 3)
+  - [x] ✅ Documentation updates (all docs updated in Phase 3)
 - **Files Created/Modified**:
   - `app/Http/Requests/AdminTasksReportRequest.php`
-  - `app/Http/Controllers/Api/ReportController.php` (adminTasksPdf, adminTasksExcel placeholder)
+  - `app/Http/Controllers/Api/ReportController.php` (adminTasksPdf, adminTasksExcel)
+  - `app/Exports/AdminTasksExport.php` (Excel export class)
   - `resources/views/reports/admin_tasks_pdf.blade.php`
   - `public/pages/ReportsPage.tsx` (frontend integration)
   - `routes/api.php` (routes added)
 - **Commits**: (pending)
 - **Related**: T-Report-Phase-1
+
+---
+
+### 7.5 Case Status Dashboard Report ✅ COMPLETE
+- **ID**: T-Report-04
+- **Status**: Done (PDF complete)
+- **Branch**: (current)
+- **Description**: Single-page dashboard report providing at-a-glance case overview with summary statistics, status breakdown, and cases requiring attention. Includes recent activity indicators.
+- **DoD**:
+  - [x] ✅ Backend API implementation complete (PDF working)
+  - [x] ✅ Validation request class created (CaseStatusDashboardReportRequest)
+  - [x] ✅ PDF export with dashboard layout and metric cards
+  - [x] ✅ Summary statistics (total, active, closed, by category, by court)
+  - [x] ✅ Cases requiring attention detection (overdue tasks, missing data, upcoming hearings)
+  - [x] ✅ Recent activity indicators (last hearing, last task)
+  - [x] ✅ Frontend widget fully connected and functional
+  - [x] ✅ All filters working (status, category, court, lawyer)
+  - [x] ✅ Filter-aware statistics calculations (proper query cloning)
+  - [x] ✅ Single-page layout optimized for A4
+  - [x] ✅ Bilingual support (EN/AR with RTL)
+  - [x] ✅ Routes secured with permission middleware
+  - [x] ✅ Feature tests (31 tests created in Phase 3)
+  - [x] ✅ Documentation updates (all docs updated in Phase 3)
+- **Files Created/Modified**:
+  - `app/Http/Requests/CaseStatusDashboardReportRequest.php`
+  - `app/Http/Controllers/Api/ReportController.php` (caseStatusDashboardPdf method)
+  - `resources/views/reports/case_status_dashboard_pdf.blade.php`
+  - `public/pages/ReportsPage.tsx` (frontend integration)
+  - `routes/api.php` (routes added)
+  - Locale files updated (EN/AR)
+  - `tests/Feature/Reports/CaseStatusDashboardReportTest.php` (7 tests)
+- **Commits**: (pending)
+- **Related**: T-Report-Phase-1
+
+---
+
+### 7.6 Document Inventory Report ✅ COMPLETE
+- **ID**: T-Report-05
+- **Status**: Done (PDF + Excel complete)
+- **Branch**: (current)
+- **Description**: Comprehensive document inventory reports for tracking physical and digital documents. Supports filtering by client, case, document type, and location. Shows physical storage locations, deposit dates, movement cards, and document counts.
+- **DoD**:
+  - [x] ✅ Backend API implementation complete (PDF working)
+  - [x] ✅ Validation request class created (DocumentInventoryReportRequest)
+  - [x] ✅ PDF export with document details and summaries
+  - [x] ✅ Document counts by storage type (physical, digital, both)
+  - [x] ✅ Missing documents detection (cases without documents)
+  - [x] ✅ Location grouping support
+  - [x] ✅ Frontend widget fully connected and functional
+  - [x] ✅ All filters working (client, case, type, location, storage type)
+  - [x] ✅ Group by options (client, case, location)
+  - [x] ✅ Missing documents flag option
+  - [x] ✅ Bilingual support (EN/AR with RTL)
+  - [x] ✅ Routes secured with permission middleware
+  - [x] ✅ Excel export implementation complete (multi-sheet)
+  - [x] ✅ Feature tests (31 tests created in Phase 3)
+  - [x] ✅ Documentation updates (all docs updated in Phase 3)
+- **Files Created/Modified**:
+  - `app/Http/Requests/DocumentInventoryReportRequest.php`
+  - `app/Http/Controllers/Api/ReportController.php` (documentInventoryPdf, documentInventoryExcel)
+  - `app/Exports/DocumentInventoryExport.php` (Excel export class)
+  - `resources/views/reports/document_inventory_pdf.blade.php`
+  - `public/pages/ReportsPage.tsx` (frontend integration)
+  - `routes/api.php` (routes added)
+  - Locale files updated (EN/AR)
+  - `tests/Feature/Reports/DocumentInventoryReportTest.php` (9 tests)
+- **Commits**: (pending)
+- **Related**: T-Report-Phase-1
+
+---
+
+### 7.7 Locale Files Update for Reports ✅ COMPLETE
+- **ID**: T-Report-Locale
+- **Status**: Done
+- **Branch**: (current)
+- **Description**: Update all locale files (frontend and backend) with translation keys for all four operational reports (Hearing Schedule, Administrative Tasks, Case Status Dashboard, Document Inventory).
+- **DoD**:
+  - [x] ✅ Frontend locale files updated (`public/locales/en.json`, `ar.json`)
+    - Added `reports_page.*` keys (generate_excel, case_status_dashboard_title, document_inventory_title, etc.)
+    - Added `common.*` keys (all, none, yes, no, active, closed)
+    - Added `date_ranges.*` section
+    - Added complete `reports.*` section with all report-specific translations
+  - [x] ✅ Backend locale files updated (`resources/lang/en/app.php`, `ar/app.php`)
+    - Added top-level `common.*` section (yes, no)
+    - Added complete `reports.*` section with all report-specific translations
+    - All Blade template translation keys covered
+  - [x] ✅ All translation keys verified against code usage
+  - [x] ✅ Bilingual support complete (EN/AR)
+- **Files Created/Modified**:
+  - `public/locales/en.json`
+  - `public/locales/ar.json`
+  - `resources/lang/en/app.php`
+  - `resources/lang/ar/app.php`
+- **Commits**: (pending)
+- **Related**: T-Report-02, T-Report-03, T-Report-04, T-Report-05
 
 ---
 
