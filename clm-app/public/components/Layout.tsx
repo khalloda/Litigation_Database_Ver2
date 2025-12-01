@@ -28,15 +28,21 @@ interface SidebarProps {
     onNavigate: (path: string) => void;
 }
 
+const sidebarLogo = '/assets/logo-BU5yR0AT.png';
+
 const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => {
     const { t } = useI18n();
     return (
         <aside className="w-64 bg-white border-e shadow-sm flex-shrink-0 flex flex-col p-4">
-            <div className="flex items-center gap-3 px-3 py-4">
-                <svg className="w-8 h-8 text-primary-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM12.5 17h-1v-7h1v7zm-1-8.5c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z" fill="currentColor"/>
-                </svg>
-                <span className="text-xl font-bold text-gray-800">{t('app.title')}</span>
+            <div className="px-3 py-4 flex flex-col items-center">
+                <img
+                  src={sidebarLogo}
+                  alt="CLMS Logo"
+                  className="w-full max-w-[160px] object-contain mb-3"
+                />
+                <span className="text-xl font-bold text-gray-800 text-center">
+                  {t('app.title')}
+                </span>
             </div>
             <nav className="mt-8 flex flex-col gap-2">
                 <NavItem icon={<SparklesIcon />} label={t('app.dashboard')} active={currentView === ''} onClick={() => onNavigate('/')} />
