@@ -4,6 +4,7 @@ import { useI18n } from '../hooks/useI18n';
 import type { PowerOfAttorney } from '../types';
 import { fetchPowerOfAttorney, fetchPowerOfAttorneySchema } from '../services/powerOfAttorneys';
 import AllFieldsTable from '../components/AllFieldsTable';
+import EditPowerOfAttorneyForm from '../components/EditPowerOfAttorneyForm';
 
 const DetailRow: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => {
   const renderValue = () => {
@@ -59,6 +60,7 @@ const PowerOfAttorneyDetailPage: React.FC = () => {
   const [schemaLoading, setSchemaLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [schemaError, setSchemaError] = useState<string | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -174,6 +176,12 @@ const PowerOfAttorneyDetailPage: React.FC = () => {
                 {t('poa_page.poa_number')} #{powerOfAttorney.poa_number}
               </span>
             )}
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white text-sm font-semibold hover:bg-primary-700 transition-colors"
+            >
+              {t('poa_page.edit_button') || 'Edit POA'}
+            </button>
           </div>
         </div>
       </div>
@@ -235,6 +243,16 @@ const PowerOfAttorneyDetailPage: React.FC = () => {
           </div>
         )}
       </div>
+      {isEditModalOpen && powerOfAttorney && (
+        <EditPowerOfAttorneyForm
+          poa={powerOfAttorney}
+          onClose={() => setIsEditModalOpen(false)}
+          onSave={(updated) => {
+            setPowerOfAttorney(updated);
+            setIsEditModalOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 };
