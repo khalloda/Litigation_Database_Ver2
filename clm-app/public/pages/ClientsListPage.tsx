@@ -21,14 +21,16 @@ const ClientCard: React.FC<{ client: Client; onSelect: () => void }> = ({ client
                 <p className="font-bold text-primary-700 truncate">{clientName}</p>
                 <span className="text-xs font-mono bg-gray-100 text-gray-700 px-2 py-1 rounded-full whitespace-nowrap">ID: {client.id}</span>
             </div>
-            <div className="mt-2">
-              {client.client_code && <p className="text-sm text-gray-500">{t('client_page.code')}: {client.client_code}</p>}
-              {client.mfiles_id != null && (
-                <p className="text-sm text-gray-500">
-                  {t('client_page.mfiles_id')}: {client.mfiles_id}
-                </p>
-              )}
-              {client.status && <p className="text-sm text-gray-500">{t('client_page.status')}: {t(`status.${client.status}`)}</p>}
+            <div className="mt-2 space-y-0.5">
+              <p className="text-sm text-gray-500">
+                {t('client_page.code')}: {client.client_code ?? '—'}
+              </p>
+              <p className="text-sm text-gray-500">
+                {t('client_page.mfiles_id')}: {client.mfiles_id ?? '—'}
+              </p>
+              <p className="text-sm text-gray-500">
+                {t('client_page.status')}: {client.status ? t(`status.${client.status}`) : '—'}
+              </p>
             </div>
         </div>
     );

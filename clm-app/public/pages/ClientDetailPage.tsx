@@ -8,11 +8,10 @@ import AllFieldsTable from '../components/AllFieldsTable';
 import EditClientForm from '../components/EditClientForm';
 
 const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => {
-    if (!value) return null;
     return (
         <div className="bg-gray-50 p-3 rounded-md">
             <span className="font-bold text-gray-700">{label}:</span>
-            <span className="ms-2 text-gray-600">{value}</span>
+            <span className="ms-2 text-gray-600">{value ?? '—'}</span>
         </div>
     );
 }
