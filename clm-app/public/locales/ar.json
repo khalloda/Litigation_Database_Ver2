@@ -393,6 +393,7 @@
     "movement_card_history": "سجل بطاقة الحركة",
     "edit_document": "تعديل المستند",
     "new_move": "إضافة حركة",
+    "print_movement_card": "طباعة بطاقة حركة المستند",
     "movement": {
       "date": "التاريخ",
       "from": "من",

@@ -393,6 +393,7 @@
     "movement_card_history": "Movement Card History",
     "edit_document": "Edit Document",
     "new_move": "New Move",
+    "print_movement_card": "Print Movement Card",
     "movement": {
       "date": "Date",
       "from": "From",

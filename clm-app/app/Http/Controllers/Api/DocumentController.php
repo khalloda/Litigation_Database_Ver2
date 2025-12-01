@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Models\ClientDocument;
+use Barryvdh\Snappy\Facades\SnappyPdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
@@ -193,6 +194,41 @@ class DocumentController extends Controller
         $schemaData = $this->getSchemaFields('client_documents', $document);
 
         return response()->json($schemaData);
+    }
+
+    /**
+     * Generate Movement Card PDF for a document.
+     */
+    public function movementCardPdf(Request $request, ClientDocument $document)
+    {
+        $this->authorize('view', $document);
+
+        $locale = $request->input('locale', app()->getLocale() ?? 'ar');
+
+        // Movements can be passed from the SPA until a dedicated backend model is introduced.
+        $movements = $request->input('movements', []);
+        if (!is_array($movements)) {
+            $movements = [];
+        }
+
+        $totalMovements = count($movements);
+
+        $firmLogoPath = public_path('assets/logo-BU5yR0AT.png');
+
+        $pdf = SnappyPdf::loadView('reports.document_movement_card', [
+            'locale' => $locale,
+            'document' => $document,
+            'movements' => $movements,
+            'firmLogoPath' => is_file($firmLogoPath) ? $firmLogoPath : null,
+            'generatedAt' => now(),
+            'totalMovements' => $totalMovements,
+        ])
+            ->setPaper('a4', 'portrait')
+            ->setOption('encoding', 'UTF-8');
+
+        $fileName = 'movement-card-' . $document->id . '-' . now()->format('Ymd_His') . '.pdf';
+
+        return $pdf->download($fileName);
     }
 }
 

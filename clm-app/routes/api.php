@@ -54,6 +54,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Documents
     Route::apiResource('documents', App\Http\Controllers\Api\DocumentController::class);
     Route::get('documents/{document}/schema', [App\Http\Controllers\Api\DocumentController::class, 'schema'])->name('documents.schema');
+    Route::post('documents/{document}/movement-card/pdf', [App\Http\Controllers\Api\DocumentController::class, 'movementCardPdf'])
+        ->name('documents.movement-card.pdf');
 
            // Power of Attorneys
            Route::apiResource('power-of-attorneys', App\Http\Controllers\Api\PowerOfAttorneyController::class);

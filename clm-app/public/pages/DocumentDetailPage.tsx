@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { ClientDocument, DocumentMovementStatus, DocumentMovement } from '../types';
 import { useI18n } from '../hooks/useI18n';
-import { fetchDocument, fetchDocumentSchema } from '../services/documents';
+import { fetchDocument, fetchDocumentSchema, printMovementCardPdf } from '../services/documents';
 import MovementForm from '../components/MovementForm';
 import { DocumentIcon } from '../components/icons';
 import AllFieldsTable from '../components/AllFieldsTable';
@@ -248,12 +248,33 @@ const DocumentDetailPage: React.FC = () => {
                     <div className="mt-6 border-t pt-6">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-xl font-bold text-gray-800">{t('document_page.movement_card_history')}</h2>
-                            <button
-                                onClick={() => setMovementFormState({ isOpen: true, movement: null })}
-                                className="px-4 py-2 bg-green-600 border border-transparent rounded-lg text-white font-semibold hover:bg-green-700 transition-colors text-sm"
-                            >
-                                {t('document_page.new_move')}
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            if (!document) return;
+                                            const blob = await printMovementCardPdf(document.id, {
+                                                locale: language,
+                                                movements: document.movements || [],
+                                            });
+                                            const url = window.URL.createObjectURL(blob);
+                                            window.open(url, '_blank');
+                                        } catch (err: any) {
+                                            console.error('Error printing movement card:', err);
+                                            alert(err?.response?.data?.message || err.message || 'Failed to generate movement card PDF');
+                                        }
+                                    }}
+                                    className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-800 font-semibold hover:bg-gray-200 transition-colors text-sm"
+                                >
+                                    {t('document_page.print_movement_card')}
+                                </button>
+                                <button
+                                    onClick={() => setMovementFormState({ isOpen: true, movement: null })}
+                                    className="px-4 py-2 bg-green-600 border border-transparent rounded-lg text-white font-semibold hover:bg-green-700 transition-colors text-sm"
+                                >
+                                    {t('document_page.new_move')}
+                                </button>
+                            </div>
                         </div>
                         {document.movements && document.movements.length > 0 ? (
                             <div className="overflow-x-auto">

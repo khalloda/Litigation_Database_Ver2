@@ -80,3 +80,22 @@ export async function deleteDocument(id: number | string) {
   return response.data;
 }
 
+export async function printMovementCardPdf(
+  id: number | string,
+  {
+    locale,
+    movements,
+  }: {
+    locale: string;
+    movements: any[];
+  }
+) {
+  const response = await api.post(
+    `/documents/${id}/movement-card/pdf`,
+    { locale, movements },
+    { responseType: 'blob' }
+  );
+  return response.data as Blob;
+}
+
+
