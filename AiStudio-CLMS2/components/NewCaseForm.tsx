@@ -29,6 +29,7 @@ const NewCaseForm: React.FC = () => {
         partnerId: '',
         courtId: '',
         startDate: '',
+        mfilesId: '',
     });
 
     useEffect(() => {
@@ -76,6 +77,7 @@ const NewCaseForm: React.FC = () => {
                 partner_id: formData.partnerId ? Number(formData.partnerId) : null,
                 court_id: formData.courtId ? Number(formData.courtId) : null,
                 start_date: formData.startDate || null,
+                mfiles_id: formData.mfilesId || undefined,
             };
             const newCase = await createCase(payload);
             navigate(`/cases/${newCase.id || newCase.data?.id}`);
@@ -166,6 +168,20 @@ const NewCaseForm: React.FC = () => {
                             <label htmlFor="caseNameAr" className="block text-sm font-medium text-gray-700 mb-1">{t('new_case_form.case_name_ar')}</label>
                             <input type="text" id="caseNameAr" name="caseNameAr" value={formData.caseNameAr} onChange={handleChange} required className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm" />
                         </div>
+                    </div>
+
+                    <div>
+                        <label htmlFor="mfilesId" className="block text-sm font-medium text-gray-700 mb-1">
+                            {t('new_document_form.mfiles_id')}
+                        </label>
+                        <input
+                            type="text"
+                            id="mfilesId"
+                            name="mfilesId"
+                            value={formData.mfilesId}
+                            onChange={handleChange}
+                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                        />
                     </div>
 
                     <div>

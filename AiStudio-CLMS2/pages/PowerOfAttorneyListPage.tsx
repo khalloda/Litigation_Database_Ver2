@@ -138,6 +138,7 @@ const PowerOfAttorneyListPage: React.FC = () => {
                     <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">{t('poa_page.principal_name')}</th>
                     <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">{t('poa_page.client')}</th>
                     <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">{t('poa_page.poa_number')}</th>
+                    <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">{t('poa_page.mfiles_id')}</th>
                     <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">{t('poa_page.issue_date')}</th>
                     <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">{t('poa_page.inventory')}</th>
                     <th className="py-3 px-4 text-right text-sm font-semibold text-gray-600">{t('poa_page.actions')}</th>
@@ -163,6 +164,9 @@ const PowerOfAttorneyListPage: React.FC = () => {
                       </td>
                       <td className="py-3 px-4 text-sm text-gray-700">
                         {poa.poa_number ?? '—'}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {poa.mfiles_id ?? '—'}
                       </td>
                       <td className="py-3 px-4 text-sm text-gray-700">
                         {poa.issue_date ? new Date(poa.issue_date).toLocaleDateString() : '—'}

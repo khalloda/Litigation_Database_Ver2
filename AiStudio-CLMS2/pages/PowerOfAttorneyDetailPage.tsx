@@ -151,6 +151,7 @@ const PowerOfAttorneyDetailPage: React.FC = () => {
           <DetailRow label={t('poa_page.client_print_name')} value={powerOfAttorney.client_print_name || '—'} />
           <DetailRow label={t('poa_page.year')} value={powerOfAttorney.year ?? '—'} />
           <DetailRow label={t('poa_page.serial')} value={powerOfAttorney.serial || '—'} />
+          <DetailRow label={t('poa_page.mfiles_id')} value={powerOfAttorney.mfiles_id ?? '—'} />
           <DetailRow label={t('poa_page.copies_count')} value={powerOfAttorney.copies_count ?? '—'} />
           <DetailRow label={t('poa_page.issue_date')} value={powerOfAttorney.issue_date ? new Date(powerOfAttorney.issue_date).toLocaleDateString() : '—'} />
           <DetailRow label={t('poa_page.capacity')} value={powerOfAttorney.capacity || '—'} />

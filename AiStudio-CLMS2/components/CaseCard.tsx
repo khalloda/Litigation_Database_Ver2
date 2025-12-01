@@ -77,7 +77,16 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onSelectCase }) => {
             >
                 <div className="p-6">
                     <div className="flex justify-between items-start gap-2">
-                        <p className="text-sm font-semibold text-primary-600 tracking-wide uppercase truncate">{t('case.case_number')} {caseData.case_number}</p>
+                        <div className="flex flex-col">
+                            <p className="text-sm font-semibold text-primary-600 tracking-wide uppercase truncate">
+                                {t('case.case_number')} {caseData.case_number}
+                            </p>
+                            {caseData.mfiles_id && (
+                                <p className="text-xs text-gray-500 mt-1 truncate">
+                                    {t('client_page.mfiles_id')}: {caseData.mfiles_id}
+                                </p>
+                            )}
+                        </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                             <span className="text-xs font-mono bg-gray-100 text-gray-700 px-2 py-1 rounded-full whitespace-nowrap">ID: {caseData.id}</span>
                             <CaseStatusBadge status={caseData.status} />
