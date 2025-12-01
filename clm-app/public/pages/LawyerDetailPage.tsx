@@ -1,0 +1,278 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import type { Lawyer, CaseStatus, OptionValue } from '../types';
+import { useI18n } from '../hooks/useI18n';
+import { fetchLawyer, fetchLawyerSchema } from '../services/lawyers';
+import { fetchOptionsBySetKey } from '../services/options';
+import { BriefcaseIcon, CaseIcon, DocumentIcon } from '../components/icons';
+import AllFieldsTable from '../components/AllFieldsTable';
+import EditLawyerForm from '../components/EditLawyerForm';
+
+const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => {
+    if (!value) return null;
+    return (
+        <div className="bg-gray-50 p-3 rounded-md">
+            <span className="font-bold text-gray-700">{label}:</span>
+            <span className="ms-2 text-gray-600">{value}</span>
+        </div>
+    );
+}
+
+const TabButton: React.FC<{ label: string; isActive: boolean; onClick: () => void; icon: React.ReactNode }> = ({ label, isActive, onClick, icon }) => (
+    <button
+        onClick={onClick}
+        className={`flex items-center gap-2 px-4 py-2 font-semibold rounded-md transition-colors text-sm ${
+            isActive ? 'bg-primary-600 text-white shadow' : 'text-gray-600 hover:bg-primary-100'
+        }`}
+    >
+        {icon}
+        {label}
+    </button>
+);
+
+const CaseStatusBadge: React.FC<{ status: CaseStatus }> = ({ status }) => {
+    const { t } = useI18n();
+    const statusClasses = {
+        active: 'bg-green-100 text-green-800',
+        closed: 'bg-red-100 text-red-800',
+        pending: 'bg-yellow-100 text-yellow-800',
+    };
+    return (
+        <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusClasses[status]}`}>
+            {t(`status.${status}`)}
+        </span>
+    );
+};
+
+const LawyerDetailPage: React.FC = () => {
+    const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const { t, language } = useI18n();
+    const [activeTab, setActiveTab] = useState('details');
+    const [lawyer, setLawyer] = useState<Lawyer | null>(null);
+    const [rawLawyer, setRawLawyer] = useState<Record<string, any> | null>(null);
+    const [lawyerTitles, setLawyerTitles] = useState<OptionValue[]>([]);
+    const [schemaData, setSchemaData] = useState<any>(null);
+    const [schemaLoading, setSchemaLoading] = useState(true);
+    const [schemaError, setSchemaError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+    useEffect(() => {
+        if (!id) {
+            return;
+        }
+
+        let isMounted = true;
+        setLoading(true);
+        setSchemaLoading(true);
+        setError(null);
+        setSchemaError(null);
+        setSchemaData(null);
+
+        const loadData = async () => {
+            try {
+                const [lawyerResponse, titlesData] = await Promise.all([
+                    fetchLawyer(id),
+                    fetchOptionsBySetKey('lawyer.title'),
+                ]);
+
+                const lawyerPayload = lawyerResponse?.data ?? lawyerResponse;
+                const rawPayload = lawyerResponse?.raw ?? lawyerPayload;
+
+                if (isMounted) {
+                    setLawyer(lawyerPayload);
+                    setRawLawyer(rawPayload);
+                    setLawyerTitles(titlesData.data || titlesData);
+                }
+
+                const inlineSchema = lawyerResponse?.schema ?? null;
+                if (inlineSchema && isMounted) {
+                    setSchemaData(inlineSchema);
+                    setSchemaLoading(false);
+                } else {
+                    try {
+                        const schemaResponse = await fetchLawyerSchema(id);
+                        const resolvedSchema = schemaResponse?.schema ?? schemaResponse;
+                        if (isMounted) {
+                            setSchemaData(resolvedSchema);
+                        }
+                    } catch (schemaErr: any) {
+                        if (isMounted) {
+                            console.error('Error loading lawyer schema:', schemaErr);
+                            setSchemaError(schemaErr?.message || 'Failed to load schema metadata.');
+                        }
+                    } finally {
+                        if (isMounted) {
+                            setSchemaLoading(false);
+                        }
+                    }
+                }
+            } catch (err: any) {
+                if (isMounted) {
+                    console.error('Error loading lawyer:', err);
+                    setError(err?.message || 'Failed to load lawyer');
+                }
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        loadData();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [id]);
+
+    if (loading) {
+        return (
+            <div className="container mx-auto">
+                <div className="text-center py-10">
+                    <p className="text-gray-600">{t('common.loading')}</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error || !lawyer) {
+        return (
+            <div className="container mx-auto">
+                <div className="text-center py-10">
+                    <p className="text-red-600">{t('common.error')}: {error || t('common.not_found').replace('{item}', '')}</p>
+                    <button onClick={() => navigate('/lawyers')} className="mt-4 text-primary-600 hover:underline">
+                        &larr; {t('app.back')}
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    const lawyerName = language === 'ar' ? lawyer.lawyer_name_ar : lawyer.lawyer_name_en;
+    const recordForAllFields = rawLawyer || lawyer;
+    
+    const titleOption = lawyerTitles.find(o => o.id === lawyer.title_id);
+    const lawyerTitle = titleOption ? (language === 'ar' ? titleOption.label_ar : titleOption.label_en) : '';
+
+    return (
+        <div className="container mx-auto">
+            <button onClick={() => navigate('/lawyers')} className="text-primary-600 hover:underline mb-4">&larr; {t('app.back')}</button>
+            <div className="bg-white rounded-xl shadow-md p-6">
+                <div className="flex justify-between items-center mb-4">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-800">{lawyerName}</h1>
+                        <p className="text-gray-500 mt-1">{t('lawyer_page.title')}</p>
+                    </div>
+                    <button onClick={() => setIsEditModalOpen(true)} className="px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors">
+                        {t('edit_lawyer_form.title') || 'Edit Lawyer'}
+                    </button>
+                </div>
+
+                <div className="border-b border-gray-200 mt-6 mb-6">
+                    <div className="flex items-center gap-4">
+                        <TabButton label={t('lawyer_page.details')} icon={<BriefcaseIcon className="w-4 h-4" />} isActive={activeTab === 'details'} onClick={() => setActiveTab('details')} />
+                        <TabButton label={t('lawyer_page.associated_cases')} icon={<CaseIcon className="w-4 h-4" />} isActive={activeTab === 'cases'} onClick={() => setActiveTab('cases')} />
+                        <TabButton label={t('lawyer_page.all_fields') || 'All Fields'} icon={<DocumentIcon className="w-4 h-4" />} isActive={activeTab === 'all-fields'} onClick={() => setActiveTab('all-fields')} />
+                    </div>
+                </div>
+
+                {activeTab === 'details' && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <DetailItem label={t('lawyer_page.job_title')} value={lawyerTitle} />
+                        <DetailItem label={t('lawyer_page.email')} value={lawyer.lawyer_email ? <a href={`mailto:${lawyer.lawyer_email}`} className="text-blue-600 hover:underline">{lawyer.lawyer_email}</a> : 'N/A'} />
+                    </div>
+                )}
+                
+                {activeTab === 'cases' && (
+                  <div>
+                    {lawyer.cases && lawyer.cases.length > 0 ? (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full bg-white">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="text-start p-3 font-semibold text-gray-600 text-sm">{t('case.case_number')}</th>
+                              <th className="text-start p-3 font-semibold text-gray-600 text-sm">{t('common.case_name')}</th>
+                              <th className="text-start p-3 font-semibold text-gray-600 text-sm">{t('client_page.status')}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {lawyer.cases.map(c => (
+                              <tr key={c.id} onClick={() => navigate(`/cases/${c.id}`)} className="border-b hover:bg-gray-50 cursor-pointer">
+                                <td className="p-3 text-gray-600">{c.case_number}</td>
+                                <td className="p-3 text-gray-800 font-medium">{language === 'ar' ? c.case_name_ar : c.case_name_en}</td>
+                                <td className="p-3"><CaseStatusBadge status={c.status as CaseStatus} /></td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : <p className="text-gray-500">{t('lawyer_page.no_cases')}</p>}
+                  </div>
+                )}
+
+                {activeTab === 'all-fields' && (
+                    <div className="mt-6">
+                        {schemaLoading && (
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-800 mb-4">
+                                {t('lawyer_page.loading_schema') || 'Loading schema metadata...'}
+                            </div>
+                        )}
+
+                        {schemaError && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800 mb-4">
+                                {schemaError}
+                            </div>
+                        )}
+
+                        {!schemaLoading && !schemaError && !schemaData && (
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
+                                {t('lawyer_page.schema_not_available') || 'Schema data not available.'}
+                            </div>
+                        )}
+
+                        {schemaData && recordForAllFields && !schemaLoading && !schemaError && (
+                            <AllFieldsTable
+                                record={recordForAllFields as any}
+                                schema={schemaData}
+                                title="All Lawyer Fields"
+                            />
+                        )}
+                    </div>
+                )}
+            </div>
+            {isEditModalOpen && id && (
+                <EditLawyerForm
+                    lawyerId={id}
+                    onClose={() => setIsEditModalOpen(false)}
+                    onSave={() => {
+                        setIsEditModalOpen(false);
+                        // Reload lawyer data
+                        const loadData = async () => {
+                            try {
+                                const [lawyerResponse, titlesData] = await Promise.all([
+                                    fetchLawyer(id),
+                                    fetchOptionsBySetKey('lawyer.title'),
+                                ]);
+                                const lawyerPayload = lawyerResponse?.data ?? lawyerResponse;
+                                const rawPayload = lawyerResponse?.raw ?? lawyerPayload;
+                                if (lawyerPayload) {
+                                    setLawyer(lawyerPayload);
+                                    setRawLawyer(rawPayload);
+                                    setLawyerTitles(titlesData.data || titlesData);
+                                }
+                            } catch (err: any) {
+                                console.error('Error reloading lawyer:', err);
+                            }
+                        };
+                        loadData();
+                    }}
+                />
+            )}
+        </div>
+    );
+};
+
+export default LawyerDetailPage;

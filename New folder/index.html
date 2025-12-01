@@ -1,0 +1,415 @@
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/assets/logo-BU5yR0AT.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Centralized Litigation Management System</title>
+    <style>
+      body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Fix for sidebar icons - prevent SVGs from expanding */
+      aside svg,
+      nav svg,
+      header svg {
+        width: 1.5rem !important;
+        height: 1.5rem !important;
+        min-width: 1.5rem !important;
+        min-height: 1.5rem !important;
+        max-width: 1.5rem !important;
+        max-height: 1.5rem !important;
+        flex-shrink: 0 !important;
+      }
+
+      /* ========== Brand Color Theme Override ========== */
+      /* Primary Green: #3E7443, #4A8F50, #2D5A32 */
+      /* Accent Gold: #C9A847, #DAB955, #B89A3D */
+      
+      :root {
+        --brand-green-50: #f0f7f1;
+        --brand-green-100: #dcedde;
+        --brand-green-200: #badcc0;
+        --brand-green-300: #8fc49a;
+        --brand-green-400: #5fa56e;
+        --brand-green-500: #3E7443;
+        --brand-green-600: #2f5c34;
+        --brand-green-700: #274a2b;
+        --brand-green-800: #213c24;
+        --brand-green-900: #1c321f;
+        --brand-gold-50: #fdfbf3;
+        --brand-gold-100: #faf5e0;
+        --brand-gold-200: #f4e9bc;
+        --brand-gold-300: #edd98e;
+        --brand-gold-400: #e4c55e;
+        --brand-gold-500: #C9A847;
+        --brand-gold-600: #b89a3d;
+        --brand-gold-700: #997a33;
+        --brand-gold-800: #7d6230;
+        --brand-gold-900: #68512b;
+      }
+
+      /* Override primary colors (originally blue) with brand green */
+      .bg-primary-50 { background-color: var(--brand-green-50) !important; }
+      .bg-primary-100 { background-color: var(--brand-green-100) !important; }
+      .bg-primary-200 { background-color: var(--brand-green-200) !important; }
+      .bg-primary-500 { background-color: var(--brand-green-500) !important; }
+      .bg-primary-600 { background-color: var(--brand-green-600) !important; }
+      .bg-primary-700 { background-color: var(--brand-green-700) !important; }
+      
+      .text-primary-600 { color: var(--brand-green-600) !important; }
+      .text-primary-700 { color: var(--brand-green-700) !important; }
+      .text-primary-800 { color: var(--brand-green-800) !important; }
+      
+      .border-primary-500 { border-color: var(--brand-green-500) !important; }
+      .border-primary-600 { border-color: var(--brand-green-600) !important; }
+      
+      .ring-primary-200 { --tw-ring-color: var(--brand-green-200) !important; }
+      .ring-primary-500 { --tw-ring-color: var(--brand-green-500) !important; }
+      
+      .hover\:bg-primary-50:hover { background-color: var(--brand-green-50) !important; }
+      .hover\:bg-primary-100:hover { background-color: var(--brand-green-100) !important; }
+      .hover\:bg-primary-700:hover { background-color: var(--brand-green-700) !important; }
+      .hover\:text-primary-800:hover { color: var(--brand-green-800) !important; }
+      .hover\:border-primary-300:hover { border-color: var(--brand-green-300) !important; }
+      
+      .focus\:border-primary-500:focus { border-color: var(--brand-green-500) !important; }
+      .focus\:ring-primary-200:focus { --tw-ring-color: var(--brand-green-200) !important; }
+      .focus\:ring-primary-500:focus { --tw-ring-color: var(--brand-green-500) !important; }
+      
+      .group-hover\:text-primary-600 { color: var(--brand-green-600) !important; }
+
+      /* Override blue colors with brand green */
+      .bg-blue-50 { background-color: var(--brand-green-50) !important; }
+      .bg-blue-100 { background-color: var(--brand-green-100) !important; }
+      .bg-blue-200 { background-color: var(--brand-green-200) !important; }
+      .bg-blue-500 { background-color: var(--brand-green-500) !important; }
+      .bg-blue-600 { background-color: var(--brand-green-600) !important; }
+      
+      .text-blue-600 { color: var(--brand-green-600) !important; }
+      .text-blue-700 { color: var(--brand-green-700) !important; }
+      .text-blue-800 { color: var(--brand-green-800) !important; }
+      
+      .border-blue-200 { border-color: var(--brand-green-200) !important; }
+      .border-blue-500 { border-color: var(--brand-green-500) !important; }
+      
+      .hover\:bg-blue-600:hover { background-color: var(--brand-green-600) !important; }
+
+      /* Override indigo with brand gold for accent elements */
+      .bg-indigo-50 { background-color: var(--brand-gold-50) !important; }
+      .bg-indigo-600 { background-color: var(--brand-gold-600) !important; }
+      
+      .text-indigo-600 { color: var(--brand-gold-600) !important; }
+      .text-indigo-700 { color: var(--brand-gold-700) !important; }
+      .text-indigo-800 { color: var(--brand-gold-800) !important; }
+      
+      .border-indigo-200 { border-color: var(--brand-gold-200) !important; }
+      
+      .hover\:bg-indigo-700:hover { background-color: var(--brand-gold-700) !important; }
+      
+      .focus\:border-indigo-500:focus { border-color: var(--brand-gold-500) !important; }
+      .focus\:ring-indigo-500:focus { --tw-ring-color: var(--brand-gold-500) !important; }
+
+      /* Sidebar active state - use brand green */
+      aside a.bg-primary-500,
+      aside .bg-primary-500 {
+        background-color: var(--brand-green-500) !important;
+      }
+
+      /* Focus rings */
+      input:focus, select:focus, textarea:focus, button:focus {
+        --tw-ring-color: var(--brand-green-300) !important;
+        border-color: var(--brand-green-500) !important;
+      }
+
+      /* Links */
+      a.text-blue-600, a.text-primary-600, a.text-indigo-600 {
+        color: var(--brand-green-600) !important;
+      }
+      a.text-blue-600:hover, a.text-primary-600:hover, a.text-indigo-600:hover {
+        color: var(--brand-green-800) !important;
+      }
+
+      /* Badges and tags with gold accent */
+      .bg-yellow-100, .bg-yellow-50 {
+        background-color: var(--brand-gold-100) !important;
+      }
+      .text-yellow-800, .text-yellow-600 {
+        color: var(--brand-gold-800) !important;
+      }
+      .border-yellow-200, .border-yellow-500 {
+        border-color: var(--brand-gold-300) !important;
+      }
+
+      /* ========== Initial Loading Screen ========== */
+      #initial-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #0a0f0a 0%, #1a2e1a 50%, #0a0f0a 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 99999;
+        transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+      }
+
+      #initial-loader.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      /* Logo container with subtle glow */
+      .loader-logo-container {
+        position: relative;
+        margin-bottom: 50px;
+        animation: logoFadeIn 0.8s ease-out forwards;
+      }
+
+      .loader-logo-container::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 280px;
+        height: 180px;
+        background: radial-gradient(ellipse at center, rgba(201, 168, 71, 0.15) 0%, transparent 70%);
+        filter: blur(30px);
+        z-index: -1;
+      }
+
+      .loader-logo {
+        max-width: 320px;
+        height: auto;
+        filter: drop-shadow(0 4px 20px rgba(201, 168, 71, 0.3));
+      }
+
+      /* Progress bar container */
+      .loader-progress-container {
+        width: 280px;
+        animation: progressFadeIn 0.6s ease-out 0.3s forwards;
+        opacity: 0;
+      }
+
+      /* Modern progress bar track */
+      .loader-progress-track {
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Animated progress bar */
+      .loader-progress-bar {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, #3E7443, #4A8F50, #C9A847, #DAB955);
+        background-size: 300% 100%;
+        border-radius: 4px;
+        animation: progressGrow 5s ease-in-out forwards, progressShimmer 1.5s ease-in-out infinite;
+        position: relative;
+      }
+
+      .loader-progress-bar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        animation: progressGlare 1.5s ease-in-out infinite;
+      }
+
+      /* Loading text */
+      .loader-text {
+        margin-top: 20px;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        font-size: 13px;
+        font-weight: 400;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.5);
+        animation: textPulse 2s ease-in-out infinite;
+      }
+
+      /* Keyframe animations */
+      @keyframes logoFadeIn {
+        0% {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes progressFadeIn {
+        0% {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes progressGrow {
+        0% {
+          width: 0%;
+        }
+        20% {
+          width: 25%;
+        }
+        50% {
+          width: 60%;
+        }
+        80% {
+          width: 85%;
+        }
+        100% {
+          width: 100%;
+        }
+      }
+
+      @keyframes progressShimmer {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      @keyframes progressGlare {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      @keyframes textPulse {
+        0%, 100% {
+          opacity: 0.5;
+        }
+        50% {
+          opacity: 0.8;
+        }
+      }
+    </style>
+
+
+
+
+
+
+
+
+
+
+
+
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.0"
+  }
+}
+  </script>
+  <script type="module" crossorigin src="/assets/index-DhZicZmt.js?v=20251128"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CrMpmKSj.css?v=20251128">
+</head>
+  <body>
+    <!-- Initial Loading Screen -->
+    <div id="initial-loader">
+      <div class="loader-logo-container">
+        <img src="/assets/logo-BU5yR0AT.png" alt="Sarie Eldin & Partners" class="loader-logo" />
+      </div>
+      <div class="loader-progress-container">
+        <div class="loader-progress-track">
+          <div class="loader-progress-bar"></div>
+        </div>
+        <div class="loader-text">Loading</div>
+      </div>
+    </div>
+
+    <div id="root"></div>
+
+    <script>
+      // Minimum display time for loading screen (5 seconds)
+      const MIN_LOADING_TIME = 5000;
+      const loadStartTime = Date.now();
+      let appReady = false;
+
+      // Hide loader with smooth transition
+      const hideLoader = () => {
+        const loader = document.getElementById('initial-loader');
+        if (loader) {
+          loader.classList.add('hidden');
+          // Remove from DOM after transition
+          setTimeout(() => {
+            loader.remove();
+          }, 500);
+        }
+      };
+
+      // Hide loader only after minimum time has passed
+      const hideLoaderWhenReady = () => {
+        const elapsed = Date.now() - loadStartTime;
+        const remaining = MIN_LOADING_TIME - elapsed;
+        
+        if (remaining > 0) {
+          // Wait for remaining time before hiding
+          setTimeout(hideLoader, remaining);
+        } else {
+          hideLoader();
+        }
+      };
+
+      // Observer to detect when React mounts content
+      const observer = new MutationObserver((mutations) => {
+        const root = document.getElementById('root');
+        if (root && root.children.length > 0 && !appReady) {
+          appReady = true;
+          hideLoaderWhenReady();
+          observer.disconnect();
+        }
+      });
+
+      // Start observing
+      const root = document.getElementById('root');
+      if (root) {
+        observer.observe(root, { childList: true });
+      }
+
+      // Fallback: hide after 5 seconds even if app doesn't mount
+      setTimeout(() => {
+        if (!appReady) {
+          hideLoader();
+        }
+      }, MIN_LOADING_TIME);
+    </script>
+  </body>
+</html>
