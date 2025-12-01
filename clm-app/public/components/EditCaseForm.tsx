@@ -33,6 +33,7 @@ const EditCaseForm: React.FC<EditCaseFormProps> = ({ caseId, onClose, onSave }) 
         partnerId: '',
         courtId: '',
         startDate: '',
+        mfilesId: '',
     });
 
     useEffect(() => {
@@ -61,6 +62,7 @@ const EditCaseForm: React.FC<EditCaseFormProps> = ({ caseId, onClose, onSave }) 
                     partnerId: caseRecord.matter_partner_id ? String(caseRecord.matter_partner_id) : '',
                     courtId: caseRecord.court_id ? String(caseRecord.court_id) : '',
                     startDate: caseRecord.case_start_date || caseRecord.matter_start_date ? new Date(caseRecord.case_start_date || caseRecord.matter_start_date).toISOString().split('T')[0] : '',
+                    mfilesId: caseRecord.mfiles_id || '',
                 });
             } catch (err: any) {
                 setError(err.message || 'Failed to load data');
@@ -94,6 +96,7 @@ const EditCaseForm: React.FC<EditCaseFormProps> = ({ caseId, onClose, onSave }) 
                 partner_id: formData.partnerId ? Number(formData.partnerId) : null,
                 court_id: formData.courtId ? Number(formData.courtId) : null,
                 start_date: formData.startDate || null,
+                mfiles_id: formData.mfilesId || undefined,
             };
             const result = await updateCase(caseId, payload);
             onSave?.(result?.data ?? result);
@@ -154,6 +157,20 @@ const EditCaseForm: React.FC<EditCaseFormProps> = ({ caseId, onClose, onSave }) 
                             <label htmlFor="caseNameAr" className="block text-sm font-medium text-gray-700 mb-1">{t('new_case_form.case_name_ar')}</label>
                             <input type="text" id="caseNameAr" name="caseNameAr" value={formData.caseNameAr} onChange={handleChange} required className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm" />
                         </div>
+                    </div>
+
+                    <div>
+                        <label htmlFor="mfilesId" className="block text-sm font-medium text-gray-700 mb-1">
+                            {t('new_document_form.mfiles_id')}
+                        </label>
+                        <input
+                            type="text"
+                            id="mfilesId"
+                            name="mfilesId"
+                            value={formData.mfilesId}
+                            onChange={handleChange}
+                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                        />
                     </div>
 
                     <div>

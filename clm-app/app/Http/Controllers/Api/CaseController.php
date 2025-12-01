@@ -196,6 +196,7 @@ class CaseController extends Controller
             'partner_id' => 'nullable|exists:lawyers,id',
             'court_id' => 'nullable|exists:courts,id',
             'start_date' => 'nullable|date',
+            'mfiles_id' => 'nullable|string|max:255',
         ]);
 
         $validated['matter_name_en'] = $validated['case_name_en'];
@@ -300,6 +301,7 @@ class CaseController extends Controller
             'partner_id' => 'nullable|exists:lawyers,id',
             'court_id' => 'nullable|exists:courts,id',
             'start_date' => 'nullable|date',
+            'mfiles_id' => 'nullable|string|max:255',
         ]);
 
         if (isset($validated['case_name_en'])) {

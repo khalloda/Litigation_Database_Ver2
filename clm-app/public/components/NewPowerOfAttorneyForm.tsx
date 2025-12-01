@@ -33,6 +33,7 @@ const NewPowerOfAttorneyForm: React.FC<NewPowerOfAttorneyFormProps> = ({ onClose
     serial: '',
     notes: '',
     inventory: false,
+    mfilesId: '',
   });
 
   useEffect(() => {
@@ -107,6 +108,7 @@ const NewPowerOfAttorneyForm: React.FC<NewPowerOfAttorneyFormProps> = ({ onClose
         copies_count: formData.copiesCount ? Number(formData.copiesCount) : undefined,
         serial: formData.serial || undefined,
         notes: formData.notes || undefined,
+        mfiles_id: formData.mfilesId || undefined,
       };
 
       const result = await createPowerOfAttorney(payload);
@@ -173,6 +175,19 @@ const NewPowerOfAttorneyForm: React.FC<NewPowerOfAttorneyFormProps> = ({ onClose
                   className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t('poa_page.mfiles_id')}
+              </label>
+              <input
+                type="text"
+                name="mfilesId"
+                value={formData.mfilesId}
+                onChange={handleInputChange}
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
