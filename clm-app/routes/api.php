@@ -56,6 +56,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('documents/{document}/schema', [App\Http\Controllers\Api\DocumentController::class, 'schema'])->name('documents.schema');
     Route::post('documents/{document}/movement-card/pdf', [App\Http\Controllers\Api\DocumentController::class, 'movementCardPdf'])
         ->name('documents.movement-card.pdf');
+    Route::post('documents/{document}/movements', [App\Http\Controllers\Api\DocumentController::class, 'storeMovement'])
+        ->name('documents.movements.store');
+    Route::put('documents/{document}/movements/{movement}', [App\Http\Controllers\Api\DocumentController::class, 'updateMovement'])
+        ->name('documents.movements.update');
 
            // Power of Attorneys
            Route::apiResource('power-of-attorneys', App\Http\Controllers\Api\PowerOfAttorneyController::class);

@@ -82,6 +82,11 @@ class ClientDocument extends Model
         return $this->belongsTo(CaseModel::class, 'matter_id');
     }
 
+    public function movements()
+    {
+        return $this->hasMany(DocumentMovement::class, 'document_id');
+    }
+
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');

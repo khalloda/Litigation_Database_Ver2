@@ -80,6 +80,37 @@ export async function deleteDocument(id: number | string) {
   return response.data;
 }
 
+export async function createDocumentMovement(
+  documentId: number | string,
+  payload: {
+    date: string;
+    from_location: string;
+    to_location: string;
+    status: string;
+    lawyer_id?: number | string | null;
+    notes?: string;
+  }
+) {
+  const response = await api.post(`/documents/${documentId}/movements`, payload);
+  return response.data;
+}
+
+export async function updateDocumentMovement(
+  documentId: number | string,
+  movementId: number | string,
+  payload: {
+    date: string;
+    from_location: string;
+    to_location: string;
+    status: string;
+    lawyer_id?: number | string | null;
+    notes?: string;
+  }
+) {
+  const response = await api.put(`/documents/${documentId}/movements/${movementId}`, payload);
+  return response.data;
+}
+
 export async function printMovementCardPdf(
   id: number | string,
   {

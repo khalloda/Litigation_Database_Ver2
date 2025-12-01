@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { ClientDocument, DocumentMovementStatus, DocumentMovement } from '../types';
 import { useI18n } from '../hooks/useI18n';
-import { fetchDocument, fetchDocumentSchema, printMovementCardPdf } from '../services/documents';
+import { fetchDocument, fetchDocumentSchema, printMovementCardPdf, createDocumentMovement, updateDocumentMovement } from '../services/documents';
 import MovementForm from '../components/MovementForm';
 import { DocumentIcon } from '../components/icons';
 import AllFieldsTable from '../components/AllFieldsTable';
@@ -139,10 +139,35 @@ const DocumentDetailPage: React.FC = () => {
     const caseName = document.case ? (language === 'ar' ? document.case.case_name_ar : document.case.case_name_en) : 'N/A';
     const recordForAllFields = rawDocument || document;
     
-    const handleSaveMovement = (data: any) => {
-        console.log("Saving movement:", data);
-        // Here you would typically update your state management store or call an API
-        setMovementFormState({ isOpen: false, movement: undefined });
+    const handleSaveMovement = async (data: any) => {
+        if (!document) return;
+        try {
+            const payload = {
+                date: data.date,
+                from_location: data.from_location,
+                to_location: data.to_location,
+                status: data.status,
+                lawyer_id: data.lawyer_id ? Number(data.lawyer_id) : null,
+                notes: data.notes || undefined,
+            };
+
+            if (data.id) {
+                await updateDocumentMovement(document.id, data.id, payload);
+            } else {
+                await createDocumentMovement(document.id, payload);
+            }
+
+            const refreshed = await fetchDocument(document.id);
+            const docPayload = refreshed?.data ?? refreshed;
+            const rawPayload = refreshed?.raw ?? docPayload;
+            setDocument(docPayload);
+            setRawDocument(rawPayload);
+        } catch (err: any) {
+            console.error('Error saving movement:', err);
+            alert(err?.response?.data?.message || err.message || 'Failed to save movement');
+        } finally {
+            setMovementFormState({ isOpen: false, movement: undefined });
+        }
     };
 
     return (

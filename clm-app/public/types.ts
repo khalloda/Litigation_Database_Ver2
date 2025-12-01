@@ -93,7 +93,7 @@ export interface DocumentMovement {
   to_location: string;
   status: DocumentMovementStatus;
   notes?: string | null;
-  lawyer_id: number;
+  lawyer_id?: number | null;
   // For detail view
   lawyer?: Lawyer;
 }

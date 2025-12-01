@@ -107,6 +107,7 @@ class DocumentController extends Controller
                 'case.client:id,client_name_ar,client_name_en',
                 'createdBy:id,name',
                 'updatedBy:id,name',
+                'movements.lawyer:id,lawyer_name_ar,lawyer_name_en',
             ]);
 
             $clientData = $document->client ? [
@@ -229,6 +230,65 @@ class DocumentController extends Controller
         $fileName = 'movement-card-' . $document->id . '-' . now()->format('Ymd_His') . '.pdf';
 
         return $pdf->download($fileName);
+    }
+
+    /**
+     * Store a new movement for a document.
+     */
+    public function storeMovement(Request $request, ClientDocument $document): JsonResponse
+    {
+        $this->authorize('update', $document);
+
+        $data = $request->validate([
+            'date' => ['required', 'date'],
+            'from_location' => ['required', 'string', 'max:255'],
+            'to_location' => ['required', 'string', 'max:255'],
+            'status' => ['required', 'string', 'max:32'],
+            'lawyer_id' => ['nullable', 'exists:lawyers,id'],
+            'notes' => ['nullable', 'string'],
+        ]);
+
+        $movement = $document->movements()->create($data + [
+            'created_by' => $request->user()?->id,
+            'updated_by' => $request->user()?->id,
+        ]);
+
+        $movement->load('lawyer:id,lawyer_name_ar,lawyer_name_en');
+
+        return response()->json([
+            'data' => $movement,
+        ], 201);
+    }
+
+    /**
+     * Update an existing movement.
+     */
+    public function updateMovement(Request $request, ClientDocument $document, \App\Models\DocumentMovement $movement): JsonResponse
+    {
+        $this->authorize('update', $document);
+
+        if ($movement->document_id !== $document->id) {
+            abort(404);
+        }
+
+        $data = $request->validate([
+            'date' => ['required', 'date'],
+            'from_location' => ['required', 'string', 'max:255'],
+            'to_location' => ['required', 'string', 'max:255'],
+            'status' => ['required', 'string', 'max:32'],
+            'lawyer_id' => ['nullable', 'exists:lawyers,id'],
+            'notes' => ['nullable', 'string'],
+        ]);
+
+        $movement->update($data + [
+            'updated_by' => $request->user()?->id,
+        ]);
+
+        $movement->load('lawyer:id,lawyer_name_ar,lawyer_name_en');
+
+        return response()->json([
+            'data' => $movement,
+        ]);
     }
 }
 
