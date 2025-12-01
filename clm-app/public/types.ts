@@ -61,6 +61,7 @@ export interface Contact {
 export interface PowerOfAttorney {
   id: number;
   client_id: number;
+  mfiles_id?: string | number | null;
   client_print_name?: string | null;
   principal_name: string;
   year?: number | null;
@@ -131,7 +132,7 @@ export interface ClientDocument {
 // Based on `clients` table schema
 export interface Client {
   id: number;
-  mfiles_id?: number | null;
+  mfiles_id?: number | string | null;
   client_code?: string | null;
   client_name_ar: string;
   client_name_en?: string | null;
@@ -257,6 +258,7 @@ export interface Team {
 // The rich, processed Case object used throughout the app
 export interface Case {
   id: number;
+  mfiles_id?: string | number | null;
   
   // Overview section
   matter_name_ar: string;

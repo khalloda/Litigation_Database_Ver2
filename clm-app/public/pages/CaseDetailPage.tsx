@@ -195,6 +195,9 @@ const CaseDetailPage: React.FC = () => {
                 <AccordionItem title={t('case.overview')} open>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                         <DetailItem label="ID">{caseData.id}</DetailItem>
+                        <DetailItem label={t('client_page.mfiles_id')}>
+                            {caseData.mfiles_id ?? '-'}
+                        </DetailItem>
                         <DetailItem label={t('case.team')}>
                           {caseData.team && teamName ? (
                               <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/settings/teams/${caseData.team!.id}`); }} className="text-blue-600 hover:underline">{teamName}</a>

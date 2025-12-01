@@ -114,6 +114,7 @@ class CaseController extends Controller
 
         return [
             'id' => $case->id,
+            'mfiles_id' => $case->mfiles_id,
             // Map matter_* to case_* for React compatibility
             'case_name_en' => $case->matter_name_en,
             'case_name_ar' => $case->matter_name_ar,

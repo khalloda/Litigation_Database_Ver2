@@ -23,6 +23,11 @@ const ClientCard: React.FC<{ client: Client; onSelect: () => void }> = ({ client
             </div>
             <div className="mt-2">
               {client.client_code && <p className="text-sm text-gray-500">{t('client_page.code')}: {client.client_code}</p>}
+              {client.mfiles_id != null && (
+                <p className="text-sm text-gray-500">
+                  {t('client_page.mfiles_id')}: {client.mfiles_id}
+                </p>
+              )}
               {client.status && <p className="text-sm text-gray-500">{t('client_page.status')}: {t(`status.${client.status}`)}</p>}
             </div>
         </div>
@@ -97,7 +102,7 @@ const ClientsListPage: React.FC = () => {
 
         if (!searchTerm) return true;
         const lowercasedSearch = searchTerm.toLowerCase();
-        const clientInfo = `${client.client_name_en || ''} ${client.client_name_ar || ''} ${client.client_code || ''}`.toLowerCase();
+        const clientInfo = `${client.client_name_en || ''} ${client.client_name_ar || ''} ${client.client_code || ''} ${client.mfiles_id ?? ''}`.toLowerCase();
         return clientInfo.includes(lowercasedSearch);
     });
     console.log('Filtered clients count:', filtered.length);

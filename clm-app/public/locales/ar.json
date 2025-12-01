@@ -153,6 +153,7 @@
   "client_page": {
     "title": "تفاصيل العميل",
     "code": "كود العميل",
+    "mfiles_id": "معرف M-Files",
     "status": "الحالة",
     "active_since": "نشط منذ",
     "details": "التفاصيل",
@@ -205,6 +206,7 @@
     "client_print_name": "اسم العميل للطباعة",
     "year": "السنة",
     "serial": "المسلسل",
+    "mfiles_id": "معرف M-Files",
     "copies_count": "عدد النسخ",
     "capacity": "الصفة",
     "principal_capacity": "صفة الموكل",

@@ -15,9 +15,25 @@ class PowerOfAttorney extends Model
     use HasFactory, SoftDeletes, InteractsWithDeletionBundles, LogsActivity;
 
     protected $fillable = [
-        'client_id', 'client_print_name', 'principal_name', 'year', 'capacity', 'authorized_lawyers', 
-        'issue_date', 'inventory', 'issuing_authority', 'letter', 'poa_number', 'principal_capacity', 
-        'copies_count', 'serial', 'notes', 'created_by', 'updated_by'
+        'client_id',
+        'client_print_name',
+        'principal_name',
+        'year',
+        'capacity',
+        'authorized_lawyers',
+        'issue_date',
+        'inventory',
+        'issuing_authority',
+        'letter',
+        'poa_number',
+        'principal_capacity',
+        'copies_count',
+        'serial',
+        'notes',
+        'created_by',
+        'updated_by',
+        // M-Files integration
+        'mfiles_id',
     ];
 
     protected $casts = [
@@ -26,6 +42,7 @@ class PowerOfAttorney extends Model
         'year' => 'integer',
         'poa_number' => 'integer',
         'copies_count' => 'integer',
+        // mfiles_id is stored as string to match client_documents
     ];
 
     // Relationships
@@ -34,7 +51,15 @@ class PowerOfAttorney extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['client_id', 'principal_name', 'poa_number', 'issue_date', 'issuing_authority', 'capacity'])
+            ->logOnly([
+                'client_id',
+                'principal_name',
+                'poa_number',
+                'issue_date',
+                'issuing_authority',
+                'capacity',
+                'mfiles_id',
+            ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('powerofattorney')

@@ -121,6 +121,7 @@ class PowerOfAttorneyController extends Controller
     {
         return [
             'id' => $powerOfAttorney->id,
+            'mfiles_id' => $powerOfAttorney->mfiles_id,
             'principal_name' => $powerOfAttorney->principal_name,
             'client' => $powerOfAttorney->client ? [
                 'id' => $powerOfAttorney->client->id,

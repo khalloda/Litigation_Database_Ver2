@@ -74,6 +74,8 @@ class CaseModel extends Model
         'matter_select',
         'created_by',
         'updated_by',
+        // M-Files integration
+        'mfiles_id',
     ];
 
     // @deprecated opponent_id is now read-only mirror of primary opponent
@@ -278,7 +280,8 @@ class CaseModel extends Model
                 'legal_opinion',
                 'current_status',
                 'notes_1',
-                'notes_2'
+                'notes_2',
+                'mfiles_id',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()

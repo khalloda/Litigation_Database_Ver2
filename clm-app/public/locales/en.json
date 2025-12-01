@@ -153,6 +153,7 @@
   "client_page": {
     "title": "Client Details",
     "code": "Client Code",
+    "mfiles_id": "M-Files ID",
     "status": "Status",
     "active_since": "Active Since",
     "details": "Details",
@@ -205,6 +206,7 @@
     "client_print_name": "Client print name",
     "year": "Year",
     "serial": "Serial",
+    "mfiles_id": "M-Files ID",
     "copies_count": "Copies count",
     "capacity": "Capacity",
     "principal_capacity": "Principal capacity",

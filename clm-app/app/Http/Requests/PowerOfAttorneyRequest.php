@@ -29,6 +29,7 @@ class PowerOfAttorneyRequest extends FormRequest
             'copies_count' => 'nullable|integer',
             'serial' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
+            'mfiles_id' => 'nullable|string|max:255',
         ];
     }
 

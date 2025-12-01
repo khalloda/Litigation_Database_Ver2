@@ -214,6 +214,7 @@ const ClientDetailPage: React.FC = () => {
                 {activeTab === 'details' && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                         <DetailItem label={t('client_page.code')} value={client.client_code} />
+                        <DetailItem label={t('client_page.mfiles_id')} value={client.mfiles_id} />
                         <DetailItem label={t('client_page.status')} value={client.status} />
                         {client.client_start && (
                             <DetailItem label={t('client_page.active_since')} value={new Date(client.client_start).toLocaleDateString()} />
