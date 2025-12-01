@@ -2,6 +2,8 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Lang;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -87,20 +89,32 @@ abstract class BaseReportExport
             $this->spreadsheet->removeSheetByIndex(0);
         }
 
+        // Track used sheet names to ensure uniqueness
+        $usedNames = [];
+        
         // Create sheets and populate data
-        foreach ($sheetNames as $index => $sheetName) {
+        foreach ($sheetNames as $index => $sheetKey) {
+            // Get display name for sheet title (translated)
+            $displayName = method_exists($this, 'getSheetDisplayName') 
+                ? $this->getSheetDisplayName($sheetKey)
+                : $sheetKey;
+            
+            // Sanitize sheet name for Excel (max 31 chars, no invalid chars)
+            $excelSafeName = $this->sanitizeSheetName($displayName, $usedNames);
+            $usedNames[] = $excelSafeName;
+            
             if ($index === 0 && count($sheetNames) === 1) {
                 $sheet = $this->spreadsheet->getActiveSheet();
             } else {
-                $sheet = new Worksheet($this->spreadsheet, $sheetName);
+                $sheet = new Worksheet($this->spreadsheet, $excelSafeName);
                 $this->spreadsheet->addSheet($sheet);
             }
 
-            $sheet->setTitle($sheetName);
+            $sheet->setTitle($excelSafeName);
             
             // For single-sheet exports, data is array of rows directly
-            // For multi-sheet exports, data is keyed by sheet name
-            $sheetData = count($sheetNames) === 1 ? $data : ($data[$sheetName] ?? []);
+            // For multi-sheet exports, data is keyed by sheet key (internal key, not translated)
+            $sheetData = count($sheetNames) === 1 ? $data : ($data[$sheetKey] ?? []);
             $this->populateSheet($sheet, $sheetData);
         }
 
@@ -292,14 +306,44 @@ abstract class BaseReportExport
 
     /**
      * Translate a key to the current locale.
+     * 
+     * Translations are stored in resources/lang/{locale}/app.php.
+     * Keys like 'reports.document_inventory.title' should be accessed
+     * as 'app.reports.document_inventory.title' when using Lang::get().
      */
     protected function translate(string $key): string
     {
-        // Try to get translation from language files
-        $translation = __($key, [], $this->locale);
+        // Store current locale
+        $originalLocale = App::getLocale();
         
-        // If translation not found, return the key
-        return $translation !== $key ? $translation : $key;
+        try {
+            // Set the locale temporarily to load translations
+            App::setLocale($this->locale);
+            
+            // Access translations from app.php with explicit 'app.' prefix
+            $fullKey = 'app.' . $key;
+            $translation = Lang::get($fullKey, [], $this->locale);
+            
+            // If translation not found (returns the key), try without prefix as fallback
+            if ($translation === $fullKey) {
+                $translation = Lang::get($key, [], $this->locale);
+                // If still not found, return original key
+                if ($translation === $key) {
+                    App::setLocale($originalLocale);
+                    return $key;
+                }
+            }
+            
+            // Restore original locale
+            App::setLocale($originalLocale);
+            
+            return $translation;
+        } catch (\Exception $e) {
+            // Restore original locale on error
+            App::setLocale($originalLocale);
+            // Return key as fallback
+            return $key;
+        }
     }
 
     /**
@@ -312,6 +356,49 @@ abstract class BaseReportExport
         $timestamp = now()->format('Ymd_His');
         
         return "{$slug}-{$timestamp}.xlsx";
+    }
+
+    /**
+     * Sanitize sheet name for Excel compatibility.
+     * Excel sheet names must be <= 31 characters and cannot contain: / \ ? * [ ]
+     * 
+     * @param string $name The sheet name to sanitize
+     * @param array $usedNames Array of already used sheet names to ensure uniqueness
+     * @return string Sanitized and unique sheet name
+     */
+    protected function sanitizeSheetName(string $name, array $usedNames = []): string
+    {
+        // Remove invalid characters
+        $name = str_replace(['/', '\\', '?', '*', '[', ']'], '', $name);
+        
+        // Truncate to 31 characters (Excel limit)
+        $baseName = mb_strlen($name) > 31 ? mb_substr($name, 0, 31) : $name;
+        
+        // Ensure not empty
+        if (empty($baseName)) {
+            $baseName = 'Sheet';
+        }
+        
+        // Ensure uniqueness by appending number if needed
+        $finalName = $baseName;
+        $counter = 1;
+        while (in_array($finalName, $usedNames, true)) {
+            // Truncate base name to leave room for counter (e.g., " (1)")
+            $maxBaseLength = 31 - strlen(" ({$counter})");
+            $truncatedBase = mb_strlen($baseName) > $maxBaseLength 
+                ? mb_substr($baseName, 0, $maxBaseLength) 
+                : $baseName;
+            $finalName = $truncatedBase . " ({$counter})";
+            $counter++;
+            
+            // Safety check to prevent infinite loop
+            if ($counter > 100) {
+                $finalName = 'Sheet' . $counter;
+                break;
+            }
+        }
+        
+        return $finalName;
     }
 
     /**

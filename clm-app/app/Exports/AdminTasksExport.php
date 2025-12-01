@@ -427,16 +427,16 @@ class AdminTasksExport extends BaseReportExport
 
         // Auto-size columns
         $columnWidths = $this->getColumnWidths();
-        foreach ($headers as $index => $headerKey) {
-            $col = $index + 1;
-            $columnLetter = $this->getColumnLetter($col);
-            $headerKeyName = array_keys($headers)[$index];
+        $colIndex = 1;
+        foreach ($headers as $headerKeyName => $headerKey) {
+            $columnLetter = $this->getColumnLetter($colIndex);
             
             if (isset($columnWidths[$headerKeyName])) {
                 $sheet->getColumnDimension($columnLetter)->setWidth($columnWidths[$headerKeyName]);
             } else {
                 $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
             }
+            $colIndex++;
         }
 
         // Freeze header row

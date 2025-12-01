@@ -64,28 +64,37 @@ class DocumentInventoryExport extends BaseReportExport
 
     protected function getSheetNames(): array
     {
+        // Use English keys for internal matching, will translate when setting title
         $sheets = [
-            $this->translate('reports.document_inventory.summary'),
-            $this->translate('reports.document_inventory.detailed_inventory'),
+            'summary',
+            'detailed_inventory',
         ];
 
         // Add grouped sheets if grouping is requested
         if ($this->groupBy === 'location' || $this->groupBy === null) {
-            $sheets[] = $this->translate('reports.document_inventory.by_location');
+            $sheets[] = 'by_location';
         }
         if ($this->groupBy === 'client' || $this->groupBy === null) {
-            $sheets[] = $this->translate('reports.document_inventory.by_client');
+            $sheets[] = 'by_client';
         }
         if ($this->groupBy === 'case' || $this->groupBy === null) {
-            $sheets[] = $this->translate('reports.document_inventory.by_case');
+            $sheets[] = 'by_case';
         }
 
         // Add missing documents sheet if there are missing documents
         if ($this->missingDocuments->isNotEmpty()) {
-            $sheets[] = $this->translate('reports.document_inventory.missing_documents');
+            $sheets[] = 'missing_documents';
         }
 
         return $sheets;
+    }
+    
+    /**
+     * Get translated sheet name for display
+     */
+    protected function getSheetDisplayName(string $key): string
+    {
+        return $this->translate("reports.document_inventory.{$key}");
     }
 
     protected function getHeaders(): array
@@ -106,27 +115,28 @@ class DocumentInventoryExport extends BaseReportExport
 
     protected function getData(): array
     {
+        // Use English keys for internal matching
         $data = [
-            $this->translate('reports.document_inventory.summary') => $this->prepareSummaryRows(),
-            $this->translate('reports.document_inventory.detailed_inventory') => $this->prepareDocumentRows($this->documents),
+            'summary' => $this->prepareSummaryRows(),
+            'detailed_inventory' => $this->prepareDocumentRows($this->documents),
         ];
 
         // Add grouped sheets
         if ($this->groupBy === 'location' || $this->groupBy === null) {
-            $data[$this->translate('reports.document_inventory.by_location')] = $this->prepareByLocationRows();
+            $data['by_location'] = $this->prepareByLocationRows();
         }
 
         if ($this->groupBy === 'client' || $this->groupBy === null) {
-            $data[$this->translate('reports.document_inventory.by_client')] = $this->prepareByClientRows();
+            $data['by_client'] = $this->prepareByClientRows();
         }
 
         if ($this->groupBy === 'case' || $this->groupBy === null) {
-            $data[$this->translate('reports.document_inventory.by_case')] = $this->prepareByCaseRows();
+            $data['by_case'] = $this->prepareByCaseRows();
         }
 
         // Add missing documents sheet if applicable
         if ($this->missingDocuments->isNotEmpty()) {
-            $data[$this->translate('reports.document_inventory.missing_documents')] = $this->prepareMissingDocumentsRows();
+            $data['missing_documents'] = $this->prepareMissingDocumentsRows();
         }
 
         return $data;
@@ -464,16 +474,16 @@ class DocumentInventoryExport extends BaseReportExport
 
         // Auto-size columns
         $columnWidths = $this->getColumnWidths();
-        foreach ($headers as $index => $headerKey) {
-            $col = $index + 1;
-            $columnLetter = $this->getColumnLetter($col);
-            $headerKeyName = array_keys($headers)[$index];
+        $colIndex = 1;
+        foreach ($headers as $headerKeyName => $headerKey) {
+            $columnLetter = $this->getColumnLetter($colIndex);
             
             if (isset($columnWidths[$headerKeyName])) {
                 $sheet->getColumnDimension($columnLetter)->setWidth($columnWidths[$headerKeyName]);
             } else {
                 $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
             }
+            $colIndex++;
         }
 
         // Freeze header row

@@ -370,17 +370,32 @@ class ReportController extends Controller
         });
 
         // Generate Excel export
-        $locale = App::getLocale();
-        $export = new HearingScheduleExport(
-            $hearings,
-            $upcoming,
-            $past,
-            $overdue,
-            $dateRange,
-            $locale
-        );
+        try {
+            $locale = App::getLocale();
+            $export = new HearingScheduleExport(
+                $hearings,
+                $upcoming,
+                $past,
+                $overdue,
+                $dateRange,
+                $locale
+            );
 
-        return $export->export();
+            return $export->export();
+        } catch (\Exception $e) {
+            \Log::error('Hearing Schedule Excel Export Error', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            return response()->json([
+                'error' => 'Failed to generate Excel export',
+                'message' => config('app.debug') ? $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() : 'An error occurred while generating the report.',
+                'trace' => config('app.debug') ? $e->getTraceAsString() : null,
+            ], 500);
+        }
     }
 
     /**
@@ -800,9 +815,10 @@ class ReportController extends Controller
                     ];
                 });
 
-            $attentionRequired = $casesWithOverdueTasks
-                ->merge($casesWithMissingData)
-                ->merge($casesWithUpcomingHearings)
+            $attentionRequired = collect()
+                ->concat($casesWithOverdueTasks)
+                ->concat($casesWithMissingData)
+                ->concat($casesWithUpcomingHearings)
                 ->unique(function ($item) {
                     return $item['case'];
                 });

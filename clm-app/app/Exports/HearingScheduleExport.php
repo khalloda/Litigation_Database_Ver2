@@ -39,12 +39,21 @@ class HearingScheduleExport extends BaseReportExport
 
     protected function getSheetNames(): array
     {
+        // Use English keys for internal matching, will translate when setting title
         return [
-            $this->translate('reports.hearing_schedule.upcoming'),
-            $this->translate('reports.hearing_schedule.past'),
-            $this->translate('reports.hearing_schedule.overdue'),
-            $this->translate('reports.hearing_schedule.summary'),
+            'upcoming',
+            'past',
+            'overdue',
+            'summary',
         ];
+    }
+    
+    /**
+     * Get translated sheet name for display
+     */
+    protected function getSheetDisplayName(string $key): string
+    {
+        return $this->translate("reports.hearing_schedule.{$key}");
     }
 
     protected function getHeaders(): array
@@ -67,24 +76,28 @@ class HearingScheduleExport extends BaseReportExport
     {
         $now = Carbon::now('Africa/Cairo');
         
+        // Use English keys for internal matching
         return [
-            $this->translate('reports.hearing_schedule.upcoming') => $this->prepareHearingRows($this->upcoming, $now),
-            $this->translate('reports.hearing_schedule.past') => $this->prepareHearingRows($this->past, $now),
-            $this->translate('reports.hearing_schedule.overdue') => $this->prepareHearingRows($this->overdue, $now),
-            $this->translate('reports.hearing_schedule.summary') => $this->prepareSummaryRows(),
+            'upcoming' => $this->prepareHearingRows($this->upcoming, $now),
+            'past' => $this->prepareHearingRows($this->past, $now),
+            'overdue' => $this->prepareHearingRows($this->overdue, $now),
+            'summary' => $this->prepareSummaryRows(),
         ];
     }
 
     protected function prepareHearingRows(Collection $hearings, Carbon $now): array
     {
         return $hearings->map(function (Hearing $hearing, int $index) use ($now) {
-            $isOverdue = $hearing->date < $now->copy()->startOfDay() 
+            $hearingDate = $hearing->date;
+            $hasDate = $hearingDate !== null;
+            
+            $isOverdue = $hasDate && $hearingDate < $now->copy()->startOfDay() 
                 && (empty($hearing->decision) && empty($hearing->short_decision));
-            $isUpcoming = $hearing->date >= $now->copy()->startOfDay();
+            $isUpcoming = $hasDate && $hearingDate >= $now->copy()->startOfDay();
 
             return [
                 'serial' => $index + 1,
-                'date' => $hearing->date->format('Y-m-d'),
+                'date' => $hasDate ? $hearingDate->format('Y-m-d') : '—',
                 'case_name' => $hearing->case?->matter_name_ar ?? $hearing->case?->matter_name_en ?? '—',
                 'client_name' => $hearing->case?->client?->client_name_ar ?? $hearing->case?->client?->client_name_en ?? '—',
                 'court' => $hearing->case?->court?->court_name_ar
@@ -93,7 +106,9 @@ class HearingScheduleExport extends BaseReportExport
                     ?? '—',
                 'procedure' => $hearing->procedure ?? '—',
                 'decision' => $hearing->short_decision ?? $hearing->decision ?? '—',
-                'next_hearing' => $hearing->next_hearing?->format('Y-m-d') ?? '—',
+                'next_hearing' => ($hearing->next_hearing instanceof \Carbon\Carbon) 
+                    ? $hearing->next_hearing->format('Y-m-d') 
+                    : '—',
                 'lawyer' => $hearing->lawyer?->lawyer_name_ar ?? $hearing->lawyer?->lawyer_name_en ?? '—',
                 'status' => $this->translate($isOverdue 
                     ? 'reports.hearing_schedule.overdue'
@@ -180,6 +195,14 @@ class HearingScheduleExport extends BaseReportExport
         $headers = $this->getHeaders();
         $row = 1;
 
+        // Add title (if applicable)
+        if (!empty($this->getTitle())) {
+            $sheet->setCellValue('A1', $this->getTitle());
+            $sheet->mergeCells('A1:' . $this->getColumnLetter(count($headers)) . '1');
+            $this->applyTitleStyle($sheet, 'A1');
+            $row = 2;
+        }
+
         // Add headers
         $headerRow = $row;
         $col = 1;
@@ -206,16 +229,16 @@ class HearingScheduleExport extends BaseReportExport
 
         // Auto-size columns
         $columnWidths = $this->getColumnWidths();
-        foreach ($headers as $index => $headerKey) {
-            $col = $index + 1;
-            $columnLetter = $this->getColumnLetter($col);
-            $headerKeyName = array_keys($headers)[$index];
+        $colIndex = 1;
+        foreach ($headers as $headerKeyName => $headerKey) {
+            $columnLetter = $this->getColumnLetter($colIndex);
             
             if (isset($columnWidths[$headerKeyName])) {
                 $sheet->getColumnDimension($columnLetter)->setWidth($columnWidths[$headerKeyName]);
             } else {
                 $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
             }
+            $colIndex++;
         }
 
         // Freeze header row
