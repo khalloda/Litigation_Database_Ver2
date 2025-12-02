@@ -29,6 +29,7 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\OptionSet::class => \App\Policies\OptionSetPolicy::class,
         \App\Models\OptionValue::class => \App\Policies\OptionValuePolicy::class,
         \App\Models\Opponent::class => \App\Policies\OpponentPolicy::class,
+        \App\Models\User::class => \App\Policies\UserPolicy::class,
     ];
 
     /**
