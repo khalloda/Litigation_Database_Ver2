@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useI18n } from '../hooks/useI18n';
-import { fetchUser } from '../services/users';
+import { fetchUser, createUser, updateUser } from '../services/users';
 import { fetchRoles } from '../services/roles';
 import type { User } from '../types';
 import SearchableSelect from '../components/SearchableSelect';
@@ -84,17 +84,27 @@ const UserDetailPage: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            // TODO: Call createUser or updateUser API when implemented
+            // Map form data into API payload shape
+            const payload: any = {
+                name: formData.name_en, // backend stores a single `name` field
+                email: formData.email,
+                role_id: formData.role_id || null,
+            };
+
+            // Only send password if user entered one
+            if (formData.password.trim().length > 0) {
+                payload.password = formData.password;
+            }
+
             if (isEditing && id) {
-                // await updateUser(id, formData);
-                console.log('Updating user:', formData);
+                await updateUser(id, payload);
             } else {
-                // await createUser(formData);
-                console.log('Creating user:', formData);
+                await createUser(payload);
             }
             navigate('/settings/users');
         } catch (err: any) {
-            alert('Failed to save user');
+            console.error('Failed to save user', err);
+            alert(err?.response?.data?.message || err.message || 'Failed to save user');
         }
     };
 
@@ -147,8 +157,20 @@ const UserDetailPage: React.FC = () => {
                 </div>
                 <div>
                     <label htmlFor="password" className="block text-sm font-medium text-gray-700">{t('new_user_form.password')}</label>
-                    <input type="password" id="password" name="password" value={formData.password} onChange={handleFormChange} className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm" />
-                    {isEditing && <p className="mt-1 text-xs text-gray-500">{t('new_user_form.password_help')}</p>}
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        autoComplete="current-password"
+                        value={formData.password}
+                        onChange={handleFormChange}
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                    />
+                    {isEditing && (
+                        <p className="mt-1 text-xs text-gray-500">
+                            {t('new_user_form.password_help')}
+                        </p>
+                    )}
                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                     <div>
