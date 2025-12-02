@@ -139,6 +139,7 @@ class ClientController extends Controller
                 ]);
             },
             'cases.clientCapacity:id,label_ar,label_en',
+            'powerOfAttorneys',
         ]);
 
         // Get schema-driven field metadata
