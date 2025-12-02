@@ -294,7 +294,11 @@ const ClientDetailPage: React.FC = () => {
                                     </thead>
                                     <tbody>
                                         {client.documents.map((doc) => (
-                                            <tr key={doc.id} className="border-b">
+                                            <tr
+                                                key={doc.id}
+                                                className="border-b hover:bg-gray-50 cursor-pointer"
+                                                onClick={() => navigate(`/documents/${doc.id}`)}
+                                            >
                                                 <td className="p-3 text-gray-800 font-medium">
                                                     {doc.document_description ?? '—'}
                                                 </td>
