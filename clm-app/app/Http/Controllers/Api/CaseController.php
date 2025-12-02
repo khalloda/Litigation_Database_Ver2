@@ -164,8 +164,9 @@ class CaseController extends Controller
             'documents' => $case->documents ? $case->documents->map(function ($doc) {
                 return [
                     'id' => $doc->id,
-                    'document_name' => $doc->document_name,
+                    'document_description' => $doc->document_description,
                     'document_type' => $doc->document_type,
+                    'deposit_date' => $doc->deposit_date?->format('Y-m-d'),
                 ];
             })->toArray() : [],
             'tasks' => $case->adminTasks ? $case->adminTasks->map(function ($task) {
