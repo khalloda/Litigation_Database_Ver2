@@ -146,19 +146,18 @@
         <table class="movements-table">
             <thead>
             <tr>
-                <th style="width: 12%;">التوقيع</th>
                 <th style="width: 6%;">م</th>
                 <th style="width: 14%;">التاريخ</th>
                 <th style="width: 18%;">من</th>
                 <th style="width: 18%;">إلى</th>
                 <th style="width: 14%;">الحالة</th>
                 <th style="width: 18%;">ملاحظات</th>
+                <th style="width: 12%;">التوقيع</th>
             </tr>
             </thead>
             <tbody>
             @forelse($movements as $index => $movement)
                 <tr>
-                    <td></td>
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td class="text-center">
                         @if(!empty($movement['date']))
@@ -171,6 +170,7 @@
                         {{ $movement['status'] ?? '' }}
                     </td>
                     <td>{!! isset($movement['notes']) ? nl2br(e($movement['notes'])) : '' !!}</td>
+                    <td></td>
                 </tr>
             @empty
                 <tr>
