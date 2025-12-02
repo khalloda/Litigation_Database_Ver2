@@ -90,12 +90,6 @@
             display: flex;
             justify-content: space-between;
         }
-        .page-number:before {
-            content: counter(page);
-        }
-        .total-pages:before {
-            content: counter(pages);
-        }
     </style>
 </head>
 <body>
@@ -190,7 +184,9 @@
             إجمالي عدد الحركات: {{ $totalMovements }}
         </div>
         <div>
-            الصفحة <span class="page-number"></span> من <span class="total-pages"></span>
+            {{-- wkhtmltopdf does not reliably support total page counters in this standalone template --}}
+            {{-- For now, movement card is a single page, so we render a static label --}}
+            الصفحة 1 من 1
         </div>
     </div>
 </body>
