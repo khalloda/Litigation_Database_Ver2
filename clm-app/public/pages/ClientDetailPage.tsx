@@ -277,27 +277,39 @@ const ClientDetailPage: React.FC = () => {
                 {activeTab === 'documents' && (
                     <div>
                         {client.documents && client.documents.length > 0 ? (
-                             <div className="overflow-x-auto">
+                            <div className="overflow-x-auto">
                                 <table className="min-w-full bg-white">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th className="text-start p-3 font-semibold text-gray-600 text-sm">{t('document.document_name')}</th>
-                                            <th className="text-start p-3 font-semibold text-gray-600 text-sm">{t('document.document_type')}</th>
-                                            <th className="text-start p-3 font-semibold text-gray-600 text-sm">{t('document.deposit_date')}</th>
+                                            <th className="text-start p-3 font-semibold text-gray-600 text-sm">
+                                                {t('document.document_description')}
+                                            </th>
+                                            <th className="text-start p-3 font-semibold text-gray-600 text-sm">
+                                                {t('document.document_type')}
+                                            </th>
+                                            <th className="text-start p-3 font-semibold text-gray-600 text-sm">
+                                                {t('document.deposit_date')}
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {client.documents.map(doc => (
+                                        {client.documents.map((doc) => (
                                             <tr key={doc.id} className="border-b">
-                                                <td className="p-3 text-gray-800 font-medium">{doc.document_name}</td>
+                                                <td className="p-3 text-gray-800 font-medium">
+                                                    {doc.document_description ?? '—'}
+                                                </td>
                                                 <td className="p-3 text-gray-600">{doc.document_type}</td>
-                                                <td className="p-3 text-gray-600">{new Date(doc.deposit_date).toLocaleDateString()}</td>
+                                                <td className="p-3 text-gray-600">
+                                                    {new Date(doc.deposit_date).toLocaleDateString()}
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
-                        ) : <p className="text-gray-500">{t('client_page.no_documents')}</p>}
+                        ) : (
+                            <p className="text-gray-500">{t('client_page.no_documents')}</p>
+                        )}
                     </div>
                 )}
 
