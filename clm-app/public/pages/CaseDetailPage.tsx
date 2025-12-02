@@ -275,7 +275,7 @@ const CaseDetailPage: React.FC = () => {
                     </div>
                 </AccordionItem>
                 
-                <AccordionItem title={t('case.documents_hearings')}>
+                <AccordionItem title={t('case.related_hearings')}>
                     <div className="space-y-4">
                         {/* Hearings list */}
                         <div>
@@ -376,55 +376,56 @@ const CaseDetailPage: React.FC = () => {
                                 </p>
                             )}
                         </div>
+                    </div>
+                </AccordionItem>
 
-                        {/* Documents / POAs list */}
-                        <div>
-                            <h4 className="font-semibold text-gray-800 mb-2">
-                                {t('case.related_documents')} ({(caseData.documents || []).length})
-                            </h4>
-                            {caseData.documents && caseData.documents.length > 0 ? (
-                                <div className="overflow-x-auto">
-                                    <table className="min-w-full bg-white">
-                                        <thead className="bg-gray-50">
-                                            <tr>
-                                                <th className="text-start p-3 font-semibold text-gray-600 text-sm">
-                                                    {t('document.document_description')}
-                                                </th>
-                                                <th className="text-start p-3 font-semibold text-gray-600 text-sm">
-                                                    {t('document.document_type')}
-                                                </th>
-                                                <th className="text-start p-3 font-semibold text-gray-600 text-sm">
-                                                    {t('document.deposit_date')}
-                                                </th>
+                <AccordionItem title={t('case.related_documents')}>
+                    <div>
+                        <h4 className="font-semibold text-gray-800 mb-2">
+                            {t('case.related_documents')} ({(caseData.documents || []).length})
+                        </h4>
+                        {caseData.documents && caseData.documents.length > 0 ? (
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full bg-white">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="text-start p-3 font-semibold text-gray-600 text-sm">
+                                                {t('document.document_description')}
+                                            </th>
+                                            <th className="text-start p-3 font-semibold text-gray-600 text-sm">
+                                                {t('document.document_type')}
+                                            </th>
+                                            <th className="text-start p-3 font-semibold text-gray-600 text-sm">
+                                                {t('document.deposit_date')}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {caseData.documents.map((doc) => (
+                                            <tr
+                                                key={doc.id}
+                                                className="border-b hover:bg-gray-50 cursor-pointer"
+                                                onClick={() => navigate(`/documents/${doc.id}`)}
+                                            >
+                                                <td className="p-3 text-gray-800 font-medium">
+                                                    {doc.document_description ?? '—'}
+                                                </td>
+                                                <td className="p-3 text-gray-600">
+                                                    {doc.document_type}
+                                                </td>
+                                                <td className="p-3 text-gray-600">
+                                                    {new Date(doc.deposit_date).toLocaleDateString()}
+                                                </td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            {caseData.documents.map((doc) => (
-                                                <tr
-                                                    key={doc.id}
-                                                    className="border-b hover:bg-gray-50 cursor-pointer"
-                                                    onClick={() => navigate(`/documents/${doc.id}`)}
-                                                >
-                                                    <td className="p-3 text-gray-800 font-medium">
-                                                        {doc.document_description ?? '—'}
-                                                    </td>
-                                                    <td className="p-3 text-gray-600">
-                                                        {doc.document_type}
-                                                    </td>
-                                                    <td className="p-3 text-gray-600">
-                                                        {new Date(doc.deposit_date).toLocaleDateString()}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            ) : (
-                                <p className="text-gray-500 text-sm">
-                                    {t('case.no_documents_found')}
-                                </p>
-                            )}
-                        </div>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <p className="text-gray-500 text-sm">
+                                {t('case.no_documents_found')}
+                            </p>
+                        )}
                     </div>
                 </AccordionItem>
 
