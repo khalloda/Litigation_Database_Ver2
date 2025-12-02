@@ -30,6 +30,7 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\OptionValue::class => \App\Policies\OptionValuePolicy::class,
         \App\Models\Opponent::class => \App\Policies\OpponentPolicy::class,
         \App\Models\User::class => \App\Policies\UserPolicy::class,
+        \Spatie\Permission\Models\Role::class => \App\Policies\RolePolicy::class,
     ];
 
     /**
