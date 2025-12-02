@@ -27,6 +27,11 @@ class UserController extends Controller
         $users = $query->orderBy('name')
             ->paginate($request->get('per_page', 25));
 
+        // Normalize shape for SPA
+        $users->getCollection()->transform(function (User $user) {
+            return $this->transformUserForApi($user);
+        });
+
         return response()->json($users);
     }
 
@@ -54,10 +59,8 @@ class UserController extends Controller
             }
         }
 
-        $user->load('roles');
-
         return response()->json([
-            'data' => $user,
+            'data' => $this->transformUserForApi($user->fresh('roles')),
             'message' => 'User created successfully',
         ], 201);
     }
@@ -66,7 +69,10 @@ class UserController extends Controller
     {
         $this->authorize('view', $user);
         $user->load('roles', 'permissions');
-        return response()->json(['data' => $user]);
+
+        return response()->json([
+            'data' => $this->transformUserForApi($user),
+        ]);
     }
 
     public function update(Request $request, User $user): JsonResponse
@@ -90,10 +96,8 @@ class UserController extends Controller
             $user->roles()->sync([$validated['role_id']]);
         }
 
-        $user->load('roles', 'permissions');
-
         return response()->json([
-            'data' => $user,
+            'data' => $this->transformUserForApi($user->fresh('roles', 'permissions')),
             'message' => 'User updated successfully',
         ]);
     }
@@ -103,6 +107,33 @@ class UserController extends Controller
         $this->authorize('delete', $user);
         $user->delete();
         return response()->json(['message' => 'User deleted successfully']);
+    }
+
+    /**
+     * Normalize User model into the SPA User type shape.
+     */
+    protected function transformUserForApi(User $user): array
+    {
+        $primaryRole = $user->roles->first();
+
+        return [
+            'id' => $user->id,
+            'name_en' => $user->name,
+            'name_ar' => $user->name,
+            'email' => $user->email,
+            'role_id' => $primaryRole?->id ?? null,
+            'is_active' => $primaryRole !== null,
+            'role' => $primaryRole ? [
+                'id' => $primaryRole->id,
+                'name_en' => $primaryRole->name,
+                'name_ar' => $primaryRole->name,
+                'description_en' => '',
+                'description_ar' => '',
+                'permissions' => $primaryRole->permissions
+                    ? $primaryRole->permissions->pluck('name')->all()
+                    : [],
+            ] : null,
+        ];
     }
 }
 
