@@ -489,15 +489,6 @@ Route::get('/{any}', function () {
         abort(404); // API route not found in api.php
     }
     
-    // Exclude Blade show routes - these should have been matched above
-    // If we reach here, it means the route wasn't matched, so let React handle it
-    $excludedPaths = ['cases', 'clients', 'opponents', 'courts', 'hearings', 'documents', 'power-of-attorneys', 'admin-tasks'];
-    $pathSegments = explode('/', request()->path());
-    if (count($pathSegments) >= 2 && in_array($pathSegments[0], $excludedPaths) && is_numeric($pathSegments[1])) {
-        // This looks like a show route that should have matched above - abort 404
-        abort(404, 'Route not found. Blade show routes should be matched before SPA fallback.');
-    }
-    
     // Check if the file exists in public directory (for assets like CSS, JS, images)
     $path = public_path(request()->path());
     if (file_exists($path) && !is_dir($path)) {
