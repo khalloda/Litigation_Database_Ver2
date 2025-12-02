@@ -140,6 +140,7 @@ class ClientController extends Controller
             },
             'cases.clientCapacity:id,label_ar,label_en',
             'powerOfAttorneys',
+            'documents',
         ]);
 
         // Get schema-driven field metadata
