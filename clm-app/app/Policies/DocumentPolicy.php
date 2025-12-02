@@ -39,6 +39,14 @@ class DocumentPolicy
     }
 
     /**
+     * Determine whether the user can edit the document or its movements.
+     */
+    public function update(User $user, $document): bool
+    {
+        return $user->can('documents.edit');
+    }
+
+    /**
      * Determine whether the user can delete the document.
      */
     public function delete(User $user, $document): bool
