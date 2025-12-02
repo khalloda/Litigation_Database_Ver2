@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useI18n } from '../hooks/useI18n';
+import { fetchCurrentUser, logout as apiLogout } from '../services/auth';
 import { CaseIcon, ReportIcon, SettingsIcon, TaskIcon, LanguageIcon, ClientIcon, OpponentIcon, UserIcon, CourtIcon, CalendarIcon, DocumentIcon, SparklesIcon } from './icons';
 import type { Language } from '../types';
 
@@ -67,13 +68,40 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => {
 
 const Header: React.FC = () => {
     const { t, language, setLanguage } = useI18n();
-    
+    const navigate = useNavigate();
+    const [currentUser, setCurrentUser] = useState<{ id: number; name: string; email: string } | null>(null);
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    useEffect(() => {
+        fetchCurrentUser()
+            .then((data) => {
+                const user = data?.user || data;
+                if (user) {
+                    setCurrentUser({ id: user.id, name: user.name, email: user.email });
+                }
+            })
+            .catch(() => {
+                // If fetching current user fails, ProtectedRoute will eventually redirect to login
+                setCurrentUser(null);
+            });
+    }, []);
+
     const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setLanguage(e.target.value as Language);
     };
 
+    const handleLogout = async () => {
+        try {
+            await apiLogout();
+        } catch (err) {
+            console.error('Logout failed', err);
+        } finally {
+            navigate('/login', { replace: true });
+        }
+    };
+
     return (
-        <header className="bg-white p-4 border-b flex justify-between items-center">
+        <header className="bg-white p-4 border-b flex justify-between items-center relative">
              <div className="relative w-full max-w-md">
                 <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                     <svg className="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -102,7 +130,52 @@ const Header: React.FC = () => {
                         <option value="ar">العربية</option>
                     </select>
                 </div>
-                <img className="w-10 h-10 rounded-full" src="https://picsum.photos/100" alt="User"/>
+                <div className="relative">
+                    <button
+                        type="button"
+                        className="flex items-center gap-2 focus:outline-none"
+                        onClick={() => setMenuOpen((open) => !open)}
+                    >
+                        <img
+                            className="w-10 h-10 rounded-full border border-gray-300"
+                            src="https://picsum.photos/100"
+                            alt={currentUser?.name || 'User'}
+                        />
+                    </button>
+                    {menuOpen && (
+                        <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+                            <div className="px-4 py-3 border-b border-gray-100">
+                                <p className="text-sm font-semibold text-gray-800">
+                                    {currentUser?.name || t('app.unknown_user') || 'User'}
+                                </p>
+                                <p className="text-xs text-gray-500 truncate">
+                                    {currentUser?.email}
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (currentUser) {
+                                        navigate(`/settings/users/${currentUser.id}`);
+                                    } else {
+                                        navigate('/settings/users');
+                                    }
+                                    setMenuOpen(false);
+                                }}
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            >
+                                {t('app.my_profile') || 'My Profile'}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleLogout}
+                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 border-t border-gray-100"
+                            >
+                                {t('app.logout')}
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         </header>
     );
