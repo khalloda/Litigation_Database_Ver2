@@ -56,11 +56,16 @@ const UserDetailPage: React.FC = () => {
         loadData();
     }, [id, isEditing]);
 
-    const roleOptions = useMemo(() => 
-        roles.map(r => ({
-            value: r.id,
-            label: language === 'ar' ? r.name_ar : r.name_en,
-        })),
+    const roleOptions = useMemo(
+        () =>
+            roles.map((r) => ({
+                value: r.id,
+                // Backend may only provide `name`, so fall back to it
+                label:
+                    language === 'ar'
+                        ? r.name_ar || r.name_en || r.name
+                        : r.name_en || r.name_ar || r.name,
+            })),
         [roles, language]
     );
 
