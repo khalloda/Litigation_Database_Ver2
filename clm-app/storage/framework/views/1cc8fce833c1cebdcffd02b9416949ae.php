@@ -9,8 +9,8 @@
         }
         body {
             font-family: 'Cairo', 'Noto Kufi Arabic', 'Tahoma', 'Arial', sans-serif;
-            font-size: 12px;
-            line-height: 1.4;
+            font-size: 16px; /* increased again by ~15% */
+            line-height: 1.6;
             color: #000;
             margin: 0;
             padding: 0 0 35mm 0; /* extra bottom padding so content does not overlap fixed footer */
@@ -38,7 +38,7 @@
         }
         .title-cell {
             text-align: center;
-            font-size: 18px;
+            font-size: 24px; /* was 21px */
             font-weight: bold;
         }
         .meta-table {
@@ -50,7 +50,7 @@
         .meta-table td {
             border: 1px solid #000;
             padding: 4px 6px;
-            font-size: 11px;
+            font-size: 15px; /* was 13px */
         }
         .meta-table th {
             background: #f5f5f5;
@@ -60,7 +60,7 @@
             margin-top: 10px;
             margin-bottom: 4px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 17px; /* was 15px */
         }
         .movements-table {
             width: 100%;
@@ -71,7 +71,7 @@
         .movements-table td {
             border: 1px solid #000;
             padding: 4px 6px;
-            font-size: 11px;
+            font-size: 15px; /* was 13px */
             vertical-align: top;
         }
         .movements-table th {
@@ -86,7 +86,7 @@
             bottom: 10mm;
             left: 15mm;
             right: 15mm;
-            font-size: 11px;
+            font-size: 15px; /* was 13px */
             display: flex;
             justify-content: space-between;
         }
@@ -138,6 +138,13 @@
                 <td><?php echo e($document->department); ?></td>
                 <th>اسم الدعوى (قديم)</th>
                 <td><?php echo e($document->legacy_matter_name); ?></td>
+            </tr>
+            <tr>
+                <th>وصف المستند</th>
+                <td colspan="3">
+                    <?php echo e($document->document_description ?? $document->description ?? ''); ?>
+
+                </td>
             </tr>
         </table>
 
