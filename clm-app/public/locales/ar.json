@@ -221,7 +221,10 @@
     "not_set": "غير محدد",
     "loading_schema": "جارٍ تحميل بيانات المخطط...",
     "schema_not_available": "بيانات المخطط غير متاحة.",
-    "all_fields_title": "كل حقول التوكيل"
+    "all_fields_title": "كل حقول التوكيل",
+    "movement_card_history": "سجل حركة التوكيل",
+    "print_movement_card": "طباعة بطاقة حركة التوكيل",
+    "new_move": "إضافة حركة"
   },
   "opponents_page": {
     "title": "الخصوم",

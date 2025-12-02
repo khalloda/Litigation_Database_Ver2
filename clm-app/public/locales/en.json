@@ -221,7 +221,10 @@
     "not_set": "Not set",
     "loading_schema": "Loading schema metadata...",
     "schema_not_available": "Schema metadata not available.",
-    "all_fields_title": "All Power of Attorney fields"
+    "all_fields_title": "All Power of Attorney fields",
+    "movement_card_history": "Power of attorney movement history",
+    "print_movement_card": "Print Movement Card",
+    "new_move": "New Movement"
   },
   "opponents_page": {
     "title": "Opponents",

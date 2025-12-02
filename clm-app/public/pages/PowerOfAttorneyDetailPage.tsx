@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useI18n } from '../hooks/useI18n';
-import type { PowerOfAttorney } from '../types';
-import { fetchPowerOfAttorney, fetchPowerOfAttorneySchema } from '../services/powerOfAttorneys';
+import type { PowerOfAttorney, PoaMovement } from '../types';
+import { fetchPowerOfAttorney, fetchPowerOfAttorneySchema, createPoaMovement, updatePoaMovement, printPoaMovementCardPdf } from '../services/powerOfAttorneys';
 import AllFieldsTable from '../components/AllFieldsTable';
+import MovementForm from '../components/MovementForm';
 import EditPowerOfAttorneyForm from '../components/EditPowerOfAttorneyForm';
 
 const DetailRow: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => {
@@ -61,6 +62,7 @@ const PowerOfAttorneyDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [schemaError, setSchemaError] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [movementFormState, setMovementFormState] = useState<{ isOpen: boolean; movement: PoaMovement | null | undefined }>({ isOpen: false, movement: undefined });
 
   useEffect(() => {
     if (!id) return;
@@ -107,6 +109,37 @@ const PowerOfAttorneyDetailPage: React.FC = () => {
       isMounted = false;
     };
   }, [id]);
+
+  const handleSaveMovement = async (data: any) => {
+    if (!powerOfAttorney) return;
+    try {
+      const payload = {
+        date: data.date,
+        from_location: data.from_location,
+        to_location: data.to_location,
+        status: data.status,
+        lawyer_id: data.lawyer_id ? Number(data.lawyer_id) : null,
+        notes: data.notes || undefined,
+      };
+
+      if (data.id) {
+        await updatePoaMovement(powerOfAttorney.id, data.id, payload);
+      } else {
+        await createPoaMovement(powerOfAttorney.id, payload);
+      }
+
+      const response = await fetchPowerOfAttorney(powerOfAttorney.id);
+      const payloadResponse = response?.data ?? response;
+      const raw = response?.raw ?? payloadResponse;
+      setPowerOfAttorney(payloadResponse);
+      setRawRecord(raw);
+    } catch (err: any) {
+      console.error('Error saving POA movement:', err);
+      alert(err?.response?.data?.message || err.message || 'Failed to save movement');
+    } finally {
+      setMovementFormState({ isOpen: false, movement: undefined });
+    }
+  };
 
   if (loading) {
     return (
@@ -243,6 +276,97 @@ const PowerOfAttorneyDetailPage: React.FC = () => {
           </div>
         )}
       </div>
+      {powerOfAttorney.movements && (
+        <div className="bg-white rounded-xl shadow p-6 mt-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-800">
+              {t('poa_page.movement_card_history')}
+            </h2>
+            <div className="flex gap-2">
+              <button
+                onClick={async () => {
+                  if (!powerOfAttorney) return;
+                  try {
+                    const blob = await printPoaMovementCardPdf(powerOfAttorney.id, {
+                      locale: language,
+                    });
+                    const url = window.URL.createObjectURL(blob);
+                    window.open(url, '_blank');
+                  } catch (err: any) {
+                    console.error('Error printing POA movement card:', err);
+                    alert(err?.response?.data?.message || err.message || 'Failed to generate movement card PDF');
+                  }
+                }}
+                className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-800 font-semibold hover:bg-gray-200 transition-colors text-sm"
+              >
+                {t('poa_page.print_movement_card')}
+              </button>
+              <button
+                onClick={() => setMovementFormState({ isOpen: true, movement: null })}
+                className="px-4 py-2 bg-green-600 border border-transparent rounded-lg text-white font-semibold hover:bg-green-700 transition-colors text-sm"
+              >
+                {t('poa_page.new_move')}
+              </button>
+            </div>
+          </div>
+          {powerOfAttorney.movements.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-white">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="text-start p-3 font-semibold text-gray-600 text-sm">{t('document_page.movement.date')}</th>
+                    <th className="text-start p-3 font-semibold text-gray-600 text-sm">{t('document_page.movement.from')}</th>
+                    <th className="text-start p-3 font-semibold text-gray-600 text-sm">{t('document_page.movement.to')}</th>
+                    <th className="text-start p-3 font-semibold text-gray-600 text-sm">{t('document_page.movement.status')}</th>
+                    <th className="text-start p-3 font-semibold text-gray-600 text-sm">{t('document_page.movement.responsible_lawyer')}</th>
+                    <th className="text-start p-3 font-semibold text-gray-600 text-sm">{t('document_page.movement.notes')}</th>
+                    <th className="text-start p-3 font-semibold text-gray-600 text-sm"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {powerOfAttorney.movements.map((movement) => (
+                    <tr key={movement.id}>
+                      <td className="p-3 text-sm text-gray-700 whitespace-nowrap">
+                        {movement.date ? new Date(movement.date).toLocaleDateString() : ''}
+                      </td>
+                      <td className="p-3 text-sm text-gray-700">{movement.from_location}</td>
+                      <td className="p-3 text-sm text-gray-700">{movement.to_location}</td>
+                      <td className="p-3 text-sm text-gray-700">{movement.status}</td>
+                      <td className="p-3 text-sm text-gray-700 whitespace-nowrap">
+                        {movement.lawyer
+                          ? language === 'ar'
+                            ? movement.lawyer.lawyer_name_ar
+                            : movement.lawyer.lawyer_name_en
+                          : ''}
+                      </td>
+                      <td className="p-3 text-sm text-gray-500">{movement.notes}</td>
+                      <td className="p-3 text-sm text-center">
+                        <button
+                          onClick={() => setMovementFormState({ isOpen: true, movement: movement as any })}
+                          className="text-blue-600 hover:underline font-medium"
+                        >
+                          {t('document_page.movement.edit_move')}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center text-gray-500 p-6 bg-gray-50 rounded-lg">
+              {t('document_page.movement.no_movements')}
+            </div>
+          )}
+        </div>
+      )}
+      {movementFormState.isOpen && (
+        <MovementForm
+          onClose={() => setMovementFormState({ isOpen: false, movement: undefined })}
+          onSave={handleSaveMovement}
+          initialData={movementFormState.movement as any}
+        />
+      )}
       {isEditModalOpen && powerOfAttorney && (
         <EditPowerOfAttorneyForm
           poa={powerOfAttorney}

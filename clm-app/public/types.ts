@@ -81,6 +81,19 @@ export interface PowerOfAttorney {
   created_at?: string;
   updated_at?: string;
   client?: Client | null;
+  movements?: PoaMovement[];
+}
+
+export interface PoaMovement {
+  id: number;
+  power_of_attorney_id: number;
+  date: string;
+  from_location: string;
+  to_location: string;
+  status: DocumentMovementStatus;
+  notes?: string | null;
+  lawyer_id?: number | null;
+  lawyer?: Lawyer;
 }
 
 export type DocumentMovementStatus = 'checked_out' | 'checked_in' | 'archived' | 'transferred';

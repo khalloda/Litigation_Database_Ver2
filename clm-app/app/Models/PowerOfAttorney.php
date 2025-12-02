@@ -48,6 +48,11 @@ class PowerOfAttorney extends Model
     // Relationships
     public function client() { return $this->belongsTo(Client::class); }
 
+    public function movements()
+    {
+        return $this->hasMany(PowerOfAttorneyMovement::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

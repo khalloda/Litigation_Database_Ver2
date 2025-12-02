@@ -6,6 +6,8 @@ use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PowerOfAttorneyRequest;
 use App\Models\PowerOfAttorney;
+use App\Models\PowerOfAttorneyMovement;
+use Barryvdh\Snappy\Facades\SnappyPdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -70,6 +72,7 @@ class PowerOfAttorneyController extends Controller
             'client',
             'createdBy:id,name',
             'updatedBy:id,name',
+            'movements.lawyer:id,lawyer_name_ar,lawyer_name_en',
         ]);
 
         $payload = $powerOfAttorney->toArray();
@@ -115,6 +118,97 @@ class PowerOfAttorneyController extends Controller
         return response()->json(
             $this->getSchemaFields('power_of_attorneys', $powerOfAttorney)
         );
+    }
+
+    public function createMovement(Request $request, PowerOfAttorney $powerOfAttorney): JsonResponse
+    {
+        $this->authorize('update', $powerOfAttorney);
+
+        $validated = $request->validate([
+            'date' => ['required', 'date'],
+            'from_location' => ['required', 'string', 'max:255'],
+            'to_location' => ['required', 'string', 'max:255'],
+            'status' => ['required', 'string', 'max:32'],
+            'lawyer_id' => ['nullable', 'integer', 'exists:lawyers,id'],
+            'notes' => ['nullable', 'string'],
+        ]);
+
+        $movement = PowerOfAttorneyMovement::create([
+            'power_of_attorney_id' => $powerOfAttorney->id,
+            'date' => $validated['date'],
+            'from_location' => $validated['from_location'] ?? null,
+            'to_location' => $validated['to_location'] ?? null,
+            'status' => $validated['status'],
+            'lawyer_id' => $validated['lawyer_id'] ?? null,
+            'notes' => $validated['notes'] ?? null,
+            'created_by' => $request->user()->id ?? null,
+            'updated_by' => $request->user()->id ?? null,
+        ]);
+
+        $movement->load('lawyer:id,lawyer_name_ar,lawyer_name_en');
+
+        return response()->json([
+            'data' => $movement,
+        ], 201);
+    }
+
+    public function updateMovement(Request $request, PowerOfAttorney $powerOfAttorney, PowerOfAttorneyMovement $movement): JsonResponse
+    {
+        $this->authorize('update', $powerOfAttorney);
+
+        if ($movement->power_of_attorney_id !== $powerOfAttorney->id) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'date' => ['required', 'date'],
+            'from_location' => ['required', 'string', 'max:255'],
+            'to_location' => ['required', 'string', 'max:255'],
+            'status' => ['required', 'string', 'max:32'],
+            'lawyer_id' => ['nullable', 'integer', 'exists:lawyers,id'],
+            'notes' => ['nullable', 'string'],
+        ]);
+
+        $movement->update([
+            'date' => $validated['date'],
+            'from_location' => $validated['from_location'] ?? null,
+            'to_location' => $validated['to_location'] ?? null,
+            'status' => $validated['status'],
+            'lawyer_id' => $validated['lawyer_id'] ?? null,
+            'notes' => $validated['notes'] ?? null,
+            'updated_by' => $request->user()->id ?? null,
+        ]);
+
+        $movement->load('lawyer:id,lawyer_name_ar,lawyer_name_en');
+
+        return response()->json([
+            'data' => $movement,
+        ]);
+    }
+
+    public function movementCardPdf(Request $request, PowerOfAttorney $powerOfAttorney)
+    {
+        $this->authorize('view', $powerOfAttorney);
+
+        $locale = $request->input('locale', app()->getLocale() ?? 'ar');
+
+        $powerOfAttorney->load(['client', 'movements.lawyer']);
+
+        $firmLogoPath = public_path('assets/logo-BU5yR0AT.png');
+
+        $pdf = SnappyPdf::loadView('reports.poa_movement_card', [
+            'locale' => $locale,
+            'poa' => $powerOfAttorney,
+            'movements' => $powerOfAttorney->movements,
+            'firmLogoPath' => is_file($firmLogoPath) ? $firmLogoPath : null,
+            'generatedAt' => now(),
+            'totalMovements' => $powerOfAttorney->movements->count(),
+        ])->setPaper('a4', 'portrait')
+          ->setOption('encoding', 'UTF-8');
+
+        $fileName = 'poa-movement-card-' . $powerOfAttorney->id . '-' . now()->format('Ymd_His') . '.pdf';
+
+        return $pdf->download($fileName);
     }
 
     protected function transformForList(PowerOfAttorney $powerOfAttorney): array

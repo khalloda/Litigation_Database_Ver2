@@ -38,3 +38,46 @@ export async function deletePowerOfAttorney(id: number | string) {
   return response.data;
 }
 
+export async function createPoaMovement(
+  id: number | string,
+  payload: {
+    date: string;
+    from_location: string;
+    to_location: string;
+    status: string;
+    lawyer_id?: number | string | null;
+    notes?: string;
+  }
+) {
+  const response = await api.post(`/power-of-attorneys/${id}/movements`, payload);
+  return response.data;
+}
+
+export async function updatePoaMovement(
+  id: number | string,
+  movementId: number | string,
+  payload: {
+    date: string;
+    from_location: string;
+    to_location: string;
+    status: string;
+    lawyer_id?: number | string | null;
+    notes?: string;
+  }
+) {
+  const response = await api.put(`/power-of-attorneys/${id}/movements/${movementId}`, payload);
+  return response.data;
+}
+
+export async function printPoaMovementCardPdf(
+  id: number | string,
+  { locale }: { locale: string }
+) {
+  const response = await api.post(
+    `/power-of-attorneys/${id}/movement-card/pdf`,
+    { locale },
+    { responseType: 'blob' }
+  );
+  return response.data as Blob;
+}
+
