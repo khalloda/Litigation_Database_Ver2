@@ -101,7 +101,7 @@
 <body>
     <div class="container">
         <div class="header-row">
-            <table>
+            <table dir="ltr">
                 <tr>
                     <td class="logo-cell">
                         @if(!empty($firmLogoPath) && file_exists($firmLogoPath))
@@ -132,6 +132,18 @@
                 <td>{{ optional($document->deposit_date)->format('Y-m-d') }}</td>
                 <th>نوع المستند</th>
                 <td>{{ $document->document_type }}</td>
+            </tr>
+            <tr>
+                <th>المحامي</th>
+                <td>{{ $document->lawyer ?? $document->responsible_lawyer }}</td>
+                <th>الموظف الإداري</th>
+                <td>{{ $document->admin_staff }}</td>
+            </tr>
+            <tr>
+                <th>القسم</th>
+                <td>{{ $document->department }}</td>
+                <th>اسم الدعوى (قديم)</th>
+                <td>{{ $document->legacy_matter_name }}</td>
             </tr>
         </table>
 
