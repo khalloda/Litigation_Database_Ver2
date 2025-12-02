@@ -424,11 +424,8 @@ export interface OptionSet {
     description_ar: string;
 }
 
-export type Permission = 
-  | 'case:create' | 'case:view' | 'case:edit' | 'case:delete'
-  | 'client:create' | 'client:view' | 'client:edit' | 'client:delete'
-  | 'document:create' | 'document:view' | 'document:edit' | 'document:delete'
-  | 'user:manage' | 'roles:manage';
+// Permission keys are stored as strings from Spatie permissions (e.g., 'cases.view')
+export type Permission = string;
 
 export interface Role {
   id: number;

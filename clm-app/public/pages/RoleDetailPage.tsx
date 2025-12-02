@@ -27,12 +27,12 @@ const RoleDetailPage: React.FC = () => {
                     const roleData = data.data || data;
                     setRole(roleData);
                     setFormData({
-                        name_en: roleData.name_en,
-                        name_ar: roleData.name_ar,
-                        description_en: roleData.description_en,
-                        description_ar: roleData.description_ar,
+                        name_en: roleData.name_en || roleData.name || '',
+                        name_ar: roleData.name_ar || roleData.name || '',
+                        description_en: roleData.description_en || '',
+                        description_ar: roleData.description_ar || '',
                     });
-                    setPermissions(new Set(roleData.permissions || []));
+                    setPermissions(new Set((roleData.permissions || []) as Permission[]));
                 })
                 .catch((err: any) => setError(err.message || 'Failed to load role'))
                 .finally(() => setLoading(false));
@@ -136,28 +136,45 @@ const RoleDetailPage: React.FC = () => {
 
                 {/* Permissions */}
                 <div className="bg-white p-6 rounded-lg shadow-md border">
-                    <h2 className="text-xl font-bold text-gray-800 mb-4">{t('roles_page.assign_permissions')}</h2>
+                    <h2 className="text-xl font-bold text-gray-800 mb-4">
+                        {t('roles_page.assign_permissions')}
+                    </h2>
                     <div className="space-y-4">
-                        {/* TODO: Load permissions from API */}
-                        {([] as any[]).map((group: any) => (
-                            <div key={group.groupKey}>
-                                <h3 className="text-md font-semibold text-gray-700 border-b pb-2 mb-3">{t(`permissions.${group.groupKey}`)}</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                                    {group.permissions.map(perm => (
-                                        <div key={perm.key} className="flex items-center">
-                                            <input
-                                                type="checkbox"
-                                                id={perm.key}
-                                                checked={permissions.has(perm.key)}
-                                                onChange={(e) => handlePermissionChange(perm.key, e.target.checked)}
-                                                className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                            />
-                                            <label htmlFor={perm.key} className="ms-2 text-sm text-gray-600">{language === 'ar' ? perm.description_ar : perm.description_en}</label>
-                                        </div>
-                                    ))}
+                        {role && Array.isArray((role as any).permissions) && (role as any).permissions.length > 0 ? (
+                            <div>
+                                <h3 className="text-md font-semibold text-gray-700 border-b pb-2 mb-3">
+                                    {t('permissions.system_administration') || 'Permissions'}
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                    {(role as any).permissions.map((perm: any) => {
+                                        const key = perm.name as Permission;
+                                        return (
+                                            <div key={key} className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    id={key}
+                                                    checked={permissions.has(key)}
+                                                    onChange={(e) =>
+                                                        handlePermissionChange(key, e.target.checked)
+                                                    }
+                                                    className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                                                />
+                                                <label
+                                                    htmlFor={key}
+                                                    className="ms-2 text-sm text-gray-600"
+                                                >
+                                                    {key}
+                                                </label>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
-                        ))}
+                        ) : (
+                            <p className="text-sm text-gray-500">
+                                {t('roles_page.no_permissions') || 'No permissions available for this role.'}
+                            </p>
+                        )}
                     </div>
                 </div>
             </div>
