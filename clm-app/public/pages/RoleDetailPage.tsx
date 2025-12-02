@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useI18n } from '../hooks/useI18n';
 import { fetchRole } from '../services/roles';
 import type { Role, Permission } from '../types';
+import { dbPermissions } from '../services/database';
 
 const RoleDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -140,39 +141,44 @@ const RoleDetailPage: React.FC = () => {
                         {t('roles_page.assign_permissions')}
                     </h2>
                     <div className="space-y-4">
-                        {role && Array.isArray((role as any).permissions) && (role as any).permissions.length > 0 ? (
-                            <div>
-                                <h3 className="text-md font-semibold text-gray-700 border-b pb-2 mb-3">
-                                    {t('permissions.system_administration') || 'Permissions'}
-                                </h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                    {(role as any).permissions.map((perm: any) => {
-                                        const key = perm.name as Permission;
-                                        return (
-                                            <div key={key} className="flex items-center">
-                                                <input
-                                                    type="checkbox"
-                                                    id={key}
-                                                    checked={permissions.has(key)}
-                                                    onChange={(e) =>
-                                                        handlePermissionChange(key, e.target.checked)
-                                                    }
-                                                    className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                                />
-                                                <label
-                                                    htmlFor={key}
-                                                    className="ms-2 text-sm text-gray-600"
-                                                >
-                                                    {key}
-                                                </label>
-                                            </div>
-                                        );
-                                    })}
+                        {dbPermissions && dbPermissions.length > 0 ? (
+                            dbPermissions.map((group) => (
+                                <div key={group.groupKey}>
+                                    <h3 className="text-md font-semibold text-gray-700 border-b pb-2 mb-3">
+                                        {t(`permissions.${group.groupKey}`) || group.groupKey}
+                                    </h3>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                        {group.permissions.map((perm) => {
+                                            const key = perm.key as Permission;
+                                            return (
+                                                <div key={key} className="flex items-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        id={key}
+                                                        checked={permissions.has(key)}
+                                                        onChange={(e) =>
+                                                            handlePermissionChange(key, e.target.checked)
+                                                        }
+                                                        className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                                                    />
+                                                    <label
+                                                        htmlFor={key}
+                                                        className="ms-2 text-sm text-gray-600"
+                                                    >
+                                                        {language === 'ar'
+                                                            ? perm.description_ar
+                                                            : perm.description_en}
+                                                    </label>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
+                            ))
                         ) : (
                             <p className="text-sm text-gray-500">
-                                {t('roles_page.no_permissions') || 'No permissions available for this role.'}
+                                {t('roles_page.no_permissions') ||
+                                    'No permissions have been configured yet.'}
                             </p>
                         )}
                     </div>
