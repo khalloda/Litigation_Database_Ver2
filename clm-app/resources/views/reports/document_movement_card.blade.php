@@ -139,6 +139,12 @@
                 <th>اسم الدعوى (قديم)</th>
                 <td>{{ $document->legacy_matter_name }}</td>
             </tr>
+            <tr>
+                <th>وصف المستند</th>
+                <td colspan="3">
+                    {{ $document->document_description ?? $document->description ?? '' }}
+                </td>
+            </tr>
         </table>
 
         <div class="section-title">حركة المستند</div>
