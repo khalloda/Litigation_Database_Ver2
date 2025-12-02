@@ -5,7 +5,7 @@
     <title>بطاقة حركة مستند</title>
     <style>
         @page {
-            margin: 15mm 15mm 20mm 15mm;
+            margin: 15mm 15mm 25mm 15mm;
         }
         body {
             font-family: 'Cairo', 'Noto Kufi Arabic', 'Tahoma', 'Arial', sans-serif;
@@ -13,7 +13,7 @@
             line-height: 1.4;
             color: #000;
             margin: 0;
-            padding: 0;
+            padding: 0 0 35mm 0; /* extra bottom padding so content does not overlap fixed footer */
         }
         .container {
             width: 100%;
