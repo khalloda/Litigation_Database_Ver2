@@ -21,9 +21,13 @@ class AuthController extends Controller
 
         if (Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             $request->session()->regenerate();
-            
+
+            $user = Auth::user()->load('roles');
+            // Ensure permissions include both role and direct permissions
+            $user->setRelation('permissions', $user->getAllPermissions());
+
             return response()->json([
-                'user' => Auth::user()->load('roles'),
+                'user' => $user,
                 'message' => 'Login successful',
             ]);
         }
@@ -52,8 +56,12 @@ class AuthController extends Controller
      */
     public function user(Request $request)
     {
+        $user = $request->user()->load('roles');
+        // Merge role-based and direct permissions
+        $user->setRelation('permissions', $user->getAllPermissions());
+
         return response()->json([
-            'user' => $request->user()->load('roles', 'permissions'),
+            'user' => $user,
         ]);
     }
 }
