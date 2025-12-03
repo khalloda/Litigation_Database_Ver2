@@ -12,7 +12,7 @@ class ImportSessionPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin']);
+        return $user->can('import.view');
     }
 
     /**
@@ -20,7 +20,7 @@ class ImportSessionPolicy
      */
     public function view(User $user, ImportSession $importSession): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin']) || $importSession->user_id === $user->id;
+        return $user->can('import.view') || $importSession->user_id === $user->id;
     }
 
     /**
@@ -28,7 +28,7 @@ class ImportSessionPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin']);
+        return $user->can('import.create');
     }
 
     /**
@@ -36,7 +36,7 @@ class ImportSessionPolicy
      */
     public function update(User $user, ImportSession $importSession): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin']) && $importSession->isInProgress();
+        return $user->can('import.execute') && $importSession->isInProgress();
     }
 
     /**
@@ -44,7 +44,7 @@ class ImportSessionPolicy
      */
     public function delete(User $user, ImportSession $importSession): bool
     {
-        return $user->hasRole('super_admin');
+        return $user->can('import.delete');
     }
 
     /**
@@ -52,7 +52,7 @@ class ImportSessionPolicy
      */
     public function restore(User $user, ImportSession $importSession): bool
     {
-        return $user->hasRole('super_admin');
+        return $user->can('import.delete');
     }
 
     /**
@@ -60,7 +60,7 @@ class ImportSessionPolicy
      */
     public function forceDelete(User $user, ImportSession $importSession): bool
     {
-        return $user->hasRole('super_admin');
+        return $user->can('import.delete');
     }
 
     /**
@@ -68,7 +68,7 @@ class ImportSessionPolicy
      */
     public function cancel(User $user, ImportSession $importSession): bool
     {
-        return ($user->hasAnyRole(['super_admin', 'admin']) || $importSession->user_id === $user->id)
+        return ($user->can('import.execute') || $importSession->user_id === $user->id)
             && $importSession->isInProgress();
     }
 }
