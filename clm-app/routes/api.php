@@ -81,6 +81,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Roles
     Route::apiResource('roles', App\Http\Controllers\Api\RoleController::class);
 
+    // Permissions (read-only listing for role management)
+    Route::get('permissions', [App\Http\Controllers\Api\PermissionController::class, 'index'])
+        ->name('permissions.index');
+
     // Options (management routes - require auth)
     Route::apiResource('options', App\Http\Controllers\Api\OptionController::class);
     Route::post('/options/{optionSet}/values', [App\Http\Controllers\Api\OptionController::class, 'storeValue']);

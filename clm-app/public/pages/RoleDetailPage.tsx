@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useI18n } from '../hooks/useI18n';
 import { fetchRole, createRole, updateRole } from '../services/roles';
 import type { Role, Permission } from '../types';
-import { dbPermissions } from '../services/database';
+import { fetchPermissions, PermissionRecord } from '../services/permissions';
 
 const RoleDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -20,7 +20,9 @@ const RoleDetailPage: React.FC = () => {
     });
     
     const [permissions, setPermissions] = useState<Set<Permission>>(new Set());
+    const [availablePermissions, setAvailablePermissions] = useState<PermissionRecord[]>([]);
 
+    // Load role details (when editing)
     useEffect(() => {
         if (id && id !== 'new') {
             fetchRole(id)
@@ -41,6 +43,39 @@ const RoleDetailPage: React.FC = () => {
             setLoading(false);
         }
     }, [id]);
+
+    // Load all available permissions for the current guard
+    useEffect(() => {
+        fetchPermissions()
+            .then((perms) => {
+                // Only use permissions for the web guard, since roles are created under web
+                setAvailablePermissions(perms.filter((p) => p.guard_name === 'web'));
+            })
+            .catch((err: any) => {
+                console.error('Failed to load permissions', err);
+            });
+    }, []);
+
+    // Group permissions by their prefix before the dot (e.g. 'cases', 'clients', 'documents', 'admin', 'reports', etc.)
+    const groupedPermissions = useMemo(() => {
+        const groups: Record<string, PermissionRecord[]> = {};
+
+        availablePermissions.forEach((perm) => {
+            const [prefix] = perm.name.split('.');
+            const groupKey = prefix || 'other';
+            if (!groups[groupKey]) {
+                groups[groupKey] = [];
+            }
+            groups[groupKey].push(perm);
+        });
+
+        // Sort permissions within each group for stable display
+        Object.values(groups).forEach((perms) =>
+            perms.sort((a, b) => a.name.localeCompare(b.name)),
+        );
+
+        return groups;
+    }, [availablePermissions]);
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -158,15 +193,15 @@ const RoleDetailPage: React.FC = () => {
                         {t('roles_page.assign_permissions')}
                     </h2>
                     <div className="space-y-4">
-                        {dbPermissions && dbPermissions.length > 0 ? (
-                            dbPermissions.map((group) => (
-                                <div key={group.groupKey}>
+                        {Object.keys(groupedPermissions).length > 0 ? (
+                            Object.entries(groupedPermissions).map(([groupKey, perms]) => (
+                                <div key={groupKey}>
                                     <h3 className="text-md font-semibold text-gray-700 border-b pb-2 mb-3">
-                                        {t(`permissions.${group.groupKey}`) || group.groupKey}
+                                        {t(`permissions.${groupKey}`) || groupKey}
                                     </h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                        {group.permissions.map((perm) => {
-                                            const key = perm.key as Permission;
+                                        {perms.map((perm) => {
+                                            const key = perm.name as Permission;
                                             return (
                                                 <div key={key} className="flex items-center">
                                                     <input
@@ -182,9 +217,7 @@ const RoleDetailPage: React.FC = () => {
                                                         htmlFor={key}
                                                         className="ms-2 text-sm text-gray-600"
                                                     >
-                                                        {language === 'ar'
-                                                            ? perm.description_ar
-                                                            : perm.description_en}
+                                                        {key}
                                                     </label>
                                                 </div>
                                             );
