@@ -37,6 +37,10 @@ api.interceptors.response.use(
       // Handle unauthorized - redirect to login
       localStorage.removeItem('auth_token');
       window.location.href = '/login';
+    } else if (error.response?.status === 403) {
+      // Show a clear message for forbidden actions
+      // eslint-disable-next-line no-alert
+      window.alert('This action is not authorized.');
     }
     
     // Return error with more details

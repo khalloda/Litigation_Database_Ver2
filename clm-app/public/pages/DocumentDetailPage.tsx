@@ -6,6 +6,7 @@ import { fetchDocument, fetchDocumentSchema, printMovementCardPdf, createDocumen
 import MovementForm from '../components/MovementForm';
 import { DocumentIcon } from '../components/icons';
 import AllFieldsTable from '../components/AllFieldsTable';
+import { usePermissions } from '../hooks/usePermissions';
 
 const DetailItem: React.FC<{ label: string; value?: React.ReactNode; fullWidth?: boolean }> = ({ label, value, fullWidth }) => {
     if (!value && value !== 0 && value !== false) {
@@ -38,6 +39,7 @@ const DocumentDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { t, language } = useI18n();
+    const { can } = usePermissions();
     const [activeTab, setActiveTab] = useState<'details' | 'all-fields'>('details');
     const [document, setDocument] = useState<ClientDocument | null>(null);
     const [rawDocument, setRawDocument] = useState<Record<string, any> | null>(null);
@@ -179,12 +181,14 @@ const DocumentDetailPage: React.FC = () => {
                         <h1 className="text-3xl font-bold text-gray-800">{document.document_name}</h1>
                         <p className="text-gray-500 mt-1">{t('document_page.title')}</p>
                     </div>
-                    <button 
-                        onClick={() => navigate(`/documents/${document.id}/edit`)}
-                        className="px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors flex-shrink-0"
-                    >
-                        {t('document_page.edit_document')}
-                    </button>
+                    {can('documents.edit') && (
+                      <button 
+                          onClick={() => navigate(`/documents/${document.id}/edit`)}
+                          className="px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors flex-shrink-0"
+                      >
+                          {t('document_page.edit_document')}
+                      </button>
+                    )}
                  </div>
                 
                 <div className="border-b border-gray-200 mt-6 mb-6">
@@ -274,31 +278,35 @@ const DocumentDetailPage: React.FC = () => {
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-xl font-bold text-gray-800">{t('document_page.movement_card_history')}</h2>
                             <div className="flex gap-2">
-                                <button
-                                    onClick={async () => {
-                                        try {
-                                            if (!document) return;
-                                            const blob = await printMovementCardPdf(document.id, {
-                                                locale: language,
-                                                movements: document.movements || [],
-                                            });
-                                            const url = window.URL.createObjectURL(blob);
-                                            window.open(url, '_blank');
-                                        } catch (err: any) {
-                                            console.error('Error printing movement card:', err);
-                                            alert(err?.response?.data?.message || err.message || 'Failed to generate movement card PDF');
-                                        }
-                                    }}
-                                    className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-800 font-semibold hover:bg-gray-200 transition-colors text-sm"
-                                >
-                                    {t('document_page.print_movement_card')}
-                                </button>
-                                <button
-                                    onClick={() => setMovementFormState({ isOpen: true, movement: null })}
-                                    className="px-4 py-2 bg-green-600 border border-transparent rounded-lg text-white font-semibold hover:bg-green-700 transition-colors text-sm"
-                                >
-                                    {t('document_page.new_move')}
-                                </button>
+                                {can('documents.view') && (
+                                  <button
+                                      onClick={async () => {
+                                          try {
+                                              if (!document) return;
+                                              const blob = await printMovementCardPdf(document.id, {
+                                                  locale: language,
+                                                  movements: document.movements || [],
+                                              });
+                                              const url = window.URL.createObjectURL(blob);
+                                              window.open(url, '_blank');
+                                          } catch (err: any) {
+                                              console.error('Error printing movement card:', err);
+                                              alert(err?.response?.data?.message || err.message || 'Failed to generate movement card PDF');
+                                          }
+                                      }}
+                                      className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-800 font-semibold hover:bg-gray-200 transition-colors text-sm"
+                                  >
+                                      {t('document_page.print_movement_card')}
+                                  </button>
+                                )}
+                                {can('documents.edit') && (
+                                  <button
+                                      onClick={() => setMovementFormState({ isOpen: true, movement: null })}
+                                      className="px-4 py-2 bg-green-600 border border-transparent rounded-lg text-white font-semibold hover:bg-green-700 transition-colors text-sm"
+                                  >
+                                      {t('document_page.new_move')}
+                                  </button>
+                                )}
                             </div>
                         </div>
                         {document.movements && document.movements.length > 0 ? (
@@ -333,12 +341,14 @@ const DocumentDetailPage: React.FC = () => {
                                                     </td>
                                                     <td className="p-3 text-sm text-gray-500">{movement.notes}</td>
                                                     <td className="p-3 text-sm text-center">
-                                                        <button 
-                                                            onClick={() => setMovementFormState({ isOpen: true, movement })}
-                                                            className="text-blue-600 hover:underline font-medium"
-                                                        >
-                                                            {t('document_page.movement.edit_move')}
-                                                        </button>
+                                                        {can('documents.edit') && (
+                                                          <button 
+                                                              onClick={() => setMovementFormState({ isOpen: true, movement })}
+                                                              className="text-blue-600 hover:underline font-medium"
+                                                          >
+                                                              {t('document_page.movement.edit_move')}
+                                                          </button>
+                                                        )}
                                                     </td>
                                                 </tr>
                                             );

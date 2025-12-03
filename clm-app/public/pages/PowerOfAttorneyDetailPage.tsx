@@ -6,6 +6,7 @@ import { fetchPowerOfAttorney, fetchPowerOfAttorneySchema, createPoaMovement, up
 import AllFieldsTable from '../components/AllFieldsTable';
 import MovementForm from '../components/MovementForm';
 import EditPowerOfAttorneyForm from '../components/EditPowerOfAttorneyForm';
+import { usePermissions } from '../hooks/usePermissions';
 
 const DetailRow: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => {
   const renderValue = () => {
@@ -53,6 +54,7 @@ const PowerOfAttorneyDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t, language } = useI18n();
+  const { can } = usePermissions();
 
   const [powerOfAttorney, setPowerOfAttorney] = useState<PowerOfAttorney | null>(null);
   const [rawRecord, setRawRecord] = useState<Record<string, any> | null>(null);
@@ -209,12 +211,14 @@ const PowerOfAttorneyDetailPage: React.FC = () => {
                 {t('poa_page.poa_number')} #{powerOfAttorney.poa_number}
               </span>
             )}
-            <button
-              onClick={() => setIsEditModalOpen(true)}
-              className="px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white text-sm font-semibold hover:bg-primary-700 transition-colors"
-            >
-              {t('poa_page.edit_button') || 'Edit POA'}
-            </button>
+            {can('power_of_attorneys.edit') && (
+              <button
+                onClick={() => setIsEditModalOpen(true)}
+                className="px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white text-sm font-semibold hover:bg-primary-700 transition-colors"
+              >
+                {t('poa_page.edit_button') || 'Edit POA'}
+              </button>
+            )}
           </div>
         </div>
       </div>

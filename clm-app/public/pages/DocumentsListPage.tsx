@@ -5,6 +5,7 @@ import { fetchCases } from '../services/cases';
 import { fetchClients } from '../services/clients';
 import { fetchLawyers } from '../services/lawyers';
 import { useI18n } from '../hooks/useI18n';
+import { usePermissions } from '../hooks/usePermissions';
 import type { ClientDocument } from '../types';
 import { FilterIcon, XIcon, PlusIcon } from '../components/icons';
 import NewDocumentForm from '../components/NewDocumentForm';
@@ -12,6 +13,7 @@ import NewDocumentForm from '../components/NewDocumentForm';
 const DocumentsListPage: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useI18n();
+  const { can } = usePermissions();
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -45,7 +47,7 @@ const DocumentsListPage: React.FC = () => {
           fetchDocuments(),
           fetchCases(),
           fetchClients(),
-          fetchLawyers(),
+          can('lawyers.view') ? fetchLawyers() : Promise.resolve({ data: [] }),
         ]);
         setDocuments(documentsData.data || documentsData);
         setCases(casesData.data || casesData);
@@ -160,13 +162,15 @@ const DocumentsListPage: React.FC = () => {
                 <FilterIcon className="w-5 h-5" />
                 {t('dashboard.filter_cases')}
             </button>
-            <button
-                onClick={() => setIsNewDocumentModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors"
-            >
-                <PlusIcon className="w-5 h-5" />
-                {t('documents_page.new_document')}
-            </button>
+            {can('documents.create') && (
+              <button
+                  onClick={() => setIsNewDocumentModalOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors"
+              >
+                  <PlusIcon className="w-5 h-5" />
+                  {t('documents_page.new_document')}
+              </button>
+            )}
         </div>
       </div>
 

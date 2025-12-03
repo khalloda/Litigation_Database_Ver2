@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useI18n } from '../hooks/useI18n';
+import { usePermissions } from '../hooks/usePermissions';
 import { fetchCurrentUser, logout as apiLogout } from '../services/auth';
 import { CaseIcon, ReportIcon, SettingsIcon, TaskIcon, LanguageIcon, ClientIcon, OpponentIcon, UserIcon, CourtIcon, CalendarIcon, DocumentIcon, SparklesIcon } from './icons';
 import type { Language } from '../types';
@@ -33,6 +34,7 @@ const sidebarLogo = '/assets/logo-BU5yR0AT.png';
 
 const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => {
     const { t } = useI18n();
+    const { can } = usePermissions();
     return (
         <aside className="w-64 bg-white border-e shadow-sm flex-shrink-0 flex flex-col p-4">
             <div className="px-3 py-4 flex flex-col items-center">
@@ -47,16 +49,36 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => {
             </div>
             <nav className="mt-8 flex flex-col gap-2">
                 <NavItem icon={<SparklesIcon />} label={t('app.dashboard')} active={currentView === ''} onClick={() => onNavigate('/')} />
-                <NavItem icon={<CaseIcon />} label={t('app.cases')} active={currentView === 'cases'} onClick={() => onNavigate('/cases')} />
-                <NavItem icon={<ClientIcon />} label={t('app.clients')} active={currentView === 'clients'} onClick={() => onNavigate('/clients')} />
-                <NavItem icon={<OpponentIcon />} label={t('app.opponents')} active={currentView === 'opponents'} onClick={() => onNavigate('/opponents')} />
-                <NavItem icon={<UserIcon />} label={t('app.lawyers')} active={currentView === 'lawyers'} onClick={() => onNavigate('/lawyers')} />
-                <NavItem icon={<CourtIcon />} label={t('app.courts')} active={currentView === 'courts'} onClick={() => onNavigate('/courts')} />
-                <NavItem icon={<CalendarIcon />} label={t('app.hearings')} active={currentView === 'hearings'} onClick={() => onNavigate('/hearings')} />
-                <NavItem icon={<DocumentIcon />} label={t('app.documents')} active={currentView === 'documents'} onClick={() => onNavigate('/documents')} />
-                <NavItem icon={<DocumentIcon />} label={t('app.power_of_attorneys')} active={currentView === 'power-of-attorneys'} onClick={() => onNavigate('/power-of-attorneys')} />
-                <NavItem icon={<TaskIcon />} label={t('app.tasks')} active={currentView === 'tasks'} onClick={() => onNavigate('/tasks')} />
-                <NavItem icon={<ReportIcon />} label={t('app.reports')} active={currentView === 'reports'} onClick={() => onNavigate('/reports')} />
+                {can('cases.view') && (
+                    <NavItem icon={<CaseIcon />} label={t('app.cases')} active={currentView === 'cases'} onClick={() => onNavigate('/cases')} />
+                )}
+                {can('clients.view') && (
+                    <NavItem icon={<ClientIcon />} label={t('app.clients')} active={currentView === 'clients'} onClick={() => onNavigate('/clients')} />
+                )}
+                {can('opponents.view') && (
+                    <NavItem icon={<OpponentIcon />} label={t('app.opponents')} active={currentView === 'opponents'} onClick={() => onNavigate('/opponents')} />
+                )}
+                {can('lawyers.view') && (
+                    <NavItem icon={<UserIcon />} label={t('app.lawyers')} active={currentView === 'lawyers'} onClick={() => onNavigate('/lawyers')} />
+                )}
+                {can('courts.view') && (
+                    <NavItem icon={<CourtIcon />} label={t('app.courts')} active={currentView === 'courts'} onClick={() => onNavigate('/courts')} />
+                )}
+                {can('hearings.view') && (
+                    <NavItem icon={<CalendarIcon />} label={t('app.hearings')} active={currentView === 'hearings'} onClick={() => onNavigate('/hearings')} />
+                )}
+                {can('documents.view') && (
+                    <NavItem icon={<DocumentIcon />} label={t('app.documents')} active={currentView === 'documents'} onClick={() => onNavigate('/documents')} />
+                )}
+                {can('power_of_attorneys.view') && (
+                    <NavItem icon={<DocumentIcon />} label={t('app.power_of_attorneys')} active={currentView === 'power-of-attorneys'} onClick={() => onNavigate('/power-of-attorneys')} />
+                )}
+                {can('tasks.view') && (
+                    <NavItem icon={<TaskIcon />} label={t('app.tasks')} active={currentView === 'tasks'} onClick={() => onNavigate('/tasks')} />
+                )}
+                {can('reports.view') && (
+                    <NavItem icon={<ReportIcon />} label={t('app.reports')} active={currentView === 'reports'} onClick={() => onNavigate('/reports')} />
+                )}
             </nav>
             <div className="mt-auto">
                 <NavItem icon={<SettingsIcon />} label={t('app.settings')} active={['settings', 'roles', 'teams', 'users'].includes(currentView)} onClick={() => onNavigate('/settings')} />
