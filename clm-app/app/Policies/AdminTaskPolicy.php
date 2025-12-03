@@ -9,37 +9,37 @@ class AdminTaskPolicy
 {
     public function viewAny(User $user): bool
     {
-        return auth()->check();
+        return $user->can('tasks.view');
     }
 
     public function view(User $user, AdminTask $adminTask): bool
     {
-        return auth()->check();
+        return $user->can('tasks.view');
     }
 
     public function create(User $user): bool
     {
-        return auth()->check();
+        return $user->can('tasks.create');
     }
 
     public function update(User $user, AdminTask $adminTask): bool
     {
-        return auth()->check();
+        return $user->can('tasks.edit');
     }
 
     public function delete(User $user, AdminTask $adminTask): bool
     {
-        return auth()->check();
+        return $user->can('tasks.delete');
     }
 
     public function restore(User $user, AdminTask $adminTask): bool
     {
-        return auth()->check();
+        return $user->can('tasks.delete');
     }
 
     public function forceDelete(User $user, AdminTask $adminTask): bool
     {
-        return $user->can('admin.users.manage');
+        return $user->can('tasks.delete');
     }
 }
 

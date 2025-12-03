@@ -13,7 +13,7 @@ class CourtPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true; // All authenticated users can view courts list
+        return $user->can('courts.view');
     }
 
     /**
@@ -21,7 +21,7 @@ class CourtPolicy
      */
     public function view(User $user, Court $court): bool
     {
-        return true; // All authenticated users can view a court
+        return $user->can('courts.view');
     }
 
     /**
@@ -29,7 +29,7 @@ class CourtPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('admin.users.manage');
+        return $user->can('courts.create');
     }
 
     /**
@@ -37,7 +37,7 @@ class CourtPolicy
      */
     public function update(User $user, Court $court): bool
     {
-        return $user->hasPermissionTo('admin.users.manage');
+        return $user->can('courts.edit');
     }
 
     /**
@@ -45,7 +45,7 @@ class CourtPolicy
      */
     public function delete(User $user, Court $court): bool
     {
-        return $user->hasPermissionTo('admin.users.manage');
+        return $user->can('courts.delete');
     }
 
     /**
@@ -53,7 +53,7 @@ class CourtPolicy
      */
     public function restore(User $user, Court $court): bool
     {
-        return $user->hasPermissionTo('admin.users.manage');
+        return $user->can('courts.delete');
     }
 
     /**
@@ -61,6 +61,6 @@ class CourtPolicy
      */
     public function forceDelete(User $user, Court $court): bool
     {
-        return $user->hasPermissionTo('admin.users.manage');
+        return $user->can('courts.delete');
     }
 }
