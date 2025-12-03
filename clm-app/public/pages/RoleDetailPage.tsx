@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useI18n } from '../hooks/useI18n';
-import { fetchRole } from '../services/roles';
+import { fetchRole, createRole, updateRole } from '../services/roles';
 import type { Role, Permission } from '../types';
 import { dbPermissions } from '../services/database';
 
@@ -61,15 +61,32 @@ const RoleDetailPage: React.FC = () => {
     
     const handleSave = async () => {
         try {
-            const updatedRole = {
-                ...formData,
+            const payload: Partial<Role> = {
+                name_en: formData.name_en,
+                name_ar: formData.name_ar,
+                description_en: formData.description_en,
+                description_ar: formData.description_ar,
                 permissions: Array.from(permissions),
             };
-            // TODO: Call updateRole or createRole API when implemented
-            console.log("Saving Role:", updatedRole);
+
+            // Backend RoleController expects a single `name` plus optional descriptions and permission names.
+            const apiPayload: any = {
+                name: payload.name_en || payload.name_ar,
+                description_en: payload.description_en,
+                description_ar: payload.description_ar,
+                permissions: payload.permissions,
+            };
+
+            if (id && id !== 'new') {
+                await updateRole(id, apiPayload);
+            } else {
+                await createRole(apiPayload);
+            }
+
             navigate('/settings/roles');
         } catch (err: any) {
-            alert('Failed to save role');
+            console.error('Failed to save role', err);
+            alert(err.message || 'Failed to save role');
         }
     };
 

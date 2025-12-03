@@ -30,11 +30,18 @@ class RoleController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:roles,name',
+            'description_en' => 'nullable|string|max:1000',
+            'description_ar' => 'nullable|string|max:1000',
             'permissions' => 'nullable|array',
-            'permissions.*' => 'exists:permissions,id',
+            // We receive permission NAMES from the SPA, not IDs
+            'permissions.*' => 'string|exists:permissions,name',
         ]);
 
-        $role = Role::create(['name' => $validated['name']]);
+        $role = Role::create([
+            'name' => $validated['name'],
+            'description_en' => $validated['description_en'] ?? null,
+            'description_ar' => $validated['description_ar'] ?? null,
+        ]);
 
         if (isset($validated['permissions'])) {
             $role->syncPermissions($validated['permissions']);
@@ -63,11 +70,18 @@ class RoleController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255|unique:roles,name,' . $role->id,
+            'description_en' => 'nullable|string|max:1000',
+            'description_ar' => 'nullable|string|max:1000',
             'permissions' => 'nullable|array',
-            'permissions.*' => 'exists:permissions,id',
+            // We receive permission NAMES from the SPA, not IDs
+            'permissions.*' => 'string|exists:permissions,name',
         ]);
 
-        $role->update($validated);
+        $role->update([
+            'name' => $validated['name'] ?? $role->name,
+            'description_en' => $validated['description_en'] ?? $role->description_en,
+            'description_ar' => $validated['description_ar'] ?? $role->description_ar,
+        ]);
 
         if (isset($validated['permissions'])) {
             $role->syncPermissions($validated['permissions']);

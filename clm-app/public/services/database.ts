@@ -242,35 +242,35 @@ export const dbPermissions: PermissionGroup[] = [
     {
         groupKey: 'case_management',
         permissions: [
-            { key: 'case:create', description_en: 'Create new cases', description_ar: 'إنشاء قضايا جديدة' },
-            { key: 'case:view', description_en: 'View case details', description_ar: 'عرض تفاصيل القضايا' },
-            { key: 'case:edit', description_en: 'Edit case information', description_ar: 'تعديل معلومات القضية' },
-            { key: 'case:delete', description_en: 'Delete cases', description_ar: 'حذف القضايا' },
+            { key: 'cases.create', description_en: 'Create new cases', description_ar: 'إنشاء قضايا جديدة' },
+            { key: 'cases.view', description_en: 'View case details', description_ar: 'عرض تفاصيل القضايا' },
+            { key: 'cases.edit', description_en: 'Edit case information', description_ar: 'تعديل معلومات القضية' },
+            { key: 'cases.delete', description_en: 'Delete cases', description_ar: 'حذف القضايا' },
         ]
     },
     {
         groupKey: 'client_management',
         permissions: [
-            { key: 'client:create', description_en: 'Create new clients', description_ar: 'إنشاء عملاء جدد' },
-            { key: 'client:view', description_en: 'View client details', description_ar: 'عرض تفاصيل العملاء' },
-            { key: 'client:edit', description_en: 'Edit client information', description_ar: 'تعديل معلومات العميل' },
-            { key: 'client:delete', description_en: 'Delete clients', description_ar: 'حذف العملاء' },
+            { key: 'clients.create', description_en: 'Create new clients', description_ar: 'إنشاء عملاء جدد' },
+            { key: 'clients.view', description_en: 'View client details', description_ar: 'عرض تفاصيل العملاء' },
+            { key: 'clients.edit', description_en: 'Edit client information', description_ar: 'تعديل معلومات العميل' },
+            { key: 'clients.delete', description_en: 'Delete clients', description_ar: 'حذف العملاء' },
         ]
     },
     {
         groupKey: 'document_management',
         permissions: [
-            { key: 'document:create', description_en: 'Create/Upload documents', description_ar: 'إنشاء/تحميل المستندات' },
-            { key: 'document:view', description_en: 'View documents', description_ar: 'عرض المستندات' },
-            { key: 'document:edit', description_en: 'Edit document details', description_ar: 'تعديل تفاصيل المستند' },
-            { key: 'document:delete', description_en: 'Delete documents', description_ar: 'حذف المستندات' },
+            { key: 'documents.create', description_en: 'Create/Upload documents', description_ar: 'إنشاء/تحميل المستندات' },
+            { key: 'documents.view', description_en: 'View documents', description_ar: 'عرض المستندات' },
+            { key: 'documents.edit', description_en: 'Edit document details', description_ar: 'تعديل تفاصيل المستند' },
+            { key: 'documents.delete', description_en: 'Delete documents', description_ar: 'حذف المستندات' },
         ]
     },
     {
         groupKey: 'system_administration',
         permissions: [
-            { key: 'user:manage', description_en: 'Manage users and their assignments', description_ar: 'إدارة المستخدمين وتعييناتهم' },
-            { key: 'roles:manage', description_en: 'Manage roles and permissions', description_ar: 'إدارة الأدوار والصلاحيات' },
+            { key: 'admin.users.manage', description_en: 'Manage users and their assignments', description_ar: 'إدارة المستخدمين وتعييناتهم' },
+            { key: 'admin.roles.manage', description_en: 'Manage roles and permissions', description_ar: 'إدارة الأدوار والصلاحيات' },
         ]
     }
 ];
