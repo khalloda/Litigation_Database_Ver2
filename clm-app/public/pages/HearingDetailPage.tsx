@@ -122,6 +122,7 @@ const HearingDetailPage: React.FC = () => {
     
     const caseName = hearing.case ? (language === 'ar' ? hearing.case.case_name_ar : hearing.case.case_name_en) : 'N/A';
     const lawyerName = hearing.lawyer ? (language === 'ar' ? hearing.lawyer.lawyer_name_ar : hearing.lawyer.lawyer_name_en) : 'N/A';
+    const status = hearing.status || 'pending';
     const recordForAllFields = rawHearing || hearing;
     
     return (
@@ -131,12 +132,33 @@ const HearingDetailPage: React.FC = () => {
                 <div className="flex justify-between items-center mb-4">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-800">{t('hearing_page.title')}</h1>
-                        <p className="text-gray-500 mt-1">{t('hearing_page.hearing_date')}: {hearing.date ? new Date(hearing.date).toLocaleDateString() : 'N/A'}</p>
+                        <p className="text-gray-500 mt-1">
+                          {t('hearing_page.hearing_date')}: {hearing.date ? new Date(hearing.date).toLocaleDateString() : 'N/A'}
+                        </p>
+                        <p className="mt-1">
+                          <span
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${
+                              status === 'complete'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}
+                          >
+                            {status === 'complete'
+                              ? (t('status.completed') || 'Completed')
+                              : (t('status.pending') || 'Pending')}
+                          </span>
+                        </p>
                     </div>
                     <button onClick={() => setIsEditModalOpen(true)} className="px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors">
                         {t('edit_hearing_form.title') || 'Edit Hearing'}
                     </button>
                 </div>
+
+                {status !== 'complete' && (
+                  <div className="mb-4 p-3 rounded-md bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm">
+                    {t('hearing_page.pending_banner') || 'Hearing is pending until a decision or next hearing date is added.'}
+                  </div>
+                )}
 
                 <div className="border-b border-gray-200 mt-6 mb-6">
                     <div className="flex items-center gap-4">
@@ -169,6 +191,7 @@ const HearingDetailPage: React.FC = () => {
                             />
                             <DetailItem label={t('hearing_page.hearing_date')} value={hearing.date ? new Date(hearing.date).toLocaleDateString() : undefined} />
                             <DetailItem label={t('hearing_page.next_hearing_date')} value={hearing.next_hearing_date ? new Date(hearing.next_hearing_date).toLocaleDateString() : undefined} />
+                            <DetailItem label={t('hearing_page.completed_at') || 'Completed At'} value={hearing.completed_at ? new Date(hearing.completed_at).toLocaleString() : undefined} />
                             <DetailItem label={t('hearing_page.court')} value={hearing.court} />
                             <DetailItem label={t('hearing_page.circuit')} value={hearing.circuit} />
                             <DetailItem label={t('hearing_page.procedure')} value={hearing.procedure} />
@@ -177,6 +200,7 @@ const HearingDetailPage: React.FC = () => {
                                 value={hearing.lawyer ? <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/lawyers/${hearing.lawyer!.id}`); }} className="text-blue-600 hover:underline">{lawyerName}</a> : lawyerName}
                             />
                             <DetailItem label={t('hearing_page.decision')} value={<p className="whitespace-pre-wrap">{hearing.decision}</p>} />
+                            <DetailItem label={t('hearing_page.last_decision') || 'Last decision'} value={<p className="whitespace-pre-wrap">{hearing.last_decision}</p>} />
                             <DetailItem label={t('hearing_page.notes')} value={<p className="whitespace-pre-wrap">{hearing.notes}</p>} />
                         </dl>
                     </div>

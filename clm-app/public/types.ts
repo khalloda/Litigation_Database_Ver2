@@ -311,6 +311,9 @@ export interface Case {
   matter_status?: string | null;
   case_importance: string;
   case_category: string;
+  next_hearing_date?: string | null;
+  last_hearing_date?: string | null;
+  latest_decision?: string | null;
   current_status?: string | null;
   matter_evaluation?: string | null;
 
@@ -367,6 +370,8 @@ export interface Hearing {
   short_decision?: string | null;
   last_decision?: string | null;
   next_hearing_date?: string | null; // Renamed from next_hearing for clarity
+  status?: string | null;
+  completed_at?: string | null;
   report: boolean;
   notify_client: boolean;
   attendee?: string | null;

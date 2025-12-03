@@ -25,6 +25,7 @@ class Hearing extends Model
         'short_decision',
         'last_decision',
         'next_hearing',
+        'status',
         'report',
         'notify_client',
         'attendee',
@@ -44,6 +45,7 @@ class Hearing extends Model
         'next_hearing' => 'date',
         'report' => 'boolean',
         'notify_client' => 'boolean',
+        'completed_at' => 'datetime',
     ];
 
     // Relationships

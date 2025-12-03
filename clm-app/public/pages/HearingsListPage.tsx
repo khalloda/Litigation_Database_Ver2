@@ -7,10 +7,12 @@ import { fetchLawyers } from '../services/lawyers';
 import { useI18n } from '../hooks/useI18n';
 import { FilterIcon, XIcon, PlusIcon } from '../components/icons';
 import NewHearingForm from '../components/NewHearingForm';
+import { usePermissions } from '../hooks/usePermissions';
 
 const HearingsListPage: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useI18n();
+  const { can } = usePermissions();
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [isNewHearingModalOpen, setIsNewHearingModalOpen] = useState(false);
@@ -34,7 +36,7 @@ const HearingsListPage: React.FC = () => {
           fetchHearings(),
           fetchCases(),
           fetchClients(),
-          fetchLawyers(),
+          can('lawyers.view') ? fetchLawyers() : Promise.resolve([]),
         ]);
         setHearings(hearingsData.data || hearingsData);
         setCases(casesData.data || casesData);
@@ -129,13 +131,15 @@ const HearingsListPage: React.FC = () => {
                 <FilterIcon className="w-5 h-5" />
                 {t('dashboard.filter_cases')}
             </button>
-            <button
-                onClick={() => setIsNewHearingModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors"
-            >
-                <PlusIcon className="w-5 h-5" />
-                {t('hearings_page.new_hearing')}
-            </button>
+            {can('hearings.create') && (
+              <button
+                  onClick={() => setIsNewHearingModalOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-white font-semibold hover:bg-primary-700 transition-colors"
+              >
+                  <PlusIcon className="w-5 h-5" />
+                  {t('hearings_page.new_hearing')}
+              </button>
+            )}
         </div>
       </div>
       
@@ -197,6 +201,7 @@ const HearingsListPage: React.FC = () => {
                   <th className="text-start p-4 font-semibold text-gray-600 text-sm">{t('hearings_page.attending_lawyer')}</th>
                   <th className="text-start p-4 font-semibold text-gray-600 text-sm">{t('hearings_page.notes')}</th>
                   <th className="text-start p-4 font-semibold text-gray-600 text-sm">{t('hearings_page.next_hearing')}</th>
+                  <th className="text-start p-4 font-semibold text-gray-600 text-sm">{t('status.label') || 'Status'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -208,6 +213,7 @@ const HearingsListPage: React.FC = () => {
                   const lawyer = hearing.lawyer_id ? lawyers.find(l => l.id === hearing.lawyer_id) : null;
                   const lawyerName = lawyer ? (language === 'ar' ? lawyer.lawyer_name_ar : lawyer.lawyer_name_en) : '-';
                   const truncatedNotes = hearing.notes ? (hearing.notes.length > 40 ? hearing.notes.substring(0, 40) + '...' : hearing.notes) : '-';
+                  const status = hearing.status || 'pending';
 
                   return (
                     <tr key={hearing.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => navigate(`/hearings/${hearing.id}`)}>
@@ -228,6 +234,19 @@ const HearingsListPage: React.FC = () => {
                       <td className="p-4 text-sm text-gray-500 max-w-xs truncate">{truncatedNotes}</td>
                       <td className="p-4 whitespace-nowrap text-sm text-blue-600 font-semibold">
                         {hearing.next_hearing_date ? new Date(hearing.next_hearing_date).toLocaleDateString() : '-'}
+                      </td>
+                      <td className="p-4 whitespace-nowrap text-sm">
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${
+                            status === 'complete'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}
+                        >
+                          {status === 'complete'
+                            ? t('status.completed') || 'Completed'
+                            : t('status.pending') || 'Pending'}
+                        </span>
                       </td>
                     </tr>
                   );

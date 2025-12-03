@@ -122,7 +122,11 @@ const EditHearingForm: React.FC<EditHearingFormProps> = ({ hearingId, onClose, o
             onSave?.(result?.data ?? result);
             onClose();
         } catch (err: any) {
-            setError(err.message || 'Failed to update hearing');
+            if (err?.response?.data?.error === 'next_hearing_conflict') {
+                setError(err.response.data.message || 'Next hearing already has user input and was not auto-rescheduled. Please reschedule it manually.');
+            } else {
+                setError(err.message || 'Failed to update hearing');
+            }
         } finally {
             setSubmitting(false);
         }

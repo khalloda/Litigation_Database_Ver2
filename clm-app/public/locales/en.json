@@ -287,7 +287,11 @@
     "decision": "Decision",
     "notes": "Notes",
     "attending_lawyer": "Attending Lawyer",
-    "details": "Hearing Details"
+    "details": "Hearing Details",
+    "all_fields": "All Fields",
+    "pending_banner": "Hearing is pending until a decision or next hearing date is added.",
+    "completed_at": "Completed At",
+    "last_decision": "Last decision"
   },
   "tasks_page": {
     "title": "Tasks",

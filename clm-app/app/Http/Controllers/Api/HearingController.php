@@ -5,12 +5,17 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Models\Hearing;
+use App\Services\HearingLifecycleService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class HearingController extends Controller
 {
     use SchemaDrivenFields;
+    public function __construct(
+        protected HearingLifecycleService $lifecycle
+    ) {
+    }
     public function index(Request $request): JsonResponse
     {
         try {
@@ -64,13 +69,7 @@ class HearingController extends Controller
             'attending_lawyer_id' => 'nullable|exists:lawyers,id',
         ]);
 
-        $validated['matter_id'] = $validated['case_id'];
-        $validated['date'] = $validated['hearing_date'];
-        $validated['lawyer_id'] = $validated['attending_lawyer_id'] ?? null;
-        $validated['created_by'] = auth()->id();
-        $validated['updated_by'] = auth()->id();
-
-        $hearing = Hearing::create($validated);
+        $hearing = $this->lifecycle->createHearing($validated, auth()->id());
         $hearing->load(['case', 'lawyer']);
 
         return response()->json([
@@ -150,22 +149,19 @@ class HearingController extends Controller
             'attending_lawyer_id' => 'nullable|exists:lawyers,id',
         ]);
 
-        if (isset($validated['case_id'])) {
-            $validated['matter_id'] = $validated['case_id'];
-        }
-        if (isset($validated['hearing_date'])) {
-            $validated['date'] = $validated['hearing_date'];
-        }
-        if (isset($validated['attending_lawyer_id'])) {
-            $validated['lawyer_id'] = $validated['attending_lawyer_id'];
-        }
-        $validated['updated_by'] = auth()->id();
+        $result = $this->lifecycle->updateHearing($hearing, $validated, auth()->id());
+        $updated = $result['hearing']->load(['case', 'lawyer']);
 
-        $hearing->update($validated);
-        $hearing->load(['case', 'lawyer']);
+        if (!empty($result['warning']) && $result['warning'] === 'next_hearing_conflict') {
+            return response()->json([
+                'error' => 'next_hearing_conflict',
+                'message' => 'Next hearing already has user input and was not auto-rescheduled. Please reschedule it manually.',
+                'data' => $updated,
+            ], 422);
+        }
 
         return response()->json([
-            'data' => $hearing,
+            'data' => $updated,
             'message' => 'Hearing updated successfully',
         ]);
     }

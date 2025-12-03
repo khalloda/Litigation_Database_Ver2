@@ -76,6 +76,10 @@ class CaseModel extends Model
         'updated_by',
         // M-Files integration
         'mfiles_id',
+        // Hearings summary
+        'next_hearing_date',
+        'last_hearing_date',
+        'latest_decision',
     ];
 
     // @deprecated opponent_id is now read-only mirror of primary opponent
@@ -92,6 +96,8 @@ class CaseModel extends Model
         'court_floor' => 'integer',
         'court_hall' => 'integer',
         'team_id' => 'integer',
+        'next_hearing_date' => 'date',
+        'last_hearing_date' => 'date',
     ];
 
     // Relationships

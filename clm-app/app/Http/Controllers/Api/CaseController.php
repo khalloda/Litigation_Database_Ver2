@@ -125,6 +125,9 @@ class CaseController extends Controller
             'matter_status' => $case->matter_status,
             'case_start_date' => $case->matter_start_date?->format('Y-m-d') ?? '',
             'case_end_date' => $case->matter_end_date?->format('Y-m-d'),
+            'next_hearing_date' => $case->next_hearing_date?->format('Y-m-d'),
+            'last_hearing_date' => $case->last_hearing_date?->format('Y-m-d'),
+            'latest_decision' => $case->latest_decision,
             'case_description' => $case->matter_description ?? '',
             'client' => $case->client ? [
                 'id' => $case->client->id,
@@ -159,6 +162,9 @@ class CaseController extends Controller
                     'id' => $hearing->id,
                     'date' => $hearing->date?->format('Y-m-d'),
                     'procedure' => $hearing->procedure,
+                    'court' => $hearing->court,
+                    'circuit' => $hearing->circuit,
+                    'status' => $hearing->status,
                 ];
             })->toArray() : [],
             'documents' => $case->documents ? $case->documents->map(function ($doc) {
