@@ -9,44 +9,33 @@ class PowerOfAttorneyPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('power_of_attorneys.view')
-            || $user->can('clients.view')
-            || $user->can('cases.view');
+        // Access to POA index is controlled exclusively by POA permissions
+        return $user->can('power_of_attorneys.view');
     }
 
     public function view(User $user, PowerOfAttorney $powerOfAttorney): bool
     {
-        return $user->can('power_of_attorneys.view')
-            || $user->can('clients.view')
-            || $user->can('cases.view');
+        return $user->can('power_of_attorneys.view');
     }
 
     public function create(User $user): bool
     {
-        return $user->can('power_of_attorneys.create')
-            || $user->can('clients.create')
-            || $user->can('cases.create');
+        return $user->can('power_of_attorneys.create');
     }
 
     public function update(User $user, PowerOfAttorney $powerOfAttorney): bool
     {
-        return $user->can('power_of_attorneys.edit')
-            || $user->can('clients.edit')
-            || $user->can('cases.edit');
+        return $user->can('power_of_attorneys.edit');
     }
 
     public function delete(User $user, PowerOfAttorney $powerOfAttorney): bool
     {
-        return $user->can('power_of_attorneys.delete')
-            || $user->can('clients.delete')
-            || $user->can('cases.delete');
+        return $user->can('power_of_attorneys.delete');
     }
 
     public function restore(User $user, PowerOfAttorney $powerOfAttorney): bool
     {
-        return $user->can('power_of_attorneys.delete')
-            || $user->can('clients.delete')
-            || $user->can('cases.delete');
+        return $user->can('power_of_attorneys.delete');
     }
 
     public function forceDelete(User $user, PowerOfAttorney $powerOfAttorney): bool
