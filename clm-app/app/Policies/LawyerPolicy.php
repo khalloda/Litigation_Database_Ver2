@@ -11,7 +11,7 @@ class LawyerPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('admin.users.manage');
+        return $user->can('lawyers.view');
     }
 
     /**
@@ -19,7 +19,7 @@ class LawyerPolicy
      */
     public function view(User $user, $lawyer): bool
     {
-        return $user->can('admin.users.manage');
+        return $user->can('lawyers.view');
     }
 
     /**
@@ -27,7 +27,7 @@ class LawyerPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('admin.users.manage');
+        return $user->can('lawyers.create');
     }
 
     /**
@@ -35,7 +35,7 @@ class LawyerPolicy
      */
     public function update(User $user, $lawyer): bool
     {
-        return $user->can('admin.users.manage');
+        return $user->can('lawyers.edit');
     }
 
     /**
@@ -43,7 +43,7 @@ class LawyerPolicy
      */
     public function delete(User $user, $lawyer): bool
     {
-        return $user->can('admin.users.manage');
+        return $user->can('lawyers.delete');
     }
 
     /**
@@ -51,7 +51,7 @@ class LawyerPolicy
      */
     public function restore(User $user, $lawyer): bool
     {
-        return $user->can('admin.users.manage');
+        return $user->can('lawyers.delete');
     }
 
     /**
@@ -59,6 +59,6 @@ class LawyerPolicy
      */
     public function forceDelete(User $user, $lawyer): bool
     {
-        return $user->can('admin.users.manage');
+        return $user->can('lawyers.delete');
     }
 }
