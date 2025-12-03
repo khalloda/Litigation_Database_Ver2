@@ -495,10 +495,79 @@
     "user_details": "User Details"
   },
   "permissions": {
+    // Group headings
+    "admin": "System Administration",
+    "cases": "Cases",
+    "clients": "Clients",
+    "documents": "Documents",
+    "hearings": "Hearings",
+    "import": "Import",
+    "export": "Export",
+    "trash": "Trash",
+    "reports": "Reports",
+    "power_of_attorneys": "Powers of Attorney",
+
+    // Legacy group labels (kept for backward compatibility)
     "case_management": "Case Management",
     "client_management": "Client Management",
     "document_management": "Document Management",
-    "system_administration": "System Administration"
+    "system_administration": "System Administration",
+
+    // Individual permissions
+    "cases.view": "View cases",
+    "cases.create": "Create cases",
+    "cases.edit": "Edit cases",
+    "cases.delete": "Delete cases",
+
+    "cases.opponents.view": "View case opponents",
+    "cases.opponents.edit": "Edit case opponents",
+    "cases.opponents.attach": "Attach opponents to cases",
+    "cases.opponents.detach": "Detach opponents from cases",
+
+    "clients.view": "View clients",
+    "clients.create": "Create clients",
+    "clients.edit": "Edit clients",
+    "clients.delete": "Delete clients",
+
+    "documents.view": "View documents",
+    "documents.create": "Create / upload documents",
+    "documents.edit": "Edit documents",
+    "documents.delete": "Delete documents",
+    "documents.upload": "Upload document files",
+    "documents.download": "Download document files",
+
+    "hearings.view": "View hearings",
+    "hearings.create": "Create hearings",
+    "hearings.edit": "Edit hearings",
+    "hearings.delete": "Delete hearings",
+
+    "power_of_attorneys.view": "View powers of attorney",
+    "power_of_attorneys.create": "Create powers of attorney",
+    "power_of_attorneys.edit": "Edit powers of attorney",
+    "power_of_attorneys.delete": "Delete powers of attorney",
+
+    "admin.users.manage": "Manage users and their assignments",
+    "admin.roles.manage": "Manage roles and permissions",
+    "admin.audit.view": "View audit logs",
+    "admin.tools.manage": "Manage administration tools",
+
+    "trash.view": "View recycle bin",
+    "trash.restore": "Restore items from recycle bin",
+    "trash.purge": "Permanently delete items from recycle bin",
+
+    "import.view": "View import jobs",
+    "import.create": "Create import jobs",
+    "import.execute": "Execute import jobs",
+    "import.cancel": "Cancel import jobs",
+    "import.delete": "Delete import jobs",
+    "import.view_template": "View import templates",
+    "import.manage": "Manage import configuration",
+
+    "export.view": "View exports",
+    "export.create": "Create exports",
+    "export.download": "Download exports",
+
+    "reports.view": "View reports"
   },
   "status": {
     "active": "Active",

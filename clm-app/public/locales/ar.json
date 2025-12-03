@@ -495,10 +495,79 @@
     "user_details": "تفاصيل المستخدم"
   },
   "permissions": {
+    // عناوين المجموعات
+    "admin": "إدارة النظام",
+    "cases": "القضايا",
+    "clients": "العملاء",
+    "documents": "المستندات",
+    "hearings": "الجلسات",
+    "import": "الاستيراد",
+    "export": "التصدير",
+    "trash": "سلة المحذوفات",
+    "reports": "التقارير",
+    "power_of_attorneys": "التوكيلات",
+
+    // التسميات القديمة للمجموعات (للتوافق الخلفي)
     "case_management": "إدارة القضايا",
     "client_management": "إدارة العملاء",
     "document_management": "إدارة المستندات",
-    "system_administration": "إدارة النظام"
+    "system_administration": "إدارة النظام",
+
+    // الصلاحيات الفردية
+    "cases.view": "عرض القضايا",
+    "cases.create": "إنشاء قضايا",
+    "cases.edit": "تعديل القضايا",
+    "cases.delete": "حذف القضايا",
+
+    "cases.opponents.view": "عرض خصوم القضية",
+    "cases.opponents.edit": "تعديل خصوم القضية",
+    "cases.opponents.attach": "إضافة خصوم إلى القضايا",
+    "cases.opponents.detach": "إزالة خصوم من القضايا",
+
+    "clients.view": "عرض العملاء",
+    "clients.create": "إنشاء عملاء",
+    "clients.edit": "تعديل العملاء",
+    "clients.delete": "حذف العملاء",
+
+    "documents.view": "عرض المستندات",
+    "documents.create": "إنشاء / تحميل مستندات",
+    "documents.edit": "تعديل المستندات",
+    "documents.delete": "حذف المستندات",
+    "documents.upload": "تحميل ملفات المستندات",
+    "documents.download": "تنزيل ملفات المستندات",
+
+    "hearings.view": "عرض الجلسات",
+    "hearings.create": "إنشاء جلسات",
+    "hearings.edit": "تعديل الجلسات",
+    "hearings.delete": "حذف الجلسات",
+
+    "power_of_attorneys.view": "عرض التوكيلات",
+    "power_of_attorneys.create": "إنشاء توكيلات",
+    "power_of_attorneys.edit": "تعديل التوكيلات",
+    "power_of_attorneys.delete": "حذف التوكيلات",
+
+    "admin.users.manage": "إدارة المستخدمين وتعييناتهم",
+    "admin.roles.manage": "إدارة الأدوار والصلاحيات",
+    "admin.audit.view": "عرض سجلات التدقيق",
+    "admin.tools.manage": "إدارة أدوات النظام",
+
+    "trash.view": "عرض سلة المحذوفات",
+    "trash.restore": "استرجاع العناصر من سلة المحذوفات",
+    "trash.purge": "حذف العناصر نهائياً من سلة المحذوفات",
+
+    "import.view": "عرض عمليات الاستيراد",
+    "import.create": "إنشاء عمليات استيراد",
+    "import.execute": "تنفيذ عمليات الاستيراد",
+    "import.cancel": "إلغاء عمليات الاستيراد",
+    "import.delete": "حذف عمليات الاستيراد",
+    "import.view_template": "عرض قوالب الاستيراد",
+    "import.manage": "إدارة إعدادات الاستيراد",
+
+    "export.view": "عرض عمليات التصدير",
+    "export.create": "إنشاء عمليات تصدير",
+    "export.download": "تنزيل ملفات التصدير",
+
+    "reports.view": "عرض التقارير"
   },
   "status": {
     "active": "سارية",
