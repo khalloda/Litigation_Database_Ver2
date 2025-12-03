@@ -37,8 +37,10 @@ class RoleController extends Controller
             'permissions.*' => 'string|exists:permissions,name',
         ]);
 
+        // Always store roles under the same guard as existing permissions (web)
         $role = Role::create([
             'name' => $validated['name'],
+            'guard_name' => 'web',
             'description_en' => $validated['description_en'] ?? null,
             'description_ar' => $validated['description_ar'] ?? null,
         ]);
