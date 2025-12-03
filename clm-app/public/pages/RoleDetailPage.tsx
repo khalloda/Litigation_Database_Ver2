@@ -217,7 +217,7 @@ const RoleDetailPage: React.FC = () => {
                                                         htmlFor={key}
                                                         className="ms-2 text-sm text-gray-600"
                                                     >
-                                                        {t(`permissions.${key}`) || key}
+                                                        {t(`permission_labels.${key}`) || key}
                                                     </label>
                                                 </div>
                                             );

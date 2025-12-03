@@ -495,7 +495,6 @@
     "user_details": "User Details"
   },
   "permissions": {
-    // Group headings
     "admin": "System Administration",
     "cases": "Cases",
     "clients": "Clients",
@@ -507,13 +506,11 @@
     "reports": "Reports",
     "power_of_attorneys": "Powers of Attorney",
 
-    // Legacy group labels (kept for backward compatibility)
     "case_management": "Case Management",
     "client_management": "Client Management",
     "document_management": "Document Management",
     "system_administration": "System Administration",
 
-    // Individual permissions
     "cases.view": "View cases",
     "cases.create": "Create cases",
     "cases.edit": "Edit cases",
@@ -568,6 +565,82 @@
     "export.download": "Download exports",
 
     "reports.view": "View reports"
+  },
+  "permission_labels": {
+    "admin": {
+      "users": {
+        "manage": "Manage users and their assignments"
+      },
+      "roles": {
+        "manage": "Manage roles and permissions"
+      },
+      "audit": {
+        "view": "View audit logs"
+      },
+      "tools": {
+        "manage": "Manage administration tools"
+      }
+    },
+    "cases": {
+      "view": "View cases",
+      "create": "Create cases",
+      "edit": "Edit cases",
+      "delete": "Delete cases",
+      "opponents": {
+        "view": "View case opponents",
+        "edit": "Edit case opponents",
+        "attach": "Attach opponents to cases",
+        "detach": "Detach opponents from cases"
+      }
+    },
+    "clients": {
+      "view": "View clients",
+      "create": "Create clients",
+      "edit": "Edit clients",
+      "delete": "Delete clients"
+    },
+    "documents": {
+      "view": "View documents",
+      "create": "Create / upload documents",
+      "edit": "Edit documents",
+      "delete": "Delete documents",
+      "upload": "Upload document files",
+      "download": "Download document files"
+    },
+    "hearings": {
+      "view": "View hearings",
+      "create": "Create hearings",
+      "edit": "Edit hearings",
+      "delete": "Delete hearings"
+    },
+    "power_of_attorneys": {
+      "view": "View powers of attorney",
+      "create": "Create powers of attorney",
+      "edit": "Edit powers of attorney",
+      "delete": "Delete powers of attorney"
+    },
+    "trash": {
+      "view": "View recycle bin",
+      "restore": "Restore items from recycle bin",
+      "purge": "Permanently delete items from recycle bin"
+    },
+    "import": {
+      "view": "View import jobs",
+      "create": "Create import jobs",
+      "execute": "Execute import jobs",
+      "cancel": "Cancel import jobs",
+      "delete": "Delete import jobs",
+      "view_template": "View import templates",
+      "manage": "Manage import configuration"
+    },
+    "export": {
+      "view": "View exports",
+      "create": "Create exports",
+      "download": "Download exports"
+    },
+    "reports": {
+      "view": "View reports"
+    }
   },
   "status": {
     "active": "Active",
