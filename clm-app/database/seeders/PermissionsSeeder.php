@@ -43,6 +43,30 @@ class PermissionsSeeder extends Seeder
             'clients.edit',
             'clients.delete',
 
+            // Opponents permissions
+            'opponents.view',
+            'opponents.create',
+            'opponents.edit',
+            'opponents.delete',
+
+            // Lawyers permissions
+            'lawyers.view',
+            'lawyers.create',
+            'lawyers.edit',
+            'lawyers.delete',
+
+            // Courts permissions
+            'courts.view',
+            'courts.create',
+            'courts.edit',
+            'courts.delete',
+
+            // Tasks permissions
+            'tasks.view',
+            'tasks.create',
+            'tasks.edit',
+            'tasks.delete',
+
             // Admin-level permissions
             'admin.users.manage',
             'admin.roles.manage',

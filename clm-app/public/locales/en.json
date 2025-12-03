@@ -12,6 +12,10 @@
     "reports": "Reports",
     "settings": "Settings",
     "hearings": "Hearings",
+    "opponents": "Opponents",
+    "lawyers": "Lawyers",
+    "courts": "Courts",
+    "tasks": "Tasks",
     "documents": "Documents",
     "power_of_attorneys": "Power of Attorneys",
     "search_placeholder": "Search for cases, clients...",
@@ -532,6 +536,26 @@
     "documents.delete": "Delete documents",
     "documents.upload": "Upload document files",
     "documents.download": "Download document files",
+
+    "opponents.view": "View opponents",
+    "opponents.create": "Create opponents",
+    "opponents.edit": "Edit opponents",
+    "opponents.delete": "Delete opponents",
+
+    "lawyers.view": "View lawyers",
+    "lawyers.create": "Create lawyers",
+    "lawyers.edit": "Edit lawyers",
+    "lawyers.delete": "Delete lawyers",
+
+    "courts.view": "View courts",
+    "courts.create": "Create courts",
+    "courts.edit": "Edit courts",
+    "courts.delete": "Delete courts",
+
+    "tasks.view": "View tasks",
+    "tasks.create": "Create tasks",
+    "tasks.edit": "Edit tasks",
+    "tasks.delete": "Delete tasks",
 
     "hearings.view": "View hearings",
     "hearings.create": "Create hearings",

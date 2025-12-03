@@ -12,6 +12,10 @@
     "reports": "التقارير",
     "settings": "الإعدادات",
     "hearings": "الجلسات",
+    "opponents": "الخصوم",
+    "lawyers": "المحامون",
+    "courts": "المحاكم",
+    "tasks": "المهام",
     "documents": "المستندات",
     "power_of_attorneys": "التوكيلات",
     "search_placeholder": "ابحث عن قضايا، عملاء...",
@@ -532,6 +536,26 @@
     "documents.delete": "حذف المستندات",
     "documents.upload": "تحميل ملفات المستندات",
     "documents.download": "تنزيل ملفات المستندات",
+
+    "opponents.view": "عرض الخصوم",
+    "opponents.create": "إنشاء خصوم",
+    "opponents.edit": "تعديل الخصوم",
+    "opponents.delete": "حذف الخصوم",
+
+    "lawyers.view": "عرض المحامين",
+    "lawyers.create": "إنشاء محامين",
+    "lawyers.edit": "تعديل المحامين",
+    "lawyers.delete": "حذف المحامين",
+
+    "courts.view": "عرض المحاكم",
+    "courts.create": "إنشاء محاكم",
+    "courts.edit": "تعديل المحاكم",
+    "courts.delete": "حذف المحاكم",
+
+    "tasks.view": "عرض المهام",
+    "tasks.create": "إنشاء مهام",
+    "tasks.edit": "تعديل المهام",
+    "tasks.delete": "حذف المهام",
 
     "hearings.view": "عرض الجلسات",
     "hearings.create": "إنشاء جلسات",
