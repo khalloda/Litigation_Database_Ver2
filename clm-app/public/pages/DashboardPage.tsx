@@ -298,8 +298,9 @@ const DashboardPage: React.FC = () => {
             <>
               <div className="space-y-3">
                 {pendingHearings.map((hearing) => {
-                  const ageDays =
-                    computePendingAgeDays(hearing.date || hearing.created_at || null);
+                  // For hearings, \"pending age\" is always based on the hearing date,
+                  // not when the record was created in the system.
+                  const ageDays = computePendingAgeDays(hearing.date);
                   const tint = getPendingTintClasses(ageDays);
                   return (
                     <div

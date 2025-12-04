@@ -141,7 +141,8 @@ class DashboardController extends Controller
             $page = (int) $request->get('page', 1);
             $page = $page > 0 ? $page : 1;
 
-            $paginator = Hearing::where('status', 'pending')
+            // Treat status case-insensitively to include legacy rows where the value might be \"Pending\"
+            $paginator = Hearing::whereRaw('LOWER(status) = ?', ['pending'])
                 ->with([
                     'case:id,matter_name_en,matter_name_ar',
                     'lawyer:id,lawyer_name_en,lawyer_name_ar',
