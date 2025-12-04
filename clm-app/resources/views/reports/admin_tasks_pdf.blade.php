@@ -131,27 +131,58 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($rows as $row)
-                    <tr>
-                        <td>{{ $row['serial'] }}</td>
-                        <td>{{ $row['case_name'] }}</td>
-                        <td>{{ $row['lawyer_name'] }}</td>
-                        <td>{{ $row['court'] }}</td>
-                        <td>{{ $row['circuit'] }}</td>
-                        <td>{{ $row['client_role'] }}</td>
-                        <td>{{ $row['opponent_role'] }}</td>
-                        <td>{{ $row['latest_decision'] }}</td>
-                        <td>{{ $row['required_work'] }}</td>
-                        <td>
-                            <span>{{ $row['status'] }}</span>
-                            @if(!empty($row['age_label'] ?? null))
-                                <span class="text-muted"> ({{ $row['age_label'] }})</span>
-                            @endif
-                        </td>
-                        <td>{{ $row['last_follow_up'] }}</td>
-                        <td>{{ $row['result'] }}</td>
-                    </tr>
-                @endforeach
+                @if(isset($groupBy) && $groupBy === 'court' && isset($groupedRows) && $groupedRows)
+                    @foreach($groupedRows as $courtName => $courtRows)
+                        <tr>
+                            <td colspan="12" style="background:#e5e7eb;font-weight:700;">
+                                المحكمة: {{ $courtName ?: 'غير محددة' }}
+                            </td>
+                        </tr>
+                        @foreach($courtRows as $row)
+                            <tr>
+                                <td>{{ $row['serial'] }}</td>
+                                <td>{{ $row['case_name'] }}</td>
+                                <td>{{ $row['lawyer_name'] }}</td>
+                                <td>{{ $row['court'] }}</td>
+                                <td>{{ $row['circuit'] }}</td>
+                                <td>{{ $row['client_role'] }}</td>
+                                <td>{{ $row['opponent_role'] }}</td>
+                                <td>{{ $row['latest_decision'] }}</td>
+                                <td>{{ $row['required_work'] }}</td>
+                                <td>
+                                    <span>{{ $row['status'] }}</span>
+                                    @if(!empty($row['age_label'] ?? null))
+                                        <span class="text-muted"> ({{ $row['age_label'] }})</span>
+                                    @endif
+                                </td>
+                                <td>{{ $row['last_follow_up'] }}</td>
+                                <td>{{ $row['result'] }}</td>
+                            </tr>
+                        @endforeach
+                    @endforeach
+                @else
+                    @foreach($rows as $row)
+                        <tr>
+                            <td>{{ $row['serial'] }}</td>
+                            <td>{{ $row['case_name'] }}</td>
+                            <td>{{ $row['lawyer_name'] }}</td>
+                            <td>{{ $row['court'] }}</td>
+                            <td>{{ $row['circuit'] }}</td>
+                            <td>{{ $row['client_role'] }}</td>
+                            <td>{{ $row['opponent_role'] }}</td>
+                            <td>{{ $row['latest_decision'] }}</td>
+                            <td>{{ $row['required_work'] }}</td>
+                            <td>
+                                <span>{{ $row['status'] }}</span>
+                                @if(!empty($row['age_label'] ?? null))
+                                    <span class="text-muted"> ({{ $row['age_label'] }})</span>
+                                @endif
+                            </td>
+                            <td>{{ $row['last_follow_up'] }}</td>
+                            <td>{{ $row['result'] }}</td>
+                        </tr>
+                    @endforeach
+                @endif
             </tbody>
         </table>
 

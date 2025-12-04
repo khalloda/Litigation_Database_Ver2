@@ -602,9 +602,16 @@ class ReportController extends Controller
         $orientation = $validated['orientation'] ?? 'portrait';
         $includeSubtasks = $validated['include_subtasks'] ?? false;
 
+        // For court grouping in the PDF view, provide rows grouped by court name
+        $groupedRows = null;
+        if ($groupBy === 'court') {
+            $groupedRows = $rows->groupBy('court');
+        }
+
         $pdf = SnappyPdf::loadView('reports.admin_tasks_pdf', [
             'tasks' => $tasks,
             'rows' => $rows,
+            'groupedRows' => $groupedRows,
             'overdue' => $overdue,
             'completed' => $completed,
             'pending' => $pending,
