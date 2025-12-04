@@ -60,6 +60,7 @@ const App: React.FC = () => {
               <Route path="power-of-attorneys" element={<PowerOfAttorneyListPage />} />
               <Route path="power-of-attorneys/:id" element={<PowerOfAttorneyDetailPage />} />
               <Route path="tasks" element={<TasksPage />} />
+              <Route path="tasks/:id" element={<TasksPage />} />
               <Route path="reports" element={<ReportsPage />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route path="settings/roles" element={<RolesListPage />} />

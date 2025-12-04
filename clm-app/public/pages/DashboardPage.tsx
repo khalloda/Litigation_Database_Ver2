@@ -393,7 +393,7 @@ const DashboardPage: React.FC = () => {
                     <div
                       key={task.id}
                       className={`p-3 rounded-lg border cursor-pointer transition-colors ${tint}`}
-                      onClick={() => navigate('/tasks')}
+                      onClick={() => navigate(`/tasks/${task.id}`)}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">

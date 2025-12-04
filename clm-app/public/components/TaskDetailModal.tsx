@@ -26,7 +26,8 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [newSubtask, setNewSubtask] = useState<{ performer: string; next_date: string; result: string }>({
+  const [editingSubtaskId, setEditingSubtaskId] = useState<number | null>(null);
+  const [formSubtask, setFormSubtask] = useState<{ performer: string; next_date: string; result: string }>({
     performer: '',
     next_date: '',
     result: '',
@@ -50,23 +51,32 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
     load();
   }, [taskId]);
 
-  const handleCreateSubtask = async (e: React.FormEvent) => {
+  const handleSubmitSubtask = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setSubmitting(true);
       setError(null);
       const payload = {
-        performer: newSubtask.performer || null,
-        next_date: newSubtask.next_date || null,
-        result: newSubtask.result || null,
+        performer: formSubtask.performer || null,
+        next_date: formSubtask.next_date || null,
+        result: formSubtask.result || null,
       };
-      const response = await api.post(`/tasks/${taskId}/subtasks`, payload);
-      const created: ApiSubtask = response.data?.data ?? response.data;
-      setSubtasks((prev) => [...prev, created]);
-      setNewSubtask({ performer: '', next_date: '', result: '' });
+      let updatedSubtasks: ApiSubtask[];
+      if (editingSubtaskId !== null) {
+        const response = await api.put(`/tasks/${taskId}/subtasks/${editingSubtaskId}`, payload);
+        const updated: ApiSubtask = response.data?.data ?? response.data;
+        updatedSubtasks = subtasks.map((s) => (s.id === updated.id ? updated : s));
+      } else {
+        const response = await api.post(`/tasks/${taskId}/subtasks`, payload);
+        const created: ApiSubtask = response.data?.data ?? response.data;
+        updatedSubtasks = [...subtasks, created];
+      }
+      setSubtasks(updatedSubtasks);
+      setEditingSubtaskId(null);
+      setFormSubtask({ performer: '', next_date: '', result: '' });
       onUpdated?.();
     } catch (e: any) {
-      setError(e?.response?.data?.message || e?.message || 'Failed to create subtask');
+      setError(e?.response?.data?.message || e?.message || 'Failed to save subtask');
     } finally {
       setSubmitting(false);
     }
@@ -79,6 +89,10 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
     try {
       await api.delete(`/tasks/${taskId}/subtasks/${subtaskId}`);
       setSubtasks((prev) => prev.filter((s) => s.id !== subtaskId));
+      if (editingSubtaskId === subtaskId) {
+        setEditingSubtaskId(null);
+        setFormSubtask({ performer: '', next_date: '', result: '' });
+      }
       onUpdated?.();
     } catch (e: any) {
       setError(e?.response?.data?.message || e?.message || 'Failed to delete subtask');
@@ -140,34 +154,48 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
               <p className="text-sm text-gray-500">{t('tasks_page.no_tasks') || 'No sub-tasks yet.'}</p>
             ) : (
               <ul className="space-y-2">
-                {subtasks.map((s) => (
-                  <li
-                    key={s.id}
-                    className="flex justify-between items-start gap-3 border rounded-lg px-3 py-2 text-sm"
-                  >
-                    <div>
-                      {s.result && <p className="font-medium text-gray-800">{s.result}</p>}
-                      {s.performer && (
-                        <p className="text-xs text-gray-600">
-                          {t('task.performer') || 'Performer'}: {s.performer}
-                        </p>
-                      )}
-                      {s.next_date && (
-                        <p className="text-xs text-gray-600">
-                          {t('new_task_form.due_date') || 'Next Date'}:{' '}
-                          {new Date(s.next_date).toLocaleDateString()}
-                        </p>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteSubtask(s.id)}
-                      className="text-xs text-red-600 hover:text-red-800 font-semibold"
+                {subtasks.map((s) => {
+                  const isActive = editingSubtaskId === s.id;
+                  return (
+                    <li
+                      key={s.id}
+                      className={`flex justify-between items-start gap-3 border rounded-lg px-3 py-2 text-sm ${isActive ? 'border-primary-400 bg-primary-50' : ''}`}
+                      onClick={() => {
+                        setEditingSubtaskId(s.id);
+                        setFormSubtask({
+                          performer: s.performer || '',
+                          next_date: s.next_date || '',
+                          result: s.result || '',
+                        });
+                      }}
                     >
-                      {t('settings_page.delete') || 'Delete'}
-                    </button>
-                  </li>
-                ))}
+                      <div>
+                        {s.result && <p className="font-medium text-gray-800">{s.result}</p>}
+                        {s.performer && (
+                          <p className="text-xs text-gray-600">
+                            {t('task.performer') || 'Performer'}: {s.performer}
+                          </p>
+                        )}
+                        {s.next_date && (
+                          <p className="text-xs text-gray-600">
+                            {t('new_task_form.due_date') || 'Next Date'}:{' '}
+                            {new Date(s.next_date).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteSubtask(s.id);
+                        }}
+                        className="text-xs text-red-600 hover:text-red-800 font-semibold"
+                      >
+                        {t('settings_page.delete') || 'Delete'}
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>
@@ -176,7 +204,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
             <h3 className="text-sm font-semibold text-gray-700 mb-2">
               {t('task.add_subtask') || 'Add Sub-task'}
             </h3>
-            <form onSubmit={handleCreateSubtask} className="space-y-3">
+            <form onSubmit={handleSubmitSubtask} className="space-y-3">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   {t('task.performer') || 'Performer'}
@@ -184,8 +212,8 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
                 <input
                   type="text"
                   className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm"
-                  value={newSubtask.performer}
-                  onChange={(e) => setNewSubtask((prev) => ({ ...prev, performer: e.target.value }))}
+                  value={formSubtask.performer}
+                  onChange={(e) => setFormSubtask((prev) => ({ ...prev, performer: e.target.value }))}
                 />
               </div>
               <div>
@@ -195,8 +223,8 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
                 <input
                   type="date"
                   className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm"
-                  value={newSubtask.next_date}
-                  onChange={(e) => setNewSubtask((prev) => ({ ...prev, next_date: e.target.value }))}
+                  value={formSubtask.next_date}
+                  onChange={(e) => setFormSubtask((prev) => ({ ...prev, next_date: e.target.value }))}
                 />
               </div>
               <div>
@@ -206,8 +234,8 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
                 <textarea
                   className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm"
                   rows={3}
-                  value={newSubtask.result}
-                  onChange={(e) => setNewSubtask((prev) => ({ ...prev, result: e.target.value }))}
+                  value={formSubtask.result}
+                  onChange={(e) => setFormSubtask((prev) => ({ ...prev, result: e.target.value }))}
                 />
               </div>
               <div className="pt-2 flex justify-end">
@@ -216,7 +244,11 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
                   disabled={submitting}
                   className="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 disabled:opacity-50"
                 >
-                  {submitting ? t('common.saving') || 'Saving…' : t('common.save') || 'Save'}
+                  {submitting
+                    ? t('common.saving') || 'Saving…'
+                    : editingSubtaskId !== null
+                      ? t('common.save') || 'Update'
+                      : t('common.save') || 'Save'}
                 </button>
               </div>
             </form>

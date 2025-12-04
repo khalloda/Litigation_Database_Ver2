@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useI18n } from '../hooks/useI18n';
 import { fetchTasks } from '../services/tasks';
 import { fetchCases } from '../services/cases';
@@ -154,6 +154,7 @@ const TaskColumn: React.FC<{
 
 const TasksPage: React.FC = () => {
     const navigate = useNavigate();
+    const params = useParams<{ id?: string }>();
     const { t, language } = useI18n();
     const [completedSubTasks, setCompletedSubTasks] = useState(new Set<number>());
     const [searchTerm, setSearchTerm] = useState('');
@@ -186,6 +187,16 @@ const TasksPage: React.FC = () => {
         };
         loadData();
     }, []);
+
+    // Open detail modal automatically when navigated to /tasks/:id
+    useEffect(() => {
+        if (params.id) {
+            const idNum = Number(params.id);
+            if (!Number.isNaN(idNum)) {
+                setDetailTaskId(idNum);
+            }
+        }
+    }, [params.id]);
 
     const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setFilters(prev => ({ ...prev, [e.target.name]: e.target.value }));
