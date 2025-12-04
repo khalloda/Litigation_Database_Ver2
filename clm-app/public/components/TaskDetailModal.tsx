@@ -23,7 +23,7 @@ interface ApiSubtask {
 }
 
 const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUpdated }) => {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [task, setTask] = useState<any | null>(null);
   const [subtasks, setSubtasks] = useState<ApiSubtask[]>([]);
   const [loading, setLoading] = useState(true);
@@ -265,7 +265,10 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
                 {subtasks.map((s) => {
                   const isActive = editingSubtaskId === s.id;
                   return (
-                    <li
+                    const toDateInput = (value: string | null | undefined) =>
+                      value ? String(value).slice(0, 10) : '';
+                    return (
+                      <li
                       key={s.id}
                       className={`border rounded-lg px-3 py-2 text-sm cursor-pointer ${
                         isActive ? 'border-primary-400 bg-primary-50' : ''
@@ -275,7 +278,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
                         setFormSubtask({
           performerId: s.lawyer_id ? String(s.lawyer_id) : '',
           performer: s.performer || '',
-                          next_date: s.next_date || '',
+                          next_date: toDateInput(s.next_date),
                           result: s.result || '',
                         });
                       }}
@@ -292,13 +295,23 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
                         />
                         <div className="flex-1">
                           <p className="font-medium text-gray-800">
-                            {s.result || s.performer || '-'}
+                            {s.result ||
+                              (s.performer ||
+                                (s.lawyer
+                                  ? language === 'ar'
+                                    ? s.lawyer.lawyer_name_ar
+                                    : s.lawyer.lawyer_name_en
+                                  : '-'))}
                           </p>
-                          {s.performer && (
-                            <p className="text-xs text-gray-600">
-                              {t('task.performer') || 'Performer'}: {s.performer}
-                            </p>
-                          )}
+                          <p className="text-xs text-gray-600">
+                            {t('task.performer') || 'Performer'}:{' '}
+                            {s.performer ||
+                              (s.lawyer
+                                ? language === 'ar'
+                                  ? s.lawyer.lawyer_name_ar
+                                  : s.lawyer.lawyer_name_en
+                                : '—')}
+                          </p>
                           {s.next_date && (
                             <p className="text-xs text-gray-600">
                               {t('new_task_form.due_date') || 'Next Date'}:{' '}
