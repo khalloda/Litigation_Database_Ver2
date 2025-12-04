@@ -26,7 +26,7 @@ class AdminTasksReportRequest extends FormRequest
             'case_id' => ['nullable', 'exists:cases,id'],
             'status' => ['nullable', 'string'],
             'show_overdue' => ['nullable', 'boolean'],
-            'group_by' => ['nullable', 'string', 'in:lawyer,case,null'],
+            'group_by' => ['nullable', 'string', 'in:lawyer,case,court,null'],
             'include_subtasks' => ['nullable', 'boolean'],
             'date_range_type' => ['nullable', 'string', 'in:today,yesterday,this_week,last_week,this_month,last_month,this_quarter,last_quarter,this_year,last_year,last_7_days,last_30_days,last_90_days,custom'],
             'start_date' => ['nullable', 'required_if:date_range_type,custom', 'date'],

@@ -503,30 +503,73 @@ class ReportController extends Controller
         // Group by if requested
         $groupBy = $validated['group_by'] ?? null;
         $groupedData = null;
-        if ($groupBy === 'lawyer' || $groupBy === 'case') {
+        if (in_array($groupBy, ['lawyer', 'case', 'court'], true)) {
             $groupedData = $tasks->groupBy(function ($task) use ($groupBy) {
-                return $groupBy === 'lawyer' 
-                    ? ($task->lawyer_id ?? 'unassigned')
-                    : ($task->matter_id ?? 'uncategorized');
+                return match ($groupBy) {
+                    'lawyer' => $task->lawyer?->id ?? 'unassigned',
+                    'case' => $task->case?->id ?? 'uncategorized',
+                    'court' => $task->case?->court?->id ?? 'uncourted',
+                };
             });
         }
 
-        // Prepare rows for display
+        // Prepare rows for display (domain‑friendly columns)
         $rows = $tasks->map(function (AdminTask $task, int $index) use ($now) {
+            $case = $task->case;
             $isOverdue = ($task->execution_date && $task->execution_date < $now && empty($task->result))
                 || $task->alert;
 
+            // Client print name + capacity
+            $clientName = $case?->client?->client_print_name
+                ?? $case?->client?->client_name_ar
+                ?? $case?->client?->client_name_en
+                ?? null;
+            $clientCapacity = $case?->clientCapacity?->label_ar
+                ?? $case?->clientCapacity?->label_en
+                ?? $case?->client_capacity_note
+                ?? null;
+
+            // Opponent print name + capacity (using legacy single opponent mirror)
+            $opponentName = $case?->opponent?->opponent_print_name
+                ?? $case?->opponent?->opponent_name_ar
+                ?? $case?->opponent?->opponent_name_en
+                ?? null;
+            $opponentCapacity = $case?->opponentCapacity?->label_ar
+                ?? $case?->opponentCapacity?->label_en
+                ?? $case?->opponent_capacity_note
+                ?? null;
+
+            $clientRole = trim(collect([$clientName, $clientCapacity])->filter()->implode(' - ')) ?: '—';
+            $opponentRole = trim(collect([$opponentName, $opponentCapacity])->filter()->implode(' - ')) ?: '—';
+
+            // Status + age in days
+            $status = $task->status ?? '—';
+            $ageDays = null;
+            if ($task->creation_date) {
+                $ageDays = $task->creation_date->diffInDays($now);
+            }
+
             return [
                 'serial' => $index + 1,
+                'case_name' => $case?->matter_name_ar ?? $case?->matter_name_en ?? '—',
+                'court' => $case?->court?->court_name_ar
+                    ?? $case?->court?->court_name_en
+                    ?? $case?->matter_court_text
+                    ?? $task->court
+                    ?? '—',
+                'circuit' => $case?->circuitName?->label_ar
+                    ?? $case?->circuitName?->label_en
+                    ?? $case?->matter_circuit_legacy
+                    ?? $task->circuit
+                    ?? '—',
+                'client_role' => $clientRole,
+                'opponent_role' => $opponentRole,
+                'latest_decision' => $case?->latest_decision ?? $case?->current_status ?? '—',
                 'required_work' => $task->required_work ?? '—',
-                'case_name' => $task->case?->matter_name_ar ?? $task->case?->matter_name_en ?? '—',
-                'lawyer_name' => $task->lawyer?->lawyer_name_ar ?? $task->lawyer?->lawyer_name_en ?? '—',
-                'status' => $task->status ?? '—',
-                'performer' => $task->performer ?? '—',
-                'creation_date' => $task->creation_date?->format('Y-m-d') ?? '—',
-                'execution_date' => $task->execution_date?->format('Y-m-d') ?? '—',
+                'status' => $status,
+                'age_days' => $ageDays,
+                'last_follow_up' => $task->last_follow_up?->format('Y-m-d') ?? '—',
                 'result' => $task->result ?? '—',
-                'alert' => $task->alert,
                 'status_badge' => $isOverdue ? 'overdue' : (!empty($task->result) ? 'completed' : 'pending'),
             ];
         });

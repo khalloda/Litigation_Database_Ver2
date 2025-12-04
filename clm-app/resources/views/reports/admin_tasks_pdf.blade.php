@@ -116,56 +116,39 @@
         <table class="report-table">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>المهمة المطلوبة</th>
-                    <th>اسم القضية</th>
-                    <th>المحامي</th>
-                    <th>الحالة</th>
-                    <th>المنفذ</th>
-                    <th>تاريخ الإنشاء</th>
-                    <th>تاريخ التنفيذ</th>
+                    <th>م/#</th>
+                    <th>القضية / الموضوع</th>
+                    <th>المحكمة</th>
+                    <th>الدائرة</th>
+                    <th>الموكل وصفته</th>
+                    <th>الخصم وصفته</th>
+                    <th>أخر قرار</th>
+                    <th>العمل المطلوب</th>
+                    <th>الحالة + عمر الأيام</th>
+                    <th>آخر متابعة</th>
                     <th>النتيجة</th>
-                    <th>الحالة</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($tasks as $index => $task)
+                @foreach($rows as $row)
                     <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $task->required_work ?? '—' }}</td>
-                        <td>{{ $task->case?->matter_name_ar ?? $task->case?->matter_name_en ?? '—' }}</td>
-                        <td>{{ $task->lawyer?->lawyer_name_ar ?? $task->lawyer?->lawyer_name_en ?? '—' }}</td>
-                        <td>{{ $task->status ?? '—' }}</td>
-                        <td>{{ $task->performer ?? '—' }}</td>
-                        <td>{{ $task->creation_date?->format('Y-m-d') ?? '—' }}</td>
-                        <td>{{ $task->execution_date?->format('Y-m-d') ?? '—' }}</td>
-                        <td>{{ mb_substr($task->result ?? '', 0, 50) }}{{ mb_strlen($task->result ?? '') > 50 ? '...' : '' }}</td>
+                        <td>{{ $row['serial'] }}</td>
+                        <td>{{ $row['case_name'] }}</td>
+                        <td>{{ $row['court'] }}</td>
+                        <td>{{ $row['circuit'] }}</td>
+                        <td>{{ $row['client_role'] }}</td>
+                        <td>{{ $row['opponent_role'] }}</td>
+                        <td>{{ $row['latest_decision'] }}</td>
+                        <td>{{ $row['required_work'] }}</td>
                         <td>
-                            @php
-                                $isOverdue = ($task->execution_date && $task->execution_date < now() && empty($task->result)) || $task->alert;
-                            @endphp
-                            @if($isOverdue)
-                                <span class="badge badge-danger">متأخرة</span>
-                            @elseif(!empty($task->result))
-                                <span class="badge badge-success">منجزة</span>
-                            @else
-                                <span class="badge badge-warning">قيد التنفيذ</span>
+                            <span>{{ $row['status'] }}</span>
+                            @if(!is_null($row['age_days'] ?? null))
+                                <span class="text-muted"> ({{ $row['age_days'] }} يوم)</span>
                             @endif
                         </td>
+                        <td>{{ $row['last_follow_up'] }}</td>
+                        <td>{{ $row['result'] }}</td>
                     </tr>
-                    @if(isset($includeSubtasks) && $includeSubtasks && $task->subtasks && $task->subtasks->count() > 0)
-                        @foreach($task->subtasks as $subtask)
-                            <tr class="subtask-row">
-                                <td></td>
-                                <td colspan="8">
-                                    <strong>→</strong> {{ $subtask->result ?? $subtask->performer ?? '—' }}
-                                    @if($subtask->next_date)
-                                        ({{ $subtask->next_date->format('Y-m-d') }})
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    @endif
                 @endforeach
             </tbody>
         </table>
