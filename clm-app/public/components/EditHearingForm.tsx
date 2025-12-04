@@ -36,32 +36,45 @@ const EditHearingForm: React.FC<EditHearingFormProps> = ({ hearingId, onClose, o
 
     useEffect(() => {
         const loadData = async () => {
+            setLoading(true);
             try {
-                setLoading(true);
-                const [hearingData, casesData, courtsData, lawyersData] = await Promise.all([
-                    fetchHearing(hearingId),
-                    fetchCases(),
-                    fetchCourts(),
-                    fetchLawyers(),
-                ]);
-                const hearing = hearingData?.data ?? hearingData;
-                setCases(casesData.data || casesData);
-                setCourts(courtsData.data || courtsData);
-                setLawyers(lawyersData.data || lawyersData);
-                
+                // Always load the hearing itself first so the form is populated
+                const hearingResponse = await fetchHearing(hearingId);
+                const hearing = hearingResponse?.data ?? hearingResponse;
+
                 setFormData({
-                    caseId: hearing.matter_id || hearing.case_id ? String(hearing.matter_id || hearing.case_id) : '',
+                    caseId: hearing.matter_id || hearing.case_id || hearing.case?.id
+                        ? String(hearing.matter_id || hearing.case_id || hearing.case?.id)
+                        : '',
                     hearingDate: hearing.date ? new Date(hearing.date).toISOString().split('T')[0] : '',
                     procedure: hearing.procedure || '',
                     courtId: hearing.court_id ? String(hearing.court_id) : '',
                     circuit: hearing.circuit || '',
                     decision: hearing.decision || '',
-                    nextHearingDate: hearing.next_hearing || hearing.next_hearing_date ? new Date(hearing.next_hearing || hearing.next_hearing_date).toISOString().split('T')[0] : '',
+                    nextHearingDate: hearing.next_hearing || hearing.next_hearing_date
+                        ? new Date(hearing.next_hearing || hearing.next_hearing_date).toISOString().split('T')[0]
+                        : '',
                     notes: hearing.notes || '',
                     attendingLawyerId: hearing.lawyer_id ? String(hearing.lawyer_id) : '',
                 });
+
+                // Load lookup data (cases, courts, lawyers) but don't block form population
+                try {
+                    const [casesData, courtsData, lawyersData] = await Promise.all([
+                        fetchCases(),
+                        fetchCourts(),
+                        fetchLawyers(),
+                    ]);
+                    setCases(casesData.data || casesData);
+                    setCourts(courtsData.data || courtsData);
+                    setLawyers(lawyersData.data || lawyersData);
+                } catch (lookupErr: any) {
+                    console.error('Failed to load lookup data for hearing edit:', lookupErr);
+                    // Keep the form usable even if lookups fail
+                }
             } catch (err: any) {
-                setError(err.message || 'Failed to load data');
+                console.error('Failed to load hearing:', err);
+                setError(err.message || 'Failed to load hearing');
             } finally {
                 setLoading(false);
             }
