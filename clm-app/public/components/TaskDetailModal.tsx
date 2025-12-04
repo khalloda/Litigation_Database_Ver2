@@ -40,6 +40,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
     result: '',
   });
 
+  const toDateInput = (value: string | null | undefined) =>
+    value ? String(value).slice(0, 10) : '';
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -265,10 +268,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
                 {subtasks.map((s) => {
                   const isActive = editingSubtaskId === s.id;
                   return (
-                    const toDateInput = (value: string | null | undefined) =>
-                      value ? String(value).slice(0, 10) : '';
-                    return (
-                      <li
+                    <li
                       key={s.id}
                       className={`border rounded-lg px-3 py-2 text-sm cursor-pointer ${
                         isActive ? 'border-primary-400 bg-primary-50' : ''
