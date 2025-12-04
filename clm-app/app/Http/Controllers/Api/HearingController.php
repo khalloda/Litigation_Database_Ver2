@@ -109,14 +109,13 @@ class HearingController extends Controller
             $rawData = $hearing->toArray();
             $rawData['case'] = $caseData;
             $rawData['lawyer'] = $lawyerData;
+            // Frontend expects `next_hearing_date` even though the column is `next_hearing`
+            $rawData['next_hearing_date'] = $hearing->next_hearing ? $hearing->next_hearing->format('Y-m-d') : null;
 
             $schemaData = $this->getSchemaFields('hearings', $hearing);
 
             return response()->json([
-                'data' => array_merge($rawData, [
-                    'case' => $caseData,
-                    'lawyer' => $lawyerData,
-                ]),
+                'data' => $rawData,
                 'raw' => $rawData,
                 'schema' => $schemaData,
             ]);
