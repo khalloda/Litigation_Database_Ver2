@@ -33,6 +33,17 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
   const [lawyers, setLawyers] = useState<any[]>([]);
   const [taskLawyerId, setTaskLawyerId] = useState<string>('');
   const [editingSubtaskId, setEditingSubtaskId] = useState<number | null>(null);
+  const [taskExtras, setTaskExtras] = useState<{
+    court: string;
+    circuit: string;
+    last_follow_up: string;
+    result: string;
+  }>({
+    court: '',
+    circuit: '',
+    last_follow_up: '',
+    result: '',
+  });
   const [formSubtask, setFormSubtask] = useState<{ performerId: string; next_date: string; result: string }>({
     performerId: '',
     performer: '',
@@ -60,6 +71,12 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
         const currentLawyerId =
           data.lawyer_id || data.lawyer?.id ? String(data.lawyer_id || data.lawyer?.id) : '';
         setTaskLawyerId(currentLawyerId);
+        setTaskExtras({
+          court: data.court || '',
+          circuit: data.circuit || '',
+          last_follow_up: data.last_follow_up ? toDateInput(data.last_follow_up) : '',
+          result: data.result || '',
+        });
       } catch (e: any) {
         setError(e?.message || 'Failed to load task');
       } finally {
@@ -110,7 +127,13 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
     try {
       setSubmitting(true);
       setError(null);
-      const payload: any = { status: taskStatus as any };
+      const payload: any = {
+        status: taskStatus as any,
+        court: taskExtras.court || null,
+        circuit: taskExtras.circuit || null,
+        last_follow_up: taskExtras.last_follow_up || null,
+        result: taskExtras.result || null,
+      };
       if (taskLawyerId) {
         payload.lawyer_id = Number(taskLawyerId);
       }
@@ -278,6 +301,60 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
                   }
                 }}
                 placeholder={t('new_task_form.select_lawyer') || 'Select performer'}
+              />
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">
+                {t('new_task_form.court') || 'Court'}
+              </label>
+              <input
+                type="text"
+                className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm"
+                value={taskExtras.court}
+                onChange={(e) =>
+                  setTaskExtras((prev) => ({ ...prev, court: e.target.value }))
+                }
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">
+                {t('new_task_form.circuit') || 'Circuit'}
+              </label>
+              <input
+                type="text"
+                className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm"
+                value={taskExtras.circuit}
+                onChange={(e) =>
+                  setTaskExtras((prev) => ({ ...prev, circuit: e.target.value }))
+                }
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">
+                {t('new_task_form.last_follow_up') || 'Last follow-up'}
+              </label>
+              <input
+                type="date"
+                className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm"
+                value={taskExtras.last_follow_up}
+                onChange={(e) =>
+                  setTaskExtras((prev) => ({ ...prev, last_follow_up: e.target.value }))
+                }
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">
+                {t('new_task_form.result') || 'Result / Notes'}
+              </label>
+              <textarea
+                className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm"
+                rows={3}
+                value={taskExtras.result}
+                onChange={(e) =>
+                  setTaskExtras((prev) => ({ ...prev, result: e.target.value }))
+                }
               />
             </div>
           </div>

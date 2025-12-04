@@ -30,6 +30,10 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) 
         status: 'todo' as TaskStatus,
         parentId: parentId,
         performerId: '',
+        court: '',
+        circuit: '',
+        last_follow_up: '',
+        result: '',
     });
 
     useEffect(() => {
@@ -98,6 +102,10 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) 
                 status: formData.status,
                 parent_id: formData.parentId || null,
                 lawyer_id: formData.performerId ? Number(formData.performerId) : null,
+                court: formData.court || null,
+                circuit: formData.circuit || null,
+                last_follow_up: formData.last_follow_up || null,
+                result: formData.result || null,
             };
             const result = await createTask(payload);
             onSave?.(result?.data ?? result);
@@ -168,14 +176,76 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) 
                             <option value="high">{t('priority.high')}</option>
                         </select>
                     </div>
+                    <div>
+                        <label htmlFor="last_follow_up" className="block text-sm font-medium text-gray-700">
+                            {t('new_task_form.last_follow_up') || 'Last follow-up'}
+                        </label>
+                        <input
+                            type="date"
+                            id="last_follow_up"
+                            name="last_follow_up"
+                            value={formData.last_follow_up}
+                            onChange={handleChange}
+                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                        />
+                    </div>
+                </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label htmlFor="court" className="block text-sm font-medium text-gray-700">
+                            {t('new_task_form.court') || 'Court'}
+                        </label>
+                        <input
+                            type="text"
+                            id="court"
+                            name="court"
+                            value={formData.court}
+                            onChange={handleChange}
+                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="circuit" className="block text-sm font-medium text-gray-700">
+                            {t('new_task_form.circuit') || 'Circuit'}
+                        </label>
+                        <input
+                            type="text"
+                            id="circuit"
+                            name="circuit"
+                            value={formData.circuit}
+                            onChange={handleChange}
+                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                        />
+                    </div>
                 </div>
                  <div>
-                    <label htmlFor="status" className="block text-sm font-medium text-gray-700">{t('new_task_form.status')}</label>
-                    <select id="status" name="status" value={formData.status} onChange={handleChange} className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm bg-white">
+                    <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+                        {t('new_task_form.status')}
+                    </label>
+                    <select
+                        id="status"
+                        name="status"
+                        value={formData.status}
+                        onChange={handleChange}
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm bg-white"
+                    >
                         <option value="todo">{t('status.todo')}</option>
                         <option value="in-progress">{t('status.in-progress')}</option>
                         <option value="completed">{t('status.completed')}</option>
                     </select>
+                </div>
+                <div>
+                    <label htmlFor="result" className="block text-sm font-medium text-gray-700">
+                        {t('new_task_form.result') || 'Result / Notes'}
+                    </label>
+                    <textarea
+                        id="result"
+                        name="result"
+                        value={formData.result}
+                        onChange={handleChange}
+                        rows={3}
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                    />
                 </div>
                 <div className="flex justify-end gap-3 pt-4 border-t mt-6">
                     <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300">

@@ -59,6 +59,10 @@ class TaskController extends Controller
             'status' => 'nullable|in:todo,in-progress,completed',
             'parent_id' => 'nullable|exists:admin_tasks,id',
             'lawyer_id' => 'nullable|exists:lawyers,id',
+            'court' => 'nullable|string|max:191',
+            'circuit' => 'nullable|string|max:191',
+            'last_follow_up' => 'nullable|date',
+            'result' => 'nullable|string',
         ]);
 
         // Map frontend fields into legacy AdminTask columns
@@ -82,6 +86,14 @@ class TaskController extends Controller
         // Ensure creation_date is set so reports can filter/sort on it
         if (empty($validated['creation_date'])) {
             $validated['creation_date'] = $now;
+        }
+
+        // Populate previous_decision from the case's latest hearing summary if available
+        if (!empty($validated['matter_id'])) {
+            $case = \App\Models\CaseModel::find($validated['matter_id']);
+            if ($case && !empty($case->latest_decision)) {
+                $validated['previous_decision'] = $case->latest_decision;
+            }
         }
 
         // Audit fields
@@ -130,6 +142,10 @@ class TaskController extends Controller
             'priority' => 'nullable|in:low,medium,high',
             'status' => 'nullable|in:todo,in-progress,completed',
             'lawyer_id' => 'nullable|exists:lawyers,id',
+            'court' => 'nullable|string|max:191',
+            'circuit' => 'nullable|string|max:191',
+            'last_follow_up' => 'nullable|date',
+            'result' => 'nullable|string',
         ]);
 
         // Map updated fields into legacy AdminTask columns
