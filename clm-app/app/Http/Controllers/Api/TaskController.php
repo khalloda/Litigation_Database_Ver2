@@ -61,9 +61,30 @@ class TaskController extends Controller
             'lawyer_id' => 'nullable|exists:lawyers,id',
         ]);
 
+        // Map frontend fields into legacy AdminTask columns
+        $now = now('Africa/Cairo');
+
+        // Case mapping
         $validated['matter_id'] = $validated['case_id'] ?? null;
+
+        // Title / required work
         $validated['required_work'] = $validated['title'];
+
+        // Status default
         $validated['status'] = $validated['status'] ?? 'todo';
+
+        // Due date from UI is the execution_date in the legacy table
+        if (!empty($validated['due_date'])) {
+            $validated['execution_date'] = $validated['due_date'];
+        }
+        unset($validated['due_date']);
+
+        // Ensure creation_date is set so reports can filter/sort on it
+        if (empty($validated['creation_date'])) {
+            $validated['creation_date'] = $now;
+        }
+
+        // Audit fields
         $validated['created_by'] = auth()->id();
         $validated['updated_by'] = auth()->id();
 
@@ -111,12 +132,21 @@ class TaskController extends Controller
             'lawyer_id' => 'nullable|exists:lawyers,id',
         ]);
 
+        // Map updated fields into legacy AdminTask columns
         if (isset($validated['case_id'])) {
             $validated['matter_id'] = $validated['case_id'];
         }
+
         if (isset($validated['title'])) {
             $validated['required_work'] = $validated['title'];
         }
+
+        if (array_key_exists('due_date', $validated)) {
+            // Allow clearing the due date as well
+            $validated['execution_date'] = $validated['due_date'] ?: null;
+            unset($validated['due_date']);
+        }
+
         $validated['updated_by'] = auth()->id();
 
         $task->update($validated);
