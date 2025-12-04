@@ -180,6 +180,14 @@ class CaseController extends Controller
                     'id' => $task->id,
                     'title' => $task->required_work ?? $task->title ?? '',
                     'status' => $task->status,
+                    'subtasks' => $task->subtasks ? $task->subtasks->map(function ($subtask) {
+                        return [
+                            'id' => $subtask->id,
+                            'performer' => $subtask->performer,
+                            'next_date' => $subtask->next_date?->format('Y-m-d'),
+                            'result' => $subtask->result,
+                        ];
+                    })->toArray() : [],
                 ];
             })->toArray() : [],
             'created_at' => $case->created_at?->toISOString(),
@@ -241,7 +249,7 @@ class CaseController extends Controller
                 'court',
                 'hearings',
                 'documents',
-                'adminTasks',
+                'adminTasks.subtasks',
                 'matterCategory',
                 'matterDegree',
                 'matterStatus',

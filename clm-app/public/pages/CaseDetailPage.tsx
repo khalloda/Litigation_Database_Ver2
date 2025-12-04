@@ -297,7 +297,6 @@ const CaseDetailPage: React.FC = () => {
                 
                 <AccordionItem title={t('case.related_hearings')}>
                     <div className="space-y-4">
-                        {/* Hearings list */}
                         <div>
                             <h4 className="font-semibold text-gray-800 mb-2">
                                 {t('case.related_hearings')} ({(caseData.hearings || []).length})
@@ -353,8 +352,11 @@ const CaseDetailPage: React.FC = () => {
                                 </p>
                             )}
                         </div>
+                    </div>
+                </AccordionItem>
 
-                        {/* Tasks list */}
+                <AccordionItem title={t('case.related_tasks')}>
+                    <div className="space-y-4">
                         <div>
                             <h4 className="font-semibold text-gray-800 mb-2">
                                 {t('case.related_tasks')} ({(caseData.tasks || []).length})
@@ -373,19 +375,44 @@ const CaseDetailPage: React.FC = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {caseData.tasks.map((task) => (
-                                                <tr
-                                                    key={task.id}
-                                                    className="border-b hover:bg-gray-50 cursor-pointer"
-                                                    onClick={() => navigate(`/tasks/${task.id}`)}
-                                                >
-                                                    <td className="p-3 text-gray-800 font-medium">
-                                                        {task.title}
-                                                    </td>
-                                                    <td className="p-3 text-gray-600">
-                                                        {task.status}
-                                                    </td>
-                                                </tr>
+                                            {caseData.tasks.map((task: any) => (
+                                                <React.Fragment key={task.id}>
+                                                    <tr
+                                                        className="border-b hover:bg-gray-50 cursor-pointer"
+                                                        onClick={() => navigate(`/tasks/${task.id}`)}
+                                                    >
+                                                        <td className="p-3 text-gray-800 font-medium">
+                                                            {task.title}
+                                                        </td>
+                                                        <td className="p-3 text-gray-600">
+                                                            {task.status}
+                                                        </td>
+                                                    </tr>
+                                                    {Array.isArray(task.subtasks) && task.subtasks.length > 0 && (
+                                                        task.subtasks.map((sub: any) => (
+                                                            <tr
+                                                                key={`${task.id}-sub-${sub.id}`}
+                                                                className="border-b bg-gray-50 hover:bg-gray-100 cursor-pointer"
+                                                                onClick={() => navigate(`/tasks/${task.id}`)}
+                                                            >
+                                                                <td className="p-3 text-gray-700">
+                                                                    <div className="flex items-start">
+                                                                        <span className="mr-2 mt-1 h-full border-l-2 border-gray-300" />
+                                                                        <span className="text-xs uppercase text-gray-500 mr-2">
+                                                                            {t('task.subtasks') || 'Sub-task'}
+                                                                        </span>
+                                                                        <span>{sub.result || sub.performer || '—'}</span>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="p-3 text-gray-500 text-sm">
+                                                                    {sub.next_date
+                                                                        ? new Date(sub.next_date).toLocaleDateString()
+                                                                        : '—'}
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                    )}
+                                                </React.Fragment>
                                             ))}
                                         </tbody>
                                     </table>
