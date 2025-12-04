@@ -50,7 +50,8 @@ const EditHearingForm: React.FC<EditHearingFormProps> = ({ hearingId, onClose, o
                     procedure: hearing.procedure || '',
                     courtId: hearing.court_id ? String(hearing.court_id) : '',
                     circuit: hearing.circuit || '',
-                    decision: hearing.decision || '',
+                    // Prefer explicit decision, then short_decision, otherwise empty
+                    decision: hearing.decision || hearing.short_decision || '',
                     nextHearingDate: hearing.next_hearing || hearing.next_hearing_date
                         ? new Date(hearing.next_hearing || hearing.next_hearing_date).toISOString().split('T')[0]
                         : '',
@@ -82,28 +83,39 @@ const EditHearingForm: React.FC<EditHearingFormProps> = ({ hearingId, onClose, o
         loadData();
     }, [hearingId]);
 
-    const caseOptions = useMemo(() =>
-        cases.map(c => ({
-            value: c.id,
-            label: `[${c.case_number || c.id}] ${language === 'ar' ? (c.case_name_ar || c.case_name_en) : (c.case_name_en || c.case_name_ar)}`
-        })).sort((a, b) => a.label.localeCompare(b.label)),
-        [cases, language]
+    const caseOptions = useMemo(
+        () =>
+            cases
+                .map((c) => ({
+                    value: String(c.id),
+                    label: `[${c.case_number || c.id}] ${
+                        language === 'ar' ? c.case_name_ar || c.case_name_en : c.case_name_en || c.case_name_ar
+                    }`,
+                }))
+                .sort((a, b) => a.label.localeCompare(b.label)),
+        [cases, language],
     );
     
-    const courtOptions = useMemo(() =>
-        courts.map(c => ({
-            value: c.id,
-            label: `[${c.id}] ${language === 'ar' ? (c.court_name_ar || c.court_name_en) : (c.court_name_en || c.court_name_ar)}`
-        })).sort((a, b) => a.label.localeCompare(b.label)),
-        [courts, language]
+    const courtOptions = useMemo(
+        () =>
+            courts
+                .map((c) => ({
+                    value: String(c.id),
+                    label: `[${c.id}] ${language === 'ar' ? c.court_name_ar || c.court_name_en : c.court_name_en || c.court_name_ar}`,
+                }))
+                .sort((a, b) => a.label.localeCompare(b.label)),
+        [courts, language],
     );
 
-    const lawyerOptions = useMemo(() =>
-        lawyers.map(l => ({
-            value: l.id,
-            label: `[${l.id}] ${language === 'ar' ? l.lawyer_name_ar : l.lawyer_name_en}`
-        })).sort((a, b) => a.label.localeCompare(b.label)),
-        [lawyers, language]
+    const lawyerOptions = useMemo(
+        () =>
+            lawyers
+                .map((l) => ({
+                    value: String(l.id),
+                    label: `[${l.id}] ${language === 'ar' ? l.lawyer_name_ar : l.lawyer_name_en}`,
+                }))
+                .sort((a, b) => a.label.localeCompare(b.label)),
+        [lawyers, language],
     );
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
