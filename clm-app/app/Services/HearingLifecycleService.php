@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\CaseModel;
 use App\Models\Hearing;
+use App\Models\Court;
 use Carbon\Carbon;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Facades\DB;
@@ -121,11 +122,20 @@ class HearingLifecycleService
             $normalized['lawyer_id'] = $data['attending_lawyer_id'];
         }
 
+        if (isset($data['court_id'])) {
+            $court = Court::find($data['court_id']);
+            if ($court) {
+                // Store the human-readable court name on the hearing record
+                $normalized['court'] = $court->court_name_en ?? $court->court_name_ar ?? null;
+            }
+        }
+
         unset(
             $normalized['case_id'],
             $normalized['hearing_date'],
             $normalized['next_hearing_date'],
-            $normalized['attending_lawyer_id']
+            $normalized['attending_lawyer_id'],
+            $normalized['court_id']
         );
 
         if ($isCreate) {
