@@ -137,6 +137,16 @@ const DashboardPage: React.FC = () => {
 
   const today = useMemo(() => new Date(), []);
 
+  const sortHearingsOldestFirst = (
+    items: PendingHearingDashboardItem[],
+  ): PendingHearingDashboardItem[] => {
+    return [...items].sort((a, b) => {
+      const aDate = a.date ? new Date(a.date).getTime() : 0;
+      const bDate = b.date ? new Date(b.date).getTime() : 0;
+      return aDate - bDate;
+    });
+  };
+
   const computePendingAgeDays = (dateString?: string | null): number | null => {
     if (!dateString) return null;
     const parsed = new Date(dateString);
@@ -170,7 +180,7 @@ const DashboardPage: React.FC = () => {
           fetchPendingTasks({ page: 1, per_page: 20 }),
         ]);
 
-        setPendingHearings(pendingHearingsResult.items);
+        setPendingHearings(sortHearingsOldestFirst(pendingHearingsResult.items));
         setPendingHearingsPage(1);
         setPendingHearingsHasMore(pendingHearingsResult.hasMore);
 
@@ -192,7 +202,9 @@ const DashboardPage: React.FC = () => {
     const nextPage = pendingHearingsPage + 1;
     try {
       const result = await fetchPendingHearings({ page: nextPage, per_page: 20 });
-      setPendingHearings((prev) => [...prev, ...result.items]);
+      setPendingHearings((prev) =>
+        sortHearingsOldestFirst([...prev, ...result.items]),
+      );
       setPendingHearingsPage(nextPage);
       setPendingHearingsHasMore(result.hasMore);
     } catch (err) {
@@ -307,9 +319,7 @@ const DashboardPage: React.FC = () => {
                       key={hearing.id}
                       className={`p-3 rounded-lg border cursor-pointer transition-colors ${tint}`}
                       onClick={() => {
-                        if (hearing.case?.id) {
-                          navigate(`/cases/${hearing.case.id}`);
-                        }
+                        navigate(`/hearings/${hearing.id}`);
                       }}
                     >
                       <div className="flex items-start justify-between gap-3">
@@ -322,15 +332,17 @@ const DashboardPage: React.FC = () => {
                               : '—'}
                           </p>
                           <p className="text-xs text-gray-600 mt-1">
-                            {hearing.lawyer
-                              ? language === 'ar'
-                                ? hearing.lawyer.name_ar
-                                : hearing.lawyer.name_en
-                              : ''}
+                            {hearing.date || '—'}
                           </p>
+                          {hearing.lawyer && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              {language === 'ar'
+                                ? hearing.lawyer.name_ar
+                                : hearing.lawyer.name_en}
+                            </p>
+                          )}
                         </div>
                         <div className="text-xs text-gray-600 text-right">
-                          <div>{hearing.date || '—'}</div>
                           {ageDays !== null && (
                             <div className="mt-1 font-semibold">
                               {ageDays}{' '}
