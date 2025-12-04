@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useI18n } from '../hooks/useI18n';
 import { fetchCases } from '../services/cases';
 import { fetchLawyers } from '../services/lawyers';
+import { fetchCourts } from '../services/courts';
 import { createTask } from '../services/tasks';
 import Modal from './Modal';
 import SearchableSelect from './SearchableSelect';
@@ -17,6 +18,7 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) 
     const { t, language } = useI18n();
     const [cases, setCases] = useState<any[]>([]);
     const [lawyers, setLawyers] = useState<any[]>([]);
+    const [courts, setCourts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -40,12 +42,14 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) 
         const loadCasesAndLawyers = async () => {
             try {
                 setLoading(true);
-                const [casesData, lawyersData] = await Promise.all([
+                const [casesData, lawyersData, courtsData] = await Promise.all([
                     fetchCases(),
                     fetchLawyers(),
+                    fetchCourts({ per_page: 100 }),
                 ]);
                 setCases(casesData.data || casesData);
                 setLawyers(lawyersData.data || lawyersData);
+                setCourts(courtsData);
             } catch (err: any) {
                 setError(err.message || 'Failed to load cases or lawyers');
             } finally {
@@ -77,6 +81,23 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) 
                 }))
                 .sort((a, b) => a.label.localeCompare(b.label)),
         [lawyers, language],
+    );
+
+    const courtOptions = useMemo(
+        () =>
+            courts
+                .map((c) => {
+                    const name =
+                        language === 'ar'
+                            ? c.court_name_ar || c.court_name_en
+                            : c.court_name_en || c.court_name_ar;
+                    return {
+                        value: name,
+                        label: name,
+                    };
+                })
+                .sort((a, b) => a.label.localeCompare(b.label)),
+        [courts, language],
     );
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -176,6 +197,19 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) 
                             <option value="high">{t('priority.high')}</option>
                         </select>
                     </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label htmlFor="court" className="block text-sm font-medium text-gray-700">
+                            {t('new_task_form.court') || 'Court'}
+                        </label>
+                        <SearchableSelect
+                            options={courtOptions}
+                            value={formData.court}
+                            onChange={(v) => handleSelectChange('court', v)}
+                            placeholder={t('new_task_form.select_court') || 'Select court'}
+                        />
+                    </div>
                     <div>
                         <label htmlFor="last_follow_up" className="block text-sm font-medium text-gray-700">
                             {t('new_task_form.last_follow_up') || 'Last follow-up'}
@@ -191,19 +225,6 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) 
                     </div>
                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div>
-                        <label htmlFor="court" className="block text-sm font-medium text-gray-700">
-                            {t('new_task_form.court') || 'Court'}
-                        </label>
-                        <input
-                            type="text"
-                            id="court"
-                            name="court"
-                            value={formData.court}
-                            onChange={handleChange}
-                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
-                        />
-                    </div>
                     <div>
                         <label htmlFor="circuit" className="block text-sm font-medium text-gray-700">
                             {t('new_task_form.circuit') || 'Circuit'}

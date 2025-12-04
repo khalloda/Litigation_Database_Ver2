@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useI18n } from '../hooks/useI18n';
 import { fetchTask, updateTask } from '../services/tasks';
 import { fetchLawyers } from '../services/lawyers';
+import { fetchCourts } from '../services/courts';
 import SearchableSelect from './SearchableSelect';
 import api from '../services/api';
 
@@ -33,6 +34,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
   const [lawyers, setLawyers] = useState<any[]>([]);
   const [taskLawyerId, setTaskLawyerId] = useState<string>('');
   const [editingSubtaskId, setEditingSubtaskId] = useState<number | null>(null);
+  const [courts, setCourts] = useState<any[]>([]);
   const [taskExtras, setTaskExtras] = useState<{
     court: string;
     circuit: string;
@@ -59,15 +61,17 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
       try {
         setLoading(true);
         setError(null);
-        const [taskResponse, lawyersResponse] = await Promise.all([
+        const [taskResponse, lawyersResponse, courtsResponse] = await Promise.all([
           fetchTask(taskId),
           fetchLawyers(),
+          fetchCourts({ per_page: 100 }),
         ]);
         const data = taskResponse?.data ?? taskResponse;
         setTask(data);
         setTaskStatus(data.status ?? 'todo');
         setSubtasks(data.subtasks ?? []);
         setLawyers(lawyersResponse.data || lawyersResponse);
+        setCourts(courtsResponse);
         const currentLawyerId =
           data.lawyer_id || data.lawyer?.id ? String(data.lawyer_id || data.lawyer?.id) : '';
         setTaskLawyerId(currentLawyerId);
@@ -207,6 +211,23 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
     [lawyers],
   );
 
+  const courtOptions = React.useMemo(
+    () =>
+      courts
+        .map((c: any) => {
+          const name =
+            language === 'ar'
+              ? c.court_name_ar || c.court_name_en
+              : c.court_name_en || c.court_name_ar;
+          return {
+            value: name,
+            label: name,
+          };
+        })
+        .sort((a: any, b: any) => a.label.localeCompare(b.label)),
+    [courts, language],
+  );
+
   if (loading) {
     return (
       <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/30">
@@ -309,13 +330,13 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
               <label className="block text-xs font-semibold text-gray-600 mb-1">
                 {t('new_task_form.court') || 'Court'}
               </label>
-              <input
-                type="text"
-                className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm"
+              <SearchableSelect
+                options={courtOptions}
                 value={taskExtras.court}
-                onChange={(e) =>
-                  setTaskExtras((prev) => ({ ...prev, court: e.target.value }))
+                onChange={(value) =>
+                  setTaskExtras((prev) => ({ ...prev, court: String(value) }))
                 }
+                placeholder={t('new_task_form.select_court') || 'Select court'}
               />
             </div>
             <div>
