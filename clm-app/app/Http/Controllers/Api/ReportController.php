@@ -435,12 +435,17 @@ class ReportController extends Controller
             $query->where('status', $validated['status']);
         }
 
-        // Apply date range filter if provided
+        // Apply date range filter if provided (match by creation_date OR execution_date)
         if ($dateRange) {
-            $query->whereBetween('execution_date', [
-                $dateRange['start'],
-                $dateRange['end'],
-            ]);
+            $query->where(function ($q) use ($dateRange) {
+                $q->whereBetween('creation_date', [
+                    $dateRange['start'],
+                    $dateRange['end'],
+                ])->orWhereBetween('execution_date', [
+                    $dateRange['start'],
+                    $dateRange['end'],
+                ]);
+            });
         }
 
         // Filter overdue tasks if requested
@@ -585,12 +590,17 @@ class ReportController extends Controller
             $query->where('status', $validated['status']);
         }
 
-        // Apply date range filter if provided
+        // Apply date range filter if provided (match by creation_date OR execution_date)
         if ($dateRange) {
-            $query->whereBetween('execution_date', [
-                $dateRange['start'],
-                $dateRange['end'],
-            ]);
+            $query->where(function ($q) use ($dateRange) {
+                $q->whereBetween('creation_date', [
+                    $dateRange['start'],
+                    $dateRange['end'],
+                ])->orWhereBetween('execution_date', [
+                    $dateRange['start'],
+                    $dateRange['end'],
+                ]);
+            });
         }
 
         // Filter overdue tasks if requested
