@@ -74,6 +74,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Tasks
     Route::apiResource('tasks', App\Http\Controllers\Api\TaskController::class);
+    Route::post('tasks/{task}/subtasks', [App\Http\Controllers\Api\TaskController::class, 'storeSubtask'])
+        ->name('tasks.subtasks.store');
+    Route::put('tasks/{task}/subtasks/{subtask}', [App\Http\Controllers\Api\TaskController::class, 'updateSubtask'])
+        ->name('tasks.subtasks.update');
+    Route::delete('tasks/{task}/subtasks/{subtask}', [App\Http\Controllers\Api\TaskController::class, 'destroySubtask'])
+        ->name('tasks.subtasks.destroy');
 
     // Users
     Route::apiResource('users', App\Http\Controllers\Api\UserController::class);

@@ -7,6 +7,7 @@ import { fetchCases } from '../services/cases';
 import type { Task, TaskStatus, TaskPriority } from '../types';
 import { CalendarIcon, XIcon, PlusIcon } from '../components/icons';
 import NewTaskForm from '../components/NewTaskForm';
+import TaskDetailModal from '../components/TaskDetailModal';
 
 const PriorityBadge: React.FC<{ priority: TaskPriority }> = ({ priority }) => {
     const { t } = useI18n();
@@ -33,7 +34,8 @@ const TaskCard: React.FC<{
     completedSubTasks: Set<number>;
     onToggleSubTask: (taskId: number) => void;
     onAddSubTask: (parentId: number) => void;
-}> = ({ task, cases, navigate, completedSubTasks, onToggleSubTask, onAddSubTask }) => {
+    onOpenDetail: (taskId: number) => void;
+}> = ({ task, cases, navigate, completedSubTasks, onToggleSubTask, onAddSubTask, onOpenDetail }) => {
     const { t, language } = useI18n();
     const relatedCase = cases.find(c => c.id === task.case_id);
 
@@ -42,12 +44,19 @@ const TaskCard: React.FC<{
         navigate(`/cases/${task.case_id}`);
     }
 
+    const handleCardClick = () => {
+        onOpenDetail(task.id);
+    };
+
     return (
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-3">
+        <div
+            className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-3 cursor-pointer hover:shadow-md transition-shadow"
+            onClick={handleCardClick}
+        >
             <div className="flex justify-between items-start">
               <p className="font-bold text-gray-800">{task.title}</p>
               <button
-                onClick={() => onAddSubTask(task.id)}
+              onClick={(e) => { e.stopPropagation(); onAddSubTask(task.id); }}
                 className="text-xs flex items-center gap-1 text-primary-600 hover:text-primary-800 font-semibold"
                 aria-label={`${t('task.add_subtask')} for ${task.title}`}
               >
@@ -108,7 +117,8 @@ const TaskColumn: React.FC<{
     completedSubTasks: Set<number>;
     onToggleSubTask: (taskId: number) => void;
     onAddSubTask: (parentId: number) => void;
-}> = ({ title, tasks, status, cases, navigate, completedSubTasks, onToggleSubTask, onAddSubTask }) => {
+    onOpenDetail: (taskId: number) => void;
+}> = ({ title, tasks, status, cases, navigate, completedSubTasks, onToggleSubTask, onAddSubTask, onOpenDetail }) => {
     const { t } = useI18n();
     const statusClasses = {
         todo: 'border-blue-500',
@@ -130,6 +140,7 @@ const TaskColumn: React.FC<{
                             completedSubTasks={completedSubTasks}
                             onToggleSubTask={onToggleSubTask}
                             onAddSubTask={onAddSubTask}
+                            onOpenDetail={onOpenDetail}
                         />
                     ))
                 ) : (
@@ -155,6 +166,7 @@ const TasksPage: React.FC = () => {
     const [cases, setCases] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [detailTaskId, setDetailTaskId] = useState<number | null>(null);
 
     useEffect(() => {
         const loadData = async () => {
@@ -349,6 +361,7 @@ const TasksPage: React.FC = () => {
                     completedSubTasks={completedSubTasks}
                     onToggleSubTask={toggleSubTask}
                     onAddSubTask={handleOpenNewTaskModal}
+                    onOpenDetail={(id) => setDetailTaskId(id)}
                 />
                 <TaskColumn 
                     title={t('tasks_page.in_progress')} 
@@ -359,6 +372,7 @@ const TasksPage: React.FC = () => {
                     completedSubTasks={completedSubTasks}
                     onToggleSubTask={toggleSubTask}
                     onAddSubTask={handleOpenNewTaskModal}
+                    onOpenDetail={(id) => setDetailTaskId(id)}
                 />
                 <TaskColumn 
                     title={t('tasks_page.completed')} 
@@ -369,6 +383,7 @@ const TasksPage: React.FC = () => {
                     completedSubTasks={completedSubTasks}
                     onToggleSubTask={toggleSubTask}
                     onAddSubTask={handleOpenNewTaskModal}
+                    onOpenDetail={(id) => setDetailTaskId(id)}
                 />
             </div>
             
@@ -377,6 +392,13 @@ const TasksPage: React.FC = () => {
                     onClose={() => setNewTaskModalState({ isOpen: false })}
                     onSave={handleSaveTask}
                     parentId={newTaskModalState.parentId}
+                />
+            )}
+            {detailTaskId !== null && (
+                <TaskDetailModal
+                    taskId={detailTaskId}
+                    onClose={() => setDetailTaskId(null)}
+                    onUpdated={handleSaveTask}
                 />
             )}
         </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\SchemaDrivenFields;
 use App\Models\AdminTask;
+use App\Models\AdminSubtask;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -130,6 +131,79 @@ class TaskController extends Controller
         $this->authorize('delete', $task);
         $task->delete();
         return response()->json(['message' => 'Task deleted successfully']);
+    }
+
+    public function storeSubtask(Request $request, AdminTask $task): JsonResponse
+    {
+        $this->authorize('create', AdminSubtask::class);
+
+        $validated = $request->validate([
+            'lawyer_id' => ['nullable', 'exists:lawyers,id'],
+            'performer' => ['nullable', 'string', 'max:191'],
+            'next_date' => ['nullable', 'date'],
+            'result' => ['nullable', 'string'],
+            'procedure_date' => ['nullable', 'date'],
+            'report' => ['boolean'],
+        ]);
+
+        $validated['task_id'] = $task->id;
+        $validated['created_by'] = auth()->id();
+        $validated['updated_by'] = auth()->id();
+
+        $subtask = AdminSubtask::create($validated);
+
+        return response()->json([
+            'data' => $subtask->fresh(),
+            'message' => 'Subtask created successfully',
+        ], 201);
+    }
+
+    public function updateSubtask(Request $request, AdminTask $task, AdminSubtask $subtask): JsonResponse
+    {
+        $this->authorize('update', $subtask);
+
+        if ($subtask->task_id !== $task->id) {
+            return response()->json([
+                'error' => 'invalid_subtask',
+                'message' => 'Subtask does not belong to the specified task.',
+            ], 422);
+        }
+
+        $validated = $request->validate([
+            'lawyer_id' => ['nullable', 'exists:lawyers,id'],
+            'performer' => ['nullable', 'string', 'max:191'],
+            'next_date' => ['nullable', 'date'],
+            'result' => ['nullable', 'string'],
+            'procedure_date' => ['nullable', 'date'],
+            'report' => ['boolean'],
+        ]);
+
+        $validated['updated_by'] = auth()->id();
+
+        $subtask->update($validated);
+
+        return response()->json([
+            'data' => $subtask->fresh(),
+            'message' => 'Subtask updated successfully',
+        ]);
+    }
+
+    public function destroySubtask(AdminTask $task, AdminSubtask $subtask): JsonResponse
+    {
+        $this->authorize('delete', $subtask);
+
+        if ($subtask->task_id !== $task->id) {
+            return response()->json([
+                'error' => 'invalid_subtask',
+                'message' => 'Subtask does not belong to the specified task.',
+            ], 422);
+        }
+
+        $subtask->delete();
+
+        return response()->json([
+            'message' => 'Subtask deleted successfully',
+        ]);
     }
 }
 
