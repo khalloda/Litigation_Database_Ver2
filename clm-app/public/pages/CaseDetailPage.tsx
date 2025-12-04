@@ -167,7 +167,27 @@ const CaseDetailPage: React.FC = () => {
         <div className="container mx-auto">
             <button onClick={() => navigate('/')} className="text-primary-600 hover:underline mb-4">&larr; {t('app.back_to_cases')}</button>
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">{t('case.details_title')}</h1>
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-800">{t('case.details_title')}</h1>
+                    <div className="mt-2 flex flex-wrap gap-3 text-sm text-gray-700">
+                        <span>
+                            {t('case.next_hearing') || 'Next hearing'}:{' '}
+                            {caseData.next_hearing_date
+                                ? new Date(caseData.next_hearing_date).toLocaleDateString()
+                                : t('common.not_set') || '—'}
+                        </span>
+                        <span>
+                            {t('case.last_hearing_date') || 'Last hearing date'}:{' '}
+                            {caseData.last_hearing_date
+                                ? new Date(caseData.last_hearing_date).toLocaleDateString()
+                                : t('common.not_set') || '—'}
+                        </span>
+                        <span>
+                            {t('case.latest_decision') || 'Latest decision'}:{' '}
+                            {caseData.latest_decision || t('common.not_set') || '—'}
+                        </span>
+                    </div>
+                </div>
                 <div className="flex items-center gap-2">
                     <button onClick={() => navigate('/')} className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition-colors">
                         {t('app.back_to_cases')}

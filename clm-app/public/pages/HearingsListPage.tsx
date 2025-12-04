@@ -20,6 +20,7 @@ const HearingsListPage: React.FC = () => {
     startDate: '',
     endDate: '',
     clientId: '',
+    status: '',
   });
   const [hearings, setHearings] = useState<any[]>([]);
   const [cases, setCases] = useState<any[]>([]);
@@ -56,7 +57,7 @@ const HearingsListPage: React.FC = () => {
   };
 
   const clearFilters = () => {
-    setFilters({ startDate: '', endDate: '', clientId: '' });
+    setFilters({ startDate: '', endDate: '', clientId: '', status: '' });
   };
 
   const handleSaveHearing = async () => {
@@ -115,6 +116,14 @@ const HearingsListPage: React.FC = () => {
         }
       }
 
+      // Status filter
+      if (filters.status) {
+        const effectiveStatus = hearing.status || 'pending';
+        if (effectiveStatus !== filters.status) {
+          return false;
+        }
+      }
+
       return true;
     });
   }, [searchTerm, sortedHearings, filters]);
@@ -145,12 +154,17 @@ const HearingsListPage: React.FC = () => {
       
        {showFilters && (
         <div className="bg-white p-4 rounded-lg shadow-sm mb-6 border">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <input type="date" name="startDate" value={filters.startDate} onChange={handleFilterChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder={t('filters.start_date')} />
             <input type="date" name="endDate" value={filters.endDate} onChange={handleFilterChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder={t('filters.end_date')} />
             <select name="clientId" value={filters.clientId} onChange={handleFilterChange} className="w-full p-2 border border-gray-300 rounded-md bg-white">
               <option value="">{t('dashboard.all_clients')}</option>
               {clients.map(c => <option key={c.id} value={c.id}>{language === 'ar' ? (c.client_name_ar || c.client_name_en) : (c.client_name_en || c.client_name_ar)}</option>)}
+            </select>
+            <select name="status" value={filters.status} onChange={handleFilterChange} className="w-full p-2 border border-gray-300 rounded-md bg-white">
+              <option value="">{t('filters.all_statuses') || t('common.all') || 'All statuses'}</option>
+              <option value="pending">{t('status.pending') || 'Pending'}</option>
+              <option value="complete">{t('status.completed') || 'Completed'}</option>
             </select>
           </div>
           <button
