@@ -202,7 +202,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
               {t('task.subtasks') || 'Sub-tasks'}
             </h3>
             {subtasks.length === 0 ? (
-              <p className="text-sm text-gray-500">{t('tasks_page.no_tasks') || 'No sub-tasks yet.'}</p>
+              <p className="text-sm text-gray-500">
+                {t('tasks_page.no_tasks') || 'No sub-tasks yet.'}
+              </p>
             ) : (
               <ul className="space-y-2">
                 {subtasks.map((s) => {
@@ -210,7 +212,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
                   return (
                     <li
                       key={s.id}
-                      className={`flex justify-between items-start gap-3 border rounded-lg px-3 py-2 text-sm ${isActive ? 'border-primary-400 bg-primary-50' : ''}`}
+                      className={`border rounded-lg px-3 py-2 text-sm cursor-pointer ${
+                        isActive ? 'border-primary-400 bg-primary-50' : ''
+                      }`}
                       onClick={() => {
                         setEditingSubtaskId(s.id);
                         setFormSubtask({
@@ -230,29 +234,35 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
                             handleToggleSubtaskCompleted(s);
                           }}
                         />
-                        {s.result && <p className="font-medium text-gray-800">{s.result}</p>}
-                        {s.performer && (
-                          <p className="text-xs text-gray-600">
-                            {t('task.performer') || 'Performer'}: {s.performer}
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-800">
+                            {s.result || s.performer || '-'}
                           </p>
-                        )}
-                        {s.next_date && (
-                          <p className="text-xs text-gray-600">
-                            {t('new_task_form.due_date') || 'Next Date'}:{' '}
-                            {new Date(s.next_date).toLocaleDateString()}
-                          </p>
-                        )}
+                          {s.performer && (
+                            <p className="text-xs text-gray-600">
+                              {t('task.performer') || 'Performer'}: {s.performer}
+                            </p>
+                          )}
+                          {s.next_date && (
+                            <p className="text-xs text-gray-600">
+                              {t('new_task_form.due_date') || 'Next Date'}:{' '}
+                              {new Date(s.next_date).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteSubtask(s.id);
-                        }}
-                        className="text-xs text-red-600 hover:text-red-800 font-semibold"
-                      >
-                        {t('settings_page.delete') || 'Delete'}
-                      </button>
+                      <div className="mt-2 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteSubtask(s.id);
+                          }}
+                          className="text-xs text-red-600 hover:text-red-800 font-semibold"
+                        >
+                          {t('settings_page.delete') || 'Delete'}
+                        </button>
+                      </div>
                     </li>
                   );
                 })}
@@ -261,9 +271,26 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">
-              {t('task.add_subtask') || 'Add Sub-task'}
-            </h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-semibold text-gray-700">
+                {editingSubtaskId
+                  ? t('task.edit_subtask') || 'Edit Sub-task'
+                  : t('task.add_subtask') || 'Add Sub-task'}
+              </h3>
+              {editingSubtaskId && (
+                <button
+                  type="button"
+                  className="text-xs text-gray-500 hover:text-gray-800 underline"
+                  onClick={() => {
+                    // Reset to create-new mode
+                    setEditingSubtaskId(null);
+                    setFormSubtask({ performer: '', next_date: '', result: '' });
+                  }}
+                >
+                  {t('common.cancel') || 'Cancel edit'}
+                </button>
+              )}
+            </div>
             <form onSubmit={handleSubmitSubtask} className="space-y-3">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
