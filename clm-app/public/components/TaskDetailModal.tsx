@@ -104,15 +104,35 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
   const handleTaskStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value;
     setTaskStatus(newStatus);
+  };
+
+  const handleSaveTask = async () => {
     try {
       setSubmitting(true);
       setError(null);
-      const response = await updateTask(taskId, { status: newStatus as any });
+      const payload: any = { status: taskStatus as any };
+      if (taskLawyerId) {
+        payload.lawyer_id = Number(taskLawyerId);
+      }
+      const response = await updateTask(taskId, payload);
       const updated = response?.data ?? response;
       setTask(updated);
       onUpdated?.();
     } catch (e: any) {
-      setError(e?.response?.data?.message || e?.message || 'Failed to update task status');
+      setError(e?.response?.data?.message || e?.message || 'Failed to save task');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleTaskStatusSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newStatus = e.target.value;
+    setTaskStatus(newStatus);
+    try {
+      setSubmitting(true);
+      setError(null);
+    } catch (e: any) {
+      // ignore; will be handled on explicit save
     } finally {
       setSubmitting(false);
     }
@@ -185,13 +205,22 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
           <h2 className="text-xl font-semibold text-gray-800">
             {t('tasks_page.title')} #{task.id}
           </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-800 text-sm font-semibold"
-          >
-            {t('common.close') || 'Close'}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleSaveTask}
+              className="px-3 py-1 rounded-lg bg-primary-600 text-white text-xs font-semibold hover:bg-primary-700"
+            >
+              {t('common.save') || 'Save Task'}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-800 text-sm font-semibold"
+            >
+              {t('common.close') || 'Close'}
+            </button>
+          </div>
         </div>
 
         {error && (
@@ -215,7 +244,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
               </label>
               <select
                 value={taskStatus}
-                onChange={handleTaskStatusChange}
+                onChange={handleTaskStatusSelectChange}
                 className="inline-block rounded-md border border-gray-300 px-2 py-1 text-xs bg-white"
               >
                 <option value="todo">{t('tasks_page.todo') || 'To Do'}</option>
