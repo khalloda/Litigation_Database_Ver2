@@ -36,6 +36,7 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) 
         circuit: '',
         last_follow_up: '',
         result: '',
+        alert: true,
     });
 
     useEffect(() => {
@@ -101,8 +102,12 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) 
     );
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const { name, type, value, checked } = e.target as HTMLInputElement;
+        if (type === 'checkbox') {
+            setFormData(prev => ({ ...prev, [name]: checked }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleSelectChange = (name: string, value: string | number) => {
@@ -127,6 +132,7 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) 
                 circuit: formData.circuit || null,
                 last_follow_up: formData.last_follow_up || null,
                 result: formData.result || null,
+                alert: formData.alert,
             };
             const result = await createTask(payload);
             onSave?.(result?.data ?? result);
@@ -237,6 +243,19 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) 
                             onChange={handleChange}
                             className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
                         />
+                    </div>
+                    <div className="flex items-center mt-6">
+                        <input
+                            id="alert"
+                            name="alert"
+                            type="checkbox"
+                            checked={formData.alert}
+                            onChange={handleChange}
+                            className="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                        />
+                        <label htmlFor="alert" className="ms-2 block text-sm font-medium text-gray-700">
+                            {t('new_task_form.alert') || 'Show in reminders / overdue list'}
+                        </label>
                     </div>
                 </div>
                  <div>

@@ -40,11 +40,13 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
     circuit: string;
     last_follow_up: string;
     result: string;
+    alert: boolean;
   }>({
     court: '',
     circuit: '',
     last_follow_up: '',
     result: '',
+    alert: true,
   });
   const [formSubtask, setFormSubtask] = useState<{ performerId: string; next_date: string; result: string }>({
     performerId: '',
@@ -80,6 +82,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
           circuit: data.circuit || '',
           last_follow_up: data.last_follow_up ? toDateInput(data.last_follow_up) : '',
           result: data.result || '',
+          alert: data.alert !== undefined ? Boolean(data.alert) : true,
         });
       } catch (e: any) {
         setError(e?.message || 'Failed to load task');
@@ -137,6 +140,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
         circuit: taskExtras.circuit || null,
         last_follow_up: taskExtras.last_follow_up || null,
         result: taskExtras.result || null,
+        alert: taskExtras.alert,
       };
       if (taskLawyerId) {
         payload.lawyer_id = Number(taskLawyerId);
@@ -323,6 +327,20 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
                 }}
                 placeholder={t('new_task_form.select_lawyer') || 'Select performer'}
               />
+            </div>
+            <div className="mt-3 md:mt-0 flex items-center gap-2">
+              <input
+                id="alert"
+                type="checkbox"
+                className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                checked={taskExtras.alert}
+                onChange={(e) =>
+                  setTaskExtras((prev) => ({ ...prev, alert: e.target.checked }))
+                }
+              />
+              <label htmlFor="alert" className="text-xs font-semibold text-gray-600">
+                {t('new_task_form.alert') || 'Show in reminders / overdue list'}
+              </label>
             </div>
           </div>
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">

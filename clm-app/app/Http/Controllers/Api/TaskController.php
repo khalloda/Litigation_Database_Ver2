@@ -63,6 +63,7 @@ class TaskController extends Controller
             'circuit' => 'nullable|string|max:191',
             'last_follow_up' => 'nullable|date',
             'result' => 'nullable|string',
+            'alert' => 'nullable|boolean',
         ]);
 
         // Map frontend fields into legacy AdminTask columns
@@ -87,6 +88,11 @@ class TaskController extends Controller
         if (empty($validated['creation_date'])) {
             $validated['creation_date'] = $now;
         }
+
+        // Alert flag: default to true (1) unless explicitly provided
+        $validated['alert'] = array_key_exists('alert', $validated)
+            ? (bool) $validated['alert']
+            : true;
 
         // Populate previous_decision from the case's latest hearing summary if available
         if (!empty($validated['matter_id'])) {
@@ -146,6 +152,7 @@ class TaskController extends Controller
             'circuit' => 'nullable|string|max:191',
             'last_follow_up' => 'nullable|date',
             'result' => 'nullable|string',
+            'alert' => 'nullable|boolean',
         ]);
 
         // Map updated fields into legacy AdminTask columns
@@ -161,6 +168,10 @@ class TaskController extends Controller
             // Allow clearing the due date as well
             $validated['execution_date'] = $validated['due_date'] ?: null;
             unset($validated['due_date']);
+        }
+
+        if (array_key_exists('alert', $validated)) {
+            $validated['alert'] = (bool) $validated['alert'];
         }
 
         $validated['updated_by'] = auth()->id();
