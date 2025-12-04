@@ -346,7 +346,13 @@ const CaseDetailPage: React.FC = () => {
                                                             : '—'}
                                                     </td>
                                                     <td className="p-3 text-gray-600">
-                                                        {hearing.short_decision || '—'}
+                                                        {hearing.short_decision && hearing.short_decision.trim().length > 0
+                                                            ? hearing.short_decision
+                                                            : hearing.decision && hearing.decision.trim().length > 0
+                                                                ? hearing.decision
+                                                                : hearing.last_decision && hearing.last_decision.trim().length > 0
+                                                                    ? `${t('hearing_page.previous_decision_prefix') || 'Previous decision:'} ${hearing.last_decision}`
+                                                                    : (t('hearing_page.no_decision_yet') || 'No decision yet')}
                                                     </td>
                                                     <td className="p-3 text-gray-600">
                                                         {hearing.status || '—'}

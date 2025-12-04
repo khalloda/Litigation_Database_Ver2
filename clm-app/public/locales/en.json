@@ -297,7 +297,9 @@
     "all_fields": "All Fields",
     "pending_banner": "Hearing is pending until a decision or next hearing date is added.",
     "completed_at": "Completed At",
-    "last_decision": "Last decision"
+    "last_decision": "Last decision",
+    "previous_decision_prefix": "Previous decision:",
+    "no_decision_yet": "No decision yet"
   },
   "tasks_page": {
     "title": "Tasks",

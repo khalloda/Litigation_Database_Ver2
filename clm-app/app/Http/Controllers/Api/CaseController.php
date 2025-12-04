@@ -162,6 +162,8 @@ class CaseController extends Controller
                     'id' => $hearing->id,
                     'date' => $hearing->date?->format('Y-m-d'),
                     'court' => $hearing->court,
+                    'decision' => $hearing->decision,
+                    'last_decision' => $hearing->last_decision,
                     'short_decision' => $hearing->short_decision,
                     'status' => $hearing->status,
                     'lawyer' => $hearing->lawyer ? [

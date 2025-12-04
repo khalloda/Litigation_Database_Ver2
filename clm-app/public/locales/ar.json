@@ -297,7 +297,9 @@
     "all_fields": "كل الحقول",
     "pending_banner": "الجلسة معلقة حتى يتم إدخال قرار أو تحديد تاريخ الجلسة التالية.",
     "completed_at": "تاريخ الإتمام",
-    "last_decision": "آخر قرار"
+    "last_decision": "آخر قرار",
+    "previous_decision_prefix": "القرار السابق:",
+    "no_decision_yet": "لا يوجد قرار بعد"
   },
   "tasks_page": {
     "title": "المهام",
