@@ -32,6 +32,8 @@ export async function fetchTasks(params?: {
       status,
       priority,
       parentId: row.parent_id ?? null,
+      performer: row.performer ?? null,
+      lawyer_id: row.lawyer_id ?? null,
     } as Task;
   });
 }

@@ -58,6 +58,7 @@ class TaskController extends Controller
             'priority' => 'nullable|in:low,medium,high',
             'status' => 'nullable|in:todo,in-progress,completed',
             'parent_id' => 'nullable|exists:admin_tasks,id',
+            'lawyer_id' => 'nullable|exists:lawyers,id',
         ]);
 
         $validated['matter_id'] = $validated['case_id'] ?? null;
@@ -78,7 +79,7 @@ class TaskController extends Controller
     public function show(AdminTask $task): JsonResponse
     {
         $this->authorize('view', $task);
-        $task->load(['case', 'lawyer', 'subtasks']);
+        $task->load(['case', 'lawyer', 'subtasks.lawyer']);
         
         // Get schema-driven field metadata for task
         $taskSchemaData = $this->getSchemaFields('admin_work_tasks', $task);
@@ -107,6 +108,7 @@ class TaskController extends Controller
             'due_date' => 'nullable|date',
             'priority' => 'nullable|in:low,medium,high',
             'status' => 'nullable|in:todo,in-progress,completed',
+            'lawyer_id' => 'nullable|exists:lawyers,id',
         ]);
 
         if (isset($validated['case_id'])) {

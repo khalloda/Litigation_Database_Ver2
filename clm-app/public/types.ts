@@ -20,6 +20,8 @@ export interface Task {
   status: TaskStatus;
   priority: TaskPriority;
   parentId?: number;
+  performer?: string | null;
+  lawyer_id?: number | null;
 }
 
 

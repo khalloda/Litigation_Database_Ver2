@@ -187,11 +187,11 @@ class CaseController extends Controller
                     'title' => $task->required_work ?? $task->title ?? '',
                     'status' => $task->status,
                     'date' => $task->last_date?->format('Y-m-d') ?? $task->creation_date?->format('Y-m-d'),
-                    'performer' => $task->performer,
+                    'performer' => $task->performer ?? optional($task->lawyer)->lawyer_name_en ?? optional($task->lawyer)->lawyer_name_ar,
                     'subtasks' => $task->subtasks ? $task->subtasks->map(function ($subtask) {
                         return [
                             'id' => $subtask->id,
-                            'performer' => $subtask->performer,
+                            'performer' => $subtask->performer ?? optional($subtask->lawyer)->lawyer_name_en ?? optional($subtask->lawyer)->lawyer_name_ar,
                             'next_date' => $subtask->next_date?->format('Y-m-d'),
                             'result' => $subtask->result,
                         ];

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useI18n } from '../hooks/useI18n';
 import { fetchTask, updateTask } from '../services/tasks';
+import { fetchLawyers } from '../services/lawyers';
+import SearchableSelect from './SearchableSelect';
 import api from '../services/api';
 
 interface TaskDetailModalProps {
@@ -12,6 +14,7 @@ interface TaskDetailModalProps {
 interface ApiSubtask {
   id: number;
   task_id: number;
+  lawyer_id?: number | null;
   performer?: string | null;
   next_date?: string | null;
   result?: string | null;
@@ -27,8 +30,11 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [taskStatus, setTaskStatus] = useState<string>('todo');
+  const [lawyers, setLawyers] = useState<any[]>([]);
+  const [taskLawyerId, setTaskLawyerId] = useState<string>('');
   const [editingSubtaskId, setEditingSubtaskId] = useState<number | null>(null);
-  const [formSubtask, setFormSubtask] = useState<{ performer: string; next_date: string; result: string }>({
+  const [formSubtask, setFormSubtask] = useState<{ performerId: string; next_date: string; result: string }>({
+    performerId: '',
     performer: '',
     next_date: '',
     result: '',
@@ -39,11 +45,18 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
       try {
         setLoading(true);
         setError(null);
-        const response = await fetchTask(taskId);
-        const data = response?.data ?? response;
+        const [taskResponse, lawyersResponse] = await Promise.all([
+          fetchTask(taskId),
+          fetchLawyers(),
+        ]);
+        const data = taskResponse?.data ?? taskResponse;
         setTask(data);
         setTaskStatus(data.status ?? 'todo');
         setSubtasks(data.subtasks ?? []);
+        setLawyers(lawyersResponse.data || lawyersResponse);
+        const currentLawyerId =
+          data.lawyer_id || data.lawyer?.id ? String(data.lawyer_id || data.lawyer?.id) : '';
+        setTaskLawyerId(currentLawyerId);
       } catch (e: any) {
         setError(e?.message || 'Failed to load task');
       } finally {
@@ -59,7 +72,8 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
       setSubmitting(true);
       setError(null);
       const payload = {
-        performer: formSubtask.performer || null,
+        lawyer_id: formSubtask.performerId ? Number(formSubtask.performerId) : null,
+        performer: null,
         next_date: formSubtask.next_date || null,
         result: formSubtask.result || null,
       };
@@ -75,7 +89,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
       }
       setSubtasks(updatedSubtasks);
       setEditingSubtaskId(null);
-      setFormSubtask({ performer: '', next_date: '', result: '' });
+      setFormSubtask({ performerId: '', performer: '', next_date: '', result: '' });
       onUpdated?.();
     } catch (e: any) {
       setError(e?.response?.data?.message || e?.message || 'Failed to save subtask');
@@ -136,6 +150,17 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
     }
   };
 
+  const lawyerOptions = React.useMemo(
+    () =>
+      lawyers
+        .map((l: any) => ({
+          value: String(l.id),
+          label: l.lawyer_name_en ?? l.lawyer_name_ar,
+        }))
+        .sort((a: any, b: any) => a.label.localeCompare(b.label)),
+    [lawyers],
+  );
+
   if (loading) {
     return (
       <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/30">
@@ -180,19 +205,49 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
               Case: {task.case.matter_name_en} / {task.case.matter_name_ar}
             </p>
           )}
-          <div className="mt-2">
-            <label className="block text-xs font-semibold text-gray-600 mb-1">
-              {t('tasks_page.status') || 'Status'}
-            </label>
-            <select
-              value={taskStatus}
-              onChange={handleTaskStatusChange}
-              className="inline-block rounded-md border border-gray-300 px-2 py-1 text-xs bg-white"
-            >
-              <option value="todo">{t('tasks_page.todo') || 'To Do'}</option>
-              <option value="in-progress">{t('tasks_page.in_progress') || 'In Progress'}</option>
-              <option value="completed">{t('tasks_page.completed') || 'Completed'}</option>
-            </select>
+          <div className="mt-3 flex flex-col md:flex-row md:items-center md:gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">
+                {t('tasks_page.status') || 'Status'}
+              </label>
+              <select
+                value={taskStatus}
+                onChange={handleTaskStatusChange}
+                className="inline-block rounded-md border border-gray-300 px-2 py-1 text-xs bg-white"
+              >
+                <option value="todo">{t('tasks_page.todo') || 'To Do'}</option>
+                <option value="in-progress">{t('tasks_page.in_progress') || 'In Progress'}</option>
+                <option value="completed">{t('tasks_page.completed') || 'Completed'}</option>
+              </select>
+            </div>
+            <div className="mt-3 md:mt-0 flex-1">
+              <label className="block text-xs font-semibold text-gray-600 mb-1">
+                {t('task.performer') || 'Task Performer'}
+              </label>
+              <SearchableSelect
+                options={lawyerOptions}
+                value={taskLawyerId}
+                onChange={async (value) => {
+                  const idString = String(value);
+                  setTaskLawyerId(idString);
+                  try {
+                    setSubmitting(true);
+                    setError(null);
+                    const response = await updateTask(taskId, {
+                      lawyer_id: Number(idString),
+                    } as any);
+                    const updated = response?.data ?? response;
+                    setTask(updated);
+                    onUpdated?.();
+                  } catch (e: any) {
+                    setError(e?.response?.data?.message || e?.message || 'Failed to update task performer');
+                  } finally {
+                    setSubmitting(false);
+                  }
+                }}
+                placeholder={t('new_task_form.select_lawyer') || 'Select performer'}
+              />
+            </div>
           </div>
         </div>
 
@@ -218,7 +273,8 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
                       onClick={() => {
                         setEditingSubtaskId(s.id);
                         setFormSubtask({
-                          performer: s.performer || '',
+          performerId: s.lawyer_id ? String(s.lawyer_id) : '',
+          performer: s.performer || '',
                           next_date: s.next_date || '',
                           result: s.result || '',
                         });
@@ -294,13 +350,15 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
             <form onSubmit={handleSubmitSubtask} className="space-y-3">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
-                  {t('task.performer') || 'Performer'}
+                  {t('task.performer') || 'Sub-task Performer'}
                 </label>
-                <input
-                  type="text"
-                  className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm"
-                  value={formSubtask.performer}
-                  onChange={(e) => setFormSubtask((prev) => ({ ...prev, performer: e.target.value }))}
+                <SearchableSelect
+                  options={lawyerOptions}
+                  value={formSubtask.performerId}
+                  onChange={(value) =>
+                    setFormSubtask((prev) => ({ ...prev, performerId: String(value) }))
+                  }
+                  placeholder={t('new_task_form.select_lawyer') || 'Select performer'}
                 />
               </div>
               <div>

@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useI18n } from '../hooks/useI18n';
 import { fetchCases } from '../services/cases';
+import { fetchLawyers } from '../services/lawyers';
 import { createTask } from '../services/tasks';
 import Modal from './Modal';
 import SearchableSelect from './SearchableSelect';
@@ -15,6 +16,7 @@ interface NewTaskFormProps {
 const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) => {
     const { t, language } = useI18n();
     const [cases, setCases] = useState<any[]>([]);
+    const [lawyers, setLawyers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -27,29 +29,50 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) 
         priority: 'medium' as TaskPriority,
         status: 'todo' as TaskStatus,
         parentId: parentId,
+        performerId: '',
     });
 
     useEffect(() => {
-        const loadCases = async () => {
+        const loadCasesAndLawyers = async () => {
             try {
                 setLoading(true);
-                const casesData = await fetchCases();
+                const [casesData, lawyersData] = await Promise.all([
+                    fetchCases(),
+                    fetchLawyers(),
+                ]);
                 setCases(casesData.data || casesData);
+                setLawyers(lawyersData.data || lawyersData);
             } catch (err: any) {
-                setError(err.message || 'Failed to load cases');
+                setError(err.message || 'Failed to load cases or lawyers');
             } finally {
                 setLoading(false);
             }
         };
-        loadCases();
+        loadCasesAndLawyers();
     }, []);
 
-    const caseOptions = useMemo(() =>
-        cases.map(c => ({
-            value: c.id,
-            label: `[${c.case_number || c.id}] ${language === 'ar' ? (c.case_name_ar || c.case_name_en) : (c.case_name_en || c.case_name_ar)}`
-        })).sort((a, b) => a.label.localeCompare(b.label)),
-        [cases, language]
+    const caseOptions = useMemo(
+        () =>
+            cases
+                .map((c) => ({
+                    value: String(c.id),
+                    label: `[${c.case_number || c.id}] ${
+                        language === 'ar' ? c.case_name_ar || c.case_name_en : c.case_name_en || c.case_name_ar
+                    }`,
+                }))
+                .sort((a, b) => a.label.localeCompare(b.label)),
+        [cases, language],
+    );
+
+    const lawyerOptions = useMemo(
+        () =>
+            lawyers
+                .map((l) => ({
+                    value: String(l.id),
+                    label: language === 'ar' ? l.lawyer_name_ar : l.lawyer_name_en,
+                }))
+                .sort((a, b) => a.label.localeCompare(b.label)),
+        [lawyers, language],
     );
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -74,6 +97,7 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) 
                 priority: formData.priority,
                 status: formData.status,
                 parent_id: formData.parentId || null,
+                lawyer_id: formData.performerId ? Number(formData.performerId) : null,
             };
             const result = await createTask(payload);
             onSave?.(result?.data ?? result);
@@ -99,12 +123,32 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({ onClose, onSave, parentId }) 
                     <textarea id="description" name="description" value={formData.description} onChange={handleChange} rows={3} className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"></textarea>
                 </div>
                 {loading ? (
-                    <div className="text-sm text-gray-500">Loading cases...</div>
+                    <div className="text-sm text-gray-500">Loading cases &amp; lawyers...</div>
                 ) : (
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('new_task_form.case')}</label>
-                        <SearchableSelect options={caseOptions} value={formData.caseId} onChange={(v) => handleSelectChange('caseId', v)} placeholder={t('new_task_form.select_case')} />
-                    </div>
+                    <>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                {t('new_task_form.case')}
+                            </label>
+                            <SearchableSelect
+                                options={caseOptions}
+                                value={formData.caseId}
+                                onChange={(v) => handleSelectChange('caseId', v)}
+                                placeholder={t('new_task_form.select_case')}
+                            />
+                        </div>
+                        <div className="mt-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                {t('task.performer') || 'Task Performer'}
+                            </label>
+                            <SearchableSelect
+                                options={lawyerOptions}
+                                value={formData.performerId}
+                                onChange={(v) => handleSelectChange('performerId', v)}
+                                placeholder={t('new_task_form.select_lawyer') || 'Select performer'}
+                            />
+                        </div>
+                    </>
                 )}
                 {error && (
                     <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
