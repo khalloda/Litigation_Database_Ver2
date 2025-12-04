@@ -1,6 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchDashboardStatistics, type DashboardStatistics } from '../services/dashboard';
+import {
+  fetchDashboardStatistics,
+  fetchPendingHearings,
+  fetchPendingTasks,
+  type DashboardStatistics,
+  type PendingHearingDashboardItem,
+  type PendingTaskDashboardItem,
+} from '../services/dashboard';
 import { useI18n } from '../hooks/useI18n';
 import { 
   ClientIcon, 
@@ -120,12 +127,56 @@ const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [pendingHearings, setPendingHearings] = useState<PendingHearingDashboardItem[]>([]);
+  const [pendingHearingsPage, setPendingHearingsPage] = useState(1);
+  const [pendingHearingsHasMore, setPendingHearingsHasMore] = useState(true);
+
+  const [pendingTasks, setPendingTasks] = useState<PendingTaskDashboardItem[]>([]);
+  const [pendingTasksPage, setPendingTasksPage] = useState(1);
+  const [pendingTasksHasMore, setPendingTasksHasMore] = useState(true);
+
+  const today = useMemo(() => new Date(), []);
+
+  const computePendingAgeDays = (dateString?: string | null): number | null => {
+    if (!dateString) return null;
+    const parsed = new Date(dateString);
+    if (Number.isNaN(parsed.getTime())) return null;
+    const diffMs = today.getTime() - parsed.getTime();
+    return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  };
+
+  const getPendingTintClasses = (days: number | null): string => {
+    if (days === null) {
+      return 'bg-gray-50 border-gray-200';
+    }
+    if (days >= 60) return 'bg-red-100 border-red-300';
+    if (days >= 30) return 'bg-orange-100 border-orange-300';
+    if (days >= 14) return 'bg-yellow-100 border-yellow-300';
+    if (days >= 7) return 'bg-lime-100 border-lime-300';
+    if (days >= 0) return 'bg-green-50 border-green-200';
+    // Future-dated (not yet due)
+    return 'bg-sky-50 border-sky-200';
+  };
+
   useEffect(() => {
-    const loadStatistics = async () => {
+    const loadDashboard = async () => {
       try {
         setLoading(true);
-        const data = await fetchDashboardStatistics();
-        setStatistics(data);
+        const stats = await fetchDashboardStatistics();
+        setStatistics(stats);
+
+        const [pendingHearingsResult, pendingTasksResult] = await Promise.all([
+          fetchPendingHearings({ page: 1, per_page: 20 }),
+          fetchPendingTasks({ page: 1, per_page: 20 }),
+        ]);
+
+        setPendingHearings(pendingHearingsResult.items);
+        setPendingHearingsPage(1);
+        setPendingHearingsHasMore(pendingHearingsResult.hasMore);
+
+        setPendingTasks(pendingTasksResult.items);
+        setPendingTasksPage(1);
+        setPendingTasksHasMore(pendingTasksResult.hasMore);
       } catch (err: any) {
         console.error('Error loading dashboard statistics:', err);
         setError(err.response?.data?.message || err.message || 'Failed to load dashboard statistics');
@@ -133,8 +184,34 @@ const DashboardPage: React.FC = () => {
         setLoading(false);
       }
     };
-    loadStatistics();
+    loadDashboard();
   }, []);
+
+  const handleViewMorePendingHearings = async () => {
+    if (!pendingHearingsHasMore) return;
+    const nextPage = pendingHearingsPage + 1;
+    try {
+      const result = await fetchPendingHearings({ page: nextPage, per_page: 20 });
+      setPendingHearings((prev) => [...prev, ...result.items]);
+      setPendingHearingsPage(nextPage);
+      setPendingHearingsHasMore(result.hasMore);
+    } catch (err) {
+      console.error('Error loading more pending hearings:', err);
+    }
+  };
+
+  const handleViewMorePendingTasks = async () => {
+    if (!pendingTasksHasMore) return;
+    const nextPage = pendingTasksPage + 1;
+    try {
+      const result = await fetchPendingTasks({ page: nextPage, per_page: 20 });
+      setPendingTasks((prev) => [...prev, ...result.items]);
+      setPendingTasksPage(nextPage);
+      setPendingTasksHasMore(result.hasMore);
+    } catch (err) {
+      console.error('Error loading more pending tasks:', err);
+    }
+  };
 
   if (loading) {
     return (
@@ -200,6 +277,154 @@ const DashboardPage: React.FC = () => {
           icon={<UserIcon className="w-6 h-6" />}
           color="indigo"
         />
+      </div>
+
+      {/* Pending Items Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="bg-white rounded-xl shadow-md border-2 border-gray-200 p-6 flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-800">
+              {t('dashboard.pending_hearings') || 'Pending Hearings'}
+            </h2>
+            <span className="ml-auto bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-semibold">
+              {pendingHearings.length}
+            </span>
+          </div>
+          {pendingHearings.length === 0 ? (
+            <p className="text-gray-500 text-sm">
+              {t('dashboard.no_pending_hearings') || 'No pending hearings.'}
+            </p>
+          ) : (
+            <>
+              <div className="space-y-3">
+                {pendingHearings.map((hearing) => {
+                  const ageDays =
+                    computePendingAgeDays(hearing.date || hearing.created_at || null);
+                  const tint = getPendingTintClasses(ageDays);
+                  return (
+                    <div
+                      key={hearing.id}
+                      className={`p-3 rounded-lg border cursor-pointer transition-colors ${tint}`}
+                      onClick={() => {
+                        if (hearing.case?.id) {
+                          navigate(`/cases/${hearing.case.id}`);
+                        }
+                      }}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-800 text-sm">
+                            {hearing.case
+                              ? language === 'ar'
+                                ? hearing.case.name_ar
+                                : hearing.case.name_en
+                              : '—'}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">
+                            {hearing.lawyer
+                              ? language === 'ar'
+                                ? hearing.lawyer.name_ar
+                                : hearing.lawyer.name_en
+                              : ''}
+                          </p>
+                        </div>
+                        <div className="text-xs text-gray-600 text-right">
+                          <div>{hearing.date || '—'}</div>
+                          {ageDays !== null && (
+                            <div className="mt-1 font-semibold">
+                              {ageDays}{' '}
+                              {t('dashboard.days_pending_suffix') || 'days pending'}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {pendingHearingsHasMore && (
+                <button
+                  type="button"
+                  className="mt-4 text-sm text-primary-700 hover:text-primary-900 font-semibold self-center"
+                  onClick={handleViewMorePendingHearings}
+                >
+                  {t('dashboard.view_more') || 'View more'}
+                </button>
+              )}
+            </>
+          )}
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md border-2 border-gray-200 p-6 flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-800">
+              {t('dashboard.pending_tasks') || 'Pending Tasks'}
+            </h2>
+            <span className="ml-auto bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-semibold">
+              {pendingTasks.length}
+            </span>
+          </div>
+          {pendingTasks.length === 0 ? (
+            <p className="text-gray-500 text-sm">
+              {t('dashboard.no_pending_tasks') || 'No pending tasks.'}
+            </p>
+          ) : (
+            <>
+              <div className="space-y-3">
+                {pendingTasks.map((task) => {
+                  const referenceDate =
+                    task.creation_date || task.created_at || null;
+                  const ageDays = computePendingAgeDays(referenceDate);
+                  const tint = getPendingTintClasses(ageDays);
+                  return (
+                    <div
+                      key={task.id}
+                      className={`p-3 rounded-lg border cursor-pointer transition-colors ${tint}`}
+                      onClick={() => navigate(`/tasks/${task.id}`)}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-800 text-sm">
+                            {task.title || '—'}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">
+                            {task.case
+                              ? language === 'ar'
+                                ? task.case.name_ar
+                                : task.case.name_en
+                              : ''}
+                          </p>
+                        </div>
+                        <div className="text-xs text-gray-600 text-right">
+                          {referenceDate && (
+                            <div>
+                              {new Date(referenceDate).toLocaleDateString()}
+                            </div>
+                          )}
+                          {ageDays !== null && (
+                            <div className="mt-1 font-semibold">
+                              {ageDays}{' '}
+                              {t('dashboard.days_pending_suffix') || 'days pending'}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {pendingTasksHasMore && (
+                <button
+                  type="button"
+                  className="mt-4 text-sm text-primary-700 hover:text-primary-900 font-semibold self-center"
+                  onClick={handleViewMorePendingTasks}
+                >
+                  {t('dashboard.view_more') || 'View more'}
+                </button>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
       {/* Hearings Section */}

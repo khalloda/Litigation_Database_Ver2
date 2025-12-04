@@ -97,6 +97,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dashboard
     Route::get('/dashboard/statistics', [App\Http\Controllers\Api\DashboardController::class, 'statistics']);
+    Route::get('/dashboard/pending-hearings', [App\Http\Controllers\Api\DashboardController::class, 'pendingHearings']);
+    Route::get('/dashboard/pending-tasks', [App\Http\Controllers\Api\DashboardController::class, 'pendingTasks']);
 
     // Reports
     Route::post('/reports/client-cases/pdf', [App\Http\Controllers\Api\ReportController::class, 'clientCasesPdf'])
