@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useI18n } from '../hooks/useI18n';
-import { fetchTask } from '../services/tasks';
+import { fetchTask, updateTask } from '../services/tasks';
 import api from '../services/api';
 
 interface TaskDetailModalProps {
@@ -26,6 +26,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [taskStatus, setTaskStatus] = useState<string>('todo');
   const [editingSubtaskId, setEditingSubtaskId] = useState<number | null>(null);
   const [formSubtask, setFormSubtask] = useState<{ performer: string; next_date: string; result: string }>({
     performer: '',
@@ -41,6 +42,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
         const response = await fetchTask(taskId);
         const data = response?.data ?? response;
         setTask(data);
+        setTaskStatus(data.status ?? 'todo');
         setSubtasks(data.subtasks ?? []);
       } catch (e: any) {
         setError(e?.message || 'Failed to load task');
@@ -82,6 +84,23 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
     }
   };
 
+  const handleTaskStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newStatus = e.target.value;
+    setTaskStatus(newStatus);
+    try {
+      setSubmitting(true);
+      setError(null);
+      const response = await updateTask(taskId, { status: newStatus as any });
+      const updated = response?.data ?? response;
+      setTask(updated);
+      onUpdated?.();
+    } catch (e: any) {
+      setError(e?.response?.data?.message || e?.message || 'Failed to update task status');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleDeleteSubtask = async (subtaskId: number) => {
     if (!window.confirm(t('settings_page.delete_confirm_text') || 'Are you sure you want to delete this subtask?')) {
       return;
@@ -96,6 +115,24 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
       onUpdated?.();
     } catch (e: any) {
       setError(e?.response?.data?.message || e?.message || 'Failed to delete subtask');
+    }
+  };
+
+  const handleToggleSubtaskCompleted = async (subtask: ApiSubtask) => {
+    try {
+      setSubmitting(true);
+      setError(null);
+      const updatedReport = !subtask.report;
+      const response = await api.put(`/tasks/${taskId}/subtasks/${subtask.id}`, {
+        report: updatedReport,
+      });
+      const updated: ApiSubtask = response.data?.data ?? response.data;
+      setSubtasks((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
+      onUpdated?.();
+    } catch (e: any) {
+      setError(e?.response?.data?.message || e?.message || 'Failed to update subtask');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -143,6 +180,20 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
               Case: {task.case.matter_name_en} / {task.case.matter_name_ar}
             </p>
           )}
+          <div className="mt-2">
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
+              {t('tasks_page.status') || 'Status'}
+            </label>
+            <select
+              value={taskStatus}
+              onChange={handleTaskStatusChange}
+              className="inline-block rounded-md border border-gray-300 px-2 py-1 text-xs bg-white"
+            >
+              <option value="todo">{t('tasks_page.todo') || 'To Do'}</option>
+              <option value="in-progress">{t('tasks_page.in_progress') || 'In Progress'}</option>
+              <option value="completed">{t('tasks_page.completed') || 'Completed'}</option>
+            </select>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -169,7 +220,16 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose, onUp
                         });
                       }}
                     >
-                      <div>
+                      <div className="flex items-start gap-2">
+                        <input
+                          type="checkbox"
+                          className="mt-1 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
+                          checked={Boolean(s.report)}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            handleToggleSubtaskCompleted(s);
+                          }}
+                        />
                         {s.result && <p className="font-medium text-gray-800">{s.result}</p>}
                         {s.performer && (
                           <p className="text-xs text-gray-600">
