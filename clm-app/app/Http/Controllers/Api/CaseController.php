@@ -161,10 +161,14 @@ class CaseController extends Controller
                 return [
                     'id' => $hearing->id,
                     'date' => $hearing->date?->format('Y-m-d'),
-                    'procedure' => $hearing->procedure,
                     'court' => $hearing->court,
-                    'circuit' => $hearing->circuit,
+                    'short_decision' => $hearing->short_decision,
                     'status' => $hearing->status,
+                    'lawyer' => $hearing->lawyer ? [
+                        'id' => $hearing->lawyer->id,
+                        'lawyer_name_ar' => $hearing->lawyer->lawyer_name_ar,
+                        'lawyer_name_en' => $hearing->lawyer->lawyer_name_en,
+                    ] : null,
                 ];
             })->toArray() : [],
             'documents' => $case->documents ? $case->documents->map(function ($doc) {
@@ -180,6 +184,8 @@ class CaseController extends Controller
                     'id' => $task->id,
                     'title' => $task->required_work ?? $task->title ?? '',
                     'status' => $task->status,
+                    'date' => $task->last_date?->format('Y-m-d') ?? $task->creation_date?->format('Y-m-d'),
+                    'performer' => $task->performer,
                     'subtasks' => $task->subtasks ? $task->subtasks->map(function ($subtask) {
                         return [
                             'id' => $subtask->id,
@@ -247,7 +253,7 @@ class CaseController extends Controller
                 'opponents',
                 'partner',
                 'court',
-                'hearings',
+                'hearings.lawyer',
                 'documents',
                 'adminTasks.subtasks',
                 'matterCategory',

@@ -310,18 +310,21 @@ const CaseDetailPage: React.FC = () => {
                                                     {t('hearing.date')}
                                                 </th>
                                                 <th className="text-start p-3 font-semibold text-gray-600 text-sm">
-                                                    {t('hearing.procedure')}
-                                                </th>
-                                                <th className="text-start p-3 font-semibold text-gray-600 text-sm">
                                                     {t('hearing.court')}
                                                 </th>
                                                 <th className="text-start p-3 font-semibold text-gray-600 text-sm">
-                                                    {t('hearing.circuit')}
+                                                    {t('hearing_page.attending_lawyer')}
+                                                </th>
+                                                <th className="text-start p-3 font-semibold text-gray-600 text-sm">
+                                                    {t('hearing_page.last_decision') || 'Short decision'}
+                                                </th>
+                                                <th className="text-start p-3 font-semibold text-gray-600 text-sm">
+                                                    {t('tasks_page.status') || 'Status'}
                                                 </th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {caseData.hearings.map((hearing) => (
+                                            {caseData.hearings.map((hearing: any) => (
                                                 <tr
                                                     key={hearing.id}
                                                     className="border-b hover:bg-gray-50 cursor-pointer"
@@ -333,13 +336,20 @@ const CaseDetailPage: React.FC = () => {
                                                             : '—'}
                                                     </td>
                                                     <td className="p-3 text-gray-600">
-                                                        {hearing.procedure || '—'}
-                                                    </td>
-                                                    <td className="p-3 text-gray-600">
                                                         {hearing.court || '—'}
                                                     </td>
                                                     <td className="p-3 text-gray-600">
-                                                        {hearing.circuit || '—'}
+                                                        {hearing.lawyer
+                                                            ? (language === 'ar'
+                                                                ? hearing.lawyer.lawyer_name_ar
+                                                                : hearing.lawyer.lawyer_name_en)
+                                                            : '—'}
+                                                    </td>
+                                                    <td className="p-3 text-gray-600">
+                                                        {hearing.short_decision || '—'}
+                                                    </td>
+                                                    <td className="p-3 text-gray-600">
+                                                        {hearing.status || '—'}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -367,7 +377,13 @@ const CaseDetailPage: React.FC = () => {
                                         <thead className="bg-gray-50">
                                             <tr>
                                                 <th className="text-start p-3 font-semibold text-gray-600 text-sm">
+                                                    {t('hearing.date')}
+                                                </th>
+                                                <th className="text-start p-3 font-semibold text-gray-600 text-sm">
                                                     {t('tasks.title')}
+                                                </th>
+                                                <th className="text-start p-3 font-semibold text-gray-600 text-sm">
+                                                    {t('task.performer') || 'Performer'}
                                                 </th>
                                                 <th className="text-start p-3 font-semibold text-gray-600 text-sm">
                                                     {t('tasks.status')}
@@ -382,7 +398,15 @@ const CaseDetailPage: React.FC = () => {
                                                         onClick={() => navigate(`/tasks/${task.id}`)}
                                                     >
                                                         <td className="p-3 text-gray-800 font-medium">
+                                                            {task.date
+                                                                ? new Date(task.date).toLocaleDateString()
+                                                                : '—'}
+                                                        </td>
+                                                        <td className="p-3 text-gray-800 font-medium">
                                                             {task.title}
+                                                        </td>
+                                                        <td className="p-3 text-gray-600">
+                                                            {task.performer || '—'}
                                                         </td>
                                                         <td className="p-3 text-gray-600">
                                                             {task.status}
@@ -395,7 +419,7 @@ const CaseDetailPage: React.FC = () => {
                                                                 className="border-b bg-gray-50 hover:bg-gray-100 cursor-pointer"
                                                                 onClick={() => navigate(`/tasks/${task.id}`)}
                                                             >
-                                                                <td className="p-3 text-gray-700">
+                                                                <td className="p-3 text-gray-700" colSpan={3}>
                                                                     <div className="flex items-start">
                                                                         <span className="mr-2 mt-1 h-full border-l-2 border-gray-300" />
                                                                         <span className="text-xs uppercase text-gray-500 mr-2">
