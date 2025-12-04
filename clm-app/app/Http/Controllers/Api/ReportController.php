@@ -472,11 +472,12 @@ class ReportController extends Controller
 
         // Filter overdue tasks if requested
         if (!empty($validated['show_overdue'])) {
-            $now = Carbon::now('Africa/Cairo');
-            $query->where(function ($q) use ($now) {
-                $q->where('execution_date', '<', $now)
-                    ->whereNull('result')
-                    ->orWhere('alert', true);
+            $today = Carbon::now('Africa/Cairo')->startOfDay();
+            $query->where(function ($q) use ($today) {
+                // Overdue = has a due date strictly before today and no result yet
+                $q->whereNotNull('execution_date')
+                    ->where('execution_date', '<', $today)
+                    ->whereNull('result');
             });
         }
 
@@ -486,14 +487,26 @@ class ReportController extends Controller
             ->get();
 
         // Categorize tasks
-        $now = Carbon::now('Africa/Cairo');
-        $overdue = $tasks->filter(function ($task) use ($now) {
-            return ($task->execution_date && $task->execution_date < $now && empty($task->result))
-                || $task->alert;
+        $today = Carbon::now('Africa/Cairo')->startOfDay();
+        $overdue = $tasks->filter(function ($task) use ($today) {
+            return $task->execution_date
+                && $task->execution_date < $today
+                && empty($task->result);
         });
 
         $completed = $tasks->filter(fn ($task) => !empty($task->result));
-        $pending = $tasks->filter(fn ($task) => empty($task->result) && (!$task->execution_date || $task->execution_date >= $now));
+        $pending = $tasks->filter(function ($task) use ($today) {
+            // Pending = no result and due date is today or in the future (or not set)
+            if (!empty($task->result)) {
+                return false;
+            }
+
+            if ($task->execution_date) {
+                return $task->execution_date >= $today;
+            }
+
+            return true;
+        });
 
         // Calculate completion rates
         $completionRate = $tasks->count() > 0 
@@ -514,10 +527,11 @@ class ReportController extends Controller
         }
 
         // Prepare rows for display (domain‑friendly columns)
-        $rows = $tasks->map(function (AdminTask $task, int $index) use ($now) {
+        $rows = $tasks->map(function (AdminTask $task, int $index) use ($today) {
             $case = $task->case;
-            $isOverdue = ($task->execution_date && $task->execution_date < $now && empty($task->result))
-                || $task->alert;
+            $isOverdue = $task->execution_date
+                && $task->execution_date < $today
+                && empty($task->result);
 
             // Client print name + capacity
             $clientName = $case?->client?->client_print_name
@@ -547,8 +561,8 @@ class ReportController extends Controller
             $ageLabel = null;
             $referenceDate = $task->execution_date ?: $task->creation_date;
             if ($referenceDate) {
-                $isFuture = $referenceDate->isFuture();
-                $days = $referenceDate->diffInDays($now);
+                $isFuture = $referenceDate->greaterThanOrEqualTo($today);
+                $days = $referenceDate->diffInDays($today);
                 if ($days === 0) {
                     $ageLabel = 'اليوم';
                 } else {
