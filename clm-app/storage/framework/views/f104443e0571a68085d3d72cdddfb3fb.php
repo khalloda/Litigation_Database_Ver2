@@ -118,57 +118,41 @@
         <table class="report-table">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>المهمة المطلوبة</th>
-                    <th>اسم القضية</th>
+                    <th>م/#</th>
+                    <th>القضية / الموضوع</th>
                     <th>المحامي</th>
-                    <th>الحالة</th>
-                    <th>المنفذ</th>
-                    <th>تاريخ الإنشاء</th>
-                    <th>تاريخ التنفيذ</th>
+                    <th>المحكمة</th>
+                    <th>الدائرة</th>
+                    <th>الموكل وصفته</th>
+                    <th>الخصم وصفته</th>
+                    <th>أخر قرار</th>
+                    <th>العمل المطلوب</th>
+                    <th>الحالة + عمر الأيام</th>
+                    <th>آخر متابعة</th>
                     <th>النتيجة</th>
-                    <th>الحالة</th>
                 </tr>
             </thead>
             <tbody>
-                <?php $__currentLoopData = $tasks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $task): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php $__currentLoopData = $rows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr>
-                        <td><?php echo e($index + 1); ?></td>
-                        <td><?php echo e($task->required_work ?? '—'); ?></td>
-                        <td><?php echo e($task->case?->matter_name_ar ?? $task->case?->matter_name_en ?? '—'); ?></td>
-                        <td><?php echo e($task->lawyer?->lawyer_name_ar ?? $task->lawyer?->lawyer_name_en ?? '—'); ?></td>
-                        <td><?php echo e($task->status ?? '—'); ?></td>
-                        <td><?php echo e($task->performer ?? '—'); ?></td>
-                        <td><?php echo e($task->creation_date?->format('Y-m-d') ?? '—'); ?></td>
-                        <td><?php echo e($task->execution_date?->format('Y-m-d') ?? '—'); ?></td>
-                        <td><?php echo e(mb_substr($task->result ?? '', 0, 50)); ?><?php echo e(mb_strlen($task->result ?? '') > 50 ? '...' : ''); ?></td>
+                        <td><?php echo e($row['serial']); ?></td>
+                        <td><?php echo e($row['case_name']); ?></td>
+                        <td><?php echo e($row['lawyer_name']); ?></td>
+                        <td><?php echo e($row['court']); ?></td>
+                        <td><?php echo e($row['circuit']); ?></td>
+                        <td><?php echo e($row['client_role']); ?></td>
+                        <td><?php echo e($row['opponent_role']); ?></td>
+                        <td><?php echo e($row['latest_decision']); ?></td>
+                        <td><?php echo e($row['required_work']); ?></td>
                         <td>
-                            <?php
-                                $isOverdue = ($task->execution_date && $task->execution_date < now() && empty($task->result)) || $task->alert;
-                            ?>
-                            <?php if($isOverdue): ?>
-                                <span class="badge badge-danger">متأخرة</span>
-                            <?php elseif(!empty($task->result)): ?>
-                                <span class="badge badge-success">منجزة</span>
-                            <?php else: ?>
-                                <span class="badge badge-warning">قيد التنفيذ</span>
+                            <span><?php echo e($row['status']); ?></span>
+                            <?php if(!empty($row['age_label'] ?? null)): ?>
+                                <span class="text-muted"> (<?php echo e($row['age_label']); ?>)</span>
                             <?php endif; ?>
                         </td>
+                        <td><?php echo e($row['last_follow_up']); ?></td>
+                        <td><?php echo e($row['result']); ?></td>
                     </tr>
-                    <?php if(isset($includeSubtasks) && $includeSubtasks && $task->subtasks && $task->subtasks->count() > 0): ?>
-                        <?php $__currentLoopData = $task->subtasks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subtask): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <tr class="subtask-row">
-                                <td></td>
-                                <td colspan="8">
-                                    <strong>→</strong> <?php echo e($subtask->result ?? $subtask->performer ?? '—'); ?>
-
-                                    <?php if($subtask->next_date): ?>
-                                        (<?php echo e($subtask->next_date->format('Y-m-d')); ?>)
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    <?php endif; ?>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </tbody>
         </table>
