@@ -118,6 +118,7 @@
                 <tr>
                     <th>م/#</th>
                     <th>القضية / الموضوع</th>
+                    <th>المحامي</th>
                     <th>المحكمة</th>
                     <th>الدائرة</th>
                     <th>الموكل وصفته</th>
@@ -134,6 +135,7 @@
                     <tr>
                         <td>{{ $row['serial'] }}</td>
                         <td>{{ $row['case_name'] }}</td>
+                        <td>{{ $row['lawyer_name'] }}</td>
                         <td>{{ $row['court'] }}</td>
                         <td>{{ $row['circuit'] }}</td>
                         <td>{{ $row['client_role'] }}</td>
@@ -142,8 +144,8 @@
                         <td>{{ $row['required_work'] }}</td>
                         <td>
                             <span>{{ $row['status'] }}</span>
-                            @if(!is_null($row['age_days'] ?? null))
-                                <span class="text-muted"> ({{ $row['age_days'] }} يوم)</span>
+                            @if(!empty($row['age_label'] ?? null))
+                                <span class="text-muted"> ({{ $row['age_label'] }})</span>
                             @endif
                         </td>
                         <td>{{ $row['last_follow_up'] }}</td>

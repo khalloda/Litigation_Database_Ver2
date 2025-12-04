@@ -542,16 +542,27 @@ class ReportController extends Controller
             $clientRole = trim(collect([$clientName, $clientCapacity])->filter()->implode(' - ')) ?: '—';
             $opponentRole = trim(collect([$opponentName, $opponentCapacity])->filter()->implode(' - ')) ?: '—';
 
-            // Status + age in days
+            // Status + age in days (relative to today, based on execution_date if present, otherwise creation_date)
             $status = $task->status ?? '—';
-            $ageDays = null;
-            if ($task->creation_date) {
-                $ageDays = $task->creation_date->diffInDays($now);
+            $ageLabel = null;
+            $referenceDate = $task->execution_date ?: $task->creation_date;
+            if ($referenceDate) {
+                $isFuture = $referenceDate->isFuture();
+                $days = $referenceDate->diffInDays($now);
+                if ($days === 0) {
+                    $ageLabel = 'اليوم';
+                } else {
+                    $prefix = $isFuture ? 'بعد' : 'من';
+                    $ageLabel = $prefix . ' ' . $days . ' يوم';
+                }
             }
 
             return [
                 'serial' => $index + 1,
                 'case_name' => $case?->matter_name_ar ?? $case?->matter_name_en ?? '—',
+                'lawyer_name' => $task->lawyer?->lawyer_name_ar
+                    ?? $task->lawyer?->lawyer_name_en
+                    ?? '—',
                 'court' => $case?->court?->court_name_ar
                     ?? $case?->court?->court_name_en
                     ?? $case?->matter_court_text
@@ -567,7 +578,7 @@ class ReportController extends Controller
                 'latest_decision' => $case?->latest_decision ?? $case?->current_status ?? '—',
                 'required_work' => $task->required_work ?? '—',
                 'status' => $status,
-                'age_days' => $ageDays,
+                'age_label' => $ageLabel,
                 'last_follow_up' => $task->last_follow_up?->format('Y-m-d') ?? '—',
                 'result' => $task->result ?? '—',
                 'status_badge' => $isOverdue ? 'overdue' : (!empty($task->result) ? 'completed' : 'pending'),
