@@ -184,6 +184,25 @@ class ReportController extends Controller
     }
 
     /**
+     * Normalize the admin task status filter value.
+     *
+     * Treats "all"/"الكل" (or null/empty) as "no filter".
+     */
+    protected function normalizeTaskStatusFilter(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $trimmed = trim($value);
+        if ($trimmed === '' || in_array($trimmed, ['all', 'الكل'], true)) {
+            return null;
+        }
+
+        return $trimmed;
+    }
+
+    /**
      * Generate Hearing Schedule Report as PDF.
      */
     public function hearingSchedulePdf(HearingScheduleReportRequest $request)
@@ -422,6 +441,9 @@ class ReportController extends Controller
             'subtasks',
         ]);
 
+        // Normalize status filter (treat "all"/"الكل" as no filter)
+        $statusFilter = $this->normalizeTaskStatusFilter($validated['status'] ?? null);
+
         // Apply filters
         if (!empty($validated['lawyer_id'])) {
             $query->where('lawyer_id', $validated['lawyer_id']);
@@ -431,8 +453,8 @@ class ReportController extends Controller
             $query->where('matter_id', $validated['case_id']);
         }
 
-        if (!empty($validated['status'])) {
-            $query->where('status', $validated['status']);
+        if ($statusFilter !== null) {
+            $query->where('status', $statusFilter);
         }
 
         // Apply date range filter if provided (match by creation_date OR execution_date)
@@ -577,6 +599,9 @@ class ReportController extends Controller
             'subtasks',
         ]);
 
+        // Normalize status filter (treat "all"/"الكل" as no filter)
+        $statusFilter = $this->normalizeTaskStatusFilter($validated['status'] ?? null);
+
         // Apply filters
         if (!empty($validated['lawyer_id'])) {
             $query->where('lawyer_id', $validated['lawyer_id']);
@@ -586,8 +611,8 @@ class ReportController extends Controller
             $query->where('matter_id', $validated['case_id']);
         }
 
-        if (!empty($validated['status'])) {
-            $query->where('status', $validated['status']);
+        if ($statusFilter !== null) {
+            $query->where('status', $statusFilter);
         }
 
         // Apply date range filter if provided (match by creation_date OR execution_date)
